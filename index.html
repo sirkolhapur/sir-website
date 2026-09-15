@@ -1,1 +1,256 @@
-  <h1>SIR — Coming Soon</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SIR | Suryavanshi Institute for Rankers</title>
+  <meta name="description" content="Suryavanshi Institute for Rankers — Where Potential Finds Direction. Coming Soon.">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #07111f;
+      color: #ffffff;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      background: #07111f;
+    }
+
+    /* Cinematic background */
+    .background {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(
+          90deg,
+          rgba(4, 12, 23, 0.72) 0%,
+          rgba(4, 12, 23, 0.35) 48%,
+          rgba(4, 12, 23, 0.68) 100%
+        ),
+        url("background.png");
+
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.03);
+      animation: slowZoom 18s ease-in-out infinite alternate;
+    }
+
+    /* Subtle cinematic darkness */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(
+          circle at 55% 48%,
+          transparent 20%,
+          rgba(0, 0, 0, 0.18) 58%,
+          rgba(0, 0, 0, 0.62) 100%
+        );
+      pointer-events: none;
+    }
+
+    /* Content */
+    .content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 7vw;
+    }
+
+    .identity {
+      width: min(430px, 38vw);
+      text-align: center;
+      animation: reveal 1.8s ease-out forwards;
+    }
+
+    .logo {
+      width: min(190px, 17vw);
+      height: auto;
+      display: block;
+      margin: 0 auto 24px;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+    }
+
+    .tagline {
+      font-size: clamp(14px, 1.25vw, 20px);
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      line-height: 1.6;
+      text-transform: uppercase;
+      margin-bottom: 34px;
+      color: #ffffff;
+    }
+
+    .coming {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: clamp(11px, 0.9vw, 14px);
+      letter-spacing: 0.32em;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #d6a83d;
+    }
+
+    .coming::before,
+    .coming::after {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: #d6a83d;
+      opacity: 0.8;
+    }
+
+    /* Very subtle breathing effect */
+    .identity {
+      animation:
+        reveal 1.8s ease-out forwards,
+        breathe 7s ease-in-out 2s infinite;
+    }
+
+    @keyframes slowZoom {
+      from {
+        transform: scale(1.03);
+      }
+      to {
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 700px) {
+
+      .background {
+        background-position: 38% center;
+        background-image:
+          linear-gradient(
+            180deg,
+            rgba(4, 12, 23, 0.48) 0%,
+            rgba(4, 12, 23, 0.28) 45%,
+            rgba(4, 12, 23, 0.78) 100%
+          ),
+          url("background.png");
+      }
+
+      .content {
+        align-items: flex-end;
+        justify-content: center;
+        padding: 40px 24px 11vh;
+      }
+
+      .identity {
+        width: min(360px, 88vw);
+      }
+
+      .logo {
+        width: 145px;
+        margin-bottom: 18px;
+      }
+
+      .tagline {
+        font-size: 12px;
+        letter-spacing: 0.17em;
+        margin-bottom: 25px;
+      }
+
+      .coming {
+        font-size: 10px;
+        letter-spacing: 0.28em;
+      }
+
+      .coming::before,
+      .coming::after {
+        width: 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .background,
+      .identity {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <div class="background"></div>
+    <div class="vignette"></div>
+
+    <section class="content">
+
+      <div class="identity">
+
+        <!-- Your final SIR logo -->
+        <img
+          src="sir logo.png"
+          alt="Suryavanshi Institute for Rankers"
+          class="logo"
+        >
+
+        <div class="tagline">
+          Where Potential Finds Direction
+        </div>
+
+        <div class="coming">
+          Coming Soon
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
