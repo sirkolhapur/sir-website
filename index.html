@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIR</title>
+<title>SIR | Suryavanshi Institute for Rankers</title>
 
 <style>
 html, body {
@@ -10,11 +10,9 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-}
-
-body {
     background: #000;
 }
+
 img {
     position: fixed;
     inset: 0;
@@ -22,7 +20,16 @@ img {
     height: 100%;
     object-fit: contain;
     display: block;
-    background: #000;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+    img {
+        content: url("mobile.png");
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+    }
 }
 </style>
 </head>
