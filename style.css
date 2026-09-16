@@ -1,1 +1,500 @@
+/* =========================================================
+   SIR — STORY LANDING PAGE
+   Responsive foundation
+========================================================= */
 
+:root {
+    --navy: #071525;
+    --blue: #0d3b66;
+    --gold: #e4ad28;
+    --white: #f5f3ed;
+    --muted: rgba(245, 243, 237, 0.62);
+
+    --space-xs: clamp(0.75rem, 1vw, 1rem);
+    --space-sm: clamp(1rem, 2vw, 1.5rem);
+    --space-md: clamp(2rem, 5vw, 5rem);
+    --space-lg: clamp(4rem, 10vw, 10rem);
+
+    --title: clamp(3rem, 8vw, 8rem);
+    --heading: clamp(2.5rem, 6vw, 6rem);
+    --body: clamp(1rem, 1.4vw, 1.25rem);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    background: var(--navy);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--navy);
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 88px;
+
+    padding: 1rem clamp(1.25rem, 4vw, 4rem);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    z-index: 100;
+
+    pointer-events: none;
+}
+
+.brand {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+}
+
+.brand img {
+    width: clamp(100px, 9vw, 150px);
+    height: auto;
+    display: block;
+}
+
+.menu-toggle {
+    pointer-events: auto;
+
+    width: 48px;
+    height: 48px;
+
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50%;
+
+    background: rgba(0,0,0,0.18);
+    backdrop-filter: blur(10px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    width: 18px;
+    height: 1px;
+    background: var(--white);
+    display: block;
+}
+
+/* =========================================================
+   GENERAL STORY
+========================================================= */
+
+.story-section {
+    position: relative;
+    min-height: 100svh;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+.story-inner {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+
+    padding:
+        var(--space-lg)
+        clamp(1.5rem, 6vw, 6rem);
+}
+
+.chapter-label {
+    margin: 0 0 var(--space-md);
+
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+
+    color: var(--gold);
+}
+
+h1,
+h2,
+p {
+    margin-top: 0;
+}
+
+h1,
+h2 {
+    font-weight: 400;
+    letter-spacing: -0.04em;
+}
+
+em {
+    color: var(--gold);
+    font-style: normal;
+}
+
+.story-copy {
+    max-width: 650px;
+
+    margin-top: var(--space-md);
+
+    font-size: var(--body);
+    line-height: 1.8;
+
+    color: var(--muted);
+}
+
+.story-copy strong {
+    color: var(--white);
+    font-weight: 400;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+    min-height: 100svh;
+    isolation: isolate;
+}
+
+.hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+}
+
+.hero-media img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,0.72) 0%,
+            rgba(0,0,0,0.42) 42%,
+            rgba(0,0,0,0.12) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(0,0,0,0.72) 0%,
+            transparent 45%
+        );
+}
+
+.hero-content {
+    width: min(900px, 100%);
+
+    padding:
+        9rem
+        clamp(1.5rem, 8vw, 8rem)
+        5rem;
+}
+
+.hero h1 {
+    margin: 0;
+
+    font-size: var(--title);
+    line-height: 0.92;
+}
+
+.scroll-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    margin-top: clamp(3rem, 8vh, 6rem);
+
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+
+    color: rgba(255,255,255,0.7);
+}
+
+.scroll-indicator i {
+    display: block;
+
+    width: 50px;
+    height: 1px;
+
+    background: var(--gold);
+}
+
+/* =========================================================
+   QUESTION
+========================================================= */
+
+.question {
+    background:
+        radial-gradient(
+            circle at 75% 45%,
+            rgba(228,173,40,0.08),
+            transparent 30%
+        ),
+        var(--navy);
+}
+
+.question h2,
+.direction h2 {
+    margin-bottom: 0;
+
+    font-size: var(--heading);
+    line-height: 0.98;
+}
+
+/* =========================================================
+   DIRECTION
+========================================================= */
+
+.direction {
+    background: #091a2c;
+}
+
+.process {
+    margin-top: var(--space-lg);
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 1rem;
+
+    font-size: clamp(0.65rem, 1vw, 0.85rem);
+    letter-spacing: 0.18em;
+}
+
+.process span {
+    color: var(--white);
+}
+
+.process i {
+    color: var(--gold);
+    font-style: normal;
+}
+
+/* =========================================================
+   SIR REVEAL
+========================================================= */
+
+.reveal {
+    min-height: 100svh;
+
+    justify-content: center;
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(228,173,40,0.16),
+            transparent 35%
+        ),
+        #050e18;
+}
+
+.reveal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reveal-small {
+    margin: 0 0 1rem;
+
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    color: var(--muted);
+}
+
+.reveal h2 {
+    margin: 0;
+
+    font-size: clamp(6rem, 20vw, 18rem);
+    line-height: 0.8;
+
+    font-weight: 700;
+    letter-spacing: -0.08em;
+
+    color: var(--white);
+}
+
+.motto {
+    margin-top: 2rem;
+
+    font-size: clamp(0.7rem, 1.4vw, 1rem);
+    letter-spacing: 0.3em;
+
+    color: var(--gold);
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .site-header {
+        height: 72px;
+    }
+
+    .brand img {
+        width: 105px;
+    }
+
+    .hero-content {
+        padding-top: 8rem;
+    }
+
+    .process {
+        max-width: 600px;
+    }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .site-header {
+        padding:
+            0.75rem
+            1rem;
+    }
+
+    .brand img {
+        width: 92px;
+    }
+
+    .menu-toggle {
+        width: 42px;
+        height: 42px;
+    }
+
+    .story-section {
+        min-height: 100svh;
+    }
+
+    .hero-media img {
+        object-position: center;
+    }
+
+    .hero-overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(0,0,0,0.45) 0%,
+                rgba(0,0,0,0.12) 38%,
+                rgba(0,0,0,0.82) 100%
+            );
+    }
+
+    .hero-content {
+        padding:
+            7rem
+            1.25rem
+            3rem;
+
+        align-self: flex-end;
+    }
+
+    .hero h1 {
+        font-size: clamp(3.1rem, 15vw, 5rem);
+        line-height: 0.94;
+    }
+
+    .chapter-label {
+        font-size: 0.62rem;
+        letter-spacing: 0.22em;
+    }
+
+    .story-inner {
+        padding:
+            6rem
+            1.25rem
+            4rem;
+    }
+
+    .question h2,
+    .direction h2 {
+        font-size: clamp(3rem, 14vw, 5rem);
+    }
+
+    .story-copy {
+        line-height: 1.65;
+    }
+
+    .process {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1.1rem 1rem;
+
+        margin-top: 4rem;
+    }
+
+    .process i {
+        display: none;
+    }
+
+    .reveal h2 {
+        font-size: clamp(7rem, 38vw, 12rem);
+    }
+
+    .motto {
+        max-width: 280px;
+        line-height: 1.8;
+        letter-spacing: 0.2em;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
