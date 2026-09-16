@@ -498,3 +498,44 @@ em {
         transition-duration: 0.01ms !important;
     }
 }
+/* =========================================================
+   STORY REVEAL
+========================================================= */
+
+.story-section .story-inner,
+.hero-content {
+    opacity: 0;
+    transform: translateY(35px);
+    transition:
+        opacity 900ms ease,
+        transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.story-section.is-visible .story-inner,
+.hero.is-visible .hero-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero.is-visible .hero-media img {
+    transform: scale(1.02);
+}
+
+.hero-media img {
+    transition: transform 1800ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .story-section .story-inner,
+    .hero-content {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .hero-media img {
+        transform: none !important;
+        transition: none;
+    }
+}
