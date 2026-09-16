@@ -1,91 +1,112 @@
 /* =========================================================
-   SIR — STORY LANDING PAGE
-   Responsive foundation
-========================================================= */
+   SIR — SURYAVANSHI INSTITUTE FOR RANKERS
+   STORY-DRIVEN WEBSITE
+   ========================================================= */
+
+
+/* =========================================================
+   01. FOUNDATION
+   ========================================================= */
 
 :root {
-    --navy: #071525;
-    --blue: #0d3b66;
-    --gold: #e4ad28;
-    --white: #f5f3ed;
-    --muted: rgba(245, 243, 237, 0.62);
+    --navy: #07152f;
+    --navy-deep: #040d20;
+    --blue: #0d4fa8;
+    --gold: #d7aa45;
+    --white: #ffffff;
+    --soft-white: #edf2f8;
+    --muted: #aab6c8;
+    --line: rgba(255, 255, 255, 0.14);
 
-    --space-xs: clamp(0.75rem, 1vw, 1rem);
-    --space-sm: clamp(1rem, 2vw, 1.5rem);
-    --space-md: clamp(2rem, 5vw, 5rem);
-    --space-lg: clamp(4rem, 10vw, 10rem);
+    --header-height: 86px;
 
-    --title: clamp(3rem, 8vw, 8rem);
-    --heading: clamp(2.5rem, 6vw, 6rem);
-    --body: clamp(1rem, 1.4vw, 1.25rem);
+    --section-padding: clamp(90px, 12vw, 180px);
+    --side-padding: clamp(24px, 7vw, 110px);
 }
 
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
 html {
-    margin: 0;
-    padding: 0;
     scroll-behavior: smooth;
-    background: var(--navy);
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    background: var(--navy);
+    min-height: 100vh;
+    background: var(--navy-deep);
     color: var(--white);
     font-family: Arial, Helvetica, sans-serif;
     overflow-x: hidden;
 }
 
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font: inherit;
+}
+
+
 /* =========================================================
-   HEADER
-========================================================= */
+   02. HEADER
+   ========================================================= */
 
 .site-header {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1000;
 
     width: 100%;
-    height: 88px;
-
-    padding: 1rem clamp(1.25rem, 4vw, 4rem);
+    height: var(--header-height);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    z-index: 100;
+    padding: 0 var(--side-padding);
 
     pointer-events: none;
 }
 
-.brand {
+.brand,
+.menu-toggle {
     pointer-events: auto;
-    display: inline-flex;
-    align-items: center;
+}
+
+.brand {
+    display: block;
+    width: clamp(105px, 11vw, 155px);
 }
 
 .brand img {
-    width: clamp(100px, 9vw, 150px);
+    width: 100%;
     height: auto;
-    display: block;
 }
 
-.menu-toggle {
-    pointer-events: auto;
 
+/* =========================================================
+   03. MENU BUTTON
+   ========================================================= */
+
+.menu-toggle {
     width: 48px;
     height: 48px;
 
-    border: 1px solid rgba(255,255,255,0.25);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 50%;
 
-    background: rgba(0,0,0,0.18);
-    backdrop-filter: blur(10px);
+    background: rgba(4, 13, 32, 0.35);
 
     display: flex;
     flex-direction: column;
@@ -94,418 +115,648 @@ body {
     gap: 6px;
 
     cursor: pointer;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .menu-toggle span {
+    display: block;
     width: 18px;
     height: 1px;
+
     background: var(--white);
-    display: block;
+
+    transition:
+        transform 300ms ease,
+        opacity 300ms ease;
 }
 
+.menu-toggle[aria-expanded="true"] span:first-child {
+    transform: translateY(3.5px) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded="true"] span:last-child {
+    transform: translateY(-3.5px) rotate(-45deg);
+}
+
+
 /* =========================================================
-   GENERAL STORY
-========================================================= */
+   04. COMMON STORY SECTION
+   ========================================================= */
 
 .story-section {
     position: relative;
-    min-height: 100svh;
+    min-height: 100vh;
 
     display: flex;
     align-items: center;
+
+    padding:
+        var(--section-padding)
+        var(--side-padding);
 
     overflow: hidden;
 }
 
 .story-inner {
-    width: min(1200px, 100%);
-    margin: 0 auto;
+    position: relative;
+    z-index: 2;
 
-    padding:
-        var(--space-lg)
-        clamp(1.5rem, 6vw, 6rem);
+    width: min(100%, 1180px);
+    margin: 0 auto;
 }
+
+
+/* =========================================================
+   05. TYPOGRAPHY
+   ========================================================= */
 
 .chapter-label {
-    margin: 0 0 var(--space-md);
-
-    font-size: 0.72rem;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
+    margin-bottom: 28px;
 
     color: var(--gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    line-height: 1.4;
 }
 
-h1,
-h2,
-p {
-    margin-top: 0;
-}
-
-h1,
-h2 {
+.story-section h2,
+.hero h1 {
     font-weight: 400;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
 }
 
-em {
+.story-section h2 {
+    font-size: clamp(52px, 7vw, 105px);
+}
+
+.hero h1 {
+    font-size: clamp(58px, 8vw, 125px);
+}
+
+.story-section h2 em,
+.hero h1 em {
     color: var(--gold);
     font-style: normal;
 }
 
 .story-copy {
-    max-width: 650px;
-
-    margin-top: var(--space-md);
-
-    font-size: var(--body);
-    line-height: 1.8;
+    max-width: 520px;
+    margin-top: 38px;
 
     color: var(--muted);
+
+    font-size: clamp(17px, 1.5vw, 22px);
+    line-height: 1.65;
 }
 
 .story-copy strong {
+    display: inline-block;
+    margin-top: 7px;
+
     color: var(--white);
+
     font-weight: 400;
 }
 
+
 /* =========================================================
-   HERO
-========================================================= */
+   06. HERO
+   ========================================================= */
 
 .hero {
     min-height: 100svh;
-    isolation: isolate;
+    padding: 0 var(--side-padding);
 }
 
 .hero-media {
     position: absolute;
     inset: 0;
-    z-index: -3;
+    z-index: 0;
 }
 
 .hero-media img {
     width: 100%;
     height: 100%;
 
-    display: block;
-
     object-fit: cover;
     object-position: center;
+
+    transform: scale(1);
 }
 
 .hero-overlay {
     position: absolute;
     inset: 0;
-    z-index: -2;
+    z-index: 1;
 
     background:
         linear-gradient(
             90deg,
-            rgba(0,0,0,0.72) 0%,
-            rgba(0,0,0,0.42) 42%,
-            rgba(0,0,0,0.12) 100%
+            rgba(4, 13, 32, 0.88) 0%,
+            rgba(4, 13, 32, 0.48) 48%,
+            rgba(4, 13, 32, 0.18) 100%
         ),
         linear-gradient(
             0deg,
-            rgba(0,0,0,0.72) 0%,
+            rgba(4, 13, 32, 0.72) 0%,
             transparent 45%
         );
 }
 
 .hero-content {
+    position: relative;
+    z-index: 3;
+
     width: min(900px, 100%);
 
-    padding:
-        9rem
-        clamp(1.5rem, 8vw, 8rem)
-        5rem;
-}
-
-.hero h1 {
-    margin: 0;
-
-    font-size: var(--title);
-    line-height: 0.92;
+    padding-top: var(--header-height);
 }
 
 .scroll-indicator {
+    position: absolute;
+
+    left: 0;
+    bottom: -120px;
+
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 16px;
+}
 
-    margin-top: clamp(3rem, 8vh, 6rem);
+.scroll-indicator span {
+    color: rgba(255, 255, 255, 0.65);
 
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-
-    color: rgba(255,255,255,0.7);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
 }
 
 .scroll-indicator i {
+    position: relative;
+
     display: block;
 
-    width: 50px;
+    width: 42px;
     height: 1px;
 
-    background: var(--gold);
+    background: rgba(255, 255, 255, 0.45);
 }
 
+
 /* =========================================================
-   QUESTION
-========================================================= */
+   07. QUESTION
+   ========================================================= */
 
 .question {
     background:
         radial-gradient(
-            circle at 75% 45%,
-            rgba(228,173,40,0.08),
-            transparent 30%
+            circle at 75% 40%,
+            rgba(13, 79, 168, 0.16),
+            transparent 35%
         ),
         var(--navy);
 }
 
-.question h2,
-.direction h2 {
-    margin-bottom: 0;
-
-    font-size: var(--heading);
-    line-height: 0.98;
+.question .story-inner {
+    text-align: left;
 }
 
+
 /* =========================================================
-   DIRECTION
-========================================================= */
+   08. DIRECTION
+   ========================================================= */
 
 .direction {
-    background: #091a2c;
+    background: var(--navy-deep);
 }
 
 .process {
-    margin-top: var(--space-lg);
-
     display: flex;
     align-items: center;
     flex-wrap: wrap;
 
-    gap: 1rem;
+    gap: 18px;
 
-    font-size: clamp(0.65rem, 1vw, 0.85rem);
-    letter-spacing: 0.18em;
+    margin-top: 70px;
 }
 
 .process span {
-    color: var(--white);
+    color: var(--soft-white);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
 }
 
 .process i {
     color: var(--gold);
+
+    font-size: 18px;
     font-style: normal;
 }
 
+
 /* =========================================================
-   SIR REVEAL
-========================================================= */
+   09. REVEAL / SIR
+   ========================================================= */
 
 .reveal {
-    min-height: 100svh;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(13, 79, 168, 0.28),
+            transparent 48%
+        ),
+        var(--navy);
+}
 
-    justify-content: center;
+.reveal-content {
     text-align: center;
+}
+
+.reveal-small {
+    margin-bottom: 12px;
+
+    color: var(--muted);
+
+    font-size: 17px;
+    letter-spacing: 0.08em;
+}
+
+.reveal h2 {
+    font-size: clamp(90px, 17vw, 240px);
+    font-weight: 700;
+    letter-spacing: -0.08em;
+}
+
+.motto {
+    margin-top: 12px;
+
+    color: var(--gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+}
+
+
+/* =========================================================
+   10. SYSTEM
+   ========================================================= */
+
+.system-section {
+    background:
+        linear-gradient(
+            180deg,
+            var(--navy),
+            var(--navy-deep)
+        );
+}
+
+.system-flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+
+    margin-top: 80px;
+
+    border-top: 1px solid var(--line);
+}
+
+.system-step {
+    min-height: 210px;
+
+    padding: 28px 22px;
+
+    border-right: 1px solid var(--line);
+
+    display: flex;
+    flex-direction: column;
+}
+
+.system-step:first-child {
+    border-left: 1px solid var(--line);
+}
+
+.system-step span {
+    color: var(--gold);
+
+    font-size: 10px;
+    letter-spacing: 0.15em;
+}
+
+.system-step strong {
+    margin-top: auto;
+
+    font-size: 14px;
+    letter-spacing: 0.12em;
+}
+
+.system-step p {
+    margin-top: 10px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   11. ANALYTICS
+   ========================================================= */
+
+.analytics-intro {
+    background:
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(215, 170, 69, 0.08),
+            transparent 30%
+        ),
+        var(--navy-deep);
+}
+
+.analytics-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    max-width: 850px;
+
+    margin-top: 65px;
+
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.analytics-preview > div {
+    padding: 28px 25px;
+
+    border-right: 1px solid var(--line);
+}
+
+.analytics-preview > div:first-child {
+    border-left: 1px solid var(--line);
+}
+
+.analytics-preview small {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.analytics-preview strong {
+    display: block;
+
+    margin-top: 13px;
+
+    color: var(--white);
+
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.story-link {
+    display: inline-block;
+
+    margin-top: 40px;
+
+    color: var(--gold);
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+
+    border-bottom: 1px solid rgba(215, 170, 69, 0.45);
+
+    padding-bottom: 7px;
+}
+
+
+/* =========================================================
+   12. TEACHER REVIEW
+   ========================================================= */
+
+.review-section {
+    background: var(--navy);
+}
+
+.review-line {
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    margin-top: 70px;
+
+    color: var(--white);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.review-line i {
+    color: var(--gold);
+
+    font-size: 17px;
+    font-style: normal;
+}
+
+
+/* =========================================================
+   13. STUDENT GUIDE
+   ========================================================= */
+
+.guide-section {
+    background: var(--navy-deep);
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    margin-top: 70px;
+
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+}
+
+.guide-card {
+    min-height: 220px;
+
+    padding: 28px;
+
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+
+    display: flex;
+    flex-direction: column;
+
+    transition:
+        background 300ms ease,
+        transform 300ms ease;
+}
+
+.guide-card:hover {
+    background: rgba(255, 255, 255, 0.035);
+
+    transform: translateY(-5px);
+}
+
+.guide-card span {
+    color: var(--gold);
+
+    font-size: 10px;
+    letter-spacing: 0.15em;
+}
+
+.guide-card strong {
+    margin-top: auto;
+
+    font-size: 19px;
+    letter-spacing: 0.08em;
+}
+
+.guide-card small {
+    margin-top: 9px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   14. NOTICE BOARD
+   ========================================================= */
+
+.notice-section {
+    background: var(--navy);
+}
+
+.notice-board {
+    max-width: 900px;
+
+    margin-top: 65px;
+
+    border-top: 1px solid var(--line);
+}
+
+.notice-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 25px 0;
+
+    border-bottom: 1px solid var(--line);
+}
+
+.notice-item small {
+    color: var(--gold);
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.notice-item strong {
+    color: var(--soft-white);
+
+    font-size: 15px;
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   15. FINAL CTA
+   ========================================================= */
+
+.begin-section {
+    min-height: 90vh;
 
     background:
         radial-gradient(
             circle at center,
-            rgba(228,173,40,0.16),
-            transparent 35%
+            rgba(13, 79, 168, 0.35),
+            transparent 55%
         ),
-        #050e18;
+        var(--navy-deep);
 }
 
-.reveal-content {
+.action-row {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    margin-top: 55px;
+}
+
+.primary-action,
+.secondary-action {
+    display: inline-flex;
     align-items: center;
-}
+    justify-content: center;
 
-.reveal-small {
-    margin: 0 0 1rem;
+    min-height: 54px;
 
-    font-size: clamp(1rem, 2vw, 1.5rem);
-    color: var(--muted);
-}
+    padding: 0 28px;
 
-.reveal h2 {
-    margin: 0;
-
-    font-size: clamp(6rem, 20vw, 18rem);
-    line-height: 0.8;
-
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: -0.08em;
+    letter-spacing: 0.12em;
 
-    color: var(--white);
+    transition:
+        background 250ms ease,
+        color 250ms ease,
+        border-color 250ms ease,
+        transform 250ms ease;
 }
 
-.motto {
-    margin-top: 2rem;
+.primary-action {
+    background: var(--gold);
+    color: var(--navy-deep);
 
-    font-size: clamp(0.7rem, 1.4vw, 1rem);
-    letter-spacing: 0.3em;
+    border: 1px solid var(--gold);
+}
 
+.secondary-action {
+    color: var(--white);
+
+    border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.primary-action:hover,
+.secondary-action:hover {
+    transform: translateY(-3px);
+}
+
+.secondary-action:hover {
+    border-color: var(--gold);
     color: var(--gold);
 }
 
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .site-header {
-        height: 72px;
-    }
-
-    .brand img {
-        width: 105px;
-    }
-
-    .hero-content {
-        padding-top: 8rem;
-    }
-
-    .process {
-        max-width: 600px;
-    }
-}
 
 /* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-    html {
-        scroll-behavior: auto;
-    }
-
-    .site-header {
-        padding:
-            0.75rem
-            1rem;
-    }
-
-    .brand img {
-        width: 92px;
-    }
-
-    .menu-toggle {
-        width: 42px;
-        height: 42px;
-    }
-
-    .story-section {
-        min-height: 100svh;
-    }
-
-    .hero-media img {
-        object-position: center;
-    }
-
-    .hero-overlay {
-        background:
-            linear-gradient(
-                180deg,
-                rgba(0,0,0,0.45) 0%,
-                rgba(0,0,0,0.12) 38%,
-                rgba(0,0,0,0.82) 100%
-            );
-    }
-
-    .hero-content {
-        padding:
-            7rem
-            1.25rem
-            3rem;
-
-        align-self: flex-end;
-    }
-
-    .hero h1 {
-        font-size: clamp(3.1rem, 15vw, 5rem);
-        line-height: 0.94;
-    }
-
-    .chapter-label {
-        font-size: 0.62rem;
-        letter-spacing: 0.22em;
-    }
-
-    .story-inner {
-        padding:
-            6rem
-            1.25rem
-            4rem;
-    }
-
-    .question h2,
-    .direction h2 {
-        font-size: clamp(3rem, 14vw, 5rem);
-    }
-
-    .story-copy {
-        line-height: 1.65;
-    }
-
-    .process {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 1.1rem 1rem;
-
-        margin-top: 4rem;
-    }
-
-    .process i {
-        display: none;
-    }
-
-    .reveal h2 {
-        font-size: clamp(7rem, 38vw, 12rem);
-    }
-
-    .motto {
-        max-width: 280px;
-        line-height: 1.8;
-        letter-spacing: 0.2em;
-    }
-}
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    html {
-        scroll-behavior: auto;
-    }
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-/* =========================================================
-   STORY REVEAL
-========================================================= */
+   16. STORY REVEAL ANIMATION
+   ========================================================= */
 
 .story-section .story-inner,
 .hero-content {
     opacity: 0;
     transform: translateY(35px);
+
     transition:
         opacity 900ms ease,
         transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -518,24 +769,320 @@ em {
 }
 
 .hero.is-visible .hero-media img {
-    transform: scale(1.02);
+    transform: scale(1.025);
 }
 
 .hero-media img {
     transition: transform 1800ms ease;
 }
 
+
+/* =========================================================
+   17. TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .system-flow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .system-step {
+        border-bottom: 1px solid var(--line);
+    }
+
+    .system-step:nth-child(odd) {
+        border-left: 1px solid var(--line);
+    }
+
+    .guide-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* =========================================================
+   18. MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    :root {
+        --header-height: 72px;
+        --side-padding: 22px;
+        --section-padding: 85px;
+    }
+
+
+    /* Header */
+
+    .brand {
+        width: 105px;
+    }
+
+    .menu-toggle {
+        width: 43px;
+        height: 43px;
+    }
+
+
+    /* Common */
+
+    .story-section {
+        min-height: 100svh;
+
+        align-items: center;
+    }
+
+    .story-section h2 {
+        font-size: clamp(47px, 14vw, 72px);
+        line-height: 0.97;
+    }
+
+    .hero h1 {
+        font-size: clamp(51px, 15vw, 78px);
+        line-height: 0.94;
+    }
+
+    .chapter-label {
+        margin-bottom: 22px;
+
+        font-size: 9px;
+        letter-spacing: 0.18em;
+    }
+
+    .story-copy {
+        margin-top: 30px;
+
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+
+    /* Hero */
+
+    .hero {
+        min-height: 100svh;
+    }
+
+    .hero-overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(4, 13, 32, 0.28) 0%,
+                rgba(4, 13, 32, 0.45) 45%,
+                rgba(4, 13, 32, 0.92) 100%
+            );
+    }
+
+    .hero-content {
+        padding-top: 90px;
+    }
+
+    .scroll-indicator {
+        position: static;
+
+        margin-top: 60px;
+    }
+
+
+    /* Process */
+
+    .process {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+
+        gap: 7px;
+
+        margin-top: 55px;
+    }
+
+    .process span {
+        font-size: 8px;
+        text-align: center;
+    }
+
+    .process i {
+        font-size: 13px;
+    }
+
+
+    /* SIR reveal */
+
+    .reveal h2 {
+        font-size: 110px;
+    }
+
+    .motto {
+        font-size: 8px;
+        letter-spacing: 0.18em;
+    }
+
+
+    /* System */
+
+    .system-flow {
+        grid-template-columns: 1fr;
+
+        margin-top: 55px;
+    }
+
+    .system-step {
+        min-height: 145px;
+
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+    }
+
+    .system-step:nth-child(odd) {
+        border-left: 1px solid var(--line);
+    }
+
+    .system-step strong {
+        margin-top: 35px;
+    }
+
+
+    /* Analytics */
+
+    .analytics-preview {
+        grid-template-columns: 1fr;
+
+        margin-top: 50px;
+    }
+
+    .analytics-preview > div {
+        border-left: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+    }
+
+    .analytics-preview > div:last-child {
+        border-bottom: 0;
+    }
+
+
+    /* Review */
+
+    .review-line {
+        flex-wrap: wrap;
+
+        gap: 12px;
+
+        margin-top: 55px;
+
+        font-size: 9px;
+    }
+
+
+    /* Guide */
+
+    .guide-grid {
+        grid-template-columns: 1fr;
+
+        margin-top: 50px;
+    }
+
+    .guide-card {
+        min-height: 170px;
+    }
+
+
+    /* Notice */
+
+    .notice-board {
+        margin-top: 50px;
+    }
+
+    .notice-item {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 22px 0;
+    }
+
+
+    /* CTA */
+
+    .begin-section {
+        min-height: 100svh;
+    }
+
+    .action-row {
+        flex-direction: column;
+
+        width: 100%;
+
+        margin-top: 45px;
+    }
+
+    .primary-action,
+    .secondary-action {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   19. VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .hero h1 {
+        font-size: 48px;
+    }
+
+    .story-section h2 {
+        font-size: 44px;
+    }
+
+    .reveal h2 {
+        font-size: 90px;
+    }
+
+    .process {
+        gap: 4px;
+    }
+
+    .process span {
+        font-size: 7px;
+    }
+
+}
+
+
+/* =========================================================
+   20. REDUCED MOTION
+   ========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
 
     .story-section .story-inner,
     .hero-content {
         opacity: 1;
         transform: none;
+
         transition: none;
     }
 
     .hero-media img {
         transform: none !important;
+
         transition: none;
     }
+
+    .guide-card,
+    .primary-action,
+    .secondary-action {
+        transition: none;
+    }
+
 }
