@@ -1,1092 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Student Dashboard | SIR Kolhapur</title>
 
   <meta
     name="description"
     content="SIR Kolhapur Student Dashboard — track academic performance, tests, progress and teacher reviews."
-  />
+  >
 
-  <link rel="icon" href="sir%20logo.png" />
+  <link rel="icon" href="sir%20logo.png">
 
-  <!-- SUPABASE -->
- <script>
+  <!-- SUPABASE: ONLY ONCE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  /* =====================================================
-     SIR STUDENT DASHBOARD
-     DATABASE CONNECTED VERSION
-     ===================================================== */
-
-  const SUPABASE_URL =
-    "https://asbyosqpupqspzvqqhfj.supabase.co";
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
-
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-  const loading =
-    document.getElementById("loading");
-
-  const errorBox =
-    document.getElementById("errorBox");
-
-  const dashboard =
-    document.getElementById("dashboard");
-
-
-  /* =====================================================
-     INITIALISE
-     ===================================================== */
-
-  async function initDashboard() {
-
-    try {
-
-      /* GET ACTIVE SESSION */
-
-      const {
-        data: {
-          session
-        }
-      } =
-        await supabaseClient.auth.getSession();
-
-
-      /* USER NOT LOGGED IN */
-
-      if (!session) {
-
-        window.location.href =
-          "student-login.html";
-
-        return;
-      }
-
-
-      const user =
-        session.user;
-
-
-      /* =================================================
-         GET STUDENT PROFILE
-         ================================================= */
-
-      const {
-        data: student,
-        error: studentError
-      } =
-        await supabaseClient
-          .from("students")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-
-      if (studentError) {
-
-        console.error(
-          "Student profile error:",
-          studentError
-        );
-
-        throw new Error(
-          "Unable to load your student profile."
-        );
-      }
-
-
-      if (!student) {
-
-        throw new Error(
-          "Student profile not found."
-        );
-      }
-
-
-      /* DISPLAY PROFILE */
-
-      renderProfile(
-        student,
-        user
-      );
-
-
-      /* =================================================
-         LOAD ACADEMIC DATA
-         ================================================= */
-
-      const scores =
-        await loadScores(student);
-
-
-      const reviews =
-        await loadReviews(student);
-
-
-      /* =================================================
-         RENDER
-         ================================================= */
-
-      renderAnalytics(scores);
-
-      renderTests(scores);
-
-      renderReviews(reviews);
-
-
-      /* SHOW DASHBOARD */
-
-      loading.style.display =
-        "none";
-
-      dashboard.style.display =
-        "block";
-
-
-    } catch (error) {
-
-      console.error(
-        "Dashboard error:",
-        error
-      );
-
-      loading.style.display =
-        "none";
-
-      errorBox.textContent =
-        error.message ||
-        "Unable to load dashboard.";
-
-      errorBox.style.display =
-        "block";
-    }
-  }
-
-
-  /* =====================================================
-     PROFILE
-     ===================================================== */
-
-  function renderProfile(
-    student,
-    user
-  ) {
-
-    const name =
-      student.full_name ||
-      user.user_metadata?.full_name ||
-      "Student";
-
-
-    const uid =
-      student.student_uid ||
-      "—";
-
-
-    const email =
-      student.email ||
-      user.email ||
-      "—";
-
-
-    document.getElementById(
-      "studentName"
-    ).textContent =
-      name;
-
-
-    document.getElementById(
-      "profileName"
-    ).textContent =
-      name;
-
-
-    document.getElementById(
-      "profileUid"
-    ).textContent =
-      "UID: " + uid;
-
-
-    document.getElementById(
-      "profileEmail"
-    ).textContent =
-      email;
-  }
-
-
-  /* =====================================================
-     LOAD SCORES
-     ===================================================== */
-
-  async function loadScores(student) {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("test_scores")
-        .select(`
-          id,
-          test_id,
-          student_id,
-          subject,
-          marks_obtained,
-          max_marks,
-          rank,
-          correct_answers,
-          incorrect_answers,
-          unanswered
-        `)
-        .eq(
-          "student_id",
-          student.id
-        );
-
-
-    if (error) {
-
-      console.error(
-        "Score query error:",
-        error
-      );
-
-      throw new Error(
-        "Unable to load your test performance."
-      );
-    }
-
-
-    return data || [];
-  }
-
-
-  /* =====================================================
-     LOAD TEACHER REVIEWS
-     ===================================================== */
-
-  async function loadReviews(student) {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("teacher_reviews")
-        .select("*")
-        .eq(
-          "student_id",
-          student.id
-        )
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        );
-
-
-    if (error) {
-
-      console.warn(
-        "Review query:",
-        error
-      );
-
-      return [];
-    }
-
-
-    return data || [];
-  }
-
-
-  /* =====================================================
-     SCORE HELPERS
-     ===================================================== */
-
-  function getScore(row) {
-
-    if (
-      row.marks_obtained !== null &&
-      row.marks_obtained !== undefined
-    ) {
-
-      return Number(
-        row.marks_obtained
-      );
-    }
-
-
-    return null;
-  }
-
-
-  function getMaxMarks(row) {
-
-    if (
-      row.max_marks !== null &&
-      row.max_marks !== undefined
-    ) {
-
-      return Number(
-        row.max_marks
-      );
-    }
-
-
-    return null;
-  }
-
-
-  function getPercentage(row) {
-
-    const score =
-      getScore(row);
-
-    const maxMarks =
-      getMaxMarks(row);
-
-
-    if (
-      score === null ||
-      maxMarks === null ||
-      maxMarks <= 0
-    ) {
-
-      return null;
-    }
-
-
-    return (
-      score / maxMarks
-    ) * 100;
-  }
-
-
-  /* =====================================================
-     STATISTICS
-     ===================================================== */
-
-  function calculateMean(values) {
-
-    if (!values.length)
-      return null;
-
-
-    return (
-      values.reduce(
-        (a, b) => a + b,
-        0
-      ) /
-      values.length
-    );
-  }
-
-
-  function calculateMedian(values) {
-
-    if (!values.length)
-      return null;
-
-
-    const sorted =
-      [...values].sort(
-        (a, b) => a - b
-      );
-
-
-    const middle =
-      Math.floor(
-        sorted.length / 2
-      );
-
-
-    if (
-      sorted.length % 2
-    ) {
-
-      return sorted[middle];
-    }
-
-
-    return (
-      sorted[middle - 1] +
-      sorted[middle]
-    ) / 2;
-  }
-
-
-  function calculateMode(values) {
-
-    if (!values.length)
-      return null;
-
-
-    const frequency = {};
-
-
-    values.forEach(
-      value => {
-
-        frequency[value] =
-          (frequency[value] || 0) + 1;
-      }
-    );
-
-
-    let mode =
-      values[0];
-
-    let max =
-      frequency[mode];
-
-
-    Object.keys(
-      frequency
-    ).forEach(
-      value => {
-
-        if (
-          frequency[value] > max
-        ) {
-
-          mode =
-            Number(value);
-
-          max =
-            frequency[value];
-        }
-      }
-    );
-
-
-    /*
-      If every score occurs only once,
-      there is no meaningful mode.
-    */
-
-    if (max === 1) {
-
-      return null;
-    }
-
-
-    return mode;
-  }
-
-
-  /* =====================================================
-     ANALYTICS
-     ===================================================== */
-
-  function renderAnalytics(scores) {
-
-    const values =
-      scores
-        .map(getScore)
-        .filter(
-          value =>
-            value !== null &&
-            !isNaN(value)
-        );
-
-
-    const testsAttempted =
-      scores.length;
-
-
-    document.getElementById(
-      "testsAttempted"
-    ).textContent =
-      testsAttempted;
-
-
-    if (!values.length) {
-
-      document.getElementById(
-        "averageScore"
-      ).textContent = "—";
-
-      document.getElementById(
-        "highestScore"
-      ).textContent = "—";
-
-      document.getElementById(
-        "latestScore"
-      ).textContent = "—";
-
-      document.getElementById(
-        "mean"
-      ).textContent = "—";
-
-      document.getElementById(
-        "median"
-      ).textContent = "—";
-
-      document.getElementById(
-        "mode"
-      ).textContent = "—";
-
-      document.getElementById(
-        "average"
-      ).textContent = "—";
-
-      renderChart([]);
-
-      return;
-    }
-
-
-    const mean =
-      calculateMean(values);
-
-
-    const median =
-      calculateMedian(values);
-
-
-    const mode =
-      calculateMode(values);
-
-
-    const highest =
-      Math.max(
-        ...values
-      );
-
-
-    /*
-      Latest score is the latest row
-      returned by Supabase.
-    */
-
-    const latest =
-      values[
-        values.length - 1
-      ];
-
-
-    document.getElementById(
-      "averageScore"
-    ).textContent =
-      formatNumber(mean);
-
-
-    document.getElementById(
-      "highestScore"
-    ).textContent =
-      formatNumber(highest);
-
-
-    document.getElementById(
-      "latestScore"
-    ).textContent =
-      formatNumber(latest);
-
-
-    document.getElementById(
-      "mean"
-    ).textContent =
-      formatNumber(mean);
-
-
-    document.getElementById(
-      "median"
-    ).textContent =
-      formatNumber(median);
-
-
-    document.getElementById(
-      "mode"
-    ).textContent =
-      mode === null
-        ? "—"
-        : formatNumber(mode);
-
-
-    document.getElementById(
-      "average"
-    ).textContent =
-      formatNumber(mean);
-
-
-    renderChart(scores);
-  }
-
-
-  /* =====================================================
-     NUMBER FORMAT
-     ===================================================== */
-
-  function formatNumber(value) {
-
-    if (
-      value === null ||
-      value === undefined ||
-      isNaN(value)
-    ) {
-
-      return "—";
-    }
-
-
-    return Number(
-      value
-    ).toFixed(1);
-  }
-
-
-  /* =====================================================
-     SCORE CHART
-     ===================================================== */
-
-  function renderChart(scores) {
-
-    const chart =
-      document.getElementById(
-        "chart"
-      );
-
-
-    chart.innerHTML = "";
-
-
-    if (!scores.length) {
-
-      chart.innerHTML =
-        `
-          <div style="
-            width:100%;
-            text-align:center;
-            color:var(--muted);
-            padding-top:100px;
-            font-size:13px;
-          ">
-            Your score progress will appear here.
-          </div>
-        `;
-
-      return;
-    }
-
-
-    const recent =
-      scores.slice(-8);
-
-
-    const percentages =
-      recent.map(
-        row =>
-          getPercentage(row)
-      );
-
-
-    recent.forEach(
-      (row, index) => {
-
-        const percentage =
-          percentages[index];
-
-
-        if (
-          percentage === null
-        ) {
-
-          return;
-        }
-
-
-        const wrap =
-          document.createElement(
-            "div"
-          );
-
-
-        wrap.className =
-          "bar-wrap";
-
-
-        const bar =
-          document.createElement(
-            "div"
-          );
-
-
-        bar.className =
-          "bar";
-
-
-        bar.style.height =
-          Math.max(
-            5,
-            percentage
-          ) + "%";
-
-
-        const label =
-          document.createElement(
-            "div"
-          );
-
-
-        label.className =
-          "bar-label";
-
-
-        label.textContent =
-          Math.round(
-            percentage
-          ) + "%";
-
-
-        wrap.appendChild(
-          bar
-        );
-
-
-        wrap.appendChild(
-          label
-        );
-
-
-        chart.appendChild(
-          wrap
-        );
-      }
-    );
-  }
-
-
-  /* =====================================================
-     TEST HISTORY
-     ===================================================== */
-
-  function renderTests(scores) {
-
-    const container =
-      document.getElementById(
-        "testsList"
-      );
-
-
-    if (!scores.length) {
-
-      return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    scores.forEach(
-      (row, index) => {
-
-        const score =
-          getScore(row);
-
-
-        const maxMarks =
-          getMaxMarks(row);
-
-
-        const percentage =
-          getPercentage(row);
-
-
-        if (
-          score === null
-        ) {
-
-          return;
-        }
-
-
-        const name =
-          "Assessment " +
-          (index + 1);
-
-
-        const subject =
-          row.subject ||
-          "Academic Test";
-
-
-        const div =
-          document.createElement(
-            "div"
-          );
-
-
-        div.className =
-          "test-row";
-
-
-        div.innerHTML = `
-
-          <div>
-
-            <div class="test-name">
-              ${escapeHTML(name)}
-            </div>
-
-            <div class="test-subject">
-              ${escapeHTML(subject)}
-              ${
-                maxMarks !== null
-                  ? " · " + maxMarks + " marks"
-                  : ""
-              }
-            </div>
-
-          </div>
-
-
-          <div>
-
-            <div class="score-bar">
-
-              <div
-                class="score-fill"
-                style="width:${
-                  percentage !== null
-                    ? Math.min(
-                        100,
-                        Math.max(
-                          0,
-                          percentage
-                        )
-                      )
-                    : 0
-                }%"
-              ></div>
-
-            </div>
-
-            <div style="
-              color:var(--muted);
-              font-size:10px;
-              margin-top:6px;
-            ">
-              ${
-                percentage !== null
-                  ? Math.round(percentage) + "%"
-
-                  : "—"
-              }
-            </div>
-
-          </div>
-
-
-          <div class="test-score">
-            ${score}
-            ${
-              maxMarks !== null
-                ? " / " + maxMarks
-                : ""
-            }
-          </div>
-
-        `;
-
-
-        container.appendChild(
-          div
-        );
-      }
-    );
-  }
-
-
-  /* =====================================================
-     WEEKLY REVIEWS
-     ===================================================== */
-
-  function renderReviews(reviews) {
-
-    const container =
-      document.getElementById(
-        "reviewContainer"
-      );
-
-
-    if (!reviews.length) {
-
-      return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    const latest =
-      reviews[0];
-
-
-    const date =
-      latest.review_date ||
-      latest.created_at ||
-      "";
-
-
-    const observation =
-      latest.observations ||
-      latest.observation ||
-      latest.teacher_feedback ||
-      latest.feedback ||
-      latest.review ||
-      "Your teacher review will appear here.";
-
-
-    const title =
-      latest.title ||
-      "Weekly Academic Review";
-
-
-    const card =
-      document.createElement(
-        "div"
-      );
-
-
-    card.className =
-      "review-card";
-
-
-    card.innerHTML = `
-
-      <div class="review-date">
-        ${formatDate(date)}
-      </div>
-
-      <h3>
-        ${escapeHTML(title)}
-      </h3>
-
-      <p>
-        ${escapeHTML(observation)}
-      </p>
-
-    `;
-
-
-    container.appendChild(
-      card
-    );
-  }
-
-
-  /* =====================================================
-     DATE
-     ===================================================== */
-
-  function formatDate(value) {
-
-    if (!value)
-      return "Weekly Review";
-
-
-    const date =
-      new Date(value);
-
-
-    if (
-      isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return value;
-    }
-
-
-    return date.toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-      }
-    );
-  }
-
-
-  /* =====================================================
-     SECURITY
-     ===================================================== */
-
-  function escapeHTML(value) {
-
-    return String(
-      value ?? ""
-    )
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-  }
-
-
-  /* =====================================================
-     LOGOUT
-     ===================================================== */
-
-  document
-    .getElementById(
-      "logoutBtn"
-    )
-    .addEventListener(
-      "click",
-      async () => {
-
-        await supabaseClient
-          .auth
-          .signOut();
-
-
-        window.location.href =
-          "student-login.html";
-
-      }
-    );
-
-
-  /* =====================================================
-     START
-     ===================================================== */
-
-  initDashboard();
-
-</script>
   <style>
     :root {
       --navy: #071426;
@@ -1097,7 +26,6 @@
       --muted: #9eacbd;
       --line: rgba(255,255,255,0.09);
       --card: rgba(255,255,255,0.045);
-      --success: #65c18c;
       --danger: #df7777;
     }
 
@@ -1107,10 +35,18 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at 80% 0%, rgba(217,170,69,0.08), transparent 30%),
+        radial-gradient(
+          circle at 80% 0%,
+          rgba(217,170,69,0.08),
+          transparent 30%
+        ),
         var(--navy);
       color: var(--white);
       min-height: 100vh;
@@ -1131,7 +67,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 5%;
-      background: rgba(7,20,38,0.92);
+      background: rgba(7,20,38,0.94);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--line);
     }
@@ -1186,6 +122,35 @@
       padding: 55px 0 80px;
     }
 
+    /* LOADING */
+
+    .loading {
+      text-align: center;
+      padding: 180px 20px;
+      color: var(--muted);
+    }
+
+    .loading strong {
+      display: block;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    /* ERROR */
+
+    .error {
+      display: none;
+      margin: 60px auto;
+      max-width: 600px;
+      border: 1px solid rgba(223,119,119,0.4);
+      background: rgba(223,119,119,0.08);
+      color: #f2aaaa;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
     /* WELCOME */
 
     .welcome {
@@ -1225,11 +190,12 @@
       grid-template-columns: 1fr auto;
       gap: 30px;
       align-items: center;
-      background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.07),
-        rgba(255,255,255,0.025)
-      );
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,255,255,0.07),
+          rgba(255,255,255,0.025)
+        );
       border: 1px solid var(--line);
       border-radius: 24px;
       padding: 28px;
@@ -1270,7 +236,7 @@
       font-weight: 400;
     }
 
-    /* SECTION */
+    /* SECTIONS */
 
     .section {
       margin-top: 50px;
@@ -1341,7 +307,7 @@
       margin-bottom: 20px;
     }
 
-    /* SIMPLE GRAPH */
+    /* CHART */
 
     .chart {
       height: 250px;
@@ -1365,11 +331,12 @@
       width: 100%;
       max-width: 45px;
       min-height: 4px;
-      background: linear-gradient(
-        to top,
-        var(--gold),
-        var(--gold-light)
-      );
+      background:
+        linear-gradient(
+          to top,
+          var(--gold),
+          var(--gold-light)
+        );
       border-radius: 7px 7px 2px 2px;
       transition: height 0.5s ease;
     }
@@ -1414,7 +381,7 @@
 
     .test-row {
       display: grid;
-      grid-template-columns: 1.4fr 1fr 100px;
+      grid-template-columns: 1.4fr 1fr 110px;
       gap: 15px;
       align-items: center;
       padding: 17px;
@@ -1429,11 +396,13 @@
     .test-subject {
       color: var(--muted);
       font-size: 12px;
+      margin-top: 4px;
     }
 
     .test-score {
       color: var(--gold-light);
       font-weight: 600;
+      text-align: right;
     }
 
     .score-bar {
@@ -1447,6 +416,22 @@
       height: 100%;
       background: var(--gold);
       border-radius: inherit;
+    }
+
+    .score-percent {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 6px;
+    }
+
+    /* EMPTY */
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 25px;
+      text-align: center;
     }
 
     /* REVIEW */
@@ -1477,42 +462,6 @@
       color: #c2cad4;
       line-height: 1.75;
       font-size: 14px;
-    }
-
-    .review-empty {
-      color: var(--muted);
-      border: 1px dashed var(--line);
-      border-radius: 18px;
-      padding: 25px;
-    }
-
-    /* LOADING */
-
-    .loading {
-      text-align: center;
-      padding: 100px 20px;
-      color: var(--muted);
-    }
-
-    .loading strong {
-      display: block;
-      color: var(--gold-light);
-      margin-bottom: 10px;
-      font-size: 20px;
-    }
-
-    /* ERROR */
-
-    .error {
-      display: none;
-      margin: 30px auto;
-      max-width: 600px;
-      border: 1px solid rgba(223,119,119,0.4);
-      background: rgba(223,119,119,0.08);
-      color: #f2aaaa;
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
     }
 
     /* FOOTER */
@@ -1564,7 +513,7 @@
       }
 
       .brand-text strong {
-        font-size: 11px;
+        font-size: 10px;
       }
 
       .brand-text span {
@@ -1608,7 +557,11 @@
 
       .test-row {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 10px;
+      }
+
+      .test-score {
+        text-align: left;
       }
 
       .chart {
@@ -1620,1168 +573,1521 @@
 
 <body>
 
-  <header>
+<header>
 
-    <div class="brand">
-      <img src="sir%20logo.png" alt="SIR Kolhapur Logo">
+  <div class="brand">
 
-      <div class="brand-text">
-        <strong>SURYAVANSHI INSTITUTE FOR RANKERS</strong>
-        <span>Where Potential Finds Direction</span>
+    <img
+      src="sir%20logo.png"
+      alt="SIR Kolhapur Logo"
+    >
+
+    <div class="brand-text">
+
+      <strong>
+        SURYAVANSHI INSTITUTE FOR RANKERS
+      </strong>
+
+      <span>
+        Where Potential Finds Direction
+      </span>
+
+    </div>
+
+  </div>
+
+  <button
+    class="logout-btn"
+    id="logoutBtn"
+  >
+    Logout
+  </button>
+
+</header>
+
+
+<main>
+
+  <!-- LOADING -->
+
+  <div
+    class="loading"
+    id="loading"
+  >
+
+    <strong>
+      Loading your dashboard...
+    </strong>
+
+    Your academic journey is being prepared.
+
+  </div>
+
+
+  <!-- ERROR -->
+
+  <div
+    class="error"
+    id="errorBox"
+  ></div>
+
+
+  <!-- DASHBOARD -->
+
+  <div
+    id="dashboard"
+    style="display:none;"
+  >
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+
+      <div class="eyebrow">
+        Student Portal
       </div>
-    </div>
 
-    <button class="logout-btn" id="logoutBtn">
-      Logout
-    </button>
+      <h1>
+        Welcome,
+        <span id="studentName">
+          Student
+        </span>.
+      </h1>
 
-  </header>
+      <p>
+        Your preparation is more than a score.
+        This dashboard helps you understand where
+        you stand, what is improving, and where
+        your preparation needs direction.
+      </p>
+
+    </section>
 
 
-  <main id="app">
+    <!-- PROFILE -->
 
-    <div class="loading" id="loading">
-      <strong>Loading your dashboard...</strong>
-      Your academic journey is being prepared.
-    </div>
+    <section class="profile-card">
 
-    <div class="error" id="errorBox"></div>
+      <div class="profile-info">
 
-    <div id="dashboard" style="display:none;">
+        <h2 id="profileName">
+          —
+        </h2>
 
-      <!-- WELCOME -->
-
-      <section class="welcome">
-
-        <div class="eyebrow">
-          Student Portal
+        <div
+          class="uid"
+          id="profileUid"
+        >
+          UID: —
         </div>
 
-        <h1>
-          Welcome, <span id="studentName">Student</span>.
-        </h1>
+        <div
+          class="profile-meta"
+          id="profileEmail"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="direction-box">
+
+        <small>
+          SIR Philosophy
+        </small>
+
+        <strong>
+          Where Potential<br>
+          Finds Direction
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- PROGRESS -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <h2>
+          Your Progress
+        </h2>
 
         <p>
-          Your preparation is more than a score.
-          This dashboard helps you understand where you stand,
-          what is improving, and where your preparation needs direction.
+          Numbers become useful when they help
+          you understand your preparation.
         </p>
 
-      </section>
+      </div>
 
 
-      <!-- PROFILE -->
+      <div class="stats-grid">
 
-      <section class="profile-card">
-
-        <div class="profile-info">
-
-          <h2 id="profileName">
-            —
-          </h2>
-
-          <div class="uid" id="profileUid">
-            UID: —
-          </div>
-
-          <div class="profile-meta" id="profileEmail">
-            —
-          </div>
-
-        </div>
-
-        <div class="direction-box">
+        <div class="stat">
 
           <small>
-            SIR Philosophy
+            Tests Attempted
           </small>
 
-          <strong>
-            Where Potential<br>
-            Finds Direction
+          <strong id="testsAttempted">
+            0
           </strong>
 
         </div>
 
-      </section>
 
+        <div class="stat">
 
-      <!-- QUICK STATS -->
+          <small>
+            Average Score
+          </small>
 
-      <section class="section">
-
-        <div class="section-heading">
-
-          <h2>
-            Your Progress
-          </h2>
-
-          <p>
-            Numbers become useful when they help you understand your preparation.
-          </p>
+          <strong id="averageScore">
+            —
+          </strong>
 
         </div>
 
 
-        <div class="stats-grid">
+        <div class="stat">
 
-          <div class="stat">
-            <small>Tests Attempted</small>
-            <strong id="testsAttempted">0</strong>
-          </div>
+          <small>
+            Highest Score
+          </small>
 
-          <div class="stat">
-            <small>Average Score</small>
-            <strong id="averageScore">—</strong>
-          </div>
-
-          <div class="stat">
-            <small>Highest Score</small>
-            <strong id="highestScore">—</strong>
-          </div>
-
-          <div class="stat">
-            <small>Latest Score</small>
-            <strong id="latestScore">—</strong>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ANALYTICS -->
-
-      <section class="section">
-
-        <div class="section-heading">
-
-          <h2>
-            Performance Analysis
-          </h2>
-
-          <p>
-            Look beyond one test. Understand the pattern.
-          </p>
+          <strong id="highestScore">
+            —
+          </strong>
 
         </div>
 
 
-        <div class="analytics-grid">
+        <div class="stat">
 
-          <div class="panel">
+          <small>
+            Latest Score
+          </small>
 
-            <h3>
-              Score Progress
-            </h3>
-
-            <div class="chart" id="chart">
-              <!-- JS -->
-            </div>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>
-              Your Numbers
-            </h3>
-
-            <div class="metrics">
-
-              <div class="metric">
-                <span>Mean</span>
-                <strong id="mean">—</strong>
-              </div>
-
-              <div class="metric">
-                <span>Median</span>
-                <strong id="median">—</strong>
-              </div>
-
-              <div class="metric">
-                <span>Mode</span>
-                <strong id="mode">—</strong>
-              </div>
-
-              <div class="metric">
-                <span>Average</span>
-                <strong id="average">—</strong>
-              </div>
-
-            </div>
-
-          </div>
+          <strong id="latestScore">
+            —
+          </strong>
 
         </div>
 
-      </section>
+      </div>
+
+    </section>
 
 
-      <!-- TEST HISTORY -->
+    <!-- ANALYTICS -->
 
-      <section class="section">
+    <section class="section">
 
-        <div class="section-heading">
+      <div class="section-heading">
 
-          <h2>
-            Test History
-          </h2>
+        <h2>
+          Performance Analysis
+        </h2>
 
-          <p>
-            Every test is a checkpoint — not a final judgment.
-          </p>
+        <p>
+          Look beyond one test. Understand the pattern.
+        </p>
 
-        </div>
+      </div>
+
+
+      <div class="analytics-grid">
 
         <div class="panel">
 
-          <div class="tests" id="testsList">
+          <h3>
+            Score Progress
+          </h3>
 
-            <div class="review-empty">
-              No test data available yet.
+          <div
+            class="chart"
+            id="chart"
+          ></div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h3>
+            Your Numbers
+          </h3>
+
+          <div class="metrics">
+
+            <div class="metric">
+
+              <span>
+                Mean
+              </span>
+
+              <strong id="mean">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="metric">
+
+              <span>
+                Median
+              </span>
+
+              <strong id="median">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="metric">
+
+              <span>
+                Mode
+              </span>
+
+              <strong id="mode">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="metric">
+
+              <span>
+                Average
+              </span>
+
+              <strong id="average">
+                —
+              </strong>
+
             </div>
 
           </div>
 
         </div>
 
-      </section>
+      </div>
+
+    </section>
 
 
-      <!-- WEEKLY REVIEW -->
+    <!-- TEST HISTORY -->
 
-      <section class="section">
+    <section class="section">
 
-        <div class="section-heading">
+      <div class="section-heading">
 
-          <h2>
-            Weekly Teacher Review
-          </h2>
+        <h2>
+          Test History
+        </h2>
 
-          <p>
-            Teacher → Student → Parent
-          </p>
+        <p>
+          Every test is a checkpoint —
+          not a final judgment.
+        </p>
 
-        </div>
+      </div>
 
 
-        <div id="reviewContainer">
+      <div class="panel">
 
-          <div class="review-empty">
-            No teacher review has been added yet.
+        <div
+          class="tests"
+          id="testsList"
+        >
+
+          <div class="empty">
+            No test data available yet.
           </div>
 
         </div>
 
-      </section>
+      </div>
 
-    </div>
-
-  </main>
+    </section>
 
 
-  <footer>
-    <strong>SIR Kolhapur</strong> · Where Potential Finds Direction
-  </footer>
+    <!-- WEEKLY REVIEW -->
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <h2>
+          Weekly Teacher Review
+        </h2>
+
+        <p>
+          Teacher → Student → Parent
+        </p>
+
+      </div>
 
 
-  <script>
+      <div id="reviewContainer">
 
-    /* =====================================================
-       SIR STUDENT DASHBOARD
-       ===================================================== */
+        <div class="empty">
+          No teacher review has been added yet.
+        </div>
 
-    const SUPABASE_URL =
-      "https://asbyosqpupqspzvqqhfj.supabase.co";
+      </div>
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+    </section>
+
+  </div>
+
+</main>
 
 
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
+<footer>
+
+  <strong>
+    SIR Kolhapur
+  </strong>
+
+  · Where Potential Finds Direction
+
+</footer>
+
+
+<script>
+
+  /* =====================================================
+     SIR STUDENT DASHBOARD
+     SINGLE CLEAN SCRIPT
+     ===================================================== */
+
+
+  const SUPABASE_URL =
+    "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+
+  /* SUPABASE CLIENT */
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+  /* ELEMENTS */
+
+  const loading =
+    document.getElementById(
+      "loading"
+    );
+
+  const errorBox =
+    document.getElementById(
+      "errorBox"
+    );
+
+  const dashboard =
+    document.getElementById(
+      "dashboard"
+    );
+
+
+  /* =====================================================
+     INITIALISE
+     ===================================================== */
+
+  async function initDashboard() {
+
+    try {
+
+      const {
+        data: {
+          session
+        },
+        error: sessionError
+      } =
+        await supabaseClient.auth.getSession();
+
+
+      if (sessionError) {
+
+        throw new Error(
+          "Unable to verify your login session."
+        );
+      }
+
+
+      /* NOT LOGGED IN */
+
+      if (!session) {
+
+        window.location.href =
+          "student-login.html";
+
+        return;
+      }
+
+
+      const user =
+        session.user;
+
+
+      /* =================================================
+         STUDENT PROFILE
+         ================================================= */
+
+      const {
+        data: student,
+        error: studentError
+      } =
+        await supabaseClient
+          .from("students")
+          .select("*")
+          .eq(
+            "user_id",
+            user.id
+          )
+          .maybeSingle();
+
+
+      if (studentError) {
+
+        console.error(
+          "Student profile error:",
+          studentError
+        );
+
+        throw new Error(
+          "Unable to load your student profile."
+        );
+      }
+
+
+      if (!student) {
+
+        throw new Error(
+          "Student profile not found."
+        );
+      }
+
+
+      renderProfile(
+        student,
+        user
       );
 
 
-    const loading =
-      document.getElementById("loading");
+      /* =================================================
+         ACADEMIC DATA
+         ================================================= */
 
-    const errorBox =
-      document.getElementById("errorBox");
+      const scores =
+        await loadScores(
+          student.id
+        );
 
-    const dashboard =
-      document.getElementById("dashboard");
+
+      const reviews =
+        await loadReviews(
+          student.id
+        );
 
 
-    /* =====================================================
-       INITIALISE
-       ===================================================== */
+      /* =================================================
+         RENDER
+         ================================================= */
 
-    async function initDashboard() {
+      renderAnalytics(
+        scores
+      );
 
-      try {
 
-        const {
-          data: {
-            session
+      renderTests(
+        scores
+      );
+
+
+      renderReviews(
+        reviews
+      );
+
+
+      /* SHOW */
+
+      loading.style.display =
+        "none";
+
+      dashboard.style.display =
+        "block";
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Dashboard error:",
+        error
+      );
+
+      loading.style.display =
+        "none";
+
+      errorBox.textContent =
+        error.message ||
+        "Unable to load dashboard.";
+
+      errorBox.style.display =
+        "block";
+    }
+
+  }
+
+
+  /* =====================================================
+     PROFILE
+     ===================================================== */
+
+  function renderProfile(
+    student,
+    user
+  ) {
+
+    const name =
+      student.full_name ||
+      user.user_metadata?.full_name ||
+      "Student";
+
+
+    const uid =
+      student.student_uid ||
+      "—";
+
+
+    const email =
+      student.email ||
+      user.email ||
+      "—";
+
+
+    document.getElementById(
+      "studentName"
+    ).textContent =
+      name;
+
+
+    document.getElementById(
+      "profileName"
+    ).textContent =
+      name;
+
+
+    document.getElementById(
+      "profileUid"
+    ).textContent =
+      "UID: " + uid;
+
+
+    document.getElementById(
+      "profileEmail"
+    ).textContent =
+      email;
+
+  }
+
+
+  /* =====================================================
+     LOAD TEST SCORES
+     ===================================================== */
+
+  async function loadScores(
+    studentId
+  ) {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("test_scores")
+        .select(`
+          id,
+          test_id,
+          student_id,
+          subject,
+          marks_obtained,
+          max_marks,
+          rank,
+          correct_answers,
+          incorrect_answers,
+          unanswered
+        `)
+        .eq(
+          "student_id",
+          studentId
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Score query error:",
+        error
+      );
+
+      throw new Error(
+        "Unable to load your test performance."
+      );
+    }
+
+
+    return data || [];
+  }
+
+
+  /* =====================================================
+     LOAD REVIEWS
+     ===================================================== */
+
+  async function loadReviews(
+    studentId
+  ) {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("teacher_reviews")
+        .select("*")
+        .eq(
+          "student_id",
+          studentId
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
           }
-        } =
-          await supabaseClient.auth.getSession();
+        );
 
 
-        /* USER NOT LOGGED IN */
+    if (error) {
 
-        if (!session) {
+      console.warn(
+        "Review query:",
+        error
+      );
 
-          window.location.href =
-            "student-login.html";
+      return [];
+    }
+
+
+    return data || [];
+  }
+
+
+  /* =====================================================
+     SCORE
+     ===================================================== */
+
+  function getScore(
+    row
+  ) {
+
+    if (
+      row.marks_obtained !== null &&
+      row.marks_obtained !== undefined
+    ) {
+
+      return Number(
+        row.marks_obtained
+      );
+
+    }
+
+    return null;
+  }
+
+
+  /* =====================================================
+     MAX MARKS
+     ===================================================== */
+
+  function getMaxMarks(
+    row
+  ) {
+
+    if (
+      row.max_marks !== null &&
+      row.max_marks !== undefined
+    ) {
+
+      return Number(
+        row.max_marks
+      );
+
+    }
+
+    return null;
+  }
+
+
+  /* =====================================================
+     PERCENTAGE
+     ===================================================== */
+
+  function getPercentage(
+    row
+  ) {
+
+    const score =
+      getScore(row);
+
+    const maxMarks =
+      getMaxMarks(row);
+
+
+    if (
+      score === null ||
+      maxMarks === null ||
+      maxMarks <= 0
+    ) {
+
+      return null;
+    }
+
+
+    return (
+      score /
+      maxMarks
+    ) * 100;
+  }
+
+
+  /* =====================================================
+     MEAN
+     ===================================================== */
+
+  function calculateMean(
+    values
+  ) {
+
+    if (!values.length) {
+
+      return null;
+    }
+
+
+    return (
+      values.reduce(
+        (total, value) =>
+          total + value,
+        0
+      ) /
+      values.length
+    );
+
+  }
+
+
+  /* =====================================================
+     MEDIAN
+     ===================================================== */
+
+  function calculateMedian(
+    values
+  ) {
+
+    if (!values.length) {
+
+      return null;
+    }
+
+
+    const sorted =
+      [...values].sort(
+        (a, b) =>
+          a - b
+      );
+
+
+    const middle =
+      Math.floor(
+        sorted.length / 2
+      );
+
+
+    if (
+      sorted.length % 2
+    ) {
+
+      return sorted[middle];
+
+    }
+
+
+    return (
+      sorted[middle - 1] +
+      sorted[middle]
+    ) / 2;
+
+  }
+
+
+  /* =====================================================
+     MODE
+     ===================================================== */
+
+  function calculateMode(
+    values
+  ) {
+
+    if (!values.length) {
+
+      return null;
+    }
+
+
+    const frequency = {};
+
+
+    values.forEach(
+      value => {
+
+        frequency[value] =
+          (frequency[value] || 0) + 1;
+
+      }
+    );
+
+
+    let mode =
+      values[0];
+
+    let highestFrequency =
+      frequency[mode];
+
+
+    Object.keys(
+      frequency
+    ).forEach(
+      value => {
+
+        if (
+          frequency[value] >
+          highestFrequency
+        ) {
+
+          mode =
+            Number(value);
+
+          highestFrequency =
+            frequency[value];
+
+        }
+
+      }
+    );
+
+
+    /* No repeated score = no mode */
+
+    if (
+      highestFrequency === 1
+    ) {
+
+      return null;
+    }
+
+
+    return mode;
+
+  }
+
+
+  /* =====================================================
+     ANALYTICS
+     ===================================================== */
+
+  function renderAnalytics(
+    scores
+  ) {
+
+    const validScores =
+      scores
+        .map(getScore)
+        .filter(
+          value =>
+            value !== null &&
+            !isNaN(value)
+        );
+
+
+    document.getElementById(
+      "testsAttempted"
+    ).textContent =
+      scores.length;
+
+
+    if (!validScores.length) {
+
+      renderEmptyAnalytics();
+
+      return;
+    }
+
+
+    const mean =
+      calculateMean(
+        validScores
+      );
+
+
+    const median =
+      calculateMedian(
+        validScores
+      );
+
+
+    const mode =
+      calculateMode(
+        validScores
+      );
+
+
+    const highest =
+      Math.max(
+        ...validScores
+      );
+
+
+    const latest =
+      validScores[
+        validScores.length - 1
+      ];
+
+
+    document.getElementById(
+      "averageScore"
+    ).textContent =
+      formatNumber(mean);
+
+
+    document.getElementById(
+      "highestScore"
+    ).textContent =
+      formatNumber(highest);
+
+
+    document.getElementById(
+      "latestScore"
+    ).textContent =
+      formatNumber(latest);
+
+
+    document.getElementById(
+      "mean"
+    ).textContent =
+      formatNumber(mean);
+
+
+    document.getElementById(
+      "median"
+    ).textContent =
+      formatNumber(median);
+
+
+    document.getElementById(
+      "mode"
+    ).textContent =
+      mode === null
+        ? "—"
+        : formatNumber(mode);
+
+
+    document.getElementById(
+      "average"
+    ).textContent =
+      formatNumber(mean);
+
+
+    renderChart(
+      scores
+    );
+
+  }
+
+
+  /* =====================================================
+     EMPTY ANALYTICS
+     ===================================================== */
+
+  function renderEmptyAnalytics() {
+
+    [
+      "averageScore",
+      "highestScore",
+      "latestScore",
+      "mean",
+      "median",
+      "mode",
+      "average"
+    ].forEach(
+      id => {
+
+        document.getElementById(
+          id
+        ).textContent = "—";
+
+      }
+    );
+
+
+    renderChart([]);
+
+  }
+
+
+  /* =====================================================
+     NUMBER FORMAT
+     ===================================================== */
+
+  function formatNumber(
+    value
+  ) {
+
+    if (
+      value === null ||
+      value === undefined ||
+      isNaN(value)
+    ) {
+
+      return "—";
+    }
+
+
+    return Number(
+      value
+    ).toFixed(1);
+
+  }
+
+
+  /* =====================================================
+     CHART
+     ===================================================== */
+
+  function renderChart(
+    scores
+  ) {
+
+    const chart =
+      document.getElementById(
+        "chart"
+      );
+
+
+    chart.innerHTML = "";
+
+
+    if (!scores.length) {
+
+      chart.innerHTML = `
+        <div style="
+          width:100%;
+          text-align:center;
+          color:var(--muted);
+          padding-top:100px;
+          font-size:13px;
+        ">
+          Your score progress will appear here.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    const recent =
+      scores.slice(-8);
+
+
+    recent.forEach(
+      row => {
+
+        const percentage =
+          getPercentage(row);
+
+
+        if (
+          percentage === null
+        ) {
 
           return;
         }
 
 
-        /* GET CURRENT AUTH USER */
-
-        const user =
-          session.user;
-
-
-        /* GET STUDENT PROFILE */
-
-        const {
-          data: student,
-          error: studentError
-        } =
-          await supabaseClient
-            .from("students")
-            .select("*")
-            .eq("user_id", user.id)
-            .maybeSingle();
-
-
-        if (studentError) {
-
-          console.error(
-            studentError
-          );
-
-          throw new Error(
-            "Unable to load your student profile."
-          );
-        }
-
-
-        if (!student) {
-
-          throw new Error(
-            "Student profile not found."
-          );
-        }
-
-
-        /* DISPLAY PROFILE */
-
-        renderProfile(
-          student,
-          user
-        );
-
-
-        /* GET ACADEMIC DATA */
-
-        const scores =
-          await loadScores(
-            student
+        const wrap =
+          document.createElement(
+            "div"
           );
 
 
-        const reviews =
-          await loadReviews(
-            student
+        wrap.className =
+          "bar-wrap";
+
+
+        const bar =
+          document.createElement(
+            "div"
           );
 
 
-        /* DISPLAY ANALYTICS */
+        bar.className =
+          "bar";
 
-        renderAnalytics(
-          scores
-        );
 
-
-        renderTests(
-          scores
-        );
-
-
-        renderReviews(
-          reviews
-        );
-
-
-        /* SHOW DASHBOARD */
-
-        loading.style.display =
-          "none";
-
-        dashboard.style.display =
-          "block";
-
-
-      } catch (error) {
-
-        console.error(
-          "Dashboard error:",
-          error
-        );
-
-        loading.style.display =
-          "none";
-
-        errorBox.textContent =
-          error.message ||
-          "Unable to load dashboard.";
-
-        errorBox.style.display =
-          "block";
-
-      }
-
-    }
-
-
-    /* =====================================================
-       PROFILE
-       ===================================================== */
-
-    function renderProfile(
-      student,
-      user
-    ) {
-
-      const name =
-        student.full_name ||
-        user.user_metadata?.full_name ||
-        "Student";
-
-      const uid =
-        student.student_uid ||
-        "—";
-
-      const email =
-        student.email ||
-        user.email ||
-        "—";
-
-
-      document.getElementById(
-        "studentName"
-      ).textContent = name;
-
-
-      document.getElementById(
-        "profileName"
-      ).textContent = name;
-
-
-      document.getElementById(
-        "profileUid"
-      ).textContent =
-        "UID: " + uid;
-
-
-      document.getElementById(
-        "profileEmail"
-      ).textContent =
-        email;
-
-    }
-
-
-    /* =====================================================
-       LOAD SCORES
-       ===================================================== */
-
-    async function loadScores(
-      student
-    ) {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("test_scores")
-          .select("*")
-          .eq(
-            "student_id",
-            student.id
-          );
-
-
-      if (error) {
-
-        console.warn(
-          "Score query:",
-          error
-        );
-
-        return [];
-
-      }
-
-
-      return data || [];
-
-    }
-
-
-    /* =====================================================
-       LOAD REVIEWS
-       ===================================================== */
-
-    async function loadReviews(
-      student
-    ) {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .from("teacher_reviews")
-          .select("*")
-          .eq(
-            "student_id",
-            student.id
-          )
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
-
-
-      if (error) {
-
-        console.warn(
-          "Review query:",
-          error
-        );
-
-        return [];
-
-      }
-
-
-      return data || [];
-
-    }
-
-
-    /* =====================================================
-       ANALYTICS
-       ===================================================== */
-
-    function getScore(
-      row
-    ) {
-
-      const possible =
-        [
-          row.score,
-          row.marks,
-          row.obtained_marks,
-          row.total_score,
-          row.percentage
-        ];
-
-
-      for (
-        const value of possible
-      ) {
-
-        if (
-          value !== null &&
-          value !== undefined &&
-          value !== "" &&
-          !isNaN(value)
-        ) {
-
-          return Number(value);
-
-        }
-
-      }
-
-
-      return null;
-
-    }
-
-
-    function calculateMean(
-      values
-    ) {
-
-      if (!values.length)
-        return null;
-
-
-      return (
-        values.reduce(
-          (a,b) => a + b,
-          0
-        ) /
-        values.length
-      );
-
-    }
-
-
-    function calculateMedian(
-      values
-    ) {
-
-      if (!values.length)
-        return null;
-
-
-      const sorted =
-        [...values].sort(
-          (a,b) => a-b
-        );
-
-
-      const middle =
-        Math.floor(
-          sorted.length / 2
-        );
-
-
-      if (
-        sorted.length % 2
-      ) {
-
-        return sorted[middle];
-
-      }
-
-
-      return (
-        sorted[middle - 1] +
-        sorted[middle]
-      ) / 2;
-
-    }
-
-
-    function calculateMode(
-      values
-    ) {
-
-      if (!values.length)
-        return null;
-
-
-      const frequency = {};
-
-
-      values.forEach(
-        value => {
-
-          frequency[value] =
-            (frequency[value] || 0) + 1;
-
-        }
-      );
-
-
-      let mode =
-        values[0];
-
-      let max =
-        frequency[mode];
-
-
-      Object.keys(
-        frequency
-      ).forEach(
-        value => {
-
-          if (
-            frequency[value] > max
-          ) {
-
-            mode =
-              Number(value);
-
-            max =
-              frequency[value];
-
-          }
-
-        }
-      );
-
-
-      return mode;
-
-    }
-
-
-    function renderAnalytics(
-      scores
-    ) {
-
-      const values =
-        scores
-          .map(getScore)
-          .filter(
-            value =>
-              value !== null
-          );
-
-
-      document.getElementById(
-        "testsAttempted"
-      ).textContent =
-        values.length;
-
-
-      if (!values.length) {
-
-        return;
-
-      }
-
-
-      const mean =
-        calculateMean(
-          values
-        );
-
-
-      const median =
-        calculateMedian(
-          values
-        );
-
-
-      const mode =
-        calculateMode(
-          values
-        );
-
-
-      const highest =
-        Math.max(
-          ...values
-        );
-
-
-      const latest =
-        values[
-          values.length - 1
-        ];
-
-
-      document.getElementById(
-        "averageScore"
-      ).textContent =
-        formatNumber(mean);
-
-
-      document.getElementById(
-        "highestScore"
-      ).textContent =
-        formatNumber(highest);
-
-
-      document.getElementById(
-        "latestScore"
-      ).textContent =
-        formatNumber(latest);
-
-
-      document.getElementById(
-        "mean"
-      ).textContent =
-        formatNumber(mean);
-
-
-      document.getElementById(
-        "median"
-      ).textContent =
-        formatNumber(median);
-
-
-      document.getElementById(
-        "mode"
-      ).textContent =
-        formatNumber(mode);
-
-
-      document.getElementById(
-        "average"
-      ).textContent =
-        formatNumber(mean);
-
-
-      renderChart(
-        values
-      );
-
-    }
-
-
-    function formatNumber(
-      value
-    ) {
-
-      if (
-        value === null ||
-        value === undefined ||
-        isNaN(value)
-      ) {
-
-        return "—";
-
-      }
-
-
-      return Number(
-        value
-      ).toFixed(1);
-
-    }
-
-
-    /* =====================================================
-       CHART
-       ===================================================== */
-
-    function renderChart(
-      values
-    ) {
-
-      const chart =
-        document.getElementById(
-          "chart"
-        );
-
-
-      chart.innerHTML = "";
-
-
-      const recent =
-        values.slice(-8);
-
-
-      const max =
-        Math.max(
-          ...recent,
-          1
-        );
-
-
-      recent.forEach(
-        (
-          value,
-          index
-        ) => {
-
-          const wrap =
-            document.createElement(
-              "div"
-            );
-
-          wrap.className =
-            "bar-wrap";
-
-
-          const bar =
-            document.createElement(
-              "div"
-            );
-
-          bar.className =
-            "bar";
-
-
-          bar.style.height =
-            Math.max(
-              5,
-              (value / max) * 85
-            ) + "%";
-
-
-          const label =
-            document.createElement(
-              "div"
-            );
-
-          label.className =
-            "bar-label";
-
-
-          label.textContent =
-            value;
-
-
-          wrap.appendChild(
-            bar
-          );
-
-          wrap.appendChild(
-            label
-          );
-
-
-          chart.appendChild(
-            wrap
-          );
-
-        }
-      );
-
-    }
-
-
-    /* =====================================================
-       TEST HISTORY
-       ===================================================== */
-
-    function renderTests(
-      scores
-    ) {
-
-      const container =
-        document.getElementById(
-          "testsList"
-        );
-
-
-      if (!scores.length) {
-
-        return;
-
-      }
-
-
-      container.innerHTML = "";
-
-
-      scores.forEach(
-        row => {
-
-          const score =
-            getScore(row);
-
-
-          if (score === null)
-            return;
-
-
-          const name =
-            row.test_name ||
-            row.name ||
-            "Assessment";
-
-
-          const subject =
-            row.subject ||
-            "Academic Test";
-
-
-          const percentage =
+        bar.style.height =
+          Math.max(
+            5,
             Math.min(
               100,
-              Math.max(
-                0,
-                score
-              )
-            );
+              percentage
+            )
+          ) + "%";
 
 
-          const div =
-            document.createElement(
-              "div"
-            );
-
-
-          div.className =
-            "test-row";
-
-
-          div.innerHTML = `
-
-            <div>
-              <div class="test-name">
-                ${escapeHTML(name)}
-              </div>
-
-              <div class="test-subject">
-                ${escapeHTML(subject)}
-              </div>
-            </div>
-
-            <div class="score-bar">
-              <div
-                class="score-fill"
-                style="width:${percentage}%"
-              ></div>
-            </div>
-
-            <div class="test-score">
-              ${score}
-            </div>
-
-          `;
-
-
-          container.appendChild(
-            div
+        const label =
+          document.createElement(
+            "div"
           );
 
-        }
-      );
 
-    }
+        label.className =
+          "bar-label";
 
 
-    /* =====================================================
-       REVIEWS
-       ===================================================== */
+        label.textContent =
+          Math.round(
+            percentage
+          ) + "%";
 
-    function renderReviews(
-      reviews
-    ) {
 
-      const container =
-        document.getElementById(
-          "reviewContainer"
+        wrap.appendChild(
+          bar
         );
 
 
-      if (!reviews.length) {
-
-        return;
-
-      }
-
-
-      container.innerHTML = "";
-
-
-      const latest =
-        reviews[0];
-
-
-      const date =
-        latest.review_date ||
-        latest.created_at ||
-        "";
-
-
-      const observation =
-        latest.observations ||
-        latest.observation ||
-        latest.teacher_feedback ||
-        latest.feedback ||
-        latest.review ||
-        "Your teacher review will appear here.";
-
-
-      const title =
-        latest.title ||
-        "Weekly Academic Review";
-
-
-      const card =
-        document.createElement(
-          "div"
+        wrap.appendChild(
+          label
         );
 
 
-      card.className =
-        "review-card";
-
-
-      card.innerHTML = `
-
-        <div class="review-date">
-          ${formatDate(date)}
-        </div>
-
-        <h3>
-          ${escapeHTML(title)}
-        </h3>
-
-        <p>
-          ${escapeHTML(observation)}
-        </p>
-
-      `;
-
-
-      container.appendChild(
-        card
-      );
-
-    }
-
-
-    function formatDate(
-      value
-    ) {
-
-      if (!value)
-        return "Weekly Review";
-
-
-      const date =
-        new Date(value);
-
-
-      if (
-        isNaN(
-          date.getTime()
-        )
-      ) {
-
-        return value;
+        chart.appendChild(
+          wrap
+        );
 
       }
+    );
+
+  }
 
 
-      return date.toLocaleDateString(
-        "en-IN",
-        {
-          day: "numeric",
-          month: "long",
-          year: "numeric"
-        }
+  /* =====================================================
+     TEST HISTORY
+     ===================================================== */
+
+  function renderTests(
+    scores
+  ) {
+
+    const container =
+      document.getElementById(
+        "testsList"
       );
 
+
+    if (!scores.length) {
+
+      return;
     }
 
 
-    /* =====================================================
-       SECURITY HELPER
-       ===================================================== */
+    container.innerHTML = "";
 
-    function escapeHTML(
-      value
-    ) {
 
-      return String(
-        value ?? ""
+    scores.forEach(
+      (row, index) => {
+
+        const score =
+          getScore(row);
+
+
+        const maxMarks =
+          getMaxMarks(row);
+
+
+        const percentage =
+          getPercentage(row);
+
+
+        if (
+          score === null
+        ) {
+
+          return;
+        }
+
+
+        const subject =
+          row.subject ||
+          "Academic Test";
+
+
+        const testName =
+          "Assessment " +
+          (index + 1);
+
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+
+        div.className =
+          "test-row";
+
+
+        div.innerHTML = `
+
+          <div>
+
+            <div class="test-name">
+              ${escapeHTML(testName)}
+            </div>
+
+            <div class="test-subject">
+              ${escapeHTML(subject)}
+              ${
+                maxMarks !== null
+                  ? " · " + maxMarks + " marks"
+                  : ""
+              }
+            </div>
+
+          </div>
+
+
+          <div>
+
+            <div class="score-bar">
+
+              <div
+                class="score-fill"
+                style="
+                  width:${
+                    percentage !== null
+                      ? Math.min(
+                          100,
+                          Math.max(
+                            0,
+                            percentage
+                          )
+                        )
+                      : 0
+                  }%;
+                "
+              ></div>
+
+            </div>
+
+            <div class="score-percent">
+
+              ${
+                percentage !== null
+                  ? Math.round(
+                      percentage
+                    ) + "%"
+                  : "—"
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="test-score">
+
+            ${score}
+
+            ${
+              maxMarks !== null
+                ? " / " + maxMarks
+                : ""
+            }
+
+          </div>
+
+        `;
+
+
+        container.appendChild(
+          div
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     REVIEWS
+     ===================================================== */
+
+  function renderReviews(
+    reviews
+  ) {
+
+    const container =
+      document.getElementById(
+        "reviewContainer"
+      );
+
+
+    if (!reviews.length) {
+
+      return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const latest =
+      reviews[0];
+
+
+    const date =
+      latest.review_date ||
+      latest.created_at ||
+      "";
+
+
+    const observation =
+      latest.observations ||
+      latest.observation ||
+      latest.teacher_feedback ||
+      latest.feedback ||
+      latest.review ||
+      "Your teacher review will appear here.";
+
+
+    const title =
+      latest.title ||
+      "Weekly Academic Review";
+
+
+    const card =
+      document.createElement(
+        "div"
+      );
+
+
+    card.className =
+      "review-card";
+
+
+    card.innerHTML = `
+
+      <div class="review-date">
+        ${formatDate(date)}
+      </div>
+
+      <h3>
+        ${escapeHTML(title)}
+      </h3>
+
+      <p>
+        ${escapeHTML(observation)}
+      </p>
+
+    `;
+
+
+    container.appendChild(
+      card
+    );
+
+  }
+
+
+  /* =====================================================
+     DATE
+     ===================================================== */
+
+  function formatDate(
+    value
+  ) {
+
+    if (!value) {
+
+      return "Weekly Review";
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if (
+      isNaN(
+        date.getTime()
       )
+    ) {
+
+      return value;
+    }
+
+
+    return date.toLocaleDateString(
+      "en-IN",
+      {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }
+    );
+
+  }
+
+
+  /* =====================================================
+     HTML SECURITY
+     ===================================================== */
+
+  function escapeHTML(
+    value
+  ) {
+
+    return String(
+      value ?? ""
+    )
       .replace(
         /&/g,
         "&amp;"
@@ -2803,40 +2109,40 @@
         "&#039;"
       );
 
-    }
+  }
 
 
-    /* =====================================================
-       LOGOUT
-       ===================================================== */
+  /* =====================================================
+     LOGOUT
+     ===================================================== */
 
-    document
-      .getElementById(
-        "logoutBtn"
-      )
-      .addEventListener(
-        "click",
-        async () => {
+  document
+    .getElementById(
+      "logoutBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
 
-          await supabaseClient
-            .auth
-            .signOut();
-
-
-          window.location.href =
-            "student-login.html";
-
-        }
-      );
+        await supabaseClient
+          .auth
+          .signOut();
 
 
-    /* =====================================================
-       START
-       ===================================================== */
+        window.location.href =
+          "student-login.html";
 
-    initDashboard();
+      }
+    );
 
-  </script>
+
+  /* =====================================================
+     START DASHBOARD
+     ===================================================== */
+
+  initDashboard();
+
+</script>
 
 </body>
 </html>
