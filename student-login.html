@@ -16,7 +16,252 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <script>
+
+  /* =========================================
+     SIR STUDENT PORTAL
+     SUPABASE CONFIGURATION
+  ========================================= */
+
+  const SUPABASE_URL =
+    "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+  const STUDENT_LOGIN_FUNCTION =
+    `${SUPABASE_URL}/functions/v1/student-login`;
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+  /* =========================================
+     LOGIN ELEMENTS
+  ========================================= */
+
+  const loginForm =
+    document.getElementById("student-login-form");
+
+  const loginButton =
+    document.getElementById("login-button");
+
+  const loginMessage =
+    document.getElementById("login-message");
+
+
+  /* =========================================
+     MESSAGE
+  ========================================= */
+
+  function showMessage(message, type = "info") {
+
+    loginMessage.textContent = message;
+
+    loginMessage.className =
+      `message show ${type}`;
+  }
+
+
+  /* =========================================
+     STUDENT LOGIN
+  ========================================= */
+
+  loginForm.addEventListener(
+    "submit",
+    async function (event) {
+
+      event.preventDefault();
+
+      const uid =
+        document
+          .getElementById("student-uid")
+          .value
+          .trim()
+          .toUpperCase();
+
+      const password =
+        document
+          .getElementById("student-password")
+          .value;
+
+
+      /* Basic validation */
+
+      if (!uid || !password) {
+
+        showMessage(
+          "Please enter your Student UID and password.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      /* Loading state */
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Signing in...";
+
+      showMessage(
+        "Verifying your student account...",
+        "info"
+      );
+
+
+      try {
+
+        /* =====================================
+           CALL SUPABASE EDGE FUNCTION
+        ===================================== */
+
+        const response =
+          await fetch(
+            STUDENT_LOGIN_FUNCTION,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_PUBLISHABLE_KEY
+              },
+
+              body: JSON.stringify({
+                student_uid: uid,
+                password: password
+              })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        console.log(
+          "Student login response:",
+          result
+        );
+
+
+        /* =====================================
+           LOGIN FAILED
+        ===================================== */
+
+        if (
+          !response.ok ||
+          !result.success ||
+          !result.session
+        ) {
+
+          showMessage(
+            result.error ||
+            "Invalid Student UID or password.",
+            "error"
+          );
+
+          loginButton.disabled = false;
+          loginButton.textContent =
+            "Access Student Portal";
+
+          return;
+        }
+
+
+        /* =====================================
+           CREATE SUPABASE SESSION
+        ===================================== */
+
+        const {
+          error: sessionError
+        } =
+          await supabaseClient.auth.setSession({
+
+            access_token:
+              result.session.access_token,
+
+            refresh_token:
+              result.session.refresh_token
+
+          });
+
+
+        if (sessionError) {
+
+          console.error(
+            "Session error:",
+            sessionError
+          );
+
+          showMessage(
+            "Login succeeded, but your session could not be created. Please try again.",
+            "error"
+          );
+
+          loginButton.disabled = false;
+          loginButton.textContent =
+            "Access Student Portal";
+
+          return;
+        }
+
+
+        /* =====================================
+           SUCCESS
+        ===================================== */
+
+        showMessage(
+          `Welcome, ${result.student.name}. Opening your portal...`,
+          "info"
+        );
+
+        loginButton.textContent =
+          "Login successful";
+
+
+        /* =====================================
+           OPEN STUDENT DASHBOARD
+        ===================================== */
+
+        setTimeout(() => {
+
+          window.location.href =
+            "student-dashboard.html";
+
+        }, 700);
+
+      }
+
+
+      /* =====================================
+         NETWORK / UNEXPECTED ERROR
+      ===================================== */
+
+      catch (error) {
+
+        console.error(
+          "Student login error:",
+          error
+        );
+
+        showMessage(
+          "Unable to connect to the student portal. Please try again.",
+          "error"
+        );
+
+        loginButton.disabled = false;
+        loginButton.textContent =
+          "Access Student Portal";
+      }
+
+    }
+  );
+
+</script>
 
   <style>
     /* =========================================
