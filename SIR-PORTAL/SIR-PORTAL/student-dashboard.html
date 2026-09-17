@@ -1,1 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student & Parent Portal | SIR Kolhapur</title>
+
+    <meta
+        name="description"
+        content="SIR Student & Parent Portal — student profile, results, performance analytics, progress and weekly teacher review."
+    >
+
+    <meta
+        name="robots"
+        content="noindex, nofollow"
+    >
+
+    <meta
+        name="theme-color"
+        content="#07152f"
+    >
+
+    <link
+        rel="icon"
+        href="../sir logo.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="student-dashboard.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="dashboard-header">
+
+        <a
+            href="../index.html"
+            class="dashboard-brand"
+            aria-label="SIR Home"
+        >
+            <img
+                src="../sir logo.png"
+                alt="Suryavanshi Institute for Rankers logo"
+            >
+        </a>
+
+        <div class="header-right">
+
+            <div class="student-identity">
+                <span>STUDENT UID</span>
+                <strong id="dashboard-uid">SIR-XXXX</strong>
+            </div>
+
+            <button
+                type="button"
+                id="logout-button"
+                class="logout-button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN DASHBOARD
+         ===================================================== -->
+
+    <main class="dashboard-main">
+
+        <!-- =================================================
+             WELCOME
+             ================================================= -->
+
+        <section class="dashboard-welcome">
+
+            <div>
+
+                <p class="eyebrow">
+                    SIR — STUDENT & PARENT PORTAL
+                </p>
+
+                <h1>
+                    Welcome,
+                    <span id="student-name">
+                        Student
+                    </span>.
+                </h1>
+
+                <p class="welcome-text">
+                    Your preparation, progress and teacher feedback —
+                    connected in one place.
+                </p>
+
+            </div>
+
+            <div class="status-card">
+
+                <span class="status-label">
+                    CURRENT STATUS
+                </span>
+
+                <strong id="student-status">
+                    Active
+                </strong>
+
+                <small>
+                    Academic journey in progress
+                </small>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             QUICK OVERVIEW
+             ================================================= -->
+
+        <section
+            class="overview-grid"
+            aria-label="Academic overview"
+        >
+
+            <article class="overview-card">
+
+                <span class="card-number">
+                    01
+                </span>
+
+                <span class="card-label">
+                    OVERALL AVERAGE
+                </span>
+
+                <strong id="overall-average">
+                    —
+                </strong>
+
+                <small>
+                    Across recorded tests
+                </small>
+
+            </article>
+
+
+            <article class="overview-card">
+
+                <span class="card-number">
+                    02
+                </span>
+
+                <span class="card-label">
+                    TESTS ATTEMPTED
+                </span>
+
+                <strong id="tests-attempted">
+                    —
+                </strong>
+
+                <small>
+                    Academic assessments
+                </small>
+
+            </article>
+
+
+            <article class="overview-card">
+
+                <span class="card-number">
+                    03
+                </span>
+
+                <span class="card-label">
+                    STRONGEST SUBJECT
+                </span>
+
+                <strong id="strongest-subject">
+                    —
+                </strong>
+
+                <small>
+                    Based on recorded performance
+                </small>
+
+            </article>
+
+
+            <article class="overview-card">
+
+                <span class="card-number">
+                    04
+                </span>
+
+                <span class="card-label">
+                    LAST REVIEW
+                </span>
+
+                <strong id="last-review">
+                    —
+                </strong>
+
+                <small>
+                    Latest teacher interaction
+                </small>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             PORTAL NAVIGATION
+             ================================================= -->
+
+        <section class="portal-navigation">
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    YOUR ACADEMIC JOURNEY
+                </p>
+
+                <h2>
+                    Everything important
+                    <em>in one place.</em>
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <!-- PROFILE -->
+
+                <a
+                    href="#profile"
+                    class="dashboard-card"
+                >
+
+                    <span class="dashboard-card-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            STUDENT PROFILE
+                        </h3>
+
+                        <p>
+                            View your academic, course and
+                            batch information.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+                <!-- RESULTS -->
+
+                <a
+                    href="#results"
+                    class="dashboard-card"
+                >
+
+                    <span class="dashboard-card-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            RESULTS
+                        </h3>
+
+                        <p>
+                            Review individual test results
+                            and academic records.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+                <!-- ANALYTICS -->
+
+                <a
+                    href="#analytics"
+                    class="dashboard-card"
+                >
+
+                    <span class="dashboard-card-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            PERFORMANCE ANALYTICS
+                        </h3>
+
+                        <p>
+                            Understand subject-wise and
+                            test-wise performance trends.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+                <!-- PROGRESS -->
+
+                <a
+                    href="#progress"
+                    class="dashboard-card"
+                >
+
+                    <span class="dashboard-card-number">
+                        04
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            PROGRESS
+                        </h3>
+
+                        <p>
+                            Track strengths, improvement
+                            areas and progress over time.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+                <!-- TEACHER REVIEW -->
+
+                <a
+                    href="#teacher-review"
+                    class="dashboard-card dashboard-card-wide"
+                >
+
+                    <span class="dashboard-card-number">
+                        05
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            WEEKLY TEACHER REVIEW
+                        </h3>
+
+                        <p>
+                            See what was covered, how you
+                            performed, what you are struggling
+                            with and what comes next.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+                <!-- UPDATES -->
+
+                <a
+                    href="#updates"
+                    class="dashboard-card dashboard-card-wide"
+                >
+
+                    <span class="dashboard-card-number">
+                        06
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            ACADEMIC UPDATES
+                        </h3>
+
+                        <p>
+                            Stay connected with important
+                            academic information and updates.
+                        </p>
+
+                    </div>
+
+                    <span class="card-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PROFILE
+             ================================================= -->
+
+        <section
+            id="profile"
+            class="dashboard-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    01 — STUDENT PROFILE
+                </p>
+
+                <h2>
+                    Know your
+                    <em>academic profile.</em>
+                </h2>
+
+            </div>
+
+
+            <div class="profile-grid">
+
+                <div class="profile-card">
+
+                    <span>
+                        STUDENT NAME
+                    </span>
+
+                    <strong id="profile-name">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-card">
+
+                    <span>
+                        STUDENT UID
+                    </span>
+
+                    <strong id="profile-uid">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-card">
+
+                    <span>
+                        COURSE
+                    </span>
+
+                    <strong id="profile-course">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-card">
+
+                    <span>
+                        BATCH
+                    </span>
+
+                    <strong id="profile-batch">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-card">
+
+                    <span>
+                        ACADEMIC YEAR
+                    </span>
+
+                    <strong id="profile-year">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-card">
+
+                    <span>
+                        STATUS
+                    </span>
+
+                    <strong id="profile-status">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RESULTS
+             ================================================= -->
+
+        <section
+            id="results"
+            class="dashboard-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    02 — RESULTS
+                </p>
+
+                <h2>
+                    Every test tells
+                    <em>a story.</em>
+                </h2>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="results-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                TEST
+                            </th>
+
+                            <th>
+                                DATE
+                            </th>
+
+                            <th>
+                                SCORE
+                            </th>
+
+                            <th>
+                                PERCENTAGE
+                            </th>
+
+                            <th>
+                                RANK
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="results-table-body">
+
+                        <tr>
+
+                            <td colspan="5">
+                                No result data available yet.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ANALYTICS
+             ================================================= -->
+
+        <section
+            id="analytics"
+            class="dashboard-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    03 — PERFORMANCE ANALYTICS
+                </p>
+
+                <h2>
+                    Don't just see
+                    <em>marks.</em>
+                </h2>
+
+                <p class="section-description">
+                    Understand what the numbers are telling you.
+                </p>
+
+            </div>
+
+
+            <div class="analytics-grid">
+
+                <div class="analytics-card">
+
+                    <span>
+                        AVERAGE
+                    </span>
+
+                    <strong id="analytics-average">
+                        —
+                    </strong>
+
+                    <small>
+                        Recorded test average
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>
+                        MEAN
+                    </span>
+
+                    <strong id="analytics-mean">
+                        —
+                    </strong>
+
+                    <small>
+                        Mean performance
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>
+                        MEDIAN
+                    </span>
+
+                    <strong id="analytics-median">
+                        —
+                    </strong>
+
+                    <small>
+                        Median performance
+                    </small>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <span>
+                        MODE
+                    </span>
+
+                    <strong id="analytics-mode">
+                        —
+                    </strong>
+
+                    <small>
+                        Most frequent score range
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="subject-performance">
+
+                <div class="mini-heading">
+
+                    <span>
+                        SUBJECT-WISE PERFORMANCE
+                    </span>
+
+                </div>
+
+                <div
+                    id="subject-performance-list"
+                    class="subject-list"
+                >
+
+                    <div class="empty-state">
+                        Subject performance will appear here
+                        once academic data is available.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PROGRESS
+             ================================================= -->
+
+        <section
+            id="progress"
+            class="dashboard-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    04 — PROGRESS
+                </p>
+
+                <h2>
+                    Know what's working.
+                    <em>Know what needs work.</em>
+                </h2>
+
+            </div>
+
+
+            <div class="progress-grid">
+
+                <article class="progress-card">
+
+                    <span class="progress-number">
+                        01
+                    </span>
+
+                    <h3>
+                        STRENGTHS
+                    </h3>
+
+                    <p id="strengths">
+                        Your identified academic strengths
+                        will appear here.
+                    </p>
+
+                </article>
+
+
+                <article class="progress-card">
+
+                    <span class="progress-number">
+                        02
+                    </span>
+
+                    <h3>
+                        AREAS TO IMPROVE
+                    </h3>
+
+                    <p id="improvement-areas">
+                        Areas requiring additional attention
+                        will appear here.
+                    </p>
+
+                </article>
+
+
+                <article class="progress-card">
+
+                    <span class="progress-number">
+                        03
+                    </span>
+
+                    <h3>
+                        NEXT FOCUS
+                    </h3>
+
+                    <p id="next-focus">
+                        Your next academic focus will appear here.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             WEEKLY TEACHER REVIEW
+             ================================================= -->
+
+        <section
+            id="teacher-review"
+            class="dashboard-section teacher-review-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    05 — WEEKLY TEACHER REVIEW
+                </p>
+
+                <h2>
+                    Beyond the score,
+                    <em>comes the review.</em>
+                </h2>
+
+                <p class="section-description">
+                    A clear view of the student's academic
+                    interaction with the teacher.
+                </p>
+
+            </div>
+
+
+            <div class="review-card">
+
+                <div class="review-top">
+
+                    <div>
+
+                        <span class="review-label">
+                            LATEST WEEKLY REVIEW
+                        </span>
+
+                        <h3 id="review-week">
+                            —
+                        </h3>
+
+                    </div>
+
+                    <span
+                        id="review-date"
+                        class="review-date"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="review-grid">
+
+                    <div class="review-item">
+
+                        <span>
+                            WHAT WAS COVERED
+                        </span>
+
+                        <p id="review-covered">
+                            No review available yet.
+                        </p>
+
+                    </div>
+
+
+                    <div class="review-item">
+
+                        <span>
+                            PERFORMANCE
+                        </span>
+
+                        <p id="review-performance">
+                            No review available yet.
+                        </p>
+
+                    </div>
+
+
+                    <div class="review-item">
+
+                        <span>
+                            STRUGGLING AREAS
+                        </span>
+
+                        <p id="review-struggling">
+                            No review available yet.
+                        </p>
+
+                    </div>
+
+
+                    <div class="review-item">
+
+                        <span>
+                            NEXT ACTION
+                        </span>
+
+                        <p id="review-next-action">
+                            No review available yet.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ACADEMIC UPDATES
+             ================================================= -->
+
+        <section
+            id="updates"
+            class="dashboard-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    06 — ACADEMIC UPDATES
+                </p>
+
+                <h2>
+                    Stay connected with
+                    <em>what matters.</em>
+                </h2>
+
+            </div>
+
+
+            <div
+                id="academic-updates"
+                class="updates-list"
+            >
+
+                <article class="update-item">
+
+                    <span>
+                        UPDATE
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Academic updates will appear here.
+                        </h3>
+
+                        <p>
+                            Important information shared by
+                            SIR will be displayed in this section.
+                        </p>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PARENT VISIBILITY
+             ================================================= -->
+
+        <section class="parent-visibility">
+
+            <div>
+
+                <p class="eyebrow">
+                    PARENT VISIBILITY
+                </p>
+
+                <h2>
+                    The same portal keeps
+                    <em>parents connected.</em>
+                </h2>
+
+                <p>
+                    Students and parents use the same Student UID
+                    and password/PIN to access the student's
+                    academic journey.
+                </p>
+
+            </div>
+
+            <div class="parent-flow">
+
+                <span>
+                    STUDENT
+                </span>
+
+                <strong>
+                    →
+                </strong>
+
+                <span>
+                    SIR PORTAL
+                </span>
+
+                <strong>
+                    →
+                </strong>
+
+                <span>
+                    PARENT
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <p>
+            WHERE POTENTIAL FINDS DIRECTION
+        </p>
+
+        <a href="../index.html">
+            Suryavanshi Institute for Rankers
+        </a>
+
+    </footer>
+
+
+    <script src="student-dashboard.js"></script>
+
+</body>
+</html>
