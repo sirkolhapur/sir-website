@@ -1,1 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Student Dashboard | SIR Kolhapur</title>
+
+  <meta
+    name="description"
+    content="SIR Kolhapur Student Dashboard — track academic performance, tests, progress and teacher reviews."
+  />
+
+  <link rel="icon" href="sir%20logo.png" />
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --navy: #071426;
+      --navy-2: #0d1f36;
+      --gold: #d9aa45;
+      --gold-light: #f0cf7a;
+      --white: #ffffff;
+      --muted: #9eacbd;
+      --line: rgba(255,255,255,0.09);
+      --card: rgba(255,255,255,0.045);
+      --success: #65c18c;
+      --danger: #df7777;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(217,170,69,0.08), transparent 30%),
+        var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* HEADER */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      background: rgba(7,20,38,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .brand-text span {
+      display: block;
+      margin-top: 3px;
+      color: var(--gold-light);
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .logout-btn {
+      border: 1px solid rgba(217,170,69,0.5);
+      background: transparent;
+      color: var(--gold-light);
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .logout-btn:hover {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    /* MAIN */
+
+    main {
+      width: min(1200px, 90%);
+      margin: auto;
+      padding: 55px 0 80px;
+    }
+
+    /* WELCOME */
+
+    .welcome {
+      margin-bottom: 40px;
+    }
+
+    .eyebrow {
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .welcome h1 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+
+    .welcome h1 span {
+      color: var(--gold-light);
+    }
+
+    .welcome p {
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 650px;
+    }
+
+    /* PROFILE */
+
+    .profile-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 30px;
+      align-items: center;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.07),
+        rgba(255,255,255,0.025)
+      );
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .profile-info h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .uid {
+      color: var(--gold-light);
+      font-size: 13px;
+      letter-spacing: 1.5px;
+    }
+
+    .profile-meta {
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .direction-box {
+      text-align: right;
+    }
+
+    .direction-box small {
+      color: var(--muted);
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .direction-box strong {
+      color: var(--gold-light);
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+    }
+
+    /* SECTION */
+
+    .section {
+      margin-top: 50px;
+    }
+
+    .section-heading {
+      margin-bottom: 20px;
+    }
+
+    .section-heading h2 {
+      font-family: Georgia, serif;
+      font-size: 30px;
+      font-weight: 400;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin-top: 7px;
+      font-size: 14px;
+    }
+
+    /* STATS */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 23px;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+
+    .stat strong {
+      font-size: 30px;
+      font-weight: 500;
+    }
+
+    /* ANALYTICS */
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 25px;
+    }
+
+    .panel h3 {
+      font-family: Georgia, serif;
+      font-size: 21px;
+      font-weight: 400;
+      margin-bottom: 20px;
+    }
+
+    /* SIMPLE GRAPH */
+
+    .chart {
+      height: 250px;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      padding-top: 25px;
+    }
+
+    .bar-wrap {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 45px;
+      min-height: 4px;
+      background: linear-gradient(
+        to top,
+        var(--gold),
+        var(--gold-light)
+      );
+      border-radius: 7px 7px 2px 2px;
+      transition: height 0.5s ease;
+    }
+
+    .bar-label {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    /* METRICS */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 17px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .metric strong {
+      font-size: 20px;
+    }
+
+    /* TESTS */
+
+    .tests {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .test-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 100px;
+      gap: 15px;
+      align-items: center;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .test-name {
+      font-size: 14px;
+    }
+
+    .test-subject {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .test-score {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .score-bar {
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: inherit;
+    }
+
+    /* REVIEW */
+
+    .review-card {
+      border-left: 2px solid var(--gold);
+      background: var(--card);
+      border-radius: 0 18px 18px 0;
+      padding: 25px;
+    }
+
+    .review-date {
+      color: var(--gold-light);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .review-card h3 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .review-card p {
+      color: #c2cad4;
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .review-empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 25px;
+    }
+
+    /* LOADING */
+
+    .loading {
+      text-align: center;
+      padding: 100px 20px;
+      color: var(--muted);
+    }
+
+    .loading strong {
+      display: block;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    /* ERROR */
+
+    .error {
+      display: none;
+      margin: 30px auto;
+      max-width: 600px;
+      border: 1px solid rgba(223,119,119,0.4);
+      background: rgba(223,119,119,0.08);
+      color: #f2aaaa;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* FOOTER */
+
+    footer {
+      text-align: center;
+      border-top: 1px solid var(--line);
+      padding: 30px 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer strong {
+      color: var(--gold-light);
+      font-weight: 500;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 850px) {
+
+      main {
+        width: 92%;
+        padding-top: 40px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-card {
+        grid-template-columns: 1fr;
+      }
+
+      .direction-box {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      header {
+        height: 66px;
+        padding: 0 4%;
+      }
+
+      .brand-text strong {
+        font-size: 11px;
+      }
+
+      .brand-text span {
+        font-size: 8px;
+      }
+
+      .brand img {
+        width: 40px;
+        height: 40px;
+      }
+
+      .logout-btn {
+        padding: 8px 13px;
+        font-size: 12px;
+      }
+
+      .welcome h1 {
+        font-size: 39px;
+      }
+
+      .profile-card {
+        padding: 21px;
+        border-radius: 18px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat {
+        padding: 17px;
+      }
+
+      .stat strong {
+        font-size: 24px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .test-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .chart {
+        gap: 7px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+
+    <div class="brand">
+      <img src="sir%20logo.png" alt="SIR Kolhapur Logo">
+
+      <div class="brand-text">
+        <strong>SURYAVANSHI INSTITUTE FOR RANKERS</strong>
+        <span>Where Potential Finds Direction</span>
+      </div>
+    </div>
+
+    <button class="logout-btn" id="logoutBtn">
+      Logout
+    </button>
+
+  </header>
+
+
+  <main id="app">
+
+    <div class="loading" id="loading">
+      <strong>Loading your dashboard...</strong>
+      Your academic journey is being prepared.
+    </div>
+
+    <div class="error" id="errorBox"></div>
+
+    <div id="dashboard" style="display:none;">
+
+      <!-- WELCOME -->
+
+      <section class="welcome">
+
+        <div class="eyebrow">
+          Student Portal
+        </div>
+
+        <h1>
+          Welcome, <span id="studentName">Student</span>.
+        </h1>
+
+        <p>
+          Your preparation is more than a score.
+          This dashboard helps you understand where you stand,
+          what is improving, and where your preparation needs direction.
+        </p>
+
+      </section>
+
+
+      <!-- PROFILE -->
+
+      <section class="profile-card">
+
+        <div class="profile-info">
+
+          <h2 id="profileName">
+            —
+          </h2>
+
+          <div class="uid" id="profileUid">
+            UID: —
+          </div>
+
+          <div class="profile-meta" id="profileEmail">
+            —
+          </div>
+
+        </div>
+
+        <div class="direction-box">
+
+          <small>
+            SIR Philosophy
+          </small>
+
+          <strong>
+            Where Potential<br>
+            Finds Direction
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- QUICK STATS -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <h2>
+            Your Progress
+          </h2>
+
+          <p>
+            Numbers become useful when they help you understand your preparation.
+          </p>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat">
+            <small>Tests Attempted</small>
+            <strong id="testsAttempted">0</strong>
+          </div>
+
+          <div class="stat">
+            <small>Average Score</small>
+            <strong id="averageScore">—</strong>
+          </div>
+
+          <div class="stat">
+            <small>Highest Score</small>
+            <strong id="highestScore">—</strong>
+          </div>
+
+          <div class="stat">
+            <small>Latest Score</small>
+            <strong id="latestScore">—</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ANALYTICS -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <h2>
+            Performance Analysis
+          </h2>
+
+          <p>
+            Look beyond one test. Understand the pattern.
+          </p>
+
+        </div>
+
+
+        <div class="analytics-grid">
+
+          <div class="panel">
+
+            <h3>
+              Score Progress
+            </h3>
+
+            <div class="chart" id="chart">
+              <!-- JS -->
+            </div>
+
+          </div>
+
+
+          <div class="panel">
+
+            <h3>
+              Your Numbers
+            </h3>
+
+            <div class="metrics">
+
+              <div class="metric">
+                <span>Mean</span>
+                <strong id="mean">—</strong>
+              </div>
+
+              <div class="metric">
+                <span>Median</span>
+                <strong id="median">—</strong>
+              </div>
+
+              <div class="metric">
+                <span>Mode</span>
+                <strong id="mode">—</strong>
+              </div>
+
+              <div class="metric">
+                <span>Average</span>
+                <strong id="average">—</strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- TEST HISTORY -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <h2>
+            Test History
+          </h2>
+
+          <p>
+            Every test is a checkpoint — not a final judgment.
+          </p>
+
+        </div>
+
+        <div class="panel">
+
+          <div class="tests" id="testsList">
+
+            <div class="review-empty">
+              No test data available yet.
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- WEEKLY REVIEW -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <h2>
+            Weekly Teacher Review
+          </h2>
+
+          <p>
+            Teacher → Student → Parent
+          </p>
+
+        </div>
+
+
+        <div id="reviewContainer">
+
+          <div class="review-empty">
+            No teacher review has been added yet.
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <footer>
+    <strong>SIR Kolhapur</strong> · Where Potential Finds Direction
+  </footer>
+
+
+  <script>
+
+    /* =====================================================
+       SIR STUDENT DASHBOARD
+       ===================================================== */
+
+    const SUPABASE_URL =
+      "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    const loading =
+      document.getElementById("loading");
+
+    const errorBox =
+      document.getElementById("errorBox");
+
+    const dashboard =
+      document.getElementById("dashboard");
+
+
+    /* =====================================================
+       INITIALISE
+       ===================================================== */
+
+    async function initDashboard() {
+
+      try {
+
+        const {
+          data: {
+            session
+          }
+        } =
+          await supabaseClient.auth.getSession();
+
+
+        /* USER NOT LOGGED IN */
+
+        if (!session) {
+
+          window.location.href =
+            "student-login.html";
+
+          return;
+        }
+
+
+        /* GET CURRENT AUTH USER */
+
+        const user =
+          session.user;
+
+
+        /* GET STUDENT PROFILE */
+
+        const {
+          data: student,
+          error: studentError
+        } =
+          await supabaseClient
+            .from("students")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+
+        if (studentError) {
+
+          console.error(
+            studentError
+          );
+
+          throw new Error(
+            "Unable to load your student profile."
+          );
+        }
+
+
+        if (!student) {
+
+          throw new Error(
+            "Student profile not found."
+          );
+        }
+
+
+        /* DISPLAY PROFILE */
+
+        renderProfile(
+          student,
+          user
+        );
+
+
+        /* GET ACADEMIC DATA */
+
+        const scores =
+          await loadScores(
+            student
+          );
+
+
+        const reviews =
+          await loadReviews(
+            student
+          );
+
+
+        /* DISPLAY ANALYTICS */
+
+        renderAnalytics(
+          scores
+        );
+
+
+        renderTests(
+          scores
+        );
+
+
+        renderReviews(
+          reviews
+        );
+
+
+        /* SHOW DASHBOARD */
+
+        loading.style.display =
+          "none";
+
+        dashboard.style.display =
+          "block";
+
+
+      } catch (error) {
+
+        console.error(
+          "Dashboard error:",
+          error
+        );
+
+        loading.style.display =
+          "none";
+
+        errorBox.textContent =
+          error.message ||
+          "Unable to load dashboard.";
+
+        errorBox.style.display =
+          "block";
+
+      }
+
+    }
+
+
+    /* =====================================================
+       PROFILE
+       ===================================================== */
+
+    function renderProfile(
+      student,
+      user
+    ) {
+
+      const name =
+        student.full_name ||
+        user.user_metadata?.full_name ||
+        "Student";
+
+      const uid =
+        student.student_uid ||
+        "—";
+
+      const email =
+        student.email ||
+        user.email ||
+        "—";
+
+
+      document.getElementById(
+        "studentName"
+      ).textContent = name;
+
+
+      document.getElementById(
+        "profileName"
+      ).textContent = name;
+
+
+      document.getElementById(
+        "profileUid"
+      ).textContent =
+        "UID: " + uid;
+
+
+      document.getElementById(
+        "profileEmail"
+      ).textContent =
+        email;
+
+    }
+
+
+    /* =====================================================
+       LOAD SCORES
+       ===================================================== */
+
+    async function loadScores(
+      student
+    ) {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("test_scores")
+          .select("*")
+          .eq(
+            "student_id",
+            student.id
+          );
+
+
+      if (error) {
+
+        console.warn(
+          "Score query:",
+          error
+        );
+
+        return [];
+
+      }
+
+
+      return data || [];
+
+    }
+
+
+    /* =====================================================
+       LOAD REVIEWS
+       ===================================================== */
+
+    async function loadReviews(
+      student
+    ) {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("teacher_reviews")
+          .select("*")
+          .eq(
+            "student_id",
+            student.id
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+      if (error) {
+
+        console.warn(
+          "Review query:",
+          error
+        );
+
+        return [];
+
+      }
+
+
+      return data || [];
+
+    }
+
+
+    /* =====================================================
+       ANALYTICS
+       ===================================================== */
+
+    function getScore(
+      row
+    ) {
+
+      const possible =
+        [
+          row.score,
+          row.marks,
+          row.obtained_marks,
+          row.total_score,
+          row.percentage
+        ];
+
+
+      for (
+        const value of possible
+      ) {
+
+        if (
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          !isNaN(value)
+        ) {
+
+          return Number(value);
+
+        }
+
+      }
+
+
+      return null;
+
+    }
+
+
+    function calculateMean(
+      values
+    ) {
+
+      if (!values.length)
+        return null;
+
+
+      return (
+        values.reduce(
+          (a,b) => a + b,
+          0
+        ) /
+        values.length
+      );
+
+    }
+
+
+    function calculateMedian(
+      values
+    ) {
+
+      if (!values.length)
+        return null;
+
+
+      const sorted =
+        [...values].sort(
+          (a,b) => a-b
+        );
+
+
+      const middle =
+        Math.floor(
+          sorted.length / 2
+        );
+
+
+      if (
+        sorted.length % 2
+      ) {
+
+        return sorted[middle];
+
+      }
+
+
+      return (
+        sorted[middle - 1] +
+        sorted[middle]
+      ) / 2;
+
+    }
+
+
+    function calculateMode(
+      values
+    ) {
+
+      if (!values.length)
+        return null;
+
+
+      const frequency = {};
+
+
+      values.forEach(
+        value => {
+
+          frequency[value] =
+            (frequency[value] || 0) + 1;
+
+        }
+      );
+
+
+      let mode =
+        values[0];
+
+      let max =
+        frequency[mode];
+
+
+      Object.keys(
+        frequency
+      ).forEach(
+        value => {
+
+          if (
+            frequency[value] > max
+          ) {
+
+            mode =
+              Number(value);
+
+            max =
+              frequency[value];
+
+          }
+
+        }
+      );
+
+
+      return mode;
+
+    }
+
+
+    function renderAnalytics(
+      scores
+    ) {
+
+      const values =
+        scores
+          .map(getScore)
+          .filter(
+            value =>
+              value !== null
+          );
+
+
+      document.getElementById(
+        "testsAttempted"
+      ).textContent =
+        values.length;
+
+
+      if (!values.length) {
+
+        return;
+
+      }
+
+
+      const mean =
+        calculateMean(
+          values
+        );
+
+
+      const median =
+        calculateMedian(
+          values
+        );
+
+
+      const mode =
+        calculateMode(
+          values
+        );
+
+
+      const highest =
+        Math.max(
+          ...values
+        );
+
+
+      const latest =
+        values[
+          values.length - 1
+        ];
+
+
+      document.getElementById(
+        "averageScore"
+      ).textContent =
+        formatNumber(mean);
+
+
+      document.getElementById(
+        "highestScore"
+      ).textContent =
+        formatNumber(highest);
+
+
+      document.getElementById(
+        "latestScore"
+      ).textContent =
+        formatNumber(latest);
+
+
+      document.getElementById(
+        "mean"
+      ).textContent =
+        formatNumber(mean);
+
+
+      document.getElementById(
+        "median"
+      ).textContent =
+        formatNumber(median);
+
+
+      document.getElementById(
+        "mode"
+      ).textContent =
+        formatNumber(mode);
+
+
+      document.getElementById(
+        "average"
+      ).textContent =
+        formatNumber(mean);
+
+
+      renderChart(
+        values
+      );
+
+    }
+
+
+    function formatNumber(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined ||
+        isNaN(value)
+      ) {
+
+        return "—";
+
+      }
+
+
+      return Number(
+        value
+      ).toFixed(1);
+
+    }
+
+
+    /* =====================================================
+       CHART
+       ===================================================== */
+
+    function renderChart(
+      values
+    ) {
+
+      const chart =
+        document.getElementById(
+          "chart"
+        );
+
+
+      chart.innerHTML = "";
+
+
+      const recent =
+        values.slice(-8);
+
+
+      const max =
+        Math.max(
+          ...recent,
+          1
+        );
+
+
+      recent.forEach(
+        (
+          value,
+          index
+        ) => {
+
+          const wrap =
+            document.createElement(
+              "div"
+            );
+
+          wrap.className =
+            "bar-wrap";
+
+
+          const bar =
+            document.createElement(
+              "div"
+            );
+
+          bar.className =
+            "bar";
+
+
+          bar.style.height =
+            Math.max(
+              5,
+              (value / max) * 85
+            ) + "%";
+
+
+          const label =
+            document.createElement(
+              "div"
+            );
+
+          label.className =
+            "bar-label";
+
+
+          label.textContent =
+            value;
+
+
+          wrap.appendChild(
+            bar
+          );
+
+          wrap.appendChild(
+            label
+          );
+
+
+          chart.appendChild(
+            wrap
+          );
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       TEST HISTORY
+       ===================================================== */
+
+    function renderTests(
+      scores
+    ) {
+
+      const container =
+        document.getElementById(
+          "testsList"
+        );
+
+
+      if (!scores.length) {
+
+        return;
+
+      }
+
+
+      container.innerHTML = "";
+
+
+      scores.forEach(
+        row => {
+
+          const score =
+            getScore(row);
+
+
+          if (score === null)
+            return;
+
+
+          const name =
+            row.test_name ||
+            row.name ||
+            "Assessment";
+
+
+          const subject =
+            row.subject ||
+            "Academic Test";
+
+
+          const percentage =
+            Math.min(
+              100,
+              Math.max(
+                0,
+                score
+              )
+            );
+
+
+          const div =
+            document.createElement(
+              "div"
+            );
+
+
+          div.className =
+            "test-row";
+
+
+          div.innerHTML = `
+
+            <div>
+              <div class="test-name">
+                ${escapeHTML(name)}
+              </div>
+
+              <div class="test-subject">
+                ${escapeHTML(subject)}
+              </div>
+            </div>
+
+            <div class="score-bar">
+              <div
+                class="score-fill"
+                style="width:${percentage}%"
+              ></div>
+            </div>
+
+            <div class="test-score">
+              ${score}
+            </div>
+
+          `;
+
+
+          container.appendChild(
+            div
+          );
+
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       REVIEWS
+       ===================================================== */
+
+    function renderReviews(
+      reviews
+    ) {
+
+      const container =
+        document.getElementById(
+          "reviewContainer"
+        );
+
+
+      if (!reviews.length) {
+
+        return;
+
+      }
+
+
+      container.innerHTML = "";
+
+
+      const latest =
+        reviews[0];
+
+
+      const date =
+        latest.review_date ||
+        latest.created_at ||
+        "";
+
+
+      const observation =
+        latest.observations ||
+        latest.observation ||
+        latest.teacher_feedback ||
+        latest.feedback ||
+        latest.review ||
+        "Your teacher review will appear here.";
+
+
+      const title =
+        latest.title ||
+        "Weekly Academic Review";
+
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "review-card";
+
+
+      card.innerHTML = `
+
+        <div class="review-date">
+          ${formatDate(date)}
+        </div>
+
+        <h3>
+          ${escapeHTML(title)}
+        </h3>
+
+        <p>
+          ${escapeHTML(observation)}
+        </p>
+
+      `;
+
+
+      container.appendChild(
+        card
+      );
+
+    }
+
+
+    function formatDate(
+      value
+    ) {
+
+      if (!value)
+        return "Weekly Review";
+
+
+      const date =
+        new Date(value);
+
+
+      if (
+        isNaN(
+          date.getTime()
+        )
+      ) {
+
+        return value;
+
+      }
+
+
+      return date.toLocaleDateString(
+        "en-IN",
+        {
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }
+      );
+
+    }
+
+
+    /* =====================================================
+       SECURITY HELPER
+       ===================================================== */
+
+    function escapeHTML(
+      value
+    ) {
+
+      return String(
+        value ?? ""
+      )
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+    }
+
+
+    /* =====================================================
+       LOGOUT
+       ===================================================== */
+
+    document
+      .getElementById(
+        "logoutBtn"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          await supabaseClient
+            .auth
+            .signOut();
+
+
+          window.location.href =
+            "student-login.html";
+
+        }
+      );
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    initDashboard();
+
+  </script>
+
+</body>
+</html>
