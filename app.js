@@ -2,6 +2,22 @@
 // SIR — SUPABASE CONFIGURATION
 // ==========================================
 
+const SUPABASE_URL =
+  "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+console.log("SIR Supabase connected.");
+// ==========================================
+// SIR — SUPABASE CONFIGURATION
+// ==========================================
+
 const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
