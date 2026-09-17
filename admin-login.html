@@ -1,1 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>SIR Admin Dashboard</title>
+
+  <link rel="icon" href="sir logo.png" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #071426;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 76px;
+      background: #0b1b31;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .brand-text span {
+      color: #c9a84e;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .logout {
+      border: 1px solid rgba(255,255,255,.15);
+      background: transparent;
+      color: #fff;
+      padding: 10px 17px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: rgba(255,255,255,.06);
+    }
+
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 76px);
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #09182c;
+      border-right: 1px solid rgba(255,255,255,.07);
+      padding: 24px 15px;
+    }
+
+    .nav-title {
+      color: #718096;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin: 5px 12px 12px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #b8c4d4;
+      padding: 13px 14px;
+      text-align: left;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(201,168,78,.12);
+      color: #d9b75b;
+    }
+
+    .main {
+      flex: 1;
+      padding: 32px;
+      max-width: 1500px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-header h1 {
+      font-size: 30px;
+      margin-bottom: 7px;
+    }
+
+    .page-header p {
+      color: #8493a8;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: #0d2038;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 21px;
+    }
+
+    .stat-card span {
+      display: block;
+      color: #8190a5;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card strong {
+      font-size: 28px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-size: 21px;
+    }
+
+    .primary-btn {
+      background: #c9a84e;
+      color: #071426;
+      border: 0;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary-btn:hover {
+      opacity: .9;
+    }
+
+    .table-card {
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-tools {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .search {
+      width: 100%;
+      max-width: 360px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #08172a;
+      color: white;
+      outline: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 13px;
+    }
+
+    th {
+      color: #7e8da3;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    td {
+      color: #dce3ed;
+    }
+
+    .uid {
+      color: #d9b75b;
+      font-weight: 700;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: rgba(70,180,110,.12);
+      color: #69d391;
+      font-size: 11px;
+    }
+
+    .empty {
+      padding: 35px;
+      text-align: center;
+      color: #77869b;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.68);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 620px;
+      background: #0c1d33;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      padding: 25px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .close {
+      background: transparent;
+      border: 0;
+      color: #aaa;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: #a8b5c7;
+      font-size: 12px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 11px 12px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 7px;
+      color: white;
+      outline: none;
+    }
+
+    .form-actions {
+      margin-top: 22px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.15);
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 11px;
+      border-radius: 7px;
+      display: none;
+      font-size: 13px;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff8d8d;
+    }
+
+    .message.success {
+      background: rgba(70,180,110,.12);
+      color: #75dda0;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 190px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main {
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .topbar {
+        padding: 0 15px;
+      }
+
+      .brand-text {
+        display: none;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+      }
+
+      .nav-title {
+        display: none;
+      }
+
+      .nav-btn {
+        min-width: max-content;
+        margin: 0 4px;
+      }
+
+      .main {
+        padding: 18px 14px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-card strong {
+        font-size: 22px;
+      }
+
+      .table-card {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 700px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="sir logo.png" alt="SIR">
+    <div class="brand-text">
+      <strong>SIR Admin</strong>
+      <span>WHERE POTENTIAL FINDS DIRECTION</span>
+    </div>
+  </div>
+
+  <button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <div class="nav-title">Management</div>
+
+    <button class="nav-btn active" data-section="overview">
+      Dashboard
+    </button>
+
+    <button class="nav-btn" data-section="students">
+      Students
+    </button>
+
+    <button class="nav-btn" data-section="tests">
+      Tests
+    </button>
+
+    <button class="nav-btn" data-section="results">
+      Results
+    </button>
+
+    <button class="nav-btn" data-section="reviews">
+      Teacher Reviews
+    </button>
+
+    <button class="nav-btn" data-section="notices">
+      Notices
+    </button>
+
+  </aside>
+
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+
+    <section class="section active" id="overview">
+
+      <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage the academic system of Suryavanshi Institute for Rankers.</p>
+      </div>
+
+      <div class="stats">
+
+        <div class="stat-card">
+          <span>Total Students</span>
+          <strong id="totalStudents">—</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Active Students</span>
+          <strong id="activeStudents">—</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Total Tests</span>
+          <strong id="totalTests">—</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Notices</span>
+          <strong id="totalNotices">—</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- STUDENTS -->
+
+    <section class="section" id="students">
+
+      <div class="section-head">
+        <h2>Students</h2>
+
+        <button class="primary-btn" id="addStudentBtn">
+          + Add Student
+        </button>
+      </div>
+
+      <div class="table-card">
+
+        <div class="table-tools">
+          <input
+            type="text"
+            class="search"
+            id="studentSearch"
+            placeholder="Search by name, UID or email..."
+          >
+        </div>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>UID</th>
+              <th>Student</th>
+              <th>Email</th>
+              <th>Course</th>
+              <th>Batch</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="studentsTableBody">
+            <tr>
+              <td colspan="6" class="empty">
+                Loading students...
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- TESTS -->
+
+    <section class="section" id="tests">
+
+      <div class="section-head">
+        <h2>Tests</h2>
+        <button class="primary-btn">+ Create Test</button>
+      </div>
+
+      <div class="table-card">
+        <div class="empty">
+          Test Management will be connected here.
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- RESULTS -->
+
+    <section class="section" id="results">
+
+      <div class="section-head">
+        <h2>Results</h2>
+        <button class="primary-btn">+ Add Results</button>
+      </div>
+
+      <div class="table-card">
+        <div class="empty">
+          Result Management will be connected here.
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- REVIEWS -->
+
+    <section class="section" id="reviews">
+
+      <div class="section-head">
+        <h2>Teacher Reviews</h2>
+        <button class="primary-btn">+ New Review</button>
+      </div>
+
+      <div class="table-card">
+        <div class="empty">
+          Teacher Review Management will be connected here.
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- NOTICES -->
+
+    <section class="section" id="notices">
+
+      <div class="section-head">
+        <h2>Notice Board</h2>
+        <button class="primary-btn">+ Publish Notice</button>
+      </div>
+
+      <div class="table-card">
+        <div class="empty">
+          Notice Management will be connected here.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- ADD STUDENT MODAL -->
+
+<div class="modal" id="studentModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2>Add Student</h2>
+      <button class="close" id="closeModal">&times;</button>
+    </div>
+
+    <form id="studentForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Full Name</label>
+          <input
+            type="text"
+            id="studentName"
+            placeholder="Student full name"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input
+            type="email"
+            id="studentEmail"
+            placeholder="student@email.com"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Mobile</label>
+          <input
+            type="tel"
+            id="studentMobile"
+            placeholder="Mobile number"
+          >
+        </div>
+
+        <div class="field">
+          <label>Course</label>
+
+          <select id="studentCourse">
+            <option value="">Select Course</option>
+          </select>
+
+        </div>
+
+        <div class="field">
+          <label>Batch</label>
+
+          <select id="studentBatch">
+            <option value="">Select Batch</option>
+          </select>
+
+        </div>
+
+      </div>
+
+      <div id="formMessage" class="message"></div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-btn"
+          id="cancelStudent"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="primary-btn"
+        >
+          Create Student
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+  "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* --------------------------------
+   AUTH
+-------------------------------- */
+
+async function checkAdmin() {
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    window.location.href = "admin-login.html";
+    return null;
+  }
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+  if (error || !profile || profile.role !== "admin") {
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "admin-login.html";
+
+    return null;
+  }
+
+  return session;
+}
+
+
+/* --------------------------------
+   NAVIGATION
+-------------------------------- */
+
+document.querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+      document
+        .querySelectorAll(".section")
+        .forEach(section => section.classList.remove("active"));
+
+      button.classList.add("active");
+
+      const section =
+        document.getElementById(
+          button.dataset.section
+        );
+
+      section.classList.add("active");
+
+    });
+
+  });
+
+
+/* --------------------------------
+   STUDENTS
+-------------------------------- */
+
+let allStudents = [];
+
+
+async function loadStudents() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("students")
+    .select(`
+      id,
+      student_uid,
+      full_name,
+      email,
+      phone,
+      is_active,
+      course_id,
+      batch_id
+    `)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error("Students error:", error);
+
+    document.getElementById(
+      "studentsTableBody"
+    ).innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          Unable to load students.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  allStudents = data || [];
+
+  renderStudents(allStudents);
+
+  document.getElementById(
+    "totalStudents"
+  ).textContent = allStudents.length;
+
+  document.getElementById(
+    "activeStudents"
+  ).textContent =
+    allStudents.filter(s => s.is_active).length;
+
+}
+
+
+function renderStudents(students) {
+
+  const tbody =
+    document.getElementById(
+      "studentsTableBody"
+    );
+
+  if (!students.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          No students found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    students.map(student => `
+
+      <tr>
+
+        <td>
+          <span class="uid">
+            ${escapeHtml(student.student_uid || "—")}
+          </span>
+        </td>
+
+        <td>
+          ${escapeHtml(student.full_name || "—")}
+        </td>
+
+        <td>
+          ${escapeHtml(student.email || "—")}
+        </td>
+
+        <td>
+          —
+        </td>
+
+        <td>
+          —
+        </td>
+
+        <td>
+          <span class="status">
+            ${student.is_active ? "Active" : "Inactive"}
+          </span>
+        </td>
+
+      </tr>
+
+    `).join("");
+
+}
+
+
+document
+  .getElementById("studentSearch")
+  .addEventListener("input", function () {
+
+    const search =
+      this.value.toLowerCase().trim();
+
+    const filtered =
+      allStudents.filter(student =>
+
+        (student.full_name || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        (student.student_uid || "")
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        (student.email || "")
+          .toLowerCase()
+          .includes(search)
+
+      );
+
+    renderStudents(filtered);
+
+  });
+
+
+/* --------------------------------
+   COURSES
+-------------------------------- */
+
+async function loadCourses() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("courses")
+    .select("id,name,exam")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+
+    console.error("Courses error:", error);
+    return;
+
+  }
+
+  const select =
+    document.getElementById(
+      "studentCourse"
+    );
+
+  select.innerHTML =
+    `<option value="">Select Course</option>`;
+
+  (data || []).forEach(course => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = course.id;
+
+    option.textContent =
+      `${course.name} (${course.exam})`;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+/* --------------------------------
+   BATCHES
+-------------------------------- */
+
+async function loadBatches() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+
+    console.error("Batches error:", error);
+    return;
+
+  }
+
+  const select =
+    document.getElementById(
+      "studentBatch"
+    );
+
+  select.innerHTML =
+    `<option value="">Select Batch</option>`;
+
+  (data || []).forEach(batch => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = batch.id;
+
+    option.textContent =
+      `${batch.name} — ${batch.academic_year}`;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+/* --------------------------------
+   MODAL
+-------------------------------- */
+
+const modal =
+  document.getElementById(
+    "studentModal"
+  );
+
+
+document
+  .getElementById("addStudentBtn")
+  .addEventListener("click", async () => {
+
+    modal.classList.add("show");
+
+    await loadCourses();
+    await loadBatches();
+
+  });
+
+
+document
+  .getElementById("closeModal")
+  .addEventListener("click", closeModal);
+
+
+document
+  .getElementById("cancelStudent")
+  .addEventListener("click", closeModal);
+
+
+function closeModal() {
+
+  modal.classList.remove("show");
+
+  document
+    .getElementById("studentForm")
+    .reset();
+
+  hideMessage();
+
+}
+
+
+/* --------------------------------
+   STUDENT CREATE
+-------------------------------- */
+
+document
+  .getElementById("studentForm")
+  .addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    showMessage(
+      "Student creation will be connected securely in the next backend step.",
+      "success"
+    );
+
+  });
+
+
+/* --------------------------------
+   COUNTERS
+-------------------------------- */
+
+async function loadCounters() {
+
+  const {
+    count: testCount
+  } = await supabaseClient
+    .from("tests")
+    .select("*", {
+      count: "exact",
+      head: true
+    });
+
+  const {
+    count: noticeCount
+  } = await supabaseClient
+    .from("notices")
+    .select("*", {
+      count: "exact",
+      head: true
+    });
+
+  document.getElementById(
+    "totalTests"
+  ).textContent =
+    testCount ?? 0;
+
+  document.getElementById(
+    "totalNotices"
+  ).textContent =
+    noticeCount ?? 0;
+
+}
+
+
+/* --------------------------------
+   MESSAGES
+-------------------------------- */
+
+function showMessage(text, type) {
+
+  const box =
+    document.getElementById(
+      "formMessage"
+    );
+
+  box.textContent = text;
+
+  box.className =
+    `message show ${type}`;
+
+}
+
+
+function hideMessage() {
+
+  const box =
+    document.getElementById(
+      "formMessage"
+    );
+
+  box.className = "message";
+
+  box.textContent = "";
+
+}
+
+
+/* --------------------------------
+   SECURITY HELPER
+-------------------------------- */
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* --------------------------------
+   LOGOUT
+-------------------------------- */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener("click", async () => {
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href =
+      "admin-login.html";
+
+  });
+
+
+/* --------------------------------
+   INIT
+-------------------------------- */
+
+(async function init() {
+
+  const session = await checkAdmin();
+
+  if (!session) return;
+
+  await loadStudents();
+
+  await loadCounters();
+
+})();
+
+</script>
+
+</body>
+</html>
