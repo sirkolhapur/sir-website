@@ -1,1 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
 
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <meta name="description"
+        content="SIR Student Portal — Secure access to student performance, tests, progress and weekly reviews.">
+
+  <title>Student Portal | SIR Kolhapur</title>
+
+  <link rel="icon" type="image/png" href="sir logo.png">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* =========================================
+       SIR STUDENT PORTAL
+       Login Page
+    ========================================= */
+
+    :root {
+      --sir-navy: #071426;
+      --sir-navy-light: #0d1d33;
+      --sir-gold: #d9a72e;
+      --sir-white: #f7f8fa;
+      --sir-muted: #9da9b8;
+      --sir-border: rgba(255,255,255,0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(
+          circle at 50% 20%,
+          rgba(217,167,46,0.10),
+          transparent 35%
+        ),
+        var(--sir-navy);
+      color: var(--sir-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .portal-shell {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .portal-card {
+      background: rgba(13,29,51,0.92);
+      border: 1px solid var(--sir-border);
+      border-radius: 24px;
+      padding: 42px 36px;
+      box-shadow:
+        0 25px 80px rgba(0,0,0,0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    .portal-logo {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 26px;
+    }
+
+    .portal-label {
+      text-align: center;
+      color: var(--sir-gold);
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(30px, 6vw, 42px);
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .portal-intro {
+      text-align: center;
+      color: var(--sir-muted);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 34px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #dce2e9;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      height: 54px;
+      border-radius: 12px;
+      border: 1px solid var(--sir-border);
+      background: rgba(255,255,255,0.045);
+      color: white;
+      padding: 0 16px;
+      outline: none;
+      font-size: 15px;
+      transition: 0.2s ease;
+    }
+
+    .field input::placeholder {
+      color: #6f7c8c;
+    }
+
+    .field input:focus {
+      border-color: var(--sir-gold);
+      box-shadow: 0 0 0 3px rgba(217,167,46,0.10);
+    }
+
+    .login-button {
+      width: 100%;
+      height: 56px;
+      border: none;
+      border-radius: 12px;
+      background: var(--sir-gold);
+      color: #071426;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .login-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .login-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      display: none;
+      margin-top: 18px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(220, 70, 70, 0.10);
+      border: 1px solid rgba(220, 70, 70, 0.25);
+      color: #ffb5b5;
+    }
+
+    .message.info {
+      background: rgba(217,167,46,0.08);
+      border: 1px solid rgba(217,167,46,0.20);
+      color: #ead18d;
+    }
+
+    .portal-footer {
+      text-align: center;
+      margin-top: 26px;
+      color: #697789;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      color: var(--sir-muted);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .back-link:hover {
+      color: var(--sir-gold);
+    }
+
+    @media (max-width: 520px) {
+
+      body {
+        padding: 16px;
+      }
+
+      .portal-card {
+        padding: 34px 22px;
+        border-radius: 20px;
+      }
+
+      .portal-logo {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="portal-shell">
+
+    <section class="portal-card">
+
+      <img
+        src="sir logo.png"
+        alt="Suryavanshi Institute for Rankers"
+        class="portal-logo"
+      >
+
+      <div class="portal-label">
+        SIR Student Portal
+      </div>
+
+      <h1>
+        Your preparation.<br>
+        Your progress.
+      </h1>
+
+      <p class="portal-intro">
+        Access your academic performance, test progress
+        and teacher reviews through your secure student account.
+      </p>
+
+      <form id="student-login-form">
+
+        <div class="field">
+          <label for="student-uid">
+            Student UID
+          </label>
+
+          <input
+            type="text"
+            id="student-uid"
+            name="student_uid"
+            placeholder="Enter your Student UID"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="student-password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="student-password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="login-button"
+          id="login-button"
+        >
+          Access Student Portal
+        </button>
+
+      </form>
+
+      <div
+        id="login-message"
+        class="message"
+        role="alert"
+      ></div>
+
+      <a href="index.html" class="back-link">
+        ← Back to SIR
+      </a>
+
+      <div class="portal-footer">
+        Suryavanshi Institute for Rankers<br>
+        Where Potential Finds Direction
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    /* =========================================
+       SUPABASE CONFIG
+    ========================================= */
+
+    const SUPABASE_URL =
+      "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =========================================
+       LOGIN UI
+    ========================================= */
+
+    const loginForm =
+      document.getElementById("student-login-form");
+
+    const loginButton =
+      document.getElementById("login-button");
+
+    const loginMessage =
+      document.getElementById("login-message");
+
+
+    function showMessage(message, type = "info") {
+
+      loginMessage.textContent = message;
+
+      loginMessage.className =
+        `message show ${type}`;
+    }
+
+
+    loginForm.addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const uid =
+        document.getElementById("student-uid")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("student-password")
+          .value;
+
+      if (!uid || !password) {
+        showMessage(
+          "Please enter your Student UID and password.",
+          "error"
+        );
+        return;
+      }
+
+      /*
+       * UID authentication will be connected
+       * through a secure server-side flow.
+       *
+       * We do NOT expose privileged Supabase
+       * credentials in this browser.
+       */
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Checking...";
+
+      showMessage(
+        "Student authentication system is being connected.",
+        "info"
+      );
+
+      /*
+       * Temporary connection test.
+       * No login is performed here yet.
+       */
+
+      const { data, error } =
+        await supabaseClient
+          .from("courses")
+          .select("id")
+          .limit(1);
+
+      if (error) {
+
+        console.error(
+          "Supabase connection error:",
+          error
+        );
+
+        showMessage(
+          "Portal connection could not be verified. Please try again.",
+          "error"
+        );
+
+      } else {
+
+        console.log(
+          "SIR Student Portal → Supabase connected."
+        );
+
+        showMessage(
+          "Connection verified. Student authentication will be enabled next.",
+          "info"
+        );
+      }
+
+      loginButton.disabled = false;
+      loginButton.textContent =
+        "Access Student Portal";
+
+    });
+
+  </script>
+
+</body>
+</html>
