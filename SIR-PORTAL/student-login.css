@@ -1,1 +1,660 @@
+/* =========================================================
+   SIR STUDENT & PARENT PORTAL
+   Student Login Page
+   ========================================================= */
 
+:root {
+    --navy: #07152f;
+    --navy-deep: #040d20;
+    --blue: #0d4fa8;
+    --gold: #d7aa45;
+    --gold-light: #e0b957;
+
+    --white: #ffffff;
+    --soft-white: #edf2f8;
+    --muted: #aab6c8;
+
+    --line: rgba(255, 255, 255, 0.14);
+    --line-soft: rgba(255, 255, 255, 0.08);
+
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(13, 79, 168, 0.16), transparent 32%),
+        radial-gradient(circle at 85% 70%, rgba(215, 170, 69, 0.08), transparent 28%),
+        var(--navy-deep);
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.portal-header {
+    width: 100%;
+    height: 86px;
+    padding: 0 6vw;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--line-soft);
+    background: rgba(4, 13, 32, 0.86);
+
+    position: relative;
+    z-index: 10;
+
+    backdrop-filter: blur(14px);
+}
+
+.portal-brand {
+    display: flex;
+    align-items: center;
+}
+
+.portal-brand img {
+    width: 145px;
+    height: auto;
+    display: block;
+}
+
+.back-home {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+
+    transition:
+        color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.back-home:hover {
+    color: var(--white);
+    transform: translateX(-3px);
+}
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.portal-main {
+    width: 100%;
+}
+
+/* =========================================================
+   LOGIN SECTION
+   ========================================================= */
+
+.login-section {
+    min-height: calc(100vh - 86px);
+
+    width: min(1180px, 88%);
+    margin: 0 auto;
+
+    padding: 90px 0 100px;
+
+    display: grid;
+    grid-template-columns: 1fr 0.85fr;
+    gap: 90px;
+
+    align-items: center;
+}
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.login-intro {
+    max-width: 600px;
+}
+
+.eyebrow {
+    margin-bottom: 22px;
+
+    color: var(--gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+.login-intro h1 {
+    font-size: clamp(48px, 6vw, 82px);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    font-weight: 700;
+
+    margin-bottom: 30px;
+}
+
+.login-intro h1 em,
+.preview-heading h2 em {
+    color: var(--gold);
+    font-style: normal;
+}
+
+.login-intro > p:last-child {
+    max-width: 520px;
+
+    color: var(--muted);
+
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
+
+.login-card {
+    padding: 42px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.065),
+            rgba(255, 255, 255, 0.025)
+        );
+
+    border: 1px solid var(--line);
+    border-radius: 4px;
+
+    box-shadow: var(--shadow);
+
+    position: relative;
+}
+
+.login-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 72px;
+    height: 3px;
+
+    background: var(--gold);
+}
+
+/* =========================================================
+   CARD HEADING
+   ========================================================= */
+
+.card-heading {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    margin-bottom: 34px;
+}
+
+.card-heading span {
+    color: var(--gold);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.card-heading h2 {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* =========================================================
+   LOGIN FORM
+   ========================================================= */
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form label {
+    margin-bottom: 9px;
+
+    color: var(--soft-white);
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.login-form input {
+    width: 100%;
+    height: 54px;
+
+    margin-bottom: 23px;
+    padding: 0 17px;
+
+    color: var(--white);
+    background: rgba(4, 13, 32, 0.78);
+
+    border: 1px solid var(--line);
+    border-radius: 2px;
+
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.login-form input::placeholder {
+    color: #718099;
+}
+
+.login-form input:focus {
+    border-color: rgba(215, 170, 69, 0.75);
+
+    background: rgba(4, 13, 32, 0.95);
+
+    box-shadow: 0 0 0 3px rgba(215, 170, 69, 0.08);
+}
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+.login-button {
+    width: 100%;
+    height: 56px;
+
+    margin-top: 4px;
+
+    border: 0;
+    border-radius: 2px;
+
+    background: var(--gold);
+    color: var(--navy-deep);
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.login-button:hover {
+    background: var(--gold-light);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 12px 30px rgba(215, 170, 69, 0.18);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   LOGIN MESSAGE
+   ========================================================= */
+
+.login-message {
+    min-height: 22px;
+
+    margin-top: 15px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   SECURE ACCESS NOTE
+   ========================================================= */
+
+.login-note {
+    margin-top: 28px;
+    padding-top: 23px;
+
+    border-top: 1px solid var(--line-soft);
+}
+
+.login-note span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--gold);
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+}
+
+.login-note p {
+    color: #8491a5;
+
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   PORTAL PREVIEW
+   ========================================================= */
+
+.portal-preview {
+    width: min(1180px, 88%);
+    margin: 0 auto;
+
+    padding: 80px 0 120px;
+
+    border-top: 1px solid var(--line-soft);
+}
+
+.preview-heading {
+    margin-bottom: 48px;
+}
+
+.preview-heading h2 {
+    font-size: clamp(38px, 5vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+}
+
+/* =========================================================
+   FEATURE GRID
+   ========================================================= */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+}
+
+.feature-card {
+    min-height: 220px;
+
+    padding: 30px;
+
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+
+    background: rgba(255, 255, 255, 0.018);
+
+    transition:
+        background 0.3s ease,
+        transform 0.3s ease;
+}
+
+.feature-card:hover {
+    background: rgba(255, 255, 255, 0.045);
+
+    transform: translateY(-3px);
+}
+
+.feature-card > span {
+    display: block;
+
+    margin-bottom: 32px;
+
+    color: var(--gold);
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+
+.feature-card h3 {
+    margin-bottom: 13px;
+
+    color: var(--white);
+
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+}
+
+.feature-card p {
+    max-width: 290px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.75;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.portal-footer {
+    padding: 35px 6vw;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid var(--line-soft);
+
+    color: #718099;
+
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+.portal-footer a {
+    color: var(--muted);
+
+    transition: color 0.25s ease;
+}
+
+.portal-footer a:hover {
+    color: var(--white);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .login-section {
+        grid-template-columns: 1fr;
+
+        gap: 55px;
+
+        padding-top: 75px;
+        padding-bottom: 80px;
+    }
+
+    .login-intro {
+        max-width: 700px;
+    }
+
+    .login-card {
+        max-width: 620px;
+        width: 100%;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .portal-header {
+        height: 74px;
+
+        padding: 0 6%;
+    }
+
+    .portal-brand img {
+        width: 115px;
+    }
+
+    .back-home {
+        font-size: 11px;
+    }
+
+    .login-section {
+        width: 88%;
+
+        padding-top: 62px;
+        padding-bottom: 70px;
+    }
+
+    .login-intro h1 {
+        font-size: clamp(44px, 13vw, 62px);
+
+        margin-bottom: 24px;
+    }
+
+    .login-intro > p:last-child {
+        font-size: 15px;
+        line-height: 1.75;
+    }
+
+    .login-card {
+        padding: 28px 23px;
+    }
+
+    .card-heading {
+        margin-bottom: 28px;
+    }
+
+    .card-heading h2 {
+        font-size: 18px;
+    }
+
+    .login-form input {
+        height: 52px;
+
+        margin-bottom: 20px;
+    }
+
+    .login-button {
+        height: 54px;
+    }
+
+    .portal-preview {
+        width: 88%;
+
+        padding: 65px 0 80px;
+    }
+
+    .preview-heading {
+        margin-bottom: 35px;
+    }
+
+    .preview-heading h2 {
+        font-size: 40px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        min-height: auto;
+
+        padding: 26px 23px;
+    }
+
+    .feature-card > span {
+        margin-bottom: 23px;
+    }
+
+    .portal-footer {
+        padding: 28px 6%;
+
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 10px;
+
+        line-height: 1.6;
+    }
+}
+
+/* =========================================================
+   VERY SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .login-intro h1 {
+        font-size: 42px;
+    }
+
+    .login-card {
+        padding: 25px 19px;
+    }
+
+    .preview-heading h2 {
+        font-size: 36px;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
