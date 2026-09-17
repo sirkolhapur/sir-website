@@ -967,7 +967,7 @@
 
   /* =====================================================
      SIR STUDENT DASHBOARD
-     SINGLE CLEAN SCRIPT
+     TEST DETAILS + PERFORMANCE VERSION
      ===================================================== */
 
 
@@ -988,22 +988,18 @@
     );
 
 
-  /* ELEMENTS */
+  /* =====================================================
+     ELEMENTS
+     ===================================================== */
 
   const loading =
-    document.getElementById(
-      "loading"
-    );
+    document.getElementById("loading");
 
   const errorBox =
-    document.getElementById(
-      "errorBox"
-    );
+    document.getElementById("errorBox");
 
   const dashboard =
-    document.getElementById(
-      "dashboard"
-    );
+    document.getElementById("dashboard");
 
 
   /* =====================================================
@@ -1013,6 +1009,8 @@
   async function initDashboard() {
 
     try {
+
+      /* GET LOGIN SESSION */
 
       const {
         data: {
@@ -1028,6 +1026,7 @@
         throw new Error(
           "Unable to verify your login session."
         );
+
       }
 
 
@@ -1039,6 +1038,7 @@
           "student-login.html";
 
         return;
+
       }
 
 
@@ -1047,7 +1047,7 @@
 
 
       /* =================================================
-         STUDENT PROFILE
+         LOAD STUDENT
          ================================================= */
 
       const {
@@ -1074,6 +1074,7 @@
         throw new Error(
           "Unable to load your student profile."
         );
+
       }
 
 
@@ -1082,8 +1083,11 @@
         throw new Error(
           "Student profile not found."
         );
+
       }
 
+
+      /* DISPLAY STUDENT */
 
       renderProfile(
         student,
@@ -1092,7 +1096,7 @@
 
 
       /* =================================================
-         ACADEMIC DATA
+         LOAD SCORES
          ================================================= */
 
       const scores =
@@ -1101,6 +1105,31 @@
         );
 
 
+      /* =================================================
+         LOAD ACTUAL TEST DETAILS
+         ================================================= */
+
+      const tests =
+        await loadTests(
+          scores
+        );
+
+
+      /* =================================================
+         COMBINE SCORE + TEST
+         ================================================= */
+
+      const academicRecords =
+        combineAcademicData(
+          scores,
+          tests
+        );
+
+
+      /* =================================================
+         REVIEWS
+         ================================================= */
+
       const reviews =
         await loadReviews(
           student.id
@@ -1108,16 +1137,16 @@
 
 
       /* =================================================
-         RENDER
+         RENDER EVERYTHING
          ================================================= */
 
       renderAnalytics(
-        scores
+        academicRecords
       );
 
 
       renderTests(
-        scores
+        academicRecords
       );
 
 
@@ -1126,7 +1155,7 @@
       );
 
 
-      /* SHOW */
+      /* SHOW DASHBOARD */
 
       loading.style.display =
         "none";
@@ -1152,6 +1181,7 @@
 
       errorBox.style.display =
         "block";
+
     }
 
   }
@@ -1210,7 +1240,7 @@
 
 
   /* =====================================================
-     LOAD TEST SCORES
+     LOAD SCORES
      ===================================================== */
 
   async function loadScores(
@@ -1251,15 +1281,171 @@
       throw new Error(
         "Unable to load your test performance."
       );
+
     }
 
 
     return data || [];
+
   }
 
 
   /* =====================================================
-     LOAD REVIEWS
+     LOAD ACTUAL TEST RECORDS
+     ===================================================== */
+
+  async function loadTests(
+    scores
+  ) {
+
+    const testIds =
+      [
+        ...new Set(
+          scores
+            .map(
+              row => row.test_id
+            )
+            .filter(Boolean)
+        )
+      ];
+
+
+    if (!testIds.length) {
+
+      return [];
+
+    }
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("tests")
+        .select(`
+          id,
+          batch_id,
+          title,
+          subject,
+          test_date,
+          max_marks,
+          duration_minutes,
+          description,
+          created_at
+        `)
+        .in(
+          "id",
+          testIds
+        );
+
+
+    if (error) {
+
+      console.warn(
+        "Test details query:",
+        error
+      );
+
+      /*
+        Score data should still remain usable
+        even if test details are unavailable.
+      */
+
+      return [];
+
+    }
+
+
+    return data || [];
+
+  }
+
+
+  /* =====================================================
+     COMBINE TEST + SCORE
+     ===================================================== */
+
+  function combineAcademicData(
+    scores,
+    tests
+  ) {
+
+    const testMap =
+      new Map();
+
+
+    tests.forEach(
+      test => {
+
+        testMap.set(
+          test.id,
+          test
+        );
+
+      }
+    );
+
+
+    const records =
+      scores.map(
+        score => {
+
+          const test =
+            testMap.get(
+              score.test_id
+            ) || null;
+
+
+          return {
+
+            ...score,
+
+            test: test
+
+          };
+
+        }
+      );
+
+
+    /*
+      Latest test first based on test date.
+      If date is unavailable, created_at is used.
+    */
+
+    records.sort(
+      (a, b) => {
+
+        const dateA =
+          new Date(
+            a.test?.test_date ||
+            a.test?.created_at ||
+            0
+          ).getTime();
+
+
+        const dateB =
+          new Date(
+            b.test?.test_date ||
+            b.test?.created_at ||
+            0
+          ).getTime();
+
+
+        return dateB - dateA;
+
+      }
+    );
+
+
+    return records;
+
+  }
+
+
+  /* =====================================================
+     REVIEWS
      ===================================================== */
 
   async function loadReviews(
@@ -1293,10 +1479,12 @@
       );
 
       return [];
+
     }
 
 
     return data || [];
+
   }
 
 
@@ -1319,7 +1507,9 @@
 
     }
 
+
     return null;
+
   }
 
 
@@ -1330,6 +1520,11 @@
   function getMaxMarks(
     row
   ) {
+
+    /*
+      Prefer score's max_marks.
+      If unavailable, use test's max_marks.
+    */
 
     if (
       row.max_marks !== null &&
@@ -1342,7 +1537,22 @@
 
     }
 
+
+    if (
+      row.test &&
+      row.test.max_marks !== null &&
+      row.test.max_marks !== undefined
+    ) {
+
+      return Number(
+        row.test.max_marks
+      );
+
+    }
+
+
     return null;
+
   }
 
 
@@ -1357,6 +1567,7 @@
     const score =
       getScore(row);
 
+
     const maxMarks =
       getMaxMarks(row);
 
@@ -1368,6 +1579,7 @@
     ) {
 
       return null;
+
     }
 
 
@@ -1375,6 +1587,7 @@
       score /
       maxMarks
     ) * 100;
+
   }
 
 
@@ -1389,6 +1602,7 @@
     if (!values.length) {
 
       return null;
+
     }
 
 
@@ -1415,6 +1629,7 @@
     if (!values.length) {
 
       return null;
+
     }
 
 
@@ -1459,6 +1674,7 @@
     if (!values.length) {
 
       return null;
+
     }
 
 
@@ -1478,6 +1694,7 @@
     let mode =
       values[0];
 
+
     let highestFrequency =
       frequency[mode];
 
@@ -1495,6 +1712,7 @@
           mode =
             Number(value);
 
+
           highestFrequency =
             frequency[value];
 
@@ -1504,13 +1722,17 @@
     );
 
 
-    /* No repeated score = no mode */
+    /*
+      If no score is repeated,
+      there is no meaningful mode.
+    */
 
     if (
       highestFrequency === 1
     ) {
 
       return null;
+
     }
 
 
@@ -1524,12 +1746,14 @@
      ===================================================== */
 
   function renderAnalytics(
-    scores
+    records
   ) {
 
     const validScores =
-      scores
-        .map(getScore)
+      records
+        .map(
+          getScore
+        )
         .filter(
           value =>
             value !== null &&
@@ -1540,7 +1764,7 @@
     document.getElementById(
       "testsAttempted"
     ).textContent =
-      scores.length;
+      records.length;
 
 
     if (!validScores.length) {
@@ -1548,6 +1772,7 @@
       renderEmptyAnalytics();
 
       return;
+
     }
 
 
@@ -1575,10 +1800,13 @@
       );
 
 
+    /*
+      Records are sorted latest first,
+      so first valid score is latest.
+    */
+
     const latest =
-      validScores[
-        validScores.length - 1
-      ];
+      validScores[0];
 
 
     document.getElementById(
@@ -1626,7 +1854,7 @@
 
 
     renderChart(
-      scores
+      records
     );
 
   }
@@ -1651,7 +1879,8 @@
 
         document.getElementById(
           id
-        ).textContent = "—";
+        ).textContent =
+          "—";
 
       }
     );
@@ -1663,7 +1892,7 @@
 
 
   /* =====================================================
-     NUMBER FORMAT
+     FORMAT NUMBER
      ===================================================== */
 
   function formatNumber(
@@ -1677,6 +1906,7 @@
     ) {
 
       return "—";
+
     }
 
 
@@ -1692,7 +1922,7 @@
      ===================================================== */
 
   function renderChart(
-    scores
+    records
   ) {
 
     const chart =
@@ -1701,10 +1931,11 @@
       );
 
 
-    chart.innerHTML = "";
+    chart.innerHTML =
+      "";
 
 
-    if (!scores.length) {
+    if (!records.length) {
 
       chart.innerHTML = `
         <div style="
@@ -1719,11 +1950,20 @@
       `;
 
       return;
+
     }
 
 
+    /*
+      Display oldest → newest in chart.
+    */
+
     const recent =
-      scores.slice(-8);
+      [
+        ...records
+      ]
+        .reverse()
+        .slice(-8);
 
 
     recent.forEach(
@@ -1738,6 +1978,7 @@
         ) {
 
           return;
+
         }
 
 
@@ -1812,7 +2053,7 @@
      ===================================================== */
 
   function renderTests(
-    scores
+    records
   ) {
 
     const container =
@@ -1821,20 +2062,31 @@
       );
 
 
-    if (!scores.length) {
+    if (!records.length) {
 
       return;
+
     }
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+      "";
 
 
-    scores.forEach(
+    records.forEach(
       (row, index) => {
 
         const score =
           getScore(row);
+
+
+        if (
+          score === null
+        ) {
+
+          return;
+
+        }
 
 
         const maxMarks =
@@ -1845,22 +2097,39 @@
           getPercentage(row);
 
 
-        if (
-          score === null
-        ) {
+        /* ACTUAL TEST INFORMATION */
 
-          return;
-        }
+        const testName =
+          row.test?.title ||
+          "Assessment " +
+          (index + 1);
 
 
         const subject =
+          row.test?.subject ||
           row.subject ||
           "Academic Test";
 
 
-        const testName =
-          "Assessment " +
-          (index + 1);
+        const testDate =
+          row.test?.test_date ||
+          "";
+
+
+        const rank =
+          row.rank;
+
+
+        const correct =
+          row.correct_answers;
+
+
+        const incorrect =
+          row.incorrect_answers;
+
+
+        const unanswered =
+          row.unanswered;
 
 
         const div =
@@ -1878,16 +2147,73 @@
           <div>
 
             <div class="test-name">
+
               ${escapeHTML(testName)}
+
             </div>
 
+
             <div class="test-subject">
+
               ${escapeHTML(subject)}
+
               ${
-                maxMarks !== null
-                  ? " · " + maxMarks + " marks"
+                testDate
+                  ? " · " +
+                    escapeHTML(
+                      formatDate(
+                        testDate
+                      )
+                    )
                   : ""
               }
+
+            </div>
+
+
+            <div style="
+              color:var(--muted);
+              font-size:11px;
+              margin-top:8px;
+              line-height:1.7;
+            ">
+
+              ${
+                rank !== null &&
+                rank !== undefined
+                  ? "Rank: " +
+                    escapeHTML(rank) +
+                    " · "
+                  : ""
+              }
+
+              ${
+                correct !== null &&
+                correct !== undefined
+                  ? "✓ " +
+                    escapeHTML(correct) +
+                    " Correct"
+                  : ""
+              }
+
+              ${
+                incorrect !== null &&
+                incorrect !== undefined
+                  ? " · ✕ " +
+                    escapeHTML(incorrect) +
+                    " Incorrect"
+                  : ""
+              }
+
+              ${
+                unanswered !== null &&
+                unanswered !== undefined
+                  ? " · — " +
+                    escapeHTML(unanswered) +
+                    " Unanswered"
+                  : ""
+              }
+
             </div>
 
           </div>
@@ -1916,6 +2242,7 @@
 
             </div>
 
+
             <div class="score-percent">
 
               ${
@@ -1933,11 +2260,12 @@
 
           <div class="test-score">
 
-            ${score}
+            ${escapeHTML(score)}
 
             ${
               maxMarks !== null
-                ? " / " + maxMarks
+                ? " / " +
+                  escapeHTML(maxMarks)
                 : ""
             }
 
@@ -1973,10 +2301,12 @@
     if (!reviews.length) {
 
       return;
+
     }
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+      "";
 
 
     const latest =
@@ -2016,15 +2346,23 @@
     card.innerHTML = `
 
       <div class="review-date">
+
         ${formatDate(date)}
+
       </div>
 
+
       <h3>
+
         ${escapeHTML(title)}
+
       </h3>
 
+
       <p>
+
         ${escapeHTML(observation)}
+
       </p>
 
     `;
@@ -2047,7 +2385,8 @@
 
     if (!value) {
 
-      return "Weekly Review";
+      return "";
+
     }
 
 
@@ -2061,7 +2400,8 @@
       )
     ) {
 
-      return value;
+      return String(value);
+
     }
 
 
@@ -2069,7 +2409,7 @@
       "en-IN",
       {
         day: "numeric",
-        month: "long",
+        month: "short",
         year: "numeric"
       }
     );
@@ -2078,7 +2418,7 @@
 
 
   /* =====================================================
-     HTML SECURITY
+     SECURITY
      ===================================================== */
 
   function escapeHTML(
@@ -2137,12 +2477,11 @@
 
 
   /* =====================================================
-     START DASHBOARD
+     START
      ===================================================== */
 
   initDashboard();
 
 </script>
-
 </body>
 </html>
