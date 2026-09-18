@@ -891,6 +891,18 @@
           >
         </div>
 
+        <div class="field full">
+          <label>Student UID</label>
+          <input
+            type="text"
+            id="studentUid"
+            placeholder="SIR001"
+            maxlength="20"
+            autocomplete="off"
+            required
+          >
+        </div>
+
         <div class="field">
           <label>Email</label>
           <input
@@ -971,15 +983,7 @@ const SUPABASE_PUBLISHABLE_KEY =
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-      auth: {
-        storageKey: "sir_admin_auth",
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: false
-      }
-    }
+    SUPABASE_PUBLISHABLE_KEY
   );
 
 
@@ -1660,6 +1664,7 @@ document
 
     await loadCourses();
     await loadBatches();
+    await suggestNextStudentUid();
 
   });
 
@@ -1673,6 +1678,43 @@ document
   .getElementById("cancelStudent")
   .addEventListener("click", closeModal);
 
+
+async function suggestNextStudentUid() {
+  const input = document.getElementById("studentUid");
+
+  if (!input || input.value.trim()) {
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("students")
+    .select("student_uid")
+    .like("student_uid", "SIR%");
+
+  if (error) {
+    console.error("UID suggestion error:", error);
+    input.value = "SIR001";
+    return;
+  }
+
+  let maxNumber = 0;
+
+  (data || []).forEach(student => {
+    const match = String(student.student_uid || "")
+      .toUpperCase()
+      .match(/^SIR(\\d+)$/);
+
+    if (match) {
+      maxNumber = Math.max(
+        maxNumber,
+        parseInt(match[1], 10)
+      );
+    }
+  });
+
+  input.value =
+    `SIR${String(maxNumber + 1).padStart(3, "0")}`;
+}
 
 function closeModal() {
 
@@ -1690,6 +1732,12 @@ function closeModal() {
 /* --------------------------------
    STUDENT CREATE
 -------------------------------- */
+
+document
+  .getElementById("studentUid")
+  .addEventListener("input", function () {
+    this.value = this.value.toUpperCase().replace(/\\s+/g, "");
+  });
 
 document
   .getElementById("studentForm")
@@ -1710,6 +1758,9 @@ document
     const phone =
       document.getElementById("studentMobile").value.trim();
 
+    const studentUid =
+      document.getElementById("studentUid").value.trim().toUpperCase();
+
     const courseId =
       document.getElementById("studentCourse").value || null;
 
@@ -1719,6 +1770,14 @@ document
     if (!fullName || !email) {
       showMessage(
         "Please enter the student's name and email.",
+        "error"
+      );
+      return;
+    }
+
+    if (!/^SIR\\d{3,}$/.test(studentUid)) {
+      showMessage(
+        "Student UID must be in the format SIR001, SIR002, SIR003...",
         "error"
       );
       return;
@@ -1735,6 +1794,7 @@ document
           {
             body: {
               full_name: fullName,
+              student_uid: studentUid,
               email: email,
               phone: phone,
               course_id: courseId,
