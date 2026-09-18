@@ -519,65 +519,6 @@
       color: #75dda0;
     }
 
-    .credentials-box {
-      display: none;
-      margin-top: 15px;
-      padding: 16px;
-      border: 1px solid rgba(201,168,78,.28);
-      border-radius: 9px;
-      background: rgba(201,168,78,.07);
-    }
-
-    .credentials-box.show {
-      display: block;
-    }
-
-    .credentials-box h3 {
-      color: #d9b75b;
-      font-size: 14px;
-      margin-bottom: 7px;
-    }
-
-    .credentials-box p {
-      color: #aebacc;
-      font-size: 12px;
-      line-height: 1.5;
-      margin-bottom: 13px;
-    }
-
-    .credential-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      margin-top: 9px;
-    }
-
-    .credential-value {
-      padding: 10px 11px;
-      background: #08172a;
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 7px;
-      color: #fff;
-      font-family: monospace;
-      font-size: 13px;
-      word-break: break-all;
-    }
-
-    .copy-btn {
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 7px;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .copy-btn:hover {
-      background: rgba(255,255,255,.06);
-    }
-
     @media (max-width: 900px) {
       .sidebar {
         width: 190px;
@@ -1171,30 +1112,6 @@
           id="formMessage"
           class="message"
         ></div>
-
-        <div
-          id="credentialsBox"
-          class="credentials-box"
-        >
-          <h3>Student Login Created</h3>
-          <p>Save these credentials securely. The password is shown only after creation.</p>
-
-          <div class="credential-row">
-            <div>
-              <div style="color:#8190a5;font-size:11px;margin-bottom:5px;">Student UID</div>
-              <div id="createdStudentUid" class="credential-value">—</div>
-            </div>
-            <button type="button" class="copy-btn" data-copy-target="createdStudentUid">Copy</button>
-          </div>
-
-          <div class="credential-row">
-            <div>
-              <div style="color:#8190a5;font-size:11px;margin-bottom:5px;">Password / PIN</div>
-              <div id="createdStudentPassword" class="credential-value">—</div>
-            </div>
-            <button type="button" class="copy-btn" data-copy-target="createdStudentPassword">Copy</button>
-          </div>
-        </div>
 
 
         <div class="form-actions">
@@ -2178,10 +2095,6 @@
 
     hideFormMessage();
 
-    document.getElementById("credentialsBox").classList.remove("show");
-    document.getElementById("createdStudentUid").textContent = "—";
-    document.getElementById("createdStudentPassword").textContent = "—";
-
   }
 
 
@@ -2197,119 +2110,195 @@
 
         event.preventDefault();
 
-        const form = this;
-        const submitButton = form.querySelector('button[type="submit"]');
-        const credentialsBox = document.getElementById("credentialsBox");
+        const submitButton =
+          this.querySelector(
+            'button[type="submit"]'
+          );
 
-        const full_name = document
-          .getElementById("studentName")
-          .value
-          .trim();
+        const fullName =
+          document
+            .getElementById("studentName")
+            .value
+            .trim();
 
-        const email = document
-          .getElementById("studentEmail")
-          .value
-          .trim();
+        const email =
+          document
+            .getElementById("studentEmail")
+            .value
+            .trim();
 
-        const phone = document
-          .getElementById("studentMobile")
-          .value
-          .trim();
+        const phone =
+          document
+            .getElementById("studentMobile")
+            .value
+            .trim();
 
-        const course_id = document
-          .getElementById("studentCourse")
-          .value || null;
+        const courseId =
+          document
+            .getElementById("studentCourse")
+            .value;
 
-        const batch_id = document
-          .getElementById("studentBatch")
-          .value || null;
+        const batchId =
+          document
+            .getElementById("studentBatch")
+            .value;
 
-        credentialsBox.classList.remove("show");
-        hideFormMessage();
+        if (!fullName || !email) {
 
-        if (!full_name || !email) {
           showFormMessage(
-            "Please enter the student's full name and email.",
+            "Please enter student name and email.",
             "error"
           );
+
           return;
         }
 
         submitButton.disabled = true;
-        submitButton.textContent = "Creating Student...";
+
+        submitButton.textContent =
+          "Creating Student...";
+
+        hideFormMessage();
 
         try {
 
-          const { data, error } = await supabaseClient.functions.invoke(
-            "create-student",
-            {
-              body: {
-                full_name,
-                email,
-                phone,
-                course_id,
-                batch_id
+          const {
+            data: sessionData,
+            error: sessionError
+          } = await supabaseClient.auth.getSession();
+
+          if (sessionError || !sessionData || !sessionData.session) {
+
+            showFormMessage(
+              "Your admin session has expired. Please log in again.",
+              "error"
+            );
+
+            return;
+          }
+
+          const accessToken =
+            sessionData.session.access_token;
+
+          const {
+            data,
+            error
+          } = await supabaseClient
+            .functions
+            .invoke(
+              "create-student",
+              {
+                body: {
+                  full_name: fullName,
+                  email: email,
+                  phone: phone,
+                  course_id: courseId || null,
+                  batch_id: batchId || null
+                },
+                headers: {
+                  Authorization: `Bearer ${accessToken}`
+                }
               }
-            }
+            );
+
+          console.log(
+            "Create student response:",
+            data
           );
 
           if (error) {
-            console.error("Create student function error:", error);
 
-            let detailedMessage = error.message || "Unable to create student.";
+            console.error(
+              "Create student function error:",
+              error
+            );
 
-            try {
-              if (error.context && typeof error.context.json === "function") {
-                const errorBody = await error.context.json();
-                if (errorBody && errorBody.error) {
-                  detailedMessage = errorBody.error;
+            let errorMessage =
+              error.message ||
+              "Unable to create student.";
+
+            if (
+              error.context &&
+              typeof error.context.json === "function"
+            ) {
+
+              try {
+
+                const functionError =
+                  await error.context.json();
+
+                if (
+                  functionError &&
+                  functionError.error
+                ) {
+
+                  errorMessage =
+                    functionError.error;
+
                 }
+
+              } catch (parseError) {
+
+                console.warn(
+                  "Could not parse function error:",
+                  parseError
+                );
+
               }
-            } catch (parseError) {
-              console.warn("Could not parse function error response:", parseError);
+
             }
 
-            showFormMessage(detailedMessage, "error");
+            showFormMessage(
+              errorMessage,
+              "error"
+            );
+
             return;
           }
 
           if (!data || !data.success) {
+
             showFormMessage(
-              (data && data.error) || "Student could not be created.",
+              data?.error ||
+              "Student could not be created.",
               "error"
             );
+
             return;
           }
 
-          document.getElementById("createdStudentUid").textContent =
-            data.student_uid || "—";
-
-          document.getElementById("createdStudentPassword").textContent =
-            data.password || "—";
-
-          credentialsBox.classList.add("show");
-
-          showFormMessage(
-            "Student created successfully. Save the login credentials below.",
-            "success"
+          showStudentCredentials(
+            data.student_uid,
+            data.password,
+            fullName
           );
-
-          form.reset();
 
           await loadStudents();
 
+          document
+            .getElementById("studentForm")
+            .reset();
+
         } catch (error) {
 
-          console.error("Student creation exception:", error);
+          console.error(
+            "Unexpected student creation error:",
+            error
+          );
 
           showFormMessage(
-            error.message || "Something went wrong while creating the student.",
+            error.message ||
+            "Something went wrong while creating the student.",
             "error"
           );
 
         } finally {
+
           submitButton.disabled = false;
-          submitButton.textContent = "Create Student";
+
+          submitButton.textContent =
+            "Create Student";
+
         }
 
       }
@@ -2317,38 +2306,193 @@
 
 
   /* =========================
-     COPY GENERATED CREDENTIALS
+     STUDENT CREDENTIALS
   ========================= */
 
-  document
-    .querySelectorAll(".copy-btn")
-    .forEach(button => {
+  function showStudentCredentials(
+    studentUid,
+    password,
+    studentName
+  ) {
 
-      button.addEventListener("click", async function() {
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
 
-        const targetId = this.dataset.copyTarget;
-        const target = document.getElementById(targetId);
-        const value = target ? target.textContent.trim() : "";
+    box.className =
+      "message show success";
 
-        if (!value || value === "—") {
-          return;
-        }
+    box.innerHTML = `
 
-        try {
-          await navigator.clipboard.writeText(value);
-          const originalText = this.textContent;
-          this.textContent = "Copied";
-          setTimeout(() => {
-            this.textContent = originalText;
-          }, 1200);
-        } catch (error) {
-          console.error("Copy error:", error);
-          showFormMessage("Could not copy automatically. Please copy it manually.", "error");
-        }
+      <div style="
+        font-size:15px;
+        font-weight:700;
+        margin-bottom:12px;
+      ">
+        Student Created Successfully
+      </div>
 
-      });
+      <div style="
+        margin-bottom:12px;
+        color:#dce3ed;
+      ">
+        ${escapeHtml(studentName)}
+        has been added to the SIR system.
+      </div>
 
-    });
+      <div style="
+        background:#08172a;
+        border:1px solid rgba(255,255,255,.1);
+        border-radius:8px;
+        padding:14px;
+        margin-top:10px;
+      ">
+
+        <div style="
+          margin-bottom:12px;
+        ">
+
+          <div style="
+            color:#8190a5;
+            font-size:11px;
+            text-transform:uppercase;
+            margin-bottom:5px;
+          ">
+            Student UID
+          </div>
+
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+          ">
+
+            <strong
+              style="
+                color:#d9b75b;
+                font-size:16px;
+              "
+            >
+              ${escapeHtml(studentUid || "—")}
+            </strong>
+
+            <button
+              type="button"
+              class="secondary-btn"
+              data-copy-value="${escapeHtml(studentUid || "")}"
+              onclick="copyStudentCredential(this.dataset.copyValue)"
+              style="
+                padding:7px 10px;
+                font-size:11px;
+              "
+            >
+              Copy
+            </button>
+
+          </div>
+
+        </div>
+
+        <div>
+
+          <div style="
+            color:#8190a5;
+            font-size:11px;
+            text-transform:uppercase;
+            margin-bottom:5px;
+          ">
+            Password / PIN
+          </div>
+
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+          ">
+
+            <strong
+              style="
+                color:#fff;
+                font-size:16px;
+                letter-spacing:.5px;
+              "
+            >
+              ${escapeHtml(password || "—")}
+            </strong>
+
+            <button
+              type="button"
+              class="secondary-btn"
+              data-copy-value="${escapeHtml(password || "")}"
+              onclick="copyStudentCredential(this.dataset.copyValue)"
+              style="
+                padding:7px 10px;
+                font-size:11px;
+              "
+            >
+              Copy
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div style="
+        margin-top:12px;
+        font-size:11px;
+        color:#8493a8;
+        line-height:1.5;
+      ">
+        Save these credentials securely.
+        The student will use this UID and
+        password to access the Student &
+        Parent Portal.
+      </div>
+
+    `;
+
+  }
+
+
+  /* =========================
+     COPY CREDENTIAL
+  ========================= */
+
+  async function copyStudentCredential(
+    value
+  ) {
+
+    try {
+
+      await navigator.clipboard.writeText(
+        value
+      );
+
+      showFormMessage(
+        "Credential copied successfully.",
+        "success"
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Copy error:",
+        error
+      );
+
+      showFormMessage(
+        "Unable to copy. Please copy it manually.",
+        "error"
+      );
+
+    }
+
+  }
 
 
   /* =========================
