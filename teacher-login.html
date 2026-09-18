@@ -1,1 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Teacher Login | SIR Kolhapur</title>
+
+    <meta
+        name="description"
+        content="Teacher login portal for Suryavanshi Institute for Rankers."
+    >
+
+    <meta
+        name="theme-color"
+        content="#07152f"
+    >
+
+    <link
+        rel="icon"
+        href="sir-logo.svg"
+    >
+
+
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        /* =================================================
+           RESET
+        ================================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            min-height: 100%;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(215,166,42,.10),
+                    transparent 28%
+                ),
+
+                radial-gradient(
+                    circle at 85% 85%,
+                    rgba(32,91,160,.20),
+                    transparent 32%
+                ),
+
+                #07152f;
+
+            color: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 30px;
+
+            overflow-x: hidden;
+        }
+
+
+        /* =================================================
+           BACKGROUND
+        ================================================== */
+
+        body::before {
+
+            content: "";
+
+            position: fixed;
+
+            inset: 0;
+
+            pointer-events: none;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,.025),
+                    transparent 40%
+                );
+        }
+
+
+        /* =================================================
+           LOGIN WRAPPER
+        ================================================== */
+
+        .login-wrapper {
+
+            width: 100%;
+
+            max-width: 460px;
+
+            position: relative;
+
+            z-index: 2;
+        }
+
+
+        /* =================================================
+           LOGO
+        ================================================== */
+
+        .logo-area {
+
+            text-align: center;
+
+            margin-bottom: 26px;
+        }
+
+
+        .logo-link {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+        }
+
+
+        .logo {
+
+            width: 155px;
+
+            height: auto;
+
+            object-fit: contain;
+        }
+
+
+        .portal-label {
+
+            margin-top: 13px;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .22em;
+
+            color:
+                #d7a62a;
+
+            text-transform: uppercase;
+        }
+
+
+        /* =================================================
+           CARD
+        ================================================== */
+
+        .login-card {
+
+            width: 100%;
+
+            padding: 42px;
+
+            background:
+                rgba(255,255,255,.055);
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 30px 90px
+                rgba(0,0,0,.30);
+
+            backdrop-filter:
+                blur(20px);
+
+            -webkit-backdrop-filter:
+                blur(20px);
+        }
+
+
+        .login-card h1 {
+
+            font-size: 30px;
+
+            font-weight: 600;
+
+            letter-spacing: -.035em;
+
+            margin-bottom: 10px;
+
+            text-align: center;
+        }
+
+
+        .login-subtitle {
+
+            text-align: center;
+
+            color:
+                rgba(255,255,255,.55);
+
+            font-size: 13px;
+
+            line-height: 1.6;
+
+            margin-bottom: 32px;
+        }
+
+
+        /* =================================================
+           FORM
+        ================================================== */
+
+        .form-group {
+
+            margin-bottom: 19px;
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: .12em;
+
+            color:
+                rgba(255,255,255,.72);
+
+            text-transform: uppercase;
+        }
+
+
+        .input-wrapper {
+
+            position: relative;
+        }
+
+
+        .form-input {
+
+            width: 100%;
+
+            height: 52px;
+
+            padding:
+                0 15px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.13);
+
+            border-radius: 9px;
+
+            outline: none;
+
+            background:
+                rgba(0,0,0,.18);
+
+            color:
+                #ffffff;
+
+            font-size: 14px;
+
+            transition:
+                border-color .25s ease,
+                background .25s ease,
+                box-shadow .25s ease;
+        }
+
+
+        .form-input::placeholder {
+
+            color:
+                rgba(255,255,255,.30);
+        }
+
+
+        .form-input:focus {
+
+            border-color:
+                rgba(215,166,42,.75);
+
+            background:
+                rgba(0,0,0,.24);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(215,166,42,.08);
+        }
+
+
+        /* =================================================
+           PASSWORD
+        ================================================== */
+
+        .password-input {
+
+            padding-right: 80px;
+        }
+
+
+        .show-password {
+
+            position: absolute;
+
+            top: 50%;
+
+            right: 12px;
+
+            transform:
+                translateY(-50%);
+
+            border: 0;
+
+            background: transparent;
+
+            color:
+                rgba(255,255,255,.45);
+
+            cursor: pointer;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .08em;
+
+            text-transform: uppercase;
+        }
+
+
+        .show-password:hover {
+
+            color:
+                #d7a62a;
+        }
+
+
+        /* =================================================
+           REMEMBER
+        ================================================== */
+
+        .form-options {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin:
+                6px 0 24px;
+        }
+
+
+        .remember {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color:
+                rgba(255,255,255,.48);
+
+            font-size: 11px;
+
+            cursor: pointer;
+        }
+
+
+        .remember input {
+
+            accent-color:
+                #d7a62a;
+        }
+
+
+        /* =================================================
+           LOGIN BUTTON
+        ================================================== */
+
+        .login-button {
+
+            width: 100%;
+
+            height: 54px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            background:
+                #d7a62a;
+
+            color:
+                #07152f;
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            font-weight: 900;
+
+            letter-spacing: .15em;
+
+            text-transform: uppercase;
+
+            transition:
+                transform .25s ease,
+                background .25s ease,
+                box-shadow .25s ease;
+        }
+
+
+        .login-button:hover {
+
+            transform:
+                translateY(-2px);
+
+            background:
+                #f0c75e;
+
+            box-shadow:
+                0 12px 30px
+                rgba(215,166,42,.18);
+        }
+
+
+        .login-button:disabled {
+
+            opacity: .55;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+            box-shadow: none;
+        }
+
+
+        /* =================================================
+           LOADING
+        ================================================== */
+
+        .button-loading {
+
+            display: none;
+        }
+
+
+        .login-button.loading
+        .button-text {
+
+            display: none;
+        }
+
+
+        .login-button.loading
+        .button-loading {
+
+            display: inline;
+        }
+
+
+        /* =================================================
+           MESSAGE
+        ================================================== */
+
+        .message {
+
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 12px 14px;
+
+            border-radius: 8px;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+
+            text-align: center;
+        }
+
+
+        .message.show {
+
+            display: block;
+        }
+
+
+        .message.error {
+
+            background:
+                rgba(220,53,69,.10);
+
+            border:
+                1px solid
+                rgba(220,53,69,.25);
+
+            color:
+                #ffb5bd;
+        }
+
+
+        .message.success {
+
+            background:
+                rgba(40,167,69,.10);
+
+            border:
+                1px solid
+                rgba(40,167,69,.25);
+
+            color:
+                #a9e8b8;
+        }
+
+
+        /* =================================================
+           FOOTER
+        ================================================== */
+
+        .login-footer {
+
+            text-align: center;
+
+            margin-top: 24px;
+        }
+
+
+        .login-footer a {
+
+            color:
+                rgba(255,255,255,.42);
+
+            font-size: 11px;
+
+            transition:
+                color .25s ease;
+        }
+
+
+        .login-footer a:hover {
+
+            color:
+                #d7a62a;
+        }
+
+
+        .copyright {
+
+            margin-top: 18px;
+
+            color:
+                rgba(255,255,255,.20);
+
+            font-size: 9px;
+
+            letter-spacing: .03em;
+        }
+
+
+        /* =================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 520px) {
+
+            body {
+
+                padding: 20px;
+            }
+
+
+            .logo {
+
+                width: 130px;
+            }
+
+
+            .login-card {
+
+                padding:
+                    30px 22px;
+            }
+
+
+            .login-card h1 {
+
+                font-size: 27px;
+            }
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <main class="login-wrapper">
+
+
+        <!-- =================================================
+             LOGO
+        ================================================== -->
+
+        <div class="logo-area">
+
+            <a
+                href="index.html"
+                class="logo-link"
+                aria-label="SIR Home"
+            >
+
+                <img
+                    src="sir-logo.svg"
+                    alt="Suryavanshi Institute for Rankers"
+                    class="logo"
+                >
+
+            </a>
+
+
+            <div class="portal-label">
+                Teacher Portal
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LOGIN CARD
+        ================================================== -->
+
+        <section class="login-card">
+
+
+            <h1>
+                Teacher Login
+            </h1>
+
+
+            <p class="login-subtitle">
+
+                Sign in to access your
+                teaching dashboard.
+
+            </p>
+
+
+            <form
+                id="teacherLoginForm"
+                autocomplete="on"
+            >
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        class="form-input"
+                        placeholder="Enter your email"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-input password-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            id="showPassword"
+                        >
+                            SHOW
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="form-options">
+
+                    <label class="remember">
+
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                        >
+
+                        Remember me
+
+                    </label>
+
+                </div>
+
+
+                <!-- LOGIN -->
+
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="loginButton"
+                >
+
+                    <span class="button-text">
+                        LOGIN TO PORTAL
+                    </span>
+
+                    <span class="button-loading">
+                        SIGNING IN...
+                    </span>
+
+                </button>
+
+
+                <!-- MESSAGE -->
+
+                <div
+                    id="message"
+                    class="message"
+                    role="alert"
+                ></div>
+
+
+            </form>
+
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <div class="login-footer">
+
+            <a href="index.html">
+                ← Back to SIR Website
+            </a>
+
+
+            <div class="copyright">
+
+                © 2026 Suryavanshi Institute for Rankers
+
+            </div>
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         TEACHER LOGIN SCRIPT
+    ====================================================== -->
+
+    <script>
+
+
+        /* =================================================
+           SUPABASE CONFIG
+        ================================================== */
+
+        const SUPABASE_URL =
+            "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+
+        const SUPABASE_PUBLISHABLE_KEY =
+            "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_PUBLISHABLE_KEY
+            );
+
+
+        /* =================================================
+           ELEMENTS
+        ================================================== */
+
+        const form =
+            document.getElementById(
+                "teacherLoginForm"
+            );
+
+
+        const emailInput =
+            document.getElementById(
+                "email"
+            );
+
+
+        const passwordInput =
+            document.getElementById(
+                "password"
+            );
+
+
+        const loginButton =
+            document.getElementById(
+                "loginButton"
+            );
+
+
+        const showPasswordButton =
+            document.getElementById(
+                "showPassword"
+            );
+
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        /* =================================================
+           MESSAGE HELPER
+        ================================================== */
+
+        function showMessage(
+            text,
+            type = "error"
+        ) {
+
+            message.textContent = text;
+
+            message.className =
+                "message show " + type;
+
+        }
+
+
+        function clearMessage() {
+
+            message.textContent = "";
+
+            message.className =
+                "message";
+
+        }
+
+
+        /* =================================================
+           PASSWORD VISIBILITY
+        ================================================== */
+
+        showPasswordButton.addEventListener(
+            "click",
+            () => {
+
+                const isPassword =
+                    passwordInput.type ===
+                    "password";
+
+
+                passwordInput.type =
+                    isPassword
+                        ? "text"
+                        : "password";
+
+
+                showPasswordButton.textContent =
+                    isPassword
+                        ? "HIDE"
+                        : "SHOW";
+
+            }
+        );
+
+
+        /* =================================================
+           CHECK EXISTING SESSION
+        ================================================== */
+
+        async function checkExistingSession() {
+
+            try {
+
+                const {
+                    data: {
+                        session
+                    }
+                } =
+                    await supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (!session) {
+
+                    return;
+
+                }
+
+
+                const {
+                    data: teacher,
+                    error
+                } =
+                    await supabaseClient
+                        .from("teachers")
+                        .select(
+                            "id, user_id, full_name, subject, phone, email, is_active"
+                        )
+                        .eq(
+                            "user_id",
+                            session.user.id
+                        )
+                        .maybeSingle();
+
+
+                if (
+                    !error &&
+                    teacher &&
+                    teacher.is_active
+                ) {
+
+                    window.location.href =
+                        "teacher-dashboard.html";
+
+                }
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Session check error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        checkExistingSession();
+
+
+        /* =================================================
+           LOGIN
+        ================================================== */
+
+        form.addEventListener(
+            "submit",
+            async (event) => {
+
+                event.preventDefault();
+
+                clearMessage();
+
+
+                const email =
+                    emailInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                if (
+                    !email ||
+                    !password
+                ) {
+
+                    showMessage(
+                        "Please enter your email and password."
+                    );
+
+                    return;
+
+                }
+
+
+                loginButton.disabled =
+                    true;
+
+                loginButton.classList.add(
+                    "loading"
+                );
+
+
+                try {
+
+
+                    /* =====================================
+                       SUPABASE AUTH
+                    ====================================== */
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient
+                            .auth
+                            .signInWithPassword({
+                                email,
+                                password
+                            });
+
+
+                    if (error) {
+
+                        console.error(
+                            "Teacher authentication error:",
+                            error
+                        );
+
+                        showMessage(
+                            "Invalid email or password."
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (
+                        !data ||
+                        !data.user
+                    ) {
+
+                        showMessage(
+                            "Login could not be completed. Please try again."
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       FIND TEACHER PROFILE
+                    ====================================== */
+
+                    const {
+                        data: teacher,
+                        error: teacherError
+                    } =
+                        await supabaseClient
+                            .from("teachers")
+                            .select(
+                                "id, user_id, full_name, subject, phone, email, is_active"
+                            )
+                            .eq(
+                                "user_id",
+                                data.user.id
+                            )
+                            .maybeSingle();
+
+
+                    if (teacherError) {
+
+                        console.error(
+                            "Teacher profile error:",
+                            teacherError
+                        );
+
+
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+
+                        showMessage(
+                            "Unable to verify your teacher profile."
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (!teacher) {
+
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+
+                        showMessage(
+                            "This account is not registered as a teacher."
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       ACTIVE CHECK
+                    ====================================== */
+
+                    if (
+                        teacher.is_active !== true
+                    ) {
+
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+
+                        showMessage(
+                            "Your teacher account is currently inactive. Please contact the administration."
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* =====================================
+                       SUCCESS
+                    ====================================== */
+
+                    showMessage(
+                        "Login successful. Opening dashboard...",
+                        "success"
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            window.location.href =
+                                "teacher-dashboard.html";
+
+                        },
+                        500
+                    );
+
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Unexpected teacher login error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        "Something went wrong. Please try again."
+                    );
+
+                }
+                finally {
+
+                    loginButton.disabled =
+                        false;
+
+                    loginButton.classList.remove(
+                        "loading"
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
