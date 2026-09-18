@@ -979,12 +979,20 @@
     "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
 
 
-  /* SUPABASE CLIENT */
+  /* SUPABASE CLIENT — ISOLATED STUDENT SESSION */
 
   const supabaseClient =
     window.supabase.createClient(
       SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          storageKey: "sir_student_auth",
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false
+        }
+      }
     );
 
 
