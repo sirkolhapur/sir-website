@@ -1688,11 +1688,110 @@ document
   .addEventListener("submit", async function(e) {
 
     e.preventDefault();
+    hideMessage();
 
-    showMessage(
-      "Student creation will be connected securely in the next backend step.",
-      "success"
-    );
+    const submitButton =
+      e.target.querySelector('button[type="submit"]');
+
+    const fullName =
+      document.getElementById("studentName").value.trim();
+
+    const email =
+      document.getElementById("studentEmail").value.trim().toLowerCase();
+
+    const phone =
+      document.getElementById("studentMobile").value.trim();
+
+    const courseId =
+      document.getElementById("studentCourse").value || null;
+
+    const batchId =
+      document.getElementById("studentBatch").value || null;
+
+    if (!fullName || !email) {
+      showMessage(
+        "Please enter the student's name and email.",
+        "error"
+      );
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Creating Student...";
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "create-student",
+          {
+            body: {
+              full_name: fullName,
+              email: email,
+              phone: phone,
+              course_id: courseId,
+              batch_id: batchId
+            }
+          }
+        );
+
+      console.log("Create student response:", data, error);
+
+      if (error) {
+        console.error("Create student function error:", error);
+        showMessage(
+          error.message ||
+          "Student creation failed. Please try again.",
+          "error"
+        );
+        return;
+      }
+
+      if (!data || !data.success) {
+        showMessage(
+          data?.error || "Unable to create student.",
+          "error"
+        );
+        return;
+      }
+
+      const studentUid = data.student_uid || "—";
+      const temporaryPassword = data.password || "—";
+
+      showMessage(
+        `Student created successfully. UID: ${studentUid}`,
+        "success"
+      );
+
+      alert(
+        `Student Created Successfully!\n\n` +
+        `Student: ${fullName}\n` +
+        `Student UID: ${studentUid}\n` +
+        `Temporary Password: ${temporaryPassword}\n\n` +
+        `Please save these login details securely.`
+      );
+
+      document.getElementById("studentForm").reset();
+
+      await loadStudents();
+      await loadCounters();
+
+    } catch (error) {
+
+      console.error("Unexpected student creation error:", error);
+
+      showMessage(
+        error?.message ||
+        "Something went wrong while creating the student.",
+        "error"
+      );
+
+    } finally {
+
+      submitButton.disabled = false;
+      submitButton.textContent = "Create Student";
+
+    }
 
   });
 
