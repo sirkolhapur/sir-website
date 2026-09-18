@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>SIR Admin Dashboard</title>
+  <title>SIR Admin</title>
 
-  <link rel="icon" href="sir logo.png" />
+  <link rel="icon" href="sir logo.png">
 
   <style>
     * {
@@ -18,7 +18,159 @@
     body {
       font-family: Arial, Helvetica, sans-serif;
       background: #071426;
-      color: #ffffff;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    #loginPage {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(201,168,78,.10), transparent 35%),
+        #071426;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.35);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .login-logo img {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      margin-bottom: 14px;
+    }
+
+    .login-logo h1 {
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .login-logo p {
+      color: #c9a84e;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    .login-title {
+      margin-bottom: 22px;
+    }
+
+    .login-title h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .login-title span {
+      color: #8493a8;
+      font-size: 13px;
+    }
+
+    .login-field {
+      margin-bottom: 17px;
+    }
+
+    .login-field label {
+      display: block;
+      color: #aebacc;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 13px 14px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .login-field input:focus {
+      border-color: #c9a84e;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #c9a84e;
+      color: #071426;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .login-btn:hover {
+      opacity: .92;
+    }
+
+    .login-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .login-message.show {
+      display: block;
+    }
+
+    .login-message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff9292;
+      border: 1px solid rgba(220,70,70,.15);
+    }
+
+    .login-message.success {
+      background: rgba(70,180,110,.12);
+      color: #75dda0;
+      border: 1px solid rgba(70,180,110,.15);
+    }
+
+    .security-note {
+      text-align: center;
+      margin-top: 22px;
+      color: #63738a;
+      font-size: 11px;
+    }
+
+    /* =========================
+       DASHBOARD
+    ========================= */
+
+    #dashboardPage {
+      display: none;
       min-height: 100vh;
     }
 
@@ -78,6 +230,7 @@
 
     .sidebar {
       width: 240px;
+      flex-shrink: 0;
       background: #09182c;
       border-right: 1px solid rgba(255,255,255,.07);
       padding: 24px 15px;
@@ -443,826 +596,1756 @@
       .field.full {
         grid-column: auto;
       }
+
+      .login-box {
+        padding: 27px 22px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <img src="sir logo.png" alt="SIR">
-    <div class="brand-text">
-      <strong>SIR Admin</strong>
-      <span>WHERE POTENTIAL FINDS DIRECTION</span>
-    </div>
-  </div>
+<!-- =========================
+     LOGIN PAGE
+========================= -->
 
-  <button class="logout" id="logoutBtn">Logout</button>
-</header>
+<div id="loginPage">
 
-<div class="layout">
+  <div class="login-box">
 
-  <aside class="sidebar">
+    <div class="login-logo">
+      <img src="sir logo.png" alt="SIR Logo">
 
-    <div class="nav-title">Management</div>
+      <h1>SIR Admin</h1>
 
-    <button class="nav-btn active" data-section="overview">
-      Dashboard
-    </button>
-
-    <button class="nav-btn" data-section="students">
-      Students
-    </button>
-
-    <button class="nav-btn" data-section="tests">
-      Tests
-    </button>
-
-    <button class="nav-btn" data-section="results">
-      Results
-    </button>
-
-    <button class="nav-btn" data-section="reviews">
-      Teacher Reviews
-    </button>
-
-    <button class="nav-btn" data-section="notices">
-      Notices
-    </button>
-
-  </aside>
-
-
-  <main class="main">
-
-    <!-- OVERVIEW -->
-
-    <section class="section active" id="overview">
-
-      <div class="page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage the academic system of Suryavanshi Institute for Rankers.</p>
-      </div>
-
-      <div class="stats">
-
-        <div class="stat-card">
-          <span>Total Students</span>
-          <strong id="totalStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Active Students</span>
-          <strong id="activeStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Total Tests</span>
-          <strong id="totalTests">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Notices</span>
-          <strong id="totalNotices">—</strong>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- STUDENTS -->
-
-    <section class="section" id="students">
-
-      <div class="section-head">
-        <h2>Students</h2>
-
-        <button class="primary-btn" id="addStudentBtn">
-          + Add Student
-        </button>
-      </div>
-
-      <div class="table-card">
-
-        <div class="table-tools">
-          <input
-            type="text"
-            class="search"
-            id="studentSearch"
-            placeholder="Search by name, UID or email..."
-          >
-        </div>
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>UID</th>
-              <th>Student</th>
-              <th>Email</th>
-              <th>Course</th>
-              <th>Batch</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody id="studentsTableBody">
-            <tr>
-              <td colspan="6" class="empty">
-                Loading students...
-              </td>
-            </tr>
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-
-    <!-- TESTS -->
-
-    <section class="section" id="tests">
-
-      <div class="section-head">
-        <h2>Tests</h2>
-        <button class="primary-btn">+ Create Test</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Test Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- RESULTS -->
-
-    <section class="section" id="results">
-
-      <div class="section-head">
-        <h2>Results</h2>
-        <button class="primary-btn">+ Add Results</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Result Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- REVIEWS -->
-
-    <section class="section" id="reviews">
-
-      <div class="section-head">
-        <h2>Teacher Reviews</h2>
-        <button class="primary-btn">+ New Review</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Teacher Review Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- NOTICES -->
-
-    <section class="section" id="notices">
-
-      <div class="section-head">
-        <h2>Notice Board</h2>
-        <button class="primary-btn">+ Publish Notice</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Notice Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-</div>
-
-
-<!-- ADD STUDENT MODAL -->
-
-<div class="modal" id="studentModal">
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-      <h2>Add Student</h2>
-      <button class="close" id="closeModal">&times;</button>
+      <p>WHERE POTENTIAL FINDS DIRECTION</p>
     </div>
 
-    <form id="studentForm">
+    <div class="login-title">
+      <h2>Administrator Login</h2>
+      <span>Secure access to the SIR academic system.</span>
+    </div>
 
-      <div class="form-grid">
+    <form id="loginForm">
 
-        <div class="field full">
-          <label>Full Name</label>
-          <input
-            type="text"
-            id="studentName"
-            placeholder="Student full name"
-            required
-          >
-        </div>
+      <div class="login-field">
+        <label for="adminEmail">Email Address</label>
 
-        <div class="field">
-          <label>Email</label>
-          <input
-            type="email"
-            id="studentEmail"
-            placeholder="student@email.com"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label>Mobile</label>
-          <input
-            type="tel"
-            id="studentMobile"
-            placeholder="Mobile number"
-          >
-        </div>
-
-        <div class="field">
-          <label>Course</label>
-
-          <select id="studentCourse">
-            <option value="">Select Course</option>
-          </select>
-
-        </div>
-
-        <div class="field">
-          <label>Batch</label>
-
-          <select id="studentBatch">
-            <option value="">Select Batch</option>
-          </select>
-
-        </div>
-
+        <input
+          type="email"
+          id="adminEmail"
+          placeholder="Enter admin email"
+          autocomplete="username"
+          required
+        >
       </div>
 
-      <div id="formMessage" class="message"></div>
+      <div class="login-field">
+        <label for="adminPassword">Password</label>
 
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="secondary-btn"
-          id="cancelStudent"
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required
         >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          class="primary-btn"
-        >
-          Create Student
-        </button>
-
       </div>
+
+      <button
+        type="submit"
+        class="login-btn"
+        id="loginBtn"
+      >
+        Login to Admin
+      </button>
 
     </form>
 
+    <div
+      id="loginMessage"
+      class="login-message"
+    ></div>
+
+    <div class="security-note">
+      Authorised SIR administrators only.
+    </div>
+
   </div>
 
 </div>
 
+
+<!-- =========================
+     DASHBOARD PAGE
+========================= -->
+
+<div id="dashboardPage">
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <img src="sir logo.png" alt="SIR">
+
+      <div class="brand-text">
+        <strong>SIR Admin</strong>
+        <span>WHERE POTENTIAL FINDS DIRECTION</span>
+      </div>
+
+    </div>
+
+    <button
+      class="logout"
+      id="logoutBtn"
+    >
+      Logout
+    </button>
+
+  </header>
+
+
+  <div class="layout">
+
+    <aside class="sidebar">
+
+      <div class="nav-title">
+        Management
+      </div>
+
+      <button
+        class="nav-btn active"
+        data-section="overview"
+      >
+        Dashboard
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="students"
+      >
+        Students
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="tests"
+      >
+        Tests
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="results"
+      >
+        Results
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="reviews"
+      >
+        Teacher Reviews
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="notices"
+      >
+        Notices
+      </button>
+
+    </aside>
+
+
+    <main class="main">
+
+      <!-- OVERVIEW -->
+
+      <section
+        class="section active"
+        id="overview"
+      >
+
+        <div class="page-header">
+
+          <h1>Admin Dashboard</h1>
+
+          <p>
+            Manage the academic system of
+            Suryavanshi Institute for Rankers.
+          </p>
+
+        </div>
+
+
+        <div class="stats">
+
+          <div class="stat-card">
+            <span>Total Students</span>
+            <strong id="totalStudents">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Active Students</span>
+            <strong id="activeStudents">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Total Tests</span>
+            <strong id="totalTests">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Notices</span>
+            <strong id="totalNotices">—</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STUDENTS -->
+
+      <section
+        class="section"
+        id="students"
+      >
+
+        <div class="section-head">
+
+          <h2>Students</h2>
+
+          <button
+            class="primary-btn"
+            id="addStudentBtn"
+          >
+            + Add Student
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="table-tools">
+
+            <input
+              type="text"
+              class="search"
+              id="studentSearch"
+              placeholder="Search by name, UID or email..."
+            >
+
+          </div>
+
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>UID</th>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Batch</th>
+                <th>Status</th>
+              </tr>
+
+            </thead>
+
+
+            <tbody id="studentsTableBody">
+
+              <tr>
+                <td
+                  colspan="6"
+                  class="empty"
+                >
+                  Loading students...
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <!-- TESTS -->
+
+      <section
+        class="section"
+        id="tests"
+      >
+
+        <div class="section-head">
+
+          <h2>Tests</h2>
+
+          <button class="primary-btn">
+            + Create Test
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Test Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- RESULTS -->
+
+      <section
+        class="section"
+        id="results"
+      >
+
+        <div class="section-head">
+
+          <h2>Results</h2>
+
+          <button class="primary-btn">
+            + Add Results
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Result Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- REVIEWS -->
+
+      <section
+        class="section"
+        id="reviews"
+      >
+
+        <div class="section-head">
+
+          <h2>Teacher Reviews</h2>
+
+          <button class="primary-btn">
+            + New Review
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Teacher Review Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- NOTICES -->
+
+      <section
+        class="section"
+        id="notices"
+      >
+
+        <div class="section-head">
+
+          <h2>Notice Board</h2>
+
+          <button class="primary-btn">
+            + Publish Notice
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Notice Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- ADD STUDENT MODAL -->
+
+  <div
+    class="modal"
+    id="studentModal"
+  >
+
+    <div class="modal-box">
+
+      <div class="modal-head">
+
+        <h2>Add Student</h2>
+
+        <button
+          class="close"
+          id="closeModal"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+      <form id="studentForm">
+
+        <div class="form-grid">
+
+          <div class="field full">
+
+            <label>
+              Full Name
+            </label>
+
+            <input
+              type="text"
+              id="studentName"
+              placeholder="Student full name"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Email
+            </label>
+
+            <input
+              type="email"
+              id="studentEmail"
+              placeholder="student@email.com"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Mobile
+            </label>
+
+            <input
+              type="tel"
+              id="studentMobile"
+              placeholder="Mobile number"
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Course
+            </label>
+
+            <select id="studentCourse">
+
+              <option value="">
+                Select Course
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Batch
+            </label>
+
+            <select id="studentBatch">
+
+              <option value="">
+                Select Batch
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="formMessage"
+          class="message"
+        ></div>
+
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-btn"
+            id="cancelStudent"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-btn"
+          >
+            Create Student
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     SUPABASE
+========================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const SUPABASE_URL =
-  "https://asbyosqpupqspzvqqhfj.supabase.co";
+  /* =========================
+     SUPABASE CONFIG
+  ========================= */
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+  const SUPABASE_URL =
+    "https://asbyosqpupqspzvqqhfj.supabase.co";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
 
 
-/* --------------------------------
-   AUTH
--------------------------------- */
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
-async function checkAdmin() {
 
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+  /* =========================
+     ELEMENTS
+  ========================= */
 
-  if (!session) {
-    window.location.href = "admin-login.html";
-    return null;
+  const loginPage =
+    document.getElementById("loginPage");
+
+  const dashboardPage =
+    document.getElementById("dashboardPage");
+
+  const loginForm =
+    document.getElementById("loginForm");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+
+  /* =========================
+     LOGIN MESSAGE
+  ========================= */
+
+  function showLoginMessage(
+    message,
+    type = "error"
+  ) {
+
+    loginMessage.textContent = message;
+
+    loginMessage.className =
+      "login-message show " + type;
+
   }
 
-  const { data: profile, error } =
-    await supabaseClient
+
+  function hideLoginMessage() {
+
+    loginMessage.textContent = "";
+
+    loginMessage.className =
+      "login-message";
+
+  }
+
+
+  /* =========================
+     SHOW LOGIN
+  ========================= */
+
+  function showLogin() {
+
+    loginPage.style.display = "flex";
+
+    dashboardPage.style.display = "none";
+
+  }
+
+
+  /* =========================
+     SHOW DASHBOARD
+  ========================= */
+
+  function showDashboard() {
+
+    loginPage.style.display = "none";
+
+    dashboardPage.style.display = "block";
+
+  }
+
+
+  /* =========================
+     CHECK ADMIN
+  ========================= */
+
+  async function verifyAdmin(session) {
+
+    if (!session || !session.user) {
+      return false;
+    }
+
+
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
       .from("profiles")
       .select("role")
       .eq("id", session.user.id)
-      .single();
-
-  if (error || !profile || profile.role !== "admin") {
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href = "admin-login.html";
-
-    return null;
-  }
-
-  return session;
-}
+      .maybeSingle();
 
 
-/* --------------------------------
-   NAVIGATION
--------------------------------- */
+    if (error) {
 
-document.querySelectorAll(".nav-btn")
-  .forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      document
-        .querySelectorAll(".nav-btn")
-        .forEach(btn => btn.classList.remove("active"));
-
-      document
-        .querySelectorAll(".section")
-        .forEach(section => section.classList.remove("active"));
-
-      button.classList.add("active");
-
-      const section =
-        document.getElementById(
-          button.dataset.section
-        );
-
-      section.classList.add("active");
-
-    });
-
-  });
-
-
-/* --------------------------------
-   STUDENTS
--------------------------------- */
-
-let allStudents = [];
-
-
-async function loadStudents() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("students")
-    .select(`
-      id,
-      student_uid,
-      full_name,
-      email,
-      phone,
-      is_active,
-      course_id,
-      batch_id
-    `)
-    .order("created_at", {
-      ascending: false
-    });
-
-  if (error) {
-
-    console.error("Students error:", error);
-
-    document.getElementById(
-      "studentsTableBody"
-    ).innerHTML = `
-      <tr>
-        <td colspan="6" class="empty">
-          Unable to load students.
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-  allStudents = data || [];
-
-  renderStudents(allStudents);
-
-  document.getElementById(
-    "totalStudents"
-  ).textContent = allStudents.length;
-
-  document.getElementById(
-    "activeStudents"
-  ).textContent =
-    allStudents.filter(s => s.is_active).length;
-
-}
-
-
-function renderStudents(students) {
-
-  const tbody =
-    document.getElementById(
-      "studentsTableBody"
-    );
-
-  if (!students.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty">
-          No students found.
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
-  tbody.innerHTML =
-    students.map(student => `
-
-      <tr>
-
-        <td>
-          <span class="uid">
-            ${escapeHtml(student.student_uid || "—")}
-          </span>
-        </td>
-
-        <td>
-          ${escapeHtml(student.full_name || "—")}
-        </td>
-
-        <td>
-          ${escapeHtml(student.email || "—")}
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          <span class="status">
-            ${student.is_active ? "Active" : "Inactive"}
-          </span>
-        </td>
-
-      </tr>
-
-    `).join("");
-
-}
-
-
-document
-  .getElementById("studentSearch")
-  .addEventListener("input", function () {
-
-    const search =
-      this.value.toLowerCase().trim();
-
-    const filtered =
-      allStudents.filter(student =>
-
-        (student.full_name || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (student.student_uid || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (student.email || "")
-          .toLowerCase()
-          .includes(search)
-
+      console.error(
+        "Profile check error:",
+        error
       );
 
-    renderStudents(filtered);
+      return false;
+    }
 
-  });
+
+    if (
+      !profile ||
+      profile.role !== "admin"
+    ) {
+
+      console.warn(
+        "User is not an admin."
+      );
+
+      return false;
+    }
 
 
-/* --------------------------------
-   COURSES
--------------------------------- */
-
-async function loadCourses() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("courses")
-    .select("id,name,exam")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) {
-
-    console.error("Courses error:", error);
-    return;
+    return true;
 
   }
 
-  const select =
-    document.getElementById(
-      "studentCourse"
-    );
 
-  select.innerHTML =
-    `<option value="">Select Course</option>`;
+  /* =========================
+     INITIAL AUTH CHECK
+  ========================= */
 
-  (data || []).forEach(course => {
+  async function initializeApp() {
 
-    const option =
-      document.createElement("option");
+    try {
 
-    option.value = course.id;
-
-    option.textContent =
-      `${course.name} (${course.exam})`;
-
-    select.appendChild(option);
-
-  });
-
-}
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .auth
+        .getSession();
 
 
-/* --------------------------------
-   BATCHES
--------------------------------- */
+      if (error) {
 
-async function loadBatches() {
+        console.error(
+          "Session error:",
+          error
+        );
 
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
+        showLogin();
 
-  if (error) {
+        return;
+      }
 
-    console.error("Batches error:", error);
-    return;
+
+      const session =
+        data ? data.session : null;
+
+
+      /*
+        IMPORTANT:
+        No redirect here.
+
+        If there is no session,
+        simply show the login page.
+      */
+
+      if (!session) {
+
+        showLogin();
+
+        return;
+      }
+
+
+      const isAdmin =
+        await verifyAdmin(session);
+
+
+      if (!isAdmin) {
+
+        await supabaseClient
+          .auth
+          .signOut();
+
+        showLogin();
+
+        showLoginMessage(
+          "This account does not have administrator access.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      showDashboard();
+
+
+      await loadDashboardData();
+
+
+    } catch (error) {
+
+      console.error(
+        "Initialization error:",
+        error
+      );
+
+      showLogin();
+
+      showLoginMessage(
+        "Unable to initialize admin system. Please try again.",
+        "error"
+      );
+
+    }
 
   }
 
-  const select =
-    document.getElementById(
-      "studentBatch"
-    );
 
-  select.innerHTML =
-    `<option value="">Select Batch</option>`;
+  /* =========================
+     LOGIN
+  ========================= */
 
-  (data || []).forEach(batch => {
+  loginForm.addEventListener(
+    "submit",
+    async function(event) {
 
-    const option =
-      document.createElement("option");
+      event.preventDefault();
 
-    option.value = batch.id;
-
-    option.textContent =
-      `${batch.name} — ${batch.academic_year}`;
-
-    select.appendChild(option);
-
-  });
-
-}
+      hideLoginMessage();
 
 
-/* --------------------------------
-   MODAL
--------------------------------- */
+      const email =
+        document
+          .getElementById("adminEmail")
+          .value
+          .trim();
 
-const modal =
-  document.getElementById(
-    "studentModal"
+
+      const password =
+        document
+          .getElementById("adminPassword")
+          .value;
+
+
+      if (!email || !password) {
+
+        showLoginMessage(
+          "Please enter your email and password.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      loginBtn.disabled = true;
+
+      loginBtn.textContent =
+        "Signing in...";
+
+
+      try {
+
+        const {
+          data,
+          error
+        } = await supabaseClient
+          .auth
+          .signInWithPassword({
+            email: email,
+            password: password
+          });
+
+
+        if (error) {
+
+          console.error(
+            "Login error:",
+            error
+          );
+
+          showLoginMessage(
+            error.message ||
+            "Login failed. Please check your credentials.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (
+          !data ||
+          !data.session
+        ) {
+
+          showLoginMessage(
+            "Login did not create a valid session.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        const isAdmin =
+          await verifyAdmin(
+            data.session
+          );
+
+
+        if (!isAdmin) {
+
+          await supabaseClient
+            .auth
+            .signOut();
+
+          showLoginMessage(
+            "Login successful, but this account is not registered as an SIR administrator.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        showLoginMessage(
+          "Login successful. Opening dashboard...",
+          "success"
+        );
+
+
+        showDashboard();
+
+
+        await loadDashboardData();
+
+
+      } catch (error) {
+
+        console.error(
+          "Unexpected login error:",
+          error
+        );
+
+        showLoginMessage(
+          "Something went wrong. Please try again.",
+          "error"
+        );
+
+      } finally {
+
+        loginBtn.disabled = false;
+
+        loginBtn.textContent =
+          "Login to Admin";
+
+      }
+
+    }
   );
 
 
-document
-  .getElementById("addStudentBtn")
-  .addEventListener("click", async () => {
+  /* =========================
+     AUTH STATE
+  ========================= */
 
-    modal.classList.add("show");
+  supabaseClient
+    .auth
+    .onAuthStateChange(
+      async function(event, session) {
 
-    await loadCourses();
-    await loadBatches();
-
-  });
-
-
-document
-  .getElementById("closeModal")
-  .addEventListener("click", closeModal);
+        console.log(
+          "Auth event:",
+          event
+        );
 
 
-document
-  .getElementById("cancelStudent")
-  .addEventListener("click", closeModal);
+        if (
+          event === "SIGNED_OUT"
+        ) {
+
+          showLogin();
+
+          return;
+        }
 
 
-function closeModal() {
+        /*
+          Do not redirect automatically.
+          Login itself controls the dashboard.
+        */
 
-  modal.classList.remove("show");
+      }
+    );
+
+
+  /* =========================
+     NAVIGATION
+  ========================= */
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          document
+            .querySelectorAll(".nav-btn")
+            .forEach(btn => {
+
+              btn.classList.remove(
+                "active"
+              );
+
+            });
+
+
+          document
+            .querySelectorAll(".section")
+            .forEach(section => {
+
+              section.classList.remove(
+                "active"
+              );
+
+            });
+
+
+          button.classList.add(
+            "active"
+          );
+
+
+          const section =
+            document.getElementById(
+              button.dataset.section
+            );
+
+
+          if (section) {
+
+            section.classList.add(
+              "active"
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+  /* =========================
+     STUDENTS
+  ========================= */
+
+  let allStudents = [];
+
+
+  async function loadStudents() {
+
+    const tbody =
+      document.getElementById(
+        "studentsTableBody"
+      );
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("students")
+        .select(`
+          id,
+          student_uid,
+          full_name,
+          email,
+          phone,
+          is_active,
+          course_id,
+          batch_id
+        `)
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
+
+
+      if (error) {
+
+        console.error(
+          "Students error:",
+          error
+        );
+
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty">
+              Unable to load students.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+
+      allStudents =
+        data || [];
+
+
+      renderStudents(
+        allStudents
+      );
+
+
+      document.getElementById(
+        "totalStudents"
+      ).textContent =
+        allStudents.length;
+
+
+      document.getElementById(
+        "activeStudents"
+      ).textContent =
+        allStudents.filter(
+          student =>
+            student.is_active
+        ).length;
+
+
+    } catch (error) {
+
+      console.error(
+        "Students exception:",
+        error
+      );
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            Unable to load students.
+          </td>
+        </tr>
+      `;
+
+    }
+
+  }
+
+
+  function renderStudents(
+    students
+  ) {
+
+    const tbody =
+      document.getElementById(
+        "studentsTableBody"
+      );
+
+
+    if (!students.length) {
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            No students found.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    tbody.innerHTML =
+      students
+        .map(student => {
+
+          return `
+
+            <tr>
+
+              <td>
+                <span class="uid">
+                  ${escapeHtml(
+                    student.student_uid || "—"
+                  )}
+                </span>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  student.full_name || "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  student.email || "—"
+                )}
+              </td>
+
+              <td>
+                —
+              </td>
+
+              <td>
+                —
+              </td>
+
+              <td>
+
+                <span class="status">
+                  ${
+                    student.is_active
+                      ? "Active"
+                      : "Inactive"
+                  }
+                </span>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
+
+  }
+
+
+  /* =========================
+     STUDENT SEARCH
+  ========================= */
+
+  document
+    .getElementById("studentSearch")
+    .addEventListener(
+      "input",
+      function() {
+
+        const search =
+          this.value
+            .toLowerCase()
+            .trim();
+
+
+        const filtered =
+          allStudents.filter(
+            student =>
+
+              (
+                student.full_name ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+              ||
+
+              (
+                student.student_uid ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+              ||
+
+              (
+                student.email ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+          );
+
+
+        renderStudents(
+          filtered
+        );
+
+      }
+    );
+
+
+  /* =========================
+     COURSES
+  ========================= */
+
+  async function loadCourses() {
+
+    const select =
+      document.getElementById(
+        "studentCourse"
+      );
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("courses")
+        .select(
+          "id,name,exam"
+        )
+        .eq(
+          "is_active",
+          true
+        )
+        .order("name");
+
+
+      if (error) {
+
+        console.error(
+          "Courses error:",
+          error
+        );
+
+        return;
+      }
+
+
+      select.innerHTML =
+        `
+          <option value="">
+            Select Course
+          </option>
+        `;
+
+
+      (data || [])
+        .forEach(course => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            course.id;
+
+
+          option.textContent =
+            `${course.name} (${course.exam})`;
+
+
+          select.appendChild(
+            option
+          );
+
+        });
+
+
+    } catch (error) {
+
+      console.error(
+        "Courses exception:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     BATCHES
+  ========================= */
+
+  async function loadBatches() {
+
+    const select =
+      document.getElementById(
+        "studentBatch"
+      );
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("batches")
+        .select(
+          "id,name,academic_year"
+        )
+        .eq(
+          "is_active",
+          true
+        )
+        .order("name");
+
+
+      if (error) {
+
+        console.error(
+          "Batches error:",
+          error
+        );
+
+        return;
+      }
+
+
+      select.innerHTML =
+        `
+          <option value="">
+            Select Batch
+          </option>
+        `;
+
+
+      (data || [])
+        .forEach(batch => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            batch.id;
+
+
+          option.textContent =
+            `${batch.name} — ${batch.academic_year}`;
+
+
+          select.appendChild(
+            option
+          );
+
+        });
+
+
+    } catch (error) {
+
+      console.error(
+        "Batches exception:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     MODAL
+  ========================= */
+
+  const modal =
+    document.getElementById(
+      "studentModal"
+    );
+
+
+  document
+    .getElementById("addStudentBtn")
+    .addEventListener(
+      "click",
+      async function() {
+
+        modal.classList.add(
+          "show"
+        );
+
+
+        await loadCourses();
+
+        await loadBatches();
+
+      }
+    );
+
+
+  document
+    .getElementById("closeModal")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  document
+    .getElementById("cancelStudent")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  function closeModal() {
+
+    modal.classList.remove(
+      "show"
+    );
+
+
+    document
+      .getElementById(
+        "studentForm"
+      )
+      .reset();
+
+
+    hideFormMessage();
+
+  }
+
+
+  /* =========================
+     STUDENT CREATE
+  ========================= */
 
   document
     .getElementById("studentForm")
-    .reset();
+    .addEventListener(
+      "submit",
+      async function(event) {
 
-  hideMessage();
-
-}
+        event.preventDefault();
 
 
-/* --------------------------------
-   STUDENT CREATE
--------------------------------- */
+        showFormMessage(
+          "Student creation will be connected securely in the backend step.",
+          "success"
+        );
 
-document
-  .getElementById("studentForm")
-  .addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    showMessage(
-      "Student creation will be connected securely in the next backend step.",
-      "success"
+      }
     );
 
-  });
+
+  /* =========================
+     FORM MESSAGE
+  ========================= */
+
+  function showFormMessage(
+    text,
+    type
+  ) {
+
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
 
 
-/* --------------------------------
-   COUNTERS
--------------------------------- */
-
-async function loadCounters() {
-
-  const {
-    count: testCount
-  } = await supabaseClient
-    .from("tests")
-    .select("*", {
-      count: "exact",
-      head: true
-    });
-
-  const {
-    count: noticeCount
-  } = await supabaseClient
-    .from("notices")
-    .select("*", {
-      count: "exact",
-      head: true
-    });
-
-  document.getElementById(
-    "totalTests"
-  ).textContent =
-    testCount ?? 0;
-
-  document.getElementById(
-    "totalNotices"
-  ).textContent =
-    noticeCount ?? 0;
-
-}
+    box.textContent =
+      text;
 
 
-/* --------------------------------
-   MESSAGES
--------------------------------- */
+    box.className =
+      `message show ${type}`;
 
-function showMessage(text, type) {
+  }
 
-  const box =
-    document.getElementById(
-      "formMessage"
+
+  function hideFormMessage() {
+
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
+
+
+    box.className =
+      "message";
+
+
+    box.textContent =
+      "";
+
+  }
+
+
+  /* =========================
+     COUNTERS
+  ========================= */
+
+  async function loadCounters() {
+
+    try {
+
+      const {
+        count: testCount
+      } = await supabaseClient
+        .from("tests")
+        .select(
+          "*",
+          {
+            count: "exact",
+            head: true
+          }
+        );
+
+
+      const {
+        count: noticeCount
+      } = await supabaseClient
+        .from("notices")
+        .select(
+          "*",
+          {
+            count: "exact",
+            head: true
+          }
+        );
+
+
+      document.getElementById(
+        "totalTests"
+      ).textContent =
+        testCount ?? 0;
+
+
+      document.getElementById(
+        "totalNotices"
+      ).textContent =
+        noticeCount ?? 0;
+
+
+    } catch (error) {
+
+      console.error(
+        "Counter error:",
+        error
+      );
+
+
+      document.getElementById(
+        "totalTests"
+      ).textContent =
+        "—";
+
+
+      document.getElementById(
+        "totalNotices"
+      ).textContent =
+        "—";
+
+    }
+
+  }
+
+
+  /* =========================
+     DASHBOARD DATA
+  ========================= */
+
+  async function loadDashboardData() {
+
+    await Promise.allSettled([
+      loadStudents(),
+      loadCounters()
+    ]);
+
+  }
+
+
+  /* =========================
+     SECURITY HELPER
+  ========================= */
+
+  function escapeHtml(value) {
+
+    return String(value)
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+  /* =========================
+     LOGOUT
+  ========================= */
+
+  document
+    .getElementById("logoutBtn")
+    .addEventListener(
+      "click",
+      async function() {
+
+        const button =
+          document.getElementById(
+            "logoutBtn"
+          );
+
+
+        button.disabled = true;
+
+        button.textContent =
+          "Logging out...";
+
+
+        try {
+
+          await supabaseClient
+            .auth
+            .signOut();
+
+
+        } catch (error) {
+
+          console.error(
+            "Logout error:",
+            error
+          );
+
+        } finally {
+
+          button.disabled = false;
+
+          button.textContent =
+            "Logout";
+
+
+          showLogin();
+
+          document
+            .getElementById(
+              "adminPassword"
+            )
+            .value = "";
+
+        }
+
+      }
     );
 
-  box.textContent = text;
 
-  box.className =
-    `message show ${type}`;
+  /* =========================
+     START
+  ========================= */
 
-}
-
-
-function hideMessage() {
-
-  const box =
-    document.getElementById(
-      "formMessage"
-    );
-
-  box.className = "message";
-
-  box.textContent = "";
-
-}
-
-
-/* --------------------------------
-   SECURITY HELPER
--------------------------------- */
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-/* --------------------------------
-   LOGOUT
--------------------------------- */
-
-document
-  .getElementById("logoutBtn")
-  .addEventListener("click", async () => {
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href =
-      "admin-login.html";
-
-  });
-
-
-/* --------------------------------
-   INIT
--------------------------------- */
-
-(async function init() {
-
-  const session = await checkAdmin();
-
-  if (!session) return;
-
-  await loadStudents();
-
-  await loadCounters();
-
-})();
+  initializeApp();
 
 </script>
 
