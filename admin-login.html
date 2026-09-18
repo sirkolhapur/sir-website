@@ -460,10 +460,198 @@
         grid-column: auto;
       }
     }
+
+    /* =========================
+       LOGIN PAGE
+    ========================= */
+
+    #loginPage {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(201,168,78,.10), transparent 35%),
+        #071426;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.35);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .login-logo img {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      margin-bottom: 14px;
+    }
+
+    .login-logo h1 {
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .login-logo p {
+      color: #c9a84e;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    .login-title {
+      margin-bottom: 22px;
+    }
+
+    .login-title h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .login-title span {
+      color: #8493a8;
+      font-size: 13px;
+    }
+
+    .login-field {
+      margin-bottom: 17px;
+    }
+
+    .login-field label {
+      display: block;
+      color: #aebacc;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 13px 14px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .login-field input:focus {
+      border-color: #c9a84e;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #c9a84e;
+      color: #071426;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .login-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .login-message.show {
+      display: block;
+    }
+
+    .login-message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff9292;
+      border: 1px solid rgba(220,70,70,.15);
+    }
+
+    .login-message.success {
+      background: rgba(70,180,110,.12);
+      color: #75dda0;
+      border: 1px solid rgba(70,180,110,.15);
+    }
+
+    .security-note {
+      text-align: center;
+      margin-top: 22px;
+      color: #63738a;
+      font-size: 11px;
+    }
+
+    #dashboardPage {
+      display: none;
+    }
+
   </style>
 </head>
 
 <body>
+
+
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="sir logo.png" alt="SIR">
+      <h1>SIR Admin</h1>
+      <p>WHERE POTENTIAL FINDS DIRECTION</p>
+    </div>
+
+    <div class="login-title">
+      <h2>Administrator Login</h2>
+      <span>Access the SIR academic management system.</span>
+    </div>
+
+    <form id="loginForm">
+      <div class="login-field">
+        <label for="adminEmail">Email</label>
+        <input type="email" id="adminEmail"
+               placeholder="Administrator email"
+               autocomplete="username" required>
+      </div>
+
+      <div class="login-field">
+        <label for="adminPassword">Password</label>
+        <input type="password" id="adminPassword"
+               placeholder="Password"
+               autocomplete="current-password" required>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        Login to Admin
+      </button>
+
+      <div id="loginMessage" class="login-message"></div>
+    </form>
+
+    <div class="security-note">
+      Authorized SIR administrators only.
+    </div>
+  </div>
+</div>
+
+<div id="dashboardPage">
 
 <header class="topbar">
   <div class="brand">
@@ -676,6 +864,8 @@
 </div>
 
 
+</div>
+
 <!-- ADD STUDENT MODAL -->
 
 <div class="modal" id="studentModal">
@@ -789,35 +979,277 @@ const supabaseClient =
    AUTH
 -------------------------------- */
 
+const loginPage =
+  document.getElementById("loginPage");
+
+const dashboardPage =
+  document.getElementById("dashboardPage");
+
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginBtn =
+  document.getElementById("loginBtn");
+
+const loginMessage =
+  document.getElementById("loginMessage");
+
+
+function showLoginMessage(message, type = "error") {
+
+  loginMessage.textContent = message;
+
+  loginMessage.className =
+    `login-message show ${type}`;
+
+}
+
+
+function hideLoginMessage() {
+
+  loginMessage.textContent = "";
+
+  loginMessage.className =
+    "login-message";
+
+}
+
+
+function showLogin() {
+
+  loginPage.style.display = "flex";
+
+  dashboardPage.style.display = "none";
+
+}
+
+
+function showDashboard() {
+
+  loginPage.style.display = "none";
+
+  dashboardPage.style.display = "block";
+
+}
+
+
+async function verifyAdmin(session) {
+
+  if (!session || !session.user) {
+    return false;
+  }
+
+  const {
+    data: profile,
+    error
+  } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (error) {
+
+    console.error(
+      "Admin profile check error:",
+      error
+    );
+
+    return false;
+  }
+
+  return !!profile && profile.role === "admin";
+}
+
+
 async function checkAdmin() {
 
   const {
-    data: { session }
+    data,
+    error
   } = await supabaseClient.auth.getSession();
 
-  if (!session) {
-    window.location.href = "admin-login.html";
+  if (error) {
+
+    console.error(
+      "Session check error:",
+      error
+    );
+
+    showLogin();
+
+    showLoginMessage(
+      "Unable to check your session. Please log in again.",
+      "error"
+    );
+
     return null;
   }
 
-  const { data: profile, error } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
+  const session =
+    data ? data.session : null;
 
-  if (error || !profile || profile.role !== "admin") {
+  if (!session) {
+
+    showLogin();
+
+    return null;
+  }
+
+  const isAdmin =
+    await verifyAdmin(session);
+
+  if (!isAdmin) {
 
     await supabaseClient.auth.signOut();
 
-    window.location.href = "admin-login.html";
+    showLogin();
+
+    showLoginMessage(
+      "This account does not have administrator access.",
+      "error"
+    );
 
     return null;
   }
 
   return session;
 }
+
+
+/* --------------------------------
+   ADMIN LOGIN
+-------------------------------- */
+
+loginForm.addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    hideLoginMessage();
+
+    const email =
+      document
+        .getElementById("adminEmail")
+        .value
+        .trim();
+
+    const password =
+      document
+        .getElementById("adminPassword")
+        .value;
+
+    if (!email || !password) {
+
+      showLoginMessage(
+        "Please enter your email and password.",
+        "error"
+      );
+
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in...";
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+
+        console.error(
+          "Admin login error:",
+          error
+        );
+
+        showLoginMessage(
+          error.message ||
+          "Login failed. Please check your credentials.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (!data || !data.session) {
+
+        showLoginMessage(
+          "Login did not create a valid session.",
+          "error"
+        );
+
+        return;
+      }
+
+      const isAdmin =
+        await verifyAdmin(data.session);
+
+      if (!isAdmin) {
+
+        await supabaseClient.auth.signOut();
+
+        showLoginMessage(
+          "Login successful, but this account is not registered as an SIR administrator.",
+          "error"
+        );
+
+        return;
+      }
+
+      showDashboard();
+
+      await loadStudents();
+      await loadCounters();
+
+    } catch (error) {
+
+      console.error(
+        "Unexpected admin login error:",
+        error
+      );
+
+      showLoginMessage(
+        "Something went wrong. Please try again.",
+        "error"
+      );
+
+    } finally {
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login to Admin";
+
+    }
+
+  }
+);
+
+
+/* --------------------------------
+   AUTH STATE
+-------------------------------- */
+
+supabaseClient.auth.onAuthStateChange(
+  function(event) {
+
+    console.log(
+      "Auth event:",
+      event
+    );
+
+    if (event === "SIGNED_OUT") {
+      showLogin();
+    }
+
+  }
+);
 
 
 /* --------------------------------
@@ -1361,8 +1793,7 @@ document
 
     await supabaseClient.auth.signOut();
 
-    window.location.href =
-      "admin-login.html";
+    showLogin();
 
   });
 
@@ -1373,9 +1804,16 @@ document
 
 (async function init() {
 
-  const session = await checkAdmin();
+  showLogin();
 
-  if (!session) return;
+  const session =
+    await checkAdmin();
+
+  if (!session) {
+    return;
+  }
+
+  showDashboard();
 
   await loadStudents();
 
