@@ -382,6 +382,43 @@
       background: rgba(201,168,78,.12);
     }
 
+    .student-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-action-btn {
+      background: transparent;
+      border: 1px solid rgba(220,90,90,.45);
+      color: #ff9a9a;
+      padding: 7px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-action-btn:hover {
+      background: rgba(220,90,90,.10);
+    }
+
+    .status-action-btn.reactivate {
+      border-color: rgba(105,211,145,.45);
+      color: #75dda0;
+    }
+
+    .status-action-btn.reactivate:hover {
+      background: rgba(70,180,110,.10);
+    }
+
+    .status.inactive {
+      background: rgba(220,90,90,.12);
+      color: #ff9292;
+    }
+
     @media (max-width: 900px) {
       .sidebar {
         width: 190px;
@@ -891,18 +928,6 @@
           >
         </div>
 
-        <div class="field full">
-          <label>Student UID</label>
-          <input
-            type="text"
-            id="studentUid"
-            placeholder="SIR002"
-            pattern="SIR[0-9]{3,}"
-            title="Use format SIR001, SIR002, SIR003..."
-            required
-          >
-        </div>
-
         <div class="field">
           <label>Email</label>
           <input
@@ -1405,21 +1430,34 @@ function renderStudents(students) {
         </td>
 
         <td>
-          <span class="status">
+          <span class="status ${student.is_active ? "" : "inactive"}">
             ${student.is_active ? "Active" : "Inactive"}
           </span>
         </td>
 
         <td>
-          <button
-            class="reset-password-btn"
-            onclick="resetStudentPassword(
-              '${escapeHtml(student.student_uid || "")}',
-              '${escapeHtml(student.full_name || "")}'
-            )"
-          >
-            Reset Password
-          </button>
+          <div class="student-actions">
+            <button
+              class="reset-password-btn"
+              onclick="resetStudentPassword(
+                '${escapeHtml(student.student_uid || "")}',
+                '${escapeHtml(student.full_name || "")}'
+              )"
+            >
+              Reset Password
+            </button>
+
+            <button
+              class="status-action-btn ${student.is_active ? "" : "reactivate"}"
+              onclick="toggleStudentStatus(
+                '${escapeHtml(student.student_uid || "")}',
+                '${escapeHtml(student.full_name || "")}',
+                ${student.is_active ? "true" : "false"}
+              )"
+            >
+              ${student.is_active ? "Deactivate" : "Reactivate"}
+            </button>
+          </div>
         </td>
 
       </tr>
@@ -1512,6 +1550,93 @@ async function resetStudentPassword(
 
     alert(
       "Something went wrong while resetting the password."
+    );
+
+  }
+
+}
+
+
+
+/* --------------------------------
+   ACTIVATE / DEACTIVATE STUDENT
+-------------------------------- */
+
+async function toggleStudentStatus(
+  studentUid,
+  studentName,
+  currentlyActive
+) {
+
+  const confirmation = currentlyActive
+    ? `Deactivate ${studentName} (${studentUid})?
+
+Student login access will be blocked.
+Academic history will be preserved.`
+    : `Reactivate ${studentName} (${studentUid})?
+
+This will restore student login access.`;
+
+  if (!confirm(confirmation)) {
+    return;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient.functions.invoke(
+      "set-student-status",
+      {
+        body: {
+          student_uid: studentUid,
+          is_active: !currentlyActive
+        }
+      }
+    );
+
+    if (error) {
+
+      console.error(
+        "Student status update error:",
+        error
+      );
+
+      alert(
+        "Unable to update student status. Check the set-student-status Edge Function."
+      );
+
+      return;
+    }
+
+    if (!data || !data.success) {
+
+      alert(
+        data?.error ||
+        "Unable to update student status."
+      );
+
+      return;
+    }
+
+    alert(
+      currentlyActive
+        ? `${studentUid} has been deactivated.`
+        : `${studentUid} has been reactivated.`
+    );
+
+    await loadStudents();
+
+  } catch (error) {
+
+    console.error(
+      "Unexpected student status error:",
+      error
+    );
+
+    alert(
+      "Something went wrong while updating student status."
     );
 
   }
@@ -1700,122 +1825,11 @@ document
   .addEventListener("submit", async function(e) {
 
     e.preventDefault();
-    hideMessage();
 
-    const submitButton =
-      e.target.querySelector('button[type="submit"]');
-
-    const fullName =
-      document.getElementById("studentName").value.trim();
-
-    const uid =
-      document.getElementById("studentUid").value.trim().toUpperCase();
-
-    const email =
-      document.getElementById("studentEmail").value.trim().toLowerCase();
-
-    const phone =
-      document.getElementById("studentMobile").value.trim();
-
-    const courseId =
-      document.getElementById("studentCourse").value || null;
-
-    const batchId =
-      document.getElementById("studentBatch").value || null;
-
-    if (!fullName || !uid || !email) {
-      showMessage(
-        "Please enter the student's name, Student UID and email.",
-        "error"
-      );
-      return;
-    }
-
-    if (!/^SIR[0-9]{3,}$/.test(uid)) {
-      showMessage(
-        "Student UID must be in the format SIR001, SIR002, SIR003...",
-        "error"
-      );
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = "Creating Student...";
-
-    try {
-
-      const { data, error } =
-        await supabaseClient.functions.invoke(
-          "create-student",
-          {
-            body: {
-              full_name: fullName,
-              student_uid: uid,
-              email: email,
-              phone: phone,
-              course_id: courseId,
-              batch_id: batchId
-            }
-          }
-        );
-
-      console.log("Create student response:", data, error);
-
-      if (error) {
-        console.error("Create student function error:", error);
-        showMessage(
-          error.message ||
-          "Student creation failed. Please try again.",
-          "error"
-        );
-        return;
-      }
-
-      if (!data || !data.success) {
-        showMessage(
-          data?.error || "Unable to create student.",
-          "error"
-        );
-        return;
-      }
-
-      const studentUid = data.student_uid || "—";
-      const temporaryPassword = data.password || "—";
-
-      showMessage(
-        `Student created successfully. UID: ${studentUid}`,
-        "success"
-      );
-
-      alert(
-        `Student Created Successfully!\n\n` +
-        `Student: ${fullName}\n` +
-        `Student UID: ${studentUid}\n` +
-        `Temporary Password: ${temporaryPassword}\n\n` +
-        `Please save these login details securely.`
-      );
-
-      document.getElementById("studentForm").reset();
-
-      await loadStudents();
-      await loadCounters();
-
-    } catch (error) {
-
-      console.error("Unexpected student creation error:", error);
-
-      showMessage(
-        error?.message ||
-        "Something went wrong while creating the student.",
-        "error"
-      );
-
-    } finally {
-
-      submitButton.disabled = false;
-      submitButton.textContent = "Create Student";
-
-    }
+    showMessage(
+      "Student creation will be connected securely in the next backend step.",
+      "success"
+    );
 
   });
 
