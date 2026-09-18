@@ -897,7 +897,7 @@
             type="text"
             id="studentUid"
             placeholder="SIR002"
-            pattern="SIR\\d{3,}"
+            pattern="SIR[0-9]{3,}"
             title="Use format SIR001, SIR002, SIR003..."
             required
           >
@@ -1731,7 +1731,7 @@ document
       return;
     }
 
-    if (!/^SIR\\d{3,}$/.test(studentUid)) {
+    if (!/^SIR[0-9]{3,}$/.test(studentUid)) {
       showMessage(
         "Student UID must be in the format SIR001, SIR002, SIR003...",
         "error"
