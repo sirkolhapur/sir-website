@@ -10,20 +10,21 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        Teacher Dashboard | SIR
-    </title>
-
     <meta
         name="theme-color"
         content="#07152f"
     >
+
+    <title>
+        Teacher Dashboard | SIR Kolhapur
+    </title>
 
     <link
         rel="icon"
         href="sir-logo.svg"
     >
 
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
@@ -31,45 +32,12 @@
 
         /* =====================================================
            RESET
-        ====================================================== */
+        ===================================================== */
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
-
-
-        :root {
-
-            --blue: #07152f;
-            --blue-2: #0b2148;
-            --blue-3: #12376f;
-
-            --gold: #d7a62a;
-            --gold-light: #f0c75e;
-
-            --white: #ffffff;
-            --bg: #f4f6fa;
-
-            --text: #172033;
-            --muted: #718096;
-
-            --border: #e4e8ef;
-
-            --success: #15803d;
-            --success-bg: #ecfdf3;
-
-            --danger: #b42318;
-            --danger-bg: #fef3f2;
-
-            --shadow:
-                0 10px 35px rgba(7,21,47,.07);
-        }
-
-
-        html {
-            scroll-behavior: smooth;
         }
 
 
@@ -86,11 +54,11 @@
                 Arial,
                 sans-serif;
 
-            background: var(--bg);
+            background:
+                #f4f6f9;
 
-            color: var(--text);
-
-            -webkit-font-smoothing: antialiased;
+            color:
+                #172033;
         }
 
 
@@ -98,26 +66,22 @@
         input,
         select,
         textarea {
+
             font: inherit;
         }
 
 
         button {
+
             cursor: pointer;
         }
 
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-
         /* =====================================================
-           APP
-        ====================================================== */
+           LAYOUT
+        ===================================================== */
 
-        .app {
+        .dashboard {
 
             min-height: 100vh;
 
@@ -127,7 +91,7 @@
 
         /* =====================================================
            SIDEBAR
-        ====================================================== */
+        ===================================================== */
 
         .sidebar {
 
@@ -141,84 +105,111 @@
             height: 100vh;
 
             background:
-                linear-gradient(
-                    180deg,
-                    #06132b,
-                    #081a39
-                );
+                #07152f;
 
-            color: var(--white);
+            color:
+                #ffffff;
 
-            z-index: 100;
+            padding:
+                25px 16px;
 
             display: flex;
 
             flex-direction: column;
 
-            border-right:
-                1px solid
-                rgba(255,255,255,.08);
+            z-index: 100;
         }
 
 
         .sidebar-logo {
 
-            height: 88px;
-
             display: flex;
+
+            justify-content: center;
 
             align-items: center;
 
-            padding: 18px 25px;
+            padding:
+                8px 10px 28px;
 
             border-bottom:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(255,255,255,.09);
         }
 
 
         .sidebar-logo img {
 
-            width: 125px;
+            width: 130px;
 
-            max-height: 55px;
+            max-height: 75px;
 
             object-fit: contain;
         }
 
 
-        .sidebar-label {
+        .teacher-mini-profile {
 
             padding:
-                25px 24px 12px;
+                22px 10px;
 
-            font-size: 9px;
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.09);
+        }
+
+
+        .teacher-mini-profile small {
+
+            display: block;
+
+            color:
+                #d7a62a;
+
+            font-size: 8px;
 
             font-weight: 800;
 
             letter-spacing: .18em;
 
-            color:
-                rgba(255,255,255,.35);
+            margin-bottom: 7px;
+        }
 
-            text-transform: uppercase;
+
+        .teacher-mini-profile strong {
+
+            display: block;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            margin-bottom: 4px;
+        }
+
+
+        .teacher-mini-profile span {
+
+            color:
+                rgba(255,255,255,.48);
+
+            font-size: 11px;
         }
 
 
         .sidebar-nav {
 
-            padding:
-                0 12px;
+            padding-top: 20px;
 
             display: flex;
 
             flex-direction: column;
 
-            gap: 4px;
+            gap: 5px;
         }
 
 
-        .nav-item {
+        .sidebar-nav button {
 
             width: 100%;
 
@@ -227,46 +218,44 @@
             background: transparent;
 
             color:
-                rgba(255,255,255,.58);
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 13px;
-
-            padding:
-                12px 13px;
-
-            border-radius: 8px;
+                rgba(255,255,255,.55);
 
             text-align: left;
 
-            font-size: 12px;
+            padding:
+                13px 12px;
 
-            transition:
-                background .2s ease,
-                color .2s ease;
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: .04em;
+
+            transition: .25s ease;
         }
 
 
-        .nav-item:hover,
-        .nav-item.active {
+        .sidebar-nav button:hover,
+        .sidebar-nav button.active {
 
             background:
                 rgba(255,255,255,.08);
 
-            color: var(--white);
+            color:
+                #ffffff;
         }
 
 
-        .nav-icon {
+        .sidebar-nav button.active {
 
-            width: 22px;
+            border-left:
+                3px solid
+                #d7a62a;
 
-            text-align: center;
-
-            font-size: 15px;
+            padding-left:
+                9px;
         }
 
 
@@ -274,19 +263,20 @@
 
             margin-top: auto;
 
-            padding: 16px;
+            padding-top: 18px;
 
             border-top:
                 1px solid
-                rgba(255,255,255,.08);
+                rgba(255,255,255,.09);
         }
 
 
-        .logout-button {
+        .logout-btn {
 
             width: 100%;
 
-            border: 1px solid
+            border:
+                1px solid
                 rgba(255,255,255,.12);
 
             background:
@@ -297,38 +287,37 @@
 
             border-radius: 8px;
 
-            padding: 11px;
+            padding: 12px;
 
-            font-size: 11px;
+            font-size: 10px;
 
-            font-weight: 700;
+            font-weight: 800;
 
-            transition:
-                background .2s ease,
-                color .2s ease;
+            letter-spacing: .1em;
+
+            transition: .25s ease;
         }
 
 
-        .logout-button:hover {
+        .logout-btn:hover {
 
-            background:
-                rgba(215,166,42,.10);
+            border-color:
+                #d7a62a;
 
             color:
-                var(--gold-light);
+                #f0c75e;
         }
 
 
         /* =====================================================
            MAIN
-        ====================================================== */
+        ===================================================== */
 
         .main {
 
-            margin-left: 250px;
+            width: calc(100% - 250px);
 
-            width:
-                calc(100% - 250px);
+            margin-left: 250px;
 
             min-height: 100vh;
         }
@@ -336,24 +325,18 @@
 
         /* =====================================================
            TOPBAR
-        ====================================================== */
+        ===================================================== */
 
         .topbar {
 
-            position: sticky;
-
-            top: 0;
-
-            height: 72px;
+            height: 76px;
 
             background:
-                rgba(255,255,255,.94);
-
-            backdrop-filter:
-                blur(14px);
+                #ffffff;
 
             border-bottom:
-                1px solid var(--border);
+                1px solid
+                #e5e9f0;
 
             display: flex;
 
@@ -362,133 +345,79 @@
             justify-content: space-between;
 
             padding:
-                0 32px;
+                0 35px;
+
+            position: sticky;
+
+            top: 0;
 
             z-index: 50;
         }
 
 
-        .mobile-menu {
+        .topbar-left h1 {
 
-            display: none;
+            font-size: 21px;
 
-            width: 40px;
-            height: 40px;
+            font-weight: 650;
 
-            border: 1px solid var(--border);
+            color:
+                #07152f;
 
-            background: var(--white);
-
-            border-radius: 8px;
-
-            font-size: 18px;
+            margin-bottom: 3px;
         }
 
 
-        .topbar-title h1 {
-
-            font-size: 18px;
-
-            font-weight: 700;
-
-            color: var(--blue);
-
-            letter-spacing: -.02em;
-        }
-
-
-        .topbar-title p {
+        .topbar-left p {
 
             font-size: 11px;
 
-            color: var(--muted);
-
-            margin-top: 3px;
-        }
-
-
-        .teacher-profile {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 11px;
-        }
-
-
-        .teacher-avatar {
-
-            width: 38px;
-            height: 38px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background:
-                var(--blue);
-
             color:
-                var(--gold-light);
-
-            font-size: 13px;
-
-            font-weight: 800;
+                #7b8495;
         }
 
 
-        .teacher-profile-text strong {
+        .teacher-status {
 
-            display: block;
+            display: flex;
 
-            font-size: 12px;
+            align-items: center;
 
-            color: var(--blue);
-        }
-
-
-        .teacher-profile-text span {
-
-            display: block;
-
-            margin-top: 2px;
+            gap: 8px;
 
             font-size: 10px;
 
-            color: var(--muted);
+            color:
+                #667085;
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background:
+                #22a06b;
         }
 
 
         /* =====================================================
            CONTENT
-        ====================================================== */
+        ===================================================== */
 
         .content {
 
             padding:
-                30px 32px 50px;
-
-            max-width: 1500px;
-
-            margin: auto;
+                32px 35px 50px;
         }
 
-
-        /* =====================================================
-           SECTIONS
-        ====================================================== */
 
         .page-section {
 
             display: none;
-
-            animation:
-                fadeIn .25s ease;
         }
 
 
@@ -498,110 +427,109 @@
         }
 
 
-        @keyframes fadeIn {
-
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-
         /* =====================================================
-           WELCOME
-        ====================================================== */
+           LOADING
+        ===================================================== */
 
-        .welcome-card {
+        .loading {
+
+            position: fixed;
+
+            inset: 0;
 
             background:
-                linear-gradient(
-                    135deg,
-                    #07152f,
-                    #12376f
-                );
+                #f4f6f9;
 
-            border-radius: 16px;
+            display: flex;
 
-            padding:
-                30px;
+            align-items: center;
 
-            color: var(--white);
+            justify-content: center;
 
-            margin-bottom: 25px;
-
-            position: relative;
-
-            overflow: hidden;
+            z-index: 9999;
         }
 
 
-        .welcome-card::after {
+        .loading-box {
 
-            content: "";
+            text-align: center;
+        }
 
-            position: absolute;
 
-            width: 250px;
-            height: 250px;
+        .loader {
+
+            width: 38px;
+            height: 38px;
+
+            border:
+                3px solid
+                #dfe4ec;
+
+            border-top-color:
+                #d7a62a;
 
             border-radius: 50%;
 
-            right: -80px;
-            top: -120px;
+            animation:
+                spin .8s linear infinite;
 
-            border:
-                1px solid
-                rgba(215,166,42,.25);
+            margin:
+                0 auto 15px;
         }
 
 
-        .welcome-card small {
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        .loading-box p {
+
+            font-size: 11px;
 
             color:
-                rgba(255,255,255,.48);
-
-            font-size: 9px;
-
-            font-weight: 800;
-
-            letter-spacing: .18em;
-
-            text-transform: uppercase;
-        }
-
-
-        .welcome-card h2 {
-
-            margin-top: 10px;
-
-            font-size:
-                clamp(25px, 3vw, 36px);
-
-            font-weight: 600;
-
-            letter-spacing: -.035em;
-        }
-
-
-        .welcome-card p {
-
-            margin-top: 9px;
-
-            color:
-                rgba(255,255,255,.63);
-
-            font-size: 13px;
+                #667085;
         }
 
 
         /* =====================================================
-           STATS
-        ====================================================== */
+           ERROR
+        ===================================================== */
+
+        .error-box {
+
+            display: none;
+
+            background:
+                #fff5f5;
+
+            border:
+                1px solid
+                #ffd6d6;
+
+            color:
+                #b42318;
+
+            border-radius: 10px;
+
+            padding:
+                14px 16px;
+
+            margin-bottom: 20px;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           OVERVIEW CARDS
+        ===================================================== */
 
         .stats-grid {
 
@@ -619,21 +547,31 @@
         .stat-card {
 
             background:
-                var(--white);
+                #ffffff;
 
             border:
-                1px solid var(--border);
+                1px solid
+                #e5e9f0;
 
             border-radius: 12px;
 
-            padding: 21px;
+            padding:
+                21px;
+
+            min-height: 125px;
 
             box-shadow:
-                var(--shadow);
+                0 5px 20px
+                rgba(16,24,40,.035);
         }
 
 
-        .stat-card .stat-label {
+        .stat-card small {
+
+            display: block;
+
+            color:
+                #7a8495;
 
             font-size: 9px;
 
@@ -641,74 +579,43 @@
 
             letter-spacing: .12em;
 
-            color:
-                var(--muted);
-
-            text-transform: uppercase;
+            margin-bottom: 15px;
         }
 
 
-        .stat-card .stat-value {
+        .stat-card strong {
 
-            margin-top: 9px;
+            display: block;
+
+            color:
+                #07152f;
 
             font-size: 30px;
 
-            font-weight: 700;
+            font-weight: 650;
 
-            color:
-                var(--blue);
+            line-height: 1;
         }
 
 
-        .stat-card .stat-note {
+        .stat-card span {
 
-            margin-top: 4px;
+            display: block;
+
+            color:
+                #98a2b3;
 
             font-size: 10px;
 
-            color:
-                var(--muted);
+            margin-top: 9px;
         }
 
 
         /* =====================================================
-           GRID
-        ====================================================== */
+           SECTION HEADER
+        ===================================================== */
 
-        .two-column {
-
-            display: grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap: 20px;
-        }
-
-
-        .card {
-
-            background:
-                var(--white);
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 12px;
-
-            box-shadow:
-                var(--shadow);
-
-            overflow: hidden;
-
-            margin-bottom: 20px;
-        }
-
-
-        .card-header {
-
-            min-height: 64px;
+        .section-header {
 
             display: flex;
 
@@ -716,141 +623,205 @@
 
             justify-content: space-between;
 
-            padding:
-                16px 20px;
+            gap: 20px;
 
-            border-bottom:
-                1px solid var(--border);
+            margin-bottom: 16px;
         }
 
 
-        .card-header h3 {
+        .section-header h2 {
 
             color:
-                var(--blue);
+                #07152f;
 
-            font-size: 14px;
+            font-size: 18px;
 
-            font-weight: 700;
+            font-weight: 650;
         }
 
 
-        .card-header p {
-
-            margin-top: 3px;
+        .section-header p {
 
             color:
-                var(--muted);
+                #98a2b3;
 
             font-size: 10px;
-        }
 
-
-        .card-body {
-
-            padding: 20px;
+            margin-top: 4px;
         }
 
 
         /* =====================================================
-           BATCH CARDS
-        ====================================================== */
+           CARDS
+        ===================================================== */
+
+        .card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid
+                #e5e9f0;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(16,24,40,.035);
+        }
+
+
+        /* =====================================================
+           BATCHES
+        ===================================================== */
 
         .batch-grid {
 
             display: grid;
 
             grid-template-columns:
-                repeat(2, 1fr);
+                repeat(3, 1fr);
 
-            gap: 13px;
+            gap: 15px;
         }
 
 
         .batch-card {
 
-            padding: 18px;
+            padding: 20px;
 
             border:
-                1px solid var(--border);
+                1px solid
+                #e5e9f0;
 
-            border-radius: 10px;
+            border-radius: 11px;
 
             background:
-                #fbfcfe;
+                #ffffff;
 
-            transition:
-                border-color .2s ease,
-                transform .2s ease;
+            transition: .25s ease;
         }
 
 
         .batch-card:hover {
 
-            border-color:
-                rgba(215,166,42,.6);
-
             transform:
-                translateY(-2px);
+                translateY(-3px);
+
+            border-color:
+                #d7a62a;
+
+            box-shadow:
+                0 12px 30px
+                rgba(16,24,40,.07);
         }
 
 
-        .batch-card strong {
-
-            display: block;
+        .batch-card small {
 
             color:
-                var(--blue);
-
-            font-size: 14px;
-        }
-
-
-        .batch-card span {
-
-            display: block;
-
-            margin-top: 6px;
-
-            font-size: 10px;
-
-            color:
-                var(--muted);
-        }
-
-
-        .batch-status {
-
-            display: inline-flex;
-
-            margin-top: 12px;
-
-            padding:
-                5px 8px;
-
-            border-radius: 100px;
-
-            background:
-                var(--success-bg);
-
-            color:
-                var(--success);
+                #9a7214;
 
             font-size: 8px;
 
             font-weight: 800;
 
-            letter-spacing: .08em;
+            letter-spacing: .16em;
+        }
 
-            text-transform: uppercase;
+
+        .batch-card h3 {
+
+            margin:
+                9px 0 7px;
+
+            color:
+                #07152f;
+
+            font-size: 16px;
+        }
+
+
+        .batch-card p {
+
+            color:
+                #7a8495;
+
+            font-size: 10px;
+
+            line-height: 1.5;
         }
 
 
         /* =====================================================
            TABLE
-        ====================================================== */
+        ===================================================== */
 
-        .table-wrap {
+        .table-card {
+
+            overflow: hidden;
+        }
+
+
+        .table-tools {
+
+            padding:
+                16px;
+
+            border-bottom:
+                1px solid
+                #edf0f4;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+        }
+
+
+        .search-input {
+
+            width: 280px;
+
+            height: 40px;
+
+            border:
+                1px solid
+                #dfe4ec;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            padding:
+                0 12px;
+
+            font-size: 11px;
+
+            color:
+                #172033;
+
+            background:
+                #ffffff;
+        }
+
+
+        .search-input:focus {
+
+            border-color:
+                #d7a62a;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(215,166,42,.08);
+        }
+
+
+        .table-wrapper {
+
+            width: 100%;
 
             overflow-x: auto;
         }
@@ -862,7 +833,7 @@
 
             border-collapse: collapse;
 
-            min-width: 650px;
+            min-width: 700px;
         }
 
 
@@ -870,14 +841,11 @@
 
             text-align: left;
 
-            padding:
-                12px 16px;
-
             background:
-                #f8fafc;
+                #f8f9fb;
 
             color:
-                var(--muted);
+                #667085;
 
             font-size: 9px;
 
@@ -885,10 +853,12 @@
 
             letter-spacing: .08em;
 
-            text-transform: uppercase;
+            padding:
+                13px 16px;
 
             border-bottom:
-                1px solid var(--border);
+                1px solid
+                #e5e9f0;
         }
 
 
@@ -897,47 +867,48 @@
             padding:
                 14px 16px;
 
-            font-size: 12px;
+            color:
+                #344054;
+
+            font-size: 11px;
 
             border-bottom:
-                1px solid #edf0f4;
-
-            color:
-                var(--text);
+                1px solid
+                #f0f2f5;
         }
 
 
         tr:last-child td {
+
             border-bottom: 0;
         }
 
 
         .student-name {
 
-            font-weight: 700;
+            font-weight: 650;
 
             color:
-                var(--blue);
+                #07152f;
         }
 
 
         .uid {
 
-            font-family:
-                monospace;
-
-            font-size: 10px;
-
             color:
-                var(--muted);
+                #9a7214;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .05em;
         }
 
 
         .badge {
 
             display: inline-flex;
-
-            align-items: center;
 
             padding:
                 5px 8px;
@@ -952,342 +923,246 @@
 
         .badge-active {
 
-            color:
-                var(--success);
-
             background:
-                var(--success-bg);
+                #e9f8f0;
+
+            color:
+                #147a4c;
         }
 
 
         .badge-inactive {
 
-            color:
-                var(--danger);
-
             background:
-                var(--danger-bg);
+                #fff0f0;
+
+            color:
+                #b42318;
+        }
+
+
+        .empty-state {
+
+            padding:
+                50px 20px;
+
+            text-align: center;
+
+            color:
+                #98a2b3;
+
+            font-size: 12px;
         }
 
 
         /* =====================================================
-           BUTTONS
-        ====================================================== */
+           TEST GRID
+        ===================================================== */
 
-        .btn {
+        .test-grid {
 
-            border: 0;
+            display: grid;
 
-            border-radius: 7px;
+            grid-template-columns:
+                repeat(3, 1fr);
 
-            padding:
-                9px 13px;
+            gap: 15px;
+        }
+
+
+        .test-card {
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid
+                #e5e9f0;
+
+            border-radius: 11px;
+
+            padding: 20px;
+        }
+
+
+        .test-card small {
+
+            color:
+                #9a7214;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .14em;
+        }
+
+
+        .test-card h3 {
+
+            color:
+                #07152f;
+
+            font-size: 15px;
+
+            margin:
+                9px 0 8px;
+        }
+
+
+        .test-card p {
+
+            color:
+                #7a8495;
 
             font-size: 10px;
 
-            font-weight: 700;
-
-            transition:
-                transform .2s ease,
-                opacity .2s ease;
-        }
-
-
-        .btn:hover {
-
-            transform:
-                translateY(-1px);
-        }
-
-
-        .btn-primary {
-
-            background:
-                var(--blue);
-
-            color:
-                var(--white);
-        }
-
-
-        .btn-gold {
-
-            background:
-                var(--gold);
-
-            color:
-                var(--blue);
-        }
-
-
-        .btn-light {
-
-            background:
-                #eef2f7;
-
-            color:
-                var(--blue);
-        }
-
-
-        .btn-danger {
-
-            background:
-                var(--danger-bg);
-
-            color:
-                var(--danger);
+            line-height: 1.5;
         }
 
 
         /* =====================================================
-           EMPTY
-        ====================================================== */
+           PROFILE
+        ===================================================== */
 
-        .empty {
-
-            padding:
-                35px 20px;
-
-            text-align: center;
-
-            color:
-                var(--muted);
-
-            font-size: 12px;
-        }
-
-
-        /* =====================================================
-           LOADING
-        ====================================================== */
-
-        .loading {
-
-            padding:
-                35px 20px;
-
-            text-align: center;
-
-            color:
-                var(--muted);
-
-            font-size: 12px;
-        }
-
-
-        .spinner {
-
-            width: 24px;
-            height: 24px;
-
-            border:
-                2px solid #e4e8ef;
-
-            border-top-color:
-                var(--gold);
-
-            border-radius: 50%;
-
-            animation:
-                spin .8s linear infinite;
-
-            margin:
-                0 auto 10px;
-        }
-
-
-        @keyframes spin {
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-
-        /* =====================================================
-           REVIEW FORM
-        ====================================================== */
-
-        .review-grid {
+        .profile-grid {
 
             display: grid;
 
             grid-template-columns:
                 1fr 1fr;
 
-            gap: 18px;
+            gap: 16px;
         }
 
 
-        .form-group {
+        .profile-card {
 
-            margin-bottom: 16px;
+            padding: 25px;
         }
 
 
-        .form-group.full {
+        .profile-row {
 
-            grid-column:
-                1 / -1;
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding:
+                13px 0;
+
+            border-bottom:
+                1px solid
+                #edf0f4;
         }
 
 
-        .form-group label {
+        .profile-row:last-child {
 
-            display: block;
+            border-bottom: 0;
+        }
 
-            margin-bottom: 7px;
+
+        .profile-row span:first-child {
+
+            color:
+                #98a2b3;
 
             font-size: 10px;
+        }
 
-            font-weight: 800;
+
+        .profile-row span:last-child {
 
             color:
-                #475467;
-
-            letter-spacing: .08em;
-
-            text-transform: uppercase;
-        }
-
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-
-            width: 100%;
-
-            border:
-                1px solid var(--border);
-
-            border-radius: 8px;
-
-            background:
-                var(--white);
-
-            color:
-                var(--text);
-
-            outline: none;
-
-            font-size: 12px;
-
-            transition:
-                border-color .2s ease,
-                box-shadow .2s ease;
-        }
-
-
-        .form-input,
-        .form-select {
-
-            height: 45px;
-
-            padding:
-                0 12px;
-        }
-
-
-        .form-textarea {
-
-            min-height: 115px;
-
-            padding: 12px;
-
-            resize: vertical;
-        }
-
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-
-            border-color:
-                var(--gold);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(215,166,42,.10);
-        }
-
-
-        /* =====================================================
-           TOAST
-        ====================================================== */
-
-        .toast {
-
-            position: fixed;
-
-            right: 25px;
-
-            bottom: 25px;
-
-            max-width: 360px;
-
-            padding:
-                13px 17px;
-
-            background:
-                var(--blue);
-
-            color:
-                var(--white);
-
-            border-radius: 9px;
-
-            box-shadow:
-                0 15px 40px
-                rgba(0,0,0,.18);
+                #344054;
 
             font-size: 11px;
 
-            opacity: 0;
+            font-weight: 600;
 
-            transform:
-                translateY(15px);
-
-            pointer-events: none;
-
-            transition:
-                opacity .25s ease,
-                transform .25s ease;
-
-            z-index: 9999;
-        }
-
-
-        .toast.show {
-
-            opacity: 1;
-
-            transform:
-                translateY(0);
+            text-align: right;
         }
 
 
         /* =====================================================
-           RESPONSIVE
-        ====================================================== */
+           RESULTS
+        ===================================================== */
+
+        .result-summary {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .result-box {
+
+            background:
+                #f8f9fb;
+
+            border-radius: 9px;
+
+            padding:
+                15px;
+        }
+
+
+        .result-box small {
+
+            display: block;
+
+            color:
+                #98a2b3;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .1em;
+
+            margin-bottom: 7px;
+        }
+
+
+        .result-box strong {
+
+            color:
+                #07152f;
+
+            font-size: 20px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        .mobile-topbar {
+
+            display: none;
+        }
+
 
         @media (max-width: 1050px) {
 
-            .sidebar {
-                width: 220px;
-            }
-
-
-            .main {
-
-                margin-left: 220px;
-
-                width:
-                    calc(100% - 220px);
-            }
-
-
             .stats-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+
+            .batch-grid,
+            .test-grid {
 
                 grid-template-columns:
                     repeat(2,1fr);
@@ -1296,19 +1171,20 @@
         }
 
 
-        @media (max-width: 800px) {
+        @media (max-width: 760px) {
 
             .sidebar {
+
+                width: 220px;
 
                 transform:
                     translateX(-100%);
 
-                transition:
-                    transform .3s ease;
+                transition: .3s ease;
             }
 
 
-            .sidebar.open {
+            .sidebar.mobile-open {
 
                 transform:
                     translateX(0);
@@ -1317,42 +1193,30 @@
 
             .main {
 
-                margin-left: 0;
-
                 width: 100%;
-            }
 
-
-            .mobile-menu {
-
-                display: block;
+                margin-left: 0;
             }
 
 
             .topbar {
 
+                height: 65px;
+
                 padding:
                     0 18px;
-
-                gap: 12px;
             }
 
 
-            .topbar-title {
+            .topbar-left {
 
-                flex: 1;
+                padding-left: 42px;
             }
 
 
-            .topbar-title h1 {
+            .topbar-left h1 {
 
-                font-size: 15px;
-            }
-
-
-            .teacher-profile-text {
-
-                display: none;
+                font-size: 17px;
             }
 
 
@@ -1363,23 +1227,45 @@
             }
 
 
-            .two-column {
+            .mobile-topbar {
 
-                grid-template-columns:
-                    1fr;
+                display: flex;
+
+                position: absolute;
+
+                left: 18px;
+
+                top: 50%;
+
+                transform:
+                    translateY(-50%);
+
+                width: 32px;
+                height: 32px;
+
+                border: 0;
+
+                background:
+                    transparent;
+
+                flex-direction: column;
+
+                justify-content: center;
+
+                gap: 4px;
             }
 
 
-            .review-grid {
+            .mobile-topbar span {
 
-                grid-template-columns:
-                    1fr;
+                width: 19px;
+
+                height: 2px;
+
+                background:
+                    #07152f;
             }
 
-        }
-
-
-        @media (max-width: 560px) {
 
             .stats-grid {
 
@@ -1392,50 +1278,63 @@
 
             .stat-card {
 
-                padding: 15px;
+                padding: 17px;
+
+                min-height: 110px;
             }
 
 
-            .stat-card .stat-value {
-
-                font-size: 24px;
-            }
-
-
-            .welcome-card {
-
-                padding: 23px;
-            }
-
-
-            .welcome-card h2 {
+            .stat-card strong {
 
                 font-size: 25px;
             }
 
 
-            .batch-grid {
+            .batch-grid,
+            .test-grid,
+            .profile-grid {
 
                 grid-template-columns:
                     1fr;
             }
 
 
-            .card-header {
+            .table-tools {
 
-                padding:
-                    14px 16px;
+                flex-direction: column;
             }
 
 
-            .card-body {
+            .search-input {
 
-                padding:
-                    16px;
+                width: 100%;
+            }
+
+
+            .result-summary {
+
+                grid-template-columns:
+                    1fr 1fr;
             }
 
         }
 
+
+        @media (max-width: 420px) {
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .topbar-left p {
+
+                display: none;
+            }
+
+        }
 
     </style>
 
@@ -1445,437 +1344,299 @@
 <body>
 
 
-<div class="app">
-
-
     <!-- =====================================================
-         SIDEBAR
+         LOADING
     ====================================================== -->
 
-    <aside
-        class="sidebar"
-        id="sidebar"
+    <div
+        class="loading"
+        id="loading"
     >
 
+        <div class="loading-box">
 
-        <div class="sidebar-logo">
+            <div class="loader"></div>
 
-            <img
-                src="sir-logo.svg"
-                alt="SIR"
-            >
-
-        </div>
-
-
-        <div class="sidebar-label">
-            Teacher Portal
-        </div>
-
-
-        <nav class="sidebar-nav">
-
-
-            <button
-                class="nav-item active"
-                data-section="dashboard"
-            >
-
-                <span class="nav-icon">⌂</span>
-
-                Dashboard
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="batches"
-            >
-
-                <span class="nav-icon">▦</span>
-
-                My Batches
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="students"
-            >
-
-                <span class="nav-icon">♙</span>
-
-                Students
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="tests"
-            >
-
-                <span class="nav-icon">✓</span>
-
-                Tests & Results
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="reviews"
-            >
-
-                <span class="nav-icon">✎</span>
-
-                Weekly Reviews
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="profile"
-            >
-
-                <span class="nav-icon">◎</span>
-
-                My Profile
-
-            </button>
-
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                class="logout-button"
-                id="logoutButton"
-            >
-                Logout
-            </button>
+            <p>
+                Loading Teacher Dashboard...
+            </p>
 
         </div>
 
-
-    </aside>
-
+    </div>
 
 
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
 
-    <div class="main">
+    <div class="dashboard">
 
 
-        <!-- TOPBAR -->
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
 
-        <header class="topbar">
-
-
-            <button
-                class="mobile-menu"
-                id="mobileMenu"
-                aria-label="Open menu"
-            >
-                ☰
-            </button>
+        <aside
+            class="sidebar"
+            id="sidebar"
+        >
 
 
-            <div class="topbar-title">
+            <div class="sidebar-logo">
 
-                <h1 id="pageTitle">
-                    Teacher Dashboard
-                </h1>
-
-                <p>
-                    Suryavanshi Institute for Rankers
-                </p>
-
-            </div>
-
-
-            <div class="teacher-profile">
-
-                <div
-                    class="teacher-avatar"
-                    id="teacherAvatar"
+                <img
+                    src="sir-logo.svg"
+                    alt="SIR"
                 >
-                    T
-                </div>
-
-
-                <div class="teacher-profile-text">
-
-                    <strong id="topTeacherName">
-                        Teacher
-                    </strong>
-
-                    <span id="topTeacherSubject">
-                        Teacher Portal
-                    </span>
-
-                </div>
 
             </div>
 
 
-        </header>
+            <div class="teacher-mini-profile">
+
+                <small>
+                    TEACHER
+                </small>
+
+                <strong id="sidebarTeacherName">
+                    Loading...
+                </strong>
+
+                <span id="sidebarTeacherSubject">
+                    —
+                </span>
+
+            </div>
+
+
+            <nav class="sidebar-nav">
+
+                <button
+                    class="active"
+                    data-section="overview"
+                >
+                    OVERVIEW
+                </button>
+
+                <button
+                    data-section="batches"
+                >
+                    MY BATCHES
+                </button>
+
+                <button
+                    data-section="students"
+                >
+                    MY STUDENTS
+                </button>
+
+                <button
+                    data-section="tests"
+                >
+                    TESTS
+                </button>
+
+                <button
+                    data-section="results"
+                >
+                    RESULTS
+                </button>
+
+                <button
+                    data-section="profile"
+                >
+                    MY PROFILE
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <button
+                    class="logout-btn"
+                    id="logoutBtn"
+                >
+                    LOG OUT
+                </button>
+
+            </div>
+
+        </aside>
 
 
 
         <!-- =================================================
-             CONTENT
+             MAIN
         ================================================== -->
 
-        <main class="content">
+        <main class="main">
 
 
-            <!-- =================================================
-                 DASHBOARD
-            ================================================== -->
+            <!-- TOPBAR -->
 
-            <section
-                class="page-section active"
-                id="section-dashboard"
-            >
+            <header class="topbar">
 
+                <button
+                    class="mobile-topbar"
+                    id="mobileMenuBtn"
+                    aria-label="Open menu"
+                >
 
-                <div class="welcome-card">
+                    <span></span>
+                    <span></span>
+                    <span></span>
 
-                    <small>
-                        TEACHER PORTAL
-                    </small>
-
-
-                    <h2 id="welcomeName">
-                        Welcome, Teacher
-                    </h2>
+                </button>
 
 
-                    <p id="welcomeSubject">
-                        Your teaching dashboard is ready.
+                <div class="topbar-left">
+
+                    <h1 id="pageTitle">
+                        Teacher Dashboard
+                    </h1>
+
+                    <p id="pageSubtitle">
+                        Your academic workspace
                     </p>
 
                 </div>
 
 
+                <div class="teacher-status">
 
-                <!-- STATS -->
+                    <span class="status-dot"></span>
 
-                <div class="stats-grid">
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            My Batches
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="statBatches"
-                        >
-                            —
-                        </div>
-
-                        <div class="stat-note">
-                            Active batches
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Students
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="statStudents"
-                        >
-                            —
-                        </div>
-
-                        <div class="stat-note">
-                            Students in my batches
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Tests
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="statTests"
-                        >
-                            —
-                        </div>
-
-                        <div class="stat-note">
-                            Available tests
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            Reviews
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="statReviews"
-                        >
-                            —
-                        </div>
-
-                        <div class="stat-note">
-                            Reviews submitted
-                        </div>
-
-                    </div>
-
+                    Active Teacher
 
                 </div>
 
-
-
-                <!-- TWO COLUMNS -->
-
-                <div class="two-column">
-
-
-                    <!-- BATCHES -->
-
-                    <div class="card">
-
-                        <div class="card-header">
-
-                            <div>
-
-                                <h3>
-                                    My Batches
-                                </h3>
-
-                                <p>
-                                    Your active academic batches
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div
-                            class="card-body"
-                            id="dashboardBatches"
-                        >
-
-                            <div class="loading">
-
-                                <div class="spinner"></div>
-
-                                Loading batches...
-
-                            </div>
-
-                        </div>
-
-                    </div>
+            </header>
 
 
 
-                    <!-- RECENT STUDENTS -->
+            <!-- CONTENT -->
 
-                    <div class="card">
-
-                        <div class="card-header">
-
-                            <div>
-
-                                <h3>
-                                    My Students
-                                </h3>
-
-                                <p>
-                                    Students assigned to your batches
-                                </p>
-
-                            </div>
+            <div class="content">
 
 
-                            <button
-                                class="btn btn-light"
-                                data-go="students"
-                            >
-                                View All
-                            </button>
-
-                        </div>
-
-
-                        <div
-                            class="card-body"
-                            id="dashboardStudents"
-                        >
-
-                            <div class="loading">
-
-                                <div class="spinner"></div>
-
-                                Loading students...
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-
-            </section>
+                <div
+                    class="error-box"
+                    id="errorBox"
+                ></div>
 
 
 
-            <!-- =================================================
-                 BATCHES
-            ================================================== -->
+                <!-- =================================================
+                     OVERVIEW
+                ================================================== -->
 
-            <section
-                class="page-section"
-                id="section-batches"
-            >
+                <section
+                    class="page-section active"
+                    id="section-overview"
+                >
 
-                <div class="card">
-
-                    <div class="card-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h3>
-                                My Batches
-                            </h3>
+                            <h2>
+                                Good to see you.
+                            </h2>
 
                             <p>
-                                Batches available to you
+                                Here's what's happening in your academic workspace.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card">
+
+                            <small>
+                                ASSIGNED BATCHES
+                            </small>
+
+                            <strong id="statBatches">
+                                0
+                            </strong>
+
+                            <span>
+                                Active batches
+                            </span>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <small>
+                                MY STUDENTS
+                            </small>
+
+                            <strong id="statStudents">
+                                0
+                            </strong>
+
+                            <span>
+                                Students assigned
+                            </span>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <small>
+                                TESTS
+                            </small>
+
+                            <strong id="statTests">
+                                0
+                            </strong>
+
+                            <span>
+                                Tests in your batches
+                            </span>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <small>
+                                SUBJECT
+                            </small>
+
+                            <strong
+                                id="statSubject"
+                                style="font-size:20px;"
+                            >
+                                —
+                            </strong>
+
+                            <span>
+                                Teaching subject
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <h2>
+                                My Batches
+                            </h2>
+
+                            <p>
+                                Batches assigned to you.
                             </p>
 
                         </div>
@@ -1884,149 +1645,156 @@
 
 
                     <div
-                        class="card-body"
+                        class="batch-grid"
+                        id="overviewBatches"
+                    ></div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     BATCHES
+                ================================================== -->
+
+                <section
+                    class="page-section"
+                    id="section-batches"
+                >
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <h2>
+                                My Batches
+                            </h2>
+
+                            <p>
+                                All batches currently assigned to you.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="batch-grid"
                         id="allBatches"
-                    >
+                    ></div>
 
-                        <div class="loading">
-
-                            <div class="spinner"></div>
-
-                            Loading batches...
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
+                </section>
 
 
 
-            <!-- =================================================
-                 STUDENTS
-            ================================================== -->
+                <!-- =================================================
+                     STUDENTS
+                ================================================== -->
 
-            <section
-                class="page-section"
-                id="section-students"
-            >
+                <section
+                    class="page-section"
+                    id="section-students"
+                >
 
-                <div class="card">
-
-                    <div class="card-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h3>
+                            <h2>
                                 My Students
-                            </h3>
+                            </h2>
 
                             <p>
-                                Students in your assigned batches
+                                Students belonging to your assigned batches.
                             </p>
 
                         </div>
 
-
-                        <input
-                            type="search"
-                            id="studentSearch"
-                            class="form-input"
-                            placeholder="Search student..."
-                            style="max-width:230px;"
-                        >
-
                     </div>
 
 
-                    <div class="table-wrap">
-
-                        <table>
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Student
-                                    </th>
-
-                                    <th>
-                                        UID
-                                    </th>
-
-                                    <th>
-                                        Email
-                                    </th>
-
-                                    <th>
-                                        Phone
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+                    <div class="card table-card">
 
 
-                            <tbody
-                                id="studentsTable"
+                        <div class="table-tools">
+
+                            <input
+                                type="search"
+                                class="search-input"
+                                id="studentSearch"
+                                placeholder="Search student name or UID..."
                             >
 
-                                <tr>
+                        </div>
 
-                                    <td colspan="5">
 
-                                        <div class="loading">
+                        <div class="table-wrapper">
 
-                                            <div class="spinner"></div>
+                            <table>
 
-                                            Loading students...
+                                <thead>
 
-                                        </div>
+                                    <tr>
 
-                                    </td>
+                                        <th>
+                                            STUDENT
+                                        </th>
 
-                                </tr>
+                                        <th>
+                                            UID
+                                        </th>
 
-                            </tbody>
+                                        <th>
+                                            SCHOOL
+                                        </th>
 
-                        </table>
+                                        <th>
+                                            BATCH
+                                        </th>
+
+                                        <th>
+                                            STATUS
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody
+                                    id="studentsTableBody"
+                                ></tbody>
+
+                            </table>
+
+                        </div>
 
                     </div>
 
-                </div>
-
-            </section>
+                </section>
 
 
 
-            <!-- =================================================
-                 TESTS
-            ================================================== -->
+                <!-- =================================================
+                     TESTS
+                ================================================== -->
 
-            <section
-                class="page-section"
-                id="section-tests"
-            >
+                <section
+                    class="page-section"
+                    id="section-tests"
+                >
 
-                <div class="card">
-
-                    <div class="card-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h3>
-                                Tests & Results
-                            </h3>
+                            <h2>
+                                Tests
+                            </h2>
 
                             <p>
-                                Tests associated with your batches
+                                Tests available in your assigned batches.
                             </p>
 
                         </div>
@@ -2034,93 +1802,34 @@
                     </div>
 
 
-                    <div class="table-wrap">
+                    <div
+                        class="test-grid"
+                        id="testsGrid"
+                    ></div>
 
-                        <table>
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Test
-                                    </th>
-
-                                    <th>
-                                        Subject
-                                    </th>
-
-                                    <th>
-                                        Date
-                                    </th>
-
-                                    <th>
-                                        Max Marks
-                                    </th>
-
-                                    <th>
-                                        Batch
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody
-                                id="testsTable"
-                            >
-
-                                <tr>
-
-                                    <td colspan="5">
-
-                                        <div class="loading">
-
-                                            <div class="spinner"></div>
-
-                                            Loading tests...
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </section>
+                </section>
 
 
 
-            <!-- =================================================
-                 REVIEWS
-            ================================================== -->
+                <!-- =================================================
+                     RESULTS
+                ================================================== -->
 
-            <section
-                class="page-section"
-                id="section-reviews"
-            >
+                <section
+                    class="page-section"
+                    id="section-results"
+                >
 
-
-                <div class="card">
-
-                    <div class="card-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h3>
-                                Weekly Student Review
-                            </h3>
+                            <h2>
+                                Student Results
+                            </h2>
 
                             <p>
-                                Record what happened during the week and what comes next.
+                                Test performance across your students.
                             </p>
 
                         </div>
@@ -2128,267 +1837,130 @@
                     </div>
 
 
-                    <div class="card-body">
+                    <div class="result-summary">
+
+                        <div class="result-box">
+
+                            <small>
+                                SCORES
+                            </small>
+
+                            <strong id="resultCount">
+                                0
+                            </strong>
+
+                        </div>
 
 
-                        <form
-                            id="reviewForm"
-                            class="review-grid"
-                        >
+                        <div class="result-box">
+
+                            <small>
+                                AVERAGE
+                            </small>
+
+                            <strong id="resultAverage">
+                                0
+                            </strong>
+
+                        </div>
 
 
-                            <div class="form-group">
+                        <div class="result-box">
 
-                                <label for="reviewStudent">
-                                    Student
-                                </label>
+                            <small>
+                                HIGHEST
+                            </small>
 
-                                <select
-                                    id="reviewStudent"
-                                    class="form-select"
-                                    required
-                                >
+                            <strong id="resultHighest">
+                                0
+                            </strong>
 
-                                    <option value="">
-                                        Select student
-                                    </option>
-
-                                </select>
-
-                            </div>
+                        </div>
 
 
-                            <div class="form-group">
+                        <div class="result-box">
 
-                                <label for="reviewDate">
-                                    Review Date
-                                </label>
+                            <small>
+                                TESTS
+                            </small>
 
-                                <input
-                                    id="reviewDate"
-                                    type="date"
-                                    class="form-input"
-                                    required
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="weekStart">
-                                    Week Start
-                                </label>
-
-                                <input
-                                    id="weekStart"
-                                    type="date"
-                                    class="form-input"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="weekEnd">
-                                    Week End
-                                </label>
-
-                                <input
-                                    id="weekEnd"
-                                    type="date"
-                                    class="form-input"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <label for="topicsCovered">
-                                    Topics Covered
-                                </label>
-
-                                <textarea
-                                    id="topicsCovered"
-                                    class="form-textarea"
-                                    placeholder="What was covered this week?"
-                                ></textarea>
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <label for="studentPerformance">
-                                    Student Performance
-                                </label>
-
-                                <textarea
-                                    id="studentPerformance"
-                                    class="form-textarea"
-                                    placeholder="How did the student perform?"
-                                ></textarea>
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <label for="struggles">
-                                    Areas of Difficulty
-                                </label>
-
-                                <textarea
-                                    id="struggles"
-                                    class="form-textarea"
-                                    placeholder="Where is the student struggling?"
-                                ></textarea>
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <label for="nextSteps">
-                                    What Should Happen Next?
-                                </label>
-
-                                <textarea
-                                    id="nextSteps"
-                                    class="form-textarea"
-                                    placeholder="What should the student focus on next?"
-                                ></textarea>
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-gold"
-                                    id="submitReview"
-                                >
-                                    SUBMIT WEEKLY REVIEW
-                                </button>
-
-                            </div>
-
-
-                        </form>
-
-
-                    </div>
-
-                </div>
-
-
-                <!-- EXISTING REVIEWS -->
-
-                <div class="card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <h3>
-                                My Recent Reviews
-                            </h3>
-
-                            <p>
-                                Reviews submitted by you
-                            </p>
+                            <strong id="resultTests">
+                                0
+                            </strong>
 
                         </div>
 
                     </div>
 
 
-                    <div class="table-wrap">
+                    <div class="card table-card">
 
-                        <table>
+                        <div class="table-wrapper">
 
-                            <thead>
+                            <table>
 
-                                <tr>
+                                <thead>
 
-                                    <th>
-                                        Student
-                                    </th>
+                                    <tr>
 
-                                    <th>
-                                        Review Date
-                                    </th>
+                                        <th>
+                                            STUDENT
+                                        </th>
 
-                                    <th>
-                                        Week
-                                    </th>
+                                        <th>
+                                            SUBJECT
+                                        </th>
 
-                                    <th>
-                                        Topics
-                                    </th>
+                                        <th>
+                                            MARKS
+                                        </th>
 
-                                </tr>
+                                        <th>
+                                            MAX
+                                        </th>
 
-                            </thead>
+                                        <th>
+                                            RANK
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
 
 
-                            <tbody
-                                id="reviewsTable"
-                            >
+                                <tbody
+                                    id="resultsTableBody"
+                                ></tbody>
 
-                                <tr>
+                            </table>
 
-                                    <td colspan="4">
-
-                                        <div class="loading">
-
-                                            <div class="spinner"></div>
-
-                                            Loading reviews...
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
+                        </div>
 
                     </div>
 
-                </div>
-
-
-            </section>
+                </section>
 
 
 
-            <!-- =================================================
-                 PROFILE
-            ================================================== -->
+                <!-- =================================================
+                     PROFILE
+                ================================================== -->
 
-            <section
-                class="page-section"
-                id="section-profile"
-            >
+                <section
+                    class="page-section"
+                    id="section-profile"
+                >
 
-                <div class="card">
-
-                    <div class="card-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h3>
+                            <h2>
                                 My Profile
-                            </h3>
+                            </h2>
 
                             <p>
-                                Teacher account information
+                                Your SIR teacher account information.
                             </p>
 
                         </div>
@@ -2396,1846 +1968,1488 @@
                     </div>
 
 
-                    <div class="card-body">
+                    <div class="profile-grid">
 
-                        <div class="review-grid">
+                        <div class="card profile-card">
 
+                            <div class="profile-row">
 
-                            <div class="form-group">
-
-                                <label>
+                                <span>
                                     Full Name
-                                </label>
+                                </span>
 
-                                <input
-                                    id="profileName"
-                                    class="form-input"
-                                    readonly
-                                >
+                                <span id="profileName">
+                                    —
+                                </span>
 
                             </div>
 
 
-                            <div class="form-group">
+                            <div class="profile-row">
 
-                                <label>
+                                <span>
                                     Subject
-                                </label>
+                                </span>
 
-                                <input
-                                    id="profileSubject"
-                                    class="form-input"
-                                    readonly
-                                >
+                                <span id="profileSubject">
+                                    —
+                                </span>
 
                             </div>
 
 
-                            <div class="form-group">
+                            <div class="profile-row">
 
-                                <label>
+                                <span>
                                     Email
-                                </label>
+                                </span>
 
-                                <input
-                                    id="profileEmail"
-                                    class="form-input"
-                                    readonly
-                                >
+                                <span id="profileEmail">
+                                    —
+                                </span>
 
                             </div>
 
 
-                            <div class="form-group">
+                            <div class="profile-row">
 
-                                <label>
+                                <span>
                                     Phone
-                                </label>
+                                </span>
 
-                                <input
-                                    id="profilePhone"
-                                    class="form-input"
-                                    readonly
-                                >
+                                <span id="profilePhone">
+                                    —
+                                </span>
 
                             </div>
 
+                        </div>
 
-                            <div class="form-group">
 
-                                <label>
+                        <div class="card profile-card">
+
+                            <div class="profile-row">
+
+                                <span>
                                     Account Status
-                                </label>
+                                </span>
 
-                                <input
-                                    id="profileStatus"
-                                    class="form-input"
-                                    readonly
-                                >
+                                <span>
+                                    <span class="badge badge-active">
+                                        ACTIVE
+                                    </span>
+                                </span>
 
                             </div>
 
+
+                            <div class="profile-row">
+
+                                <span>
+                                    Assigned Batches
+                                </span>
+
+                                <span id="profileBatches">
+                                    0
+                                </span>
+
+                            </div>
+
+
+                            <div class="profile-row">
+
+                                <span>
+                                    Assigned Students
+                                </span>
+
+                                <span id="profileStudents">
+                                    0
+                                </span>
+
+                            </div>
+
+
+                            <div class="profile-row">
+
+                                <span>
+                                    Teacher ID
+                                </span>
+
+                                <span
+                                    id="profileTeacherId"
+                                    style="font-size:9px;"
+                                >
+                                    —
+                                </span>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                </section>
 
-            </section>
 
+            </div>
 
         </main>
 
     </div>
 
-</div>
 
 
+    <script>
 
-<!-- =========================================================
-     TOAST
-========================================================== -->
+        /* =====================================================
+           SUPABASE
+        ===================================================== */
 
-<div
-    class="toast"
-    id="toast"
-></div>
-
+        const SUPABASE_URL =
+            "https://asbyosqpupqspzvqqhfj.supabase.co";
 
 
-<script>
+        const SUPABASE_PUBLISHABLE_KEY =
+            "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
 
 
-/* =========================================================
-   01 — SUPABASE
-========================================================= */
-
-const SUPABASE_URL =
-    "https://asbyosqpupqspzvqqhfj.supabase.co";
-
-
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
-
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-
-/* =========================================================
-   02 — STATE
-========================================================= */
-
-let currentUser = null;
-
-let currentTeacher = null;
-
-let myBatches = [];
-
-let myStudents = [];
-
-let myTests = [];
-
-let myReviews = [];
-
-
-
-/* =========================================================
-   03 — ELEMENTS
-========================================================= */
-
-const sidebar =
-    document.getElementById(
-        "sidebar"
-    );
-
-
-const mobileMenu =
-    document.getElementById(
-        "mobileMenu"
-    );
-
-
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
-
-const toast =
-    document.getElementById(
-        "toast"
-    );
-
-
-
-/* =========================================================
-   04 — TOAST
-========================================================= */
-
-function showToast(
-    text
-) {
-
-    toast.textContent = text;
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        () => {
-
-            toast.classList.remove(
-                "show"
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_PUBLISHABLE_KEY
             );
 
-        },
-        3000
-    );
-
-}
 
 
+        /* =====================================================
+           STATE
+        ===================================================== */
 
-/* =========================================================
-   05 — NAVIGATION
-========================================================= */
+        let currentTeacher = null;
 
-const navItems =
-    document.querySelectorAll(
-        ".nav-item"
-    );
+        let assignedBatches = [];
 
+        let assignedStudents = [];
 
-const sections =
-    document.querySelectorAll(
-        ".page-section"
-    );
+        let teacherTests = [];
+
+        let teacherScores = [];
 
 
-const pageTitles = {
 
-    dashboard:
-        "Teacher Dashboard",
+        /* =====================================================
+           ELEMENTS
+        ===================================================== */
 
-    batches:
-        "My Batches",
-
-    students:
-        "My Students",
-
-    tests:
-        "Tests & Results",
-
-    reviews:
-        "Weekly Reviews",
-
-    profile:
-        "My Profile"
-
-};
+        const loading =
+            document.getElementById("loading");
 
 
-function openSection(
-    sectionName
-) {
+        const errorBox =
+            document.getElementById("errorBox");
 
-    navItems.forEach(
-        (item) => {
 
-            item.classList.toggle(
-                "active",
-                item.dataset.section === sectionName
-            );
+        const sidebar =
+            document.getElementById("sidebar");
+
+
+        const mobileMenuBtn =
+            document.getElementById("mobileMenuBtn");
+
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        function showError(message) {
+
+            errorBox.textContent =
+                message;
+
+            errorBox.style.display =
+                "block";
 
         }
-    );
 
 
-    sections.forEach(
-        (section) => {
+        function clearError() {
 
-            section.classList.toggle(
-                "active",
-                section.id ===
-                `section-${sectionName}`
-            );
+            errorBox.textContent = "";
+
+            errorBox.style.display =
+                "none";
 
         }
-    );
 
 
-    document.getElementById(
-        "pageTitle"
-    ).textContent =
-        pageTitles[sectionName] ||
-        "Teacher Dashboard";
+
+        /* =====================================================
+           ESCAPE HTML
+        ===================================================== */
+
+        function escapeHtml(value) {
+
+            if (value === null || value === undefined) {
+
+                return "";
+
+            }
 
 
-    if (window.innerWidth <= 800) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
 
-        sidebar.classList.remove(
-            "open"
-        );
-
-    }
-
-}
+        }
 
 
-navItems.forEach(
-    (item) => {
 
-        item.addEventListener(
-            "click",
-            () => {
+        /* =====================================================
+           LOAD TEACHER
+        ===================================================== */
 
-                openSection(
-                    item.dataset.section
+        async function loadTeacher() {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (
+                sessionError ||
+                !sessionData.session
+            ) {
+
+                window.location.href =
+                    "teacher-login.html";
+
+                return false;
+
+            }
+
+
+            const user =
+                sessionData.session.user;
+
+
+            const {
+                data: teacher,
+                error
+            } =
+                await supabaseClient
+                    .from("teachers")
+                    .select(`
+                        id,
+                        user_id,
+                        full_name,
+                        subject,
+                        phone,
+                        email,
+                        is_active
+                    `)
+                    .eq(
+                        "user_id",
+                        user.id
+                    )
+                    .maybeSingle();
+
+
+            if (error) {
+
+                console.error(error);
+
+                throw new Error(
+                    "Unable to load teacher profile."
                 );
 
             }
-        );
-
-    }
-);
 
 
-document
-    .querySelectorAll(
-        "[data-go]"
-    )
-    .forEach(
-        (button) => {
+            if (!teacher) {
 
-            button.addEventListener(
-                "click",
-                () => {
+                await supabaseClient
+                    .auth
+                    .signOut();
 
-                    openSection(
-                        button.dataset.go
+                window.location.href =
+                    "teacher-login.html";
+
+                return false;
+
+            }
+
+
+            if (
+                teacher.is_active !== true
+            ) {
+
+                await supabaseClient
+                    .auth
+                    .signOut();
+
+                alert(
+                    "Your teacher account is inactive."
+                );
+
+                window.location.href =
+                    "teacher-login.html";
+
+                return false;
+
+            }
+
+
+            currentTeacher =
+                teacher;
+
+
+            renderTeacherProfile();
+
+
+            return true;
+
+        }
+
+
+
+        /* =====================================================
+           RENDER PROFILE
+        ===================================================== */
+
+        function renderTeacherProfile() {
+
+            const teacher =
+                currentTeacher;
+
+
+            document.getElementById(
+                "sidebarTeacherName"
+            ).textContent =
+                teacher.full_name || "Teacher";
+
+
+            document.getElementById(
+                "sidebarTeacherSubject"
+            ).textContent =
+                teacher.subject || "Faculty";
+
+
+            document.getElementById(
+                "statSubject"
+            ).textContent =
+                teacher.subject || "—";
+
+
+            document.getElementById(
+                "profileName"
+            ).textContent =
+                teacher.full_name || "—";
+
+
+            document.getElementById(
+                "profileSubject"
+            ).textContent =
+                teacher.subject || "—";
+
+
+            document.getElementById(
+                "profileEmail"
+            ).textContent =
+                teacher.email || "—";
+
+
+            document.getElementById(
+                "profilePhone"
+            ).textContent =
+                teacher.phone || "—";
+
+
+            document.getElementById(
+                "profileTeacherId"
+            ).textContent =
+                teacher.id || "—";
+
+        }
+
+
+
+        /* =====================================================
+           LOAD BATCHES
+        ===================================================== */
+
+        async function loadBatches() {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("teacher_batches")
+                    .select(`
+                        id,
+                        teacher_id,
+                        batch_id
+                    `)
+                    .eq(
+                        "teacher_id",
+                        currentTeacher.id
                     );
 
-                }
-            );
 
-        }
-    );
+            if (error) {
 
+                console.error(error);
 
+                throw new Error(
+                    "Unable to load assigned batches."
+                );
 
-/* =========================================================
-   06 — MOBILE MENU
-========================================================= */
-
-mobileMenu.addEventListener(
-    "click",
-    () => {
-
-        sidebar.classList.toggle(
-            "open"
-        );
-
-    }
-);
-
-
-
-/* =========================================================
-   07 — AUTH + TEACHER
-========================================================= */
-
-async function initializeTeacher() {
-
-    try {
-
-        const {
-            data: {
-                session
             }
-        } =
-            await supabaseClient
-                .auth
-                .getSession();
 
 
-        if (!session) {
+            const batchIds =
+                (data || [])
+                    .map(row => row.batch_id);
 
-            window.location.href =
-                "teacher-login.html";
 
-            return;
+            if (!batchIds.length) {
+
+                assignedBatches = [];
+
+                renderBatches();
+
+                return;
+
+            }
+
+
+            const {
+                data: batches,
+                error: batchError
+            } =
+                await supabaseClient
+                    .from("batches")
+                    .select(`
+                        id,
+                        course_id,
+                        name,
+                        academic_year,
+                        start_date,
+                        end_date,
+                        is_active
+                    `)
+                    .in(
+                        "id",
+                        batchIds
+                    )
+                    .order(
+                        "start_date",
+                        {
+                            ascending: false
+                        }
+                    );
+
+
+            if (batchError) {
+
+                console.error(batchError);
+
+                throw new Error(
+                    "Unable to load batch information."
+                );
+
+            }
+
+
+            assignedBatches =
+                batches || [];
+
+
+            renderBatches();
 
         }
 
 
-        currentUser =
-            session.user;
+
+        /* =====================================================
+           RENDER BATCHES
+        ===================================================== */
+
+        function createBatchCard(batch) {
+
+            return `
+
+                <div class="batch-card">
+
+                    <small>
+                        ${escapeHtml(batch.academic_year || "ACADEMIC BATCH")}
+                    </small>
+
+                    <h3>
+                        ${escapeHtml(batch.name)}
+                    </h3>
+
+                    <p>
+                        ${batch.start_date
+                            ? `Starts ${escapeHtml(batch.start_date)}`
+                            : "Active batch"
+                        }
+                    </p>
+
+                </div>
+
+            `;
+
+        }
 
 
-        const {
-            data: teacher,
-            error
-        } =
-            await supabaseClient
-                .from("teachers")
-                .select(
-                    "id, user_id, full_name, subject, phone, email, is_active"
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                )
-                .maybeSingle();
+        function renderBatches() {
+
+            document.getElementById(
+                "statBatches"
+            ).textContent =
+                assignedBatches.length;
 
 
-        if (error) {
+            document.getElementById(
+                "profileBatches"
+            ).textContent =
+                assignedBatches.length;
 
-            console.error(
-                "Teacher profile error:",
+
+            const html =
+                assignedBatches.length
+                    ? assignedBatches
+                        .map(createBatchCard)
+                        .join("")
+                    : `
+                        <div class="empty-state card">
+                            No batches are assigned yet.
+                        </div>
+                    `;
+
+
+            document.getElementById(
+                "overviewBatches"
+            ).innerHTML =
+                html;
+
+
+            document.getElementById(
+                "allBatches"
+            ).innerHTML =
+                html;
+
+        }
+
+
+
+        /* =====================================================
+           LOAD STUDENTS
+        ===================================================== */
+
+        async function loadStudents() {
+
+            const batchIds =
+                assignedBatches.map(
+                    batch => batch.id
+                );
+
+
+            if (!batchIds.length) {
+
+                assignedStudents = [];
+
+                renderStudents();
+
+                return;
+
+            }
+
+
+            const {
+                data,
                 error
-            );
+            } =
+                await supabaseClient
+                    .from("students")
+                    .select(`
+                        id,
+                        user_id,
+                        student_uid,
+                        full_name,
+                        date_of_birth,
+                        phone,
+                        email,
+                        school_name,
+                        course_id,
+                        batch_id,
+                        is_active
+                    `)
+                    .in(
+                        "batch_id",
+                        batchIds
+                    )
+                    .order(
+                        "full_name",
+                        {
+                            ascending: true
+                        }
+                    );
 
-            await supabaseClient
-                .auth
-                .signOut();
 
-            window.location.href =
-                "teacher-login.html";
+            if (error) {
 
-            return;
+                console.error(error);
+
+                throw new Error(
+                    "Unable to load students."
+                );
+
+            }
+
+
+            assignedStudents =
+                data || [];
+
+
+            renderStudents();
 
         }
 
 
-        if (!teacher) {
 
-            await supabaseClient
-                .auth
-                .signOut();
+        /* =====================================================
+           RENDER STUDENTS
+        ===================================================== */
 
-            window.location.href =
-                "teacher-login.html";
-
-            return;
-
-        }
-
-
-        if (
-            teacher.is_active !== true
+        function renderStudents(
+            searchTerm = ""
         ) {
 
-            await supabaseClient
-                .auth
-                .signOut();
-
-            window.location.href =
-                "teacher-login.html";
-
-            return;
-
-        }
-
-
-        currentTeacher =
-            teacher;
-
-
-        renderTeacherProfile();
-
-
-        await loadTeacherData();
-
-
-    }
-    catch (error) {
-
-        console.error(
-            "Teacher initialization error:",
-            error
-        );
-
-
-        window.location.href =
-            "teacher-login.html";
-
-    }
-
-}
-
-
-
-/* =========================================================
-   08 — PROFILE
-========================================================= */
-
-function renderTeacherProfile() {
-
-    const name =
-        currentTeacher.full_name ||
-        "Teacher";
-
-
-    const subject =
-        currentTeacher.subject ||
-        "Teacher";
-
-
-    document.getElementById(
-        "welcomeName"
-    ).textContent =
-        `Welcome, ${name}`;
-
-
-    document.getElementById(
-        "welcomeSubject"
-    ).textContent =
-        `${subject} Teacher • Suryavanshi Institute for Rankers`;
-
-
-    document.getElementById(
-        "topTeacherName"
-    ).textContent =
-        name;
-
-
-    document.getElementById(
-        "topTeacherSubject"
-    ).textContent =
-        subject;
-
-
-    document.getElementById(
-        "teacherAvatar"
-    ).textContent =
-        getInitials(name);
-
-
-    document.getElementById(
-        "profileName"
-    ).value =
-        currentTeacher.full_name || "";
-
-
-    document.getElementById(
-        "profileSubject"
-    ).value =
-        currentTeacher.subject || "";
-
-
-    document.getElementById(
-        "profileEmail"
-    ).value =
-        currentTeacher.email ||
-        currentUser.email ||
-        "";
-
-
-    document.getElementById(
-        "profilePhone"
-    ).value =
-        currentTeacher.phone || "";
-
-
-    document.getElementById(
-        "profileStatus"
-    ).value =
-        currentTeacher.is_active
-            ? "Active"
-            : "Inactive";
-
-}
-
-
-function getInitials(
-    name
-) {
-
-    return name
-        .split(" ")
-        .filter(Boolean)
-        .slice(0,2)
-        .map(
-            word =>
-                word
-                    .charAt(0)
-                    .toUpperCase()
-        )
-        .join("");
-
-}
-
-
-
-/* =========================================================
-   09 — LOAD DATA
-========================================================= */
-
-async function loadTeacherData() {
-
-    await loadBatches();
-
-    await loadStudents();
-
-    await loadTests();
-
-    await loadReviews();
-
-    updateStats();
-
-    renderDashboard();
-
-    populateReviewStudents();
-
-}
-
-
-
-/* =========================================================
-   10 — BATCHES
-========================================================= */
-
-async function loadBatches() {
-
-    /*
-       Current teachers table does not contain a
-       batch_id / assigned_batches field.
-
-       Therefore this first version loads active batches
-       available in the institute.
-
-       Once teacher-batch assignment structure is finalized,
-       this query can be narrowed securely to assigned batches.
-    */
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("batches")
-            .select(
-                "id, course_id, name, academic_year, start_date, end_date, is_active"
-            )
-            .eq(
-                "is_active",
-                true
-            )
-            .order(
-                "start_date",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Batches error:",
-            error
-        );
-
-        myBatches = [];
-
-        renderBatchError();
-
-        return;
-
-    }
-
-
-    myBatches =
-        data || [];
-
-}
-
-
-/* =========================================================
-   BATCH RENDER
-========================================================= */
-
-function renderDashboard() {
-
-    const container =
-        document.getElementById(
-            "dashboardBatches"
-        );
-
-
-    if (!myBatches.length) {
-
-        container.innerHTML =
-            `<div class="empty">
-                No active batches found.
-             </div>`;
-
-    }
-    else {
-
-        container.innerHTML =
-            `
-            <div class="batch-grid">
-
-                ${myBatches
-                    .slice(0,4)
-                    .map(
-                        batch => batchCardHTML(batch)
-                    )
-                    .join("")}
-
-            </div>
-            `;
-
-    }
-
-
-    renderAllBatches();
-
-    renderStudents(
-        document.getElementById(
-            "dashboardStudents"
-        ),
-        myStudents.slice(0,5)
-    );
-
-
-    renderStudentsTable();
-
-    renderTests();
-
-    renderReviews();
-
-}
-
-
-function renderAllBatches() {
-
-    const container =
-        document.getElementById(
-            "allBatches"
-        );
-
-
-    if (!myBatches.length) {
-
-        container.innerHTML =
-            `<div class="empty">
-                No active batches found.
-             </div>`;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        `
-        <div class="batch-grid">
-
-            ${myBatches
-                .map(
-                    batch =>
-                        batchCardHTML(batch)
-                )
-                .join("")}
-
-        </div>
-        `;
-
-}
-
-
-function batchCardHTML(
-    batch
-) {
-
-    return `
-        <div class="batch-card">
-
-            <strong>
-                ${escapeHTML(
-                    batch.name || "Unnamed Batch"
-                )}
-            </strong>
-
-            <span>
-                Academic Year:
-                ${escapeHTML(
-                    batch.academic_year || "—"
-                )}
-            </span>
-
-            <span>
-                Start:
-                ${formatDate(
-                    batch.start_date
-                )}
-            </span>
-
-            <span>
-                End:
-                ${formatDate(
-                    batch.end_date
-                )}
-            </span>
-
-            <span class="batch-status">
-                Active
-            </span>
-
-        </div>
-    `;
-
-}
-
-
-function renderBatchError() {
-
-    document.getElementById(
-        "dashboardBatches"
-    ).innerHTML =
-        `<div class="empty">
-            Unable to load batches.
-         </div>`;
-
-}
-
-
-
-/* =========================================================
-   11 — STUDENTS
-========================================================= */
-
-async function loadStudents() {
-
-    /*
-       Current database structure shown earlier does not
-       expose a direct teacher_id on students.
-
-       Therefore this first version loads active students.
-       Teacher-specific assignment will be connected once
-       the teacher-batch relationship is defined.
-    */
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("students")
-            .select(
-                "id, user_id, student_uid, full_name, phone, email, school_name, is_active"
-            )
-            .order(
-                "full_name",
-                {
-                    ascending: true
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Students error:",
-            error
-        );
-
-        myStudents = [];
-
-        return;
-
-    }
-
-
-    myStudents =
-        data || [];
-
-}
-
-
-function renderStudents(
-    container,
-    students
-) {
-
-    if (!students.length) {
-
-        container.innerHTML =
-            `<div class="empty">
-                No students found.
-             </div>`;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        `
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Student
-                        </th>
-
-                        <th>
-                            UID
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    ${students
-                        .map(
-                            student =>
-                                `
-                                <tr>
-
-                                    <td>
-
-                                        <span class="student-name">
-                                            ${escapeHTML(
-                                                student.full_name || "—"
-                                            )}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="uid">
-                                            ${escapeHTML(
-                                                student.student_uid || "—"
-                                            )}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        ${
-                                            student.is_active
-                                            ?
-                                            `<span class="badge badge-active">
-                                                Active
-                                             </span>`
-                                            :
-                                            `<span class="badge badge-inactive">
-                                                Inactive
-                                             </span>`
-                                        }
-
-                                    </td>
-
-                                </tr>
-                                `
-                        )
-                        .join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-        `;
-
-}
-
-
-function renderStudentsTable(
-    filteredStudents =
-        myStudents
-) {
-
-    const tbody =
-        document.getElementById(
-            "studentsTable"
-        );
-
-
-    if (!filteredStudents.length) {
-
-        tbody.innerHTML =
-            `
-            <tr>
-
-                <td
-                    colspan="5"
-                    class="empty"
-                >
-                    No students found.
-                </td>
-
-            </tr>
-            `;
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        filteredStudents
-            .map(
-                student =>
-                    `
-                    <tr>
-
-                        <td>
-
-                            <span class="student-name">
-                                ${escapeHTML(
-                                    student.full_name || "—"
-                                )}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="uid">
-                                ${escapeHTML(
-                                    student.student_uid || "—"
-                                )}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                student.email || "—"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                student.phone || "—"
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                student.is_active
-                                ?
-                                `<span class="badge badge-active">
-                                    Active
-                                 </span>`
-                                :
-                                `<span class="badge badge-inactive">
-                                    Inactive
-                                 </span>`
-                            }
-
-                        </td>
-
-                    </tr>
-                    `
-            )
-            .join("");
-
-}
-
-
-
-/* =========================================================
-   STUDENT SEARCH
-========================================================= */
-
-document
-    .getElementById(
-        "studentSearch"
-    )
-    .addEventListener(
-        "input",
-        (event) => {
-
             const search =
-                event.target.value
+                searchTerm
                     .trim()
                     .toLowerCase();
 
 
-            if (!search) {
+            const filtered =
+                assignedStudents.filter(
+                    student => {
 
-                renderStudentsTable(
-                    myStudents
+                        if (!search) {
+
+                            return true;
+
+                        }
+
+
+                        return (
+                            (student.full_name || "")
+                                .toLowerCase()
+                                .includes(search)
+                            ||
+                            (student.student_uid || "")
+                                .toLowerCase()
+                                .includes(search)
+                        );
+
+                    }
                 );
+
+
+            document.getElementById(
+                "statStudents"
+            ).textContent =
+                assignedStudents.length;
+
+
+            document.getElementById(
+                "profileStudents"
+            ).textContent =
+                assignedStudents.length;
+
+
+            const tbody =
+                document.getElementById(
+                    "studentsTableBody"
+                );
+
+
+            if (!filtered.length) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="empty-state"
+                        >
+                            No students found.
+                        </td>
+
+                    </tr>
+
+                `;
 
                 return;
 
             }
 
 
-            const filtered =
-                myStudents.filter(
-                    student =>
-                        (
-                            student.full_name ||
-                            ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
-                        ||
-                        (
-                            student.student_uid ||
-                            ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
-                        ||
-                        (
-                            student.email ||
-                            ""
-                        )
-                        .toLowerCase()
-                        .includes(search)
+            tbody.innerHTML =
+                filtered
+                    .map(student => {
+
+                        const batch =
+                            assignedBatches.find(
+                                batch =>
+                                    batch.id ===
+                                    student.batch_id
+                            );
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+                                    <div class="student-name">
+                                        ${escapeHtml(student.full_name)}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="uid">
+                                        ${escapeHtml(student.student_uid)}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        student.school_name || "—"
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        batch?.name || "—"
+                                    )}
+                                </td>
+
+                                <td>
+
+                                    ${
+                                        student.is_active === true
+
+                                        ? `
+                                            <span class="badge badge-active">
+                                                ACTIVE
+                                            </span>
+                                        `
+
+                                        : `
+                                            <span class="badge badge-inactive">
+                                                INACTIVE
+                                            </span>
+                                        `
+                                    }
+
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    })
+                    .join("");
+
+        }
+
+
+
+        /* =====================================================
+           LOAD TESTS
+        ===================================================== */
+
+        async function loadTests() {
+
+            const batchIds =
+                assignedBatches.map(
+                    batch => batch.id
                 );
 
 
-            renderStudentsTable(
-                filtered
-            );
-
-        }
-    );
-
-
-
-/* =========================================================
-   12 — TESTS
-========================================================= */
-
-async function loadTests() {
-
-    /*
-       Tests are loaded from existing tests table.
-       Current first version loads all tests.
-    */
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("tests")
-            .select(
-                "id, batch_id, title, subject, test_date, max_marks, duration_minutes, description"
-            )
-            .order(
-                "test_date",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Tests error:",
-            error
-        );
-
-        myTests = [];
-
-        return;
-
-    }
-
-
-    myTests =
-        data || [];
-
-}
-
-
-function renderTests() {
-
-    const tbody =
-        document.getElementById(
-            "testsTable"
-        );
-
-
-    if (!myTests.length) {
-
-        tbody.innerHTML =
-            `
-            <tr>
-
-                <td
-                    colspan="5"
-                    class="empty"
-                >
-                    No tests found.
-                </td>
-
-            </tr>
-            `;
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        myTests
-            .map(
-                test =>
-                    `
-                    <tr>
-
-                        <td>
-                            <strong>
-                                ${escapeHTML(
-                                    test.title || "—"
-                                )}
-                            </strong>
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                test.subject || "—"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                test.test_date
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                String(
-                                    test.max_marks ?? "—"
-                                )
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                getBatchName(
-                                    test.batch_id
-                                )
-                            )}
-                        </td>
-
-                    </tr>
-                    `
-            )
-            .join("");
-
-}
-
-
-
-/* =========================================================
-   13 — REVIEWS
-========================================================= */
-
-async function loadReviews() {
-
-    if (!currentTeacher) {
-
-        return;
-
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("teacher_reviews")
-            .select(
-                "*"
-            )
-            .eq(
-                "teacher_id",
-                currentTeacher.id
-            )
-            .order(
-                "review_date",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Reviews error:",
-            error
-        );
-
-        myReviews = [];
-
-        return;
-
-    }
-
-
-    myReviews =
-        data || [];
-
-}
-
-
-function renderReviews() {
-
-    const tbody =
-        document.getElementById(
-            "reviewsTable"
-        );
-
-
-    if (!myReviews.length) {
-
-        tbody.innerHTML =
-            `
-            <tr>
-
-                <td
-                    colspan="4"
-                    class="empty"
-                >
-                    No reviews submitted yet.
-                </td>
-
-            </tr>
-            `;
-
-        return;
-
-    }
-
-
-    tbody.innerHTML =
-        myReviews
-            .map(
-                review =>
-                    `
-                    <tr>
-
-                        <td>
-                            ${escapeHTML(
-                                getStudentName(
-                                    review.student_id
-                                )
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                review.review_date
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${
-                                review.week_start
-                                    ?
-                                    formatDate(
-                                        review.week_start
-                                    )
-                                    :
-                                    "—"
-                            }
-
-                            ${
-                                review.week_end
-                                    ?
-                                    " → " +
-                                    formatDate(
-                                        review.week_end
-                                    )
-                                    :
-                                    ""
-                            }
-                        </td>
-
-
-                        <td>
-                            ${escapeHTML(
-                                review.topics_covered ||
-                                "—"
-                            )}
-                        </td>
-
-                    </tr>
-                    `
-            )
-            .join("");
-
-}
-
-
-
-/* =========================================================
-   14 — REVIEW STUDENT DROPDOWN
-========================================================= */
-
-function populateReviewStudents() {
-
-    const select =
-        document.getElementById(
-            "reviewStudent"
-        );
-
-
-    select.innerHTML =
-        `
-        <option value="">
-            Select student
-        </option>
-        `;
-
-
-    myStudents
-        .filter(
-            student =>
-                student.is_active !== false
-        )
-        .forEach(
-            student => {
-
-                const option =
-                    document.createElement(
-                        "option"
+            if (!batchIds.length) {
+
+                teacherTests = [];
+
+                renderTests();
+
+                return;
+
+            }
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("tests")
+                    .select(`
+                        id,
+                        batch_id,
+                        title,
+                        subject,
+                        test_date,
+                        max_marks,
+                        duration_minutes,
+                        description
+                    `)
+                    .in(
+                        "batch_id",
+                        batchIds
+                    )
+                    .order(
+                        "test_date",
+                        {
+                            ascending: false
+                        }
                     );
 
 
-                option.value =
-                    student.id;
+            if (error) {
 
+                console.error(error);
 
-                option.textContent =
-                    `${student.full_name || "Student"} (${student.student_uid || "—"})`;
-
-
-                select.appendChild(
-                    option
+                throw new Error(
+                    "Unable to load tests."
                 );
 
             }
-        );
-
-}
 
 
-
-/* =========================================================
-   15 — SUBMIT REVIEW
-========================================================= */
-
-document
-    .getElementById(
-        "reviewForm"
-    )
-    .addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
+            teacherTests =
+                data || [];
 
 
-            if (!currentTeacher) {
+            renderTests();
 
-                showToast(
-                    "Teacher session not found."
-                );
-
-                return;
-
-            }
+        }
 
 
-            const submitButton =
+
+        /* =====================================================
+           RENDER TESTS
+        ===================================================== */
+
+        function renderTests() {
+
+            document.getElementById(
+                "statTests"
+            ).textContent =
+                teacherTests.length;
+
+
+            const container =
                 document.getElementById(
-                    "submitReview"
+                    "testsGrid"
                 );
 
 
-            const payload = {
+            if (!teacherTests.length) {
 
-                student_id:
-                    document.getElementById(
-                        "reviewStudent"
-                    ).value,
+                container.innerHTML = `
 
-                teacher_id:
-                    currentTeacher.id,
+                    <div class="empty-state card">
 
-                review_date:
-                    document.getElementById(
-                        "reviewDate"
-                    ).value,
+                        No tests have been created
+                        for your batches yet.
 
-                week_start:
-                    document.getElementById(
-                        "weekStart"
-                    ).value ||
-                    null,
+                    </div>
 
-                week_end:
-                    document.getElementById(
-                        "weekEnd"
-                    ).value ||
-                    null,
-
-                topics_covered:
-                    document.getElementById(
-                        "topicsCovered"
-                    ).value.trim(),
-
-                student_performance:
-                    document.getElementById(
-                        "studentPerformance"
-                    ).value.trim(),
-
-                struggles:
-                    document.getElementById(
-                        "struggles"
-                    ).value.trim(),
-
-                next_steps:
-                    document.getElementById(
-                        "nextSteps"
-                    ).value.trim()
-
-            };
-
-
-            if (!payload.student_id) {
-
-                showToast(
-                    "Please select a student."
-                );
+                `;
 
                 return;
 
             }
 
 
-            if (!payload.review_date) {
+            container.innerHTML =
+                teacherTests
+                    .map(test => {
 
-                showToast(
-                    "Please select review date."
+                        const batch =
+                            assignedBatches.find(
+                                b =>
+                                    b.id ===
+                                    test.batch_id
+                            );
+
+
+                        return `
+
+                            <div class="test-card">
+
+                                <small>
+                                    ${escapeHtml(
+                                        test.subject || "TEST"
+                                    )}
+                                </small>
+
+                                <h3>
+                                    ${escapeHtml(test.title)}
+                                </h3>
+
+                                <p>
+                                    Date:
+                                    ${escapeHtml(
+                                        test.test_date || "—"
+                                    )}
+                                    <br>
+                                    Maximum Marks:
+                                    ${escapeHtml(
+                                        test.max_marks ?? "—"
+                                    )}
+                                    <br>
+                                    Batch:
+                                    ${escapeHtml(
+                                        batch?.name || "—"
+                                    )}
+                                </p>
+
+                            </div>
+
+                        `;
+
+                    })
+                    .join("");
+
+        }
+
+
+
+        /* =====================================================
+           LOAD SCORES
+        ===================================================== */
+
+        async function loadScores() {
+
+            const studentIds =
+                assignedStudents.map(
+                    student => student.id
                 );
+
+
+            if (!studentIds.length) {
+
+                teacherScores = [];
+
+                renderResults();
 
                 return;
 
             }
 
 
-            submitButton.disabled =
-                true;
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("test_scores")
+                    .select(`
+                        id,
+                        test_id,
+                        student_id,
+                        subject,
+                        marks_obtained,
+                        max_marks,
+                        rank,
+                        correct_answers
+                    `)
+                    .in(
+                        "student_id",
+                        studentIds
+                    )
+                    .order(
+                        "id",
+                        {
+                            ascending: false
+                        }
+                    );
 
 
-            submitButton.textContent =
-                "SAVING...";
+            if (error) {
+
+                console.error(error);
+
+                throw new Error(
+                    "Unable to load student results."
+                );
+
+            }
 
 
-            try {
+            teacherScores =
+                data || [];
 
-                const {
-                    error
-                } =
-                    await supabaseClient
-                        .from("teacher_reviews")
-                        .insert(
-                            payload
+
+            renderResults();
+
+        }
+
+
+
+        /* =====================================================
+           RENDER RESULTS
+        ===================================================== */
+
+        function renderResults() {
+
+            const count =
+                teacherScores.length;
+
+
+            const marks =
+                teacherScores
+                    .map(
+                        score =>
+                            Number(
+                                score.marks_obtained
+                            )
+                    )
+                    .filter(
+                        value =>
+                            Number.isFinite(value)
+                    );
+
+
+            const average =
+                marks.length
+                    ? (
+                        marks.reduce(
+                            (a,b) => a + b,
+                            0
+                        ) /
+                        marks.length
+                    ).toFixed(1)
+                    : "0";
+
+
+            const highest =
+                marks.length
+                    ? Math.max(...marks)
+                    : 0;
+
+
+            const testIds =
+                new Set(
+                    teacherScores.map(
+                        score =>
+                            score.test_id
+                    )
+                );
+
+
+            document.getElementById(
+                "resultCount"
+            ).textContent =
+                count;
+
+
+            document.getElementById(
+                "resultAverage"
+            ).textContent =
+                average;
+
+
+            document.getElementById(
+                "resultHighest"
+            ).textContent =
+                highest;
+
+
+            document.getElementById(
+                "resultTests"
+            ).textContent =
+                testIds.size;
+
+
+            const tbody =
+                document.getElementById(
+                    "resultsTableBody"
+                );
+
+
+            if (!teacherScores.length) {
+
+                tbody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="empty-state"
+                        >
+                            No results available yet.
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            tbody.innerHTML =
+                teacherScores
+                    .map(score => {
+
+                        const student =
+                            assignedStudents.find(
+                                s =>
+                                    s.id ===
+                                    score.student_id
+                            );
+
+
+                        return `
+
+                            <tr>
+
+                                <td>
+
+                                    <div class="student-name">
+                                        ${escapeHtml(
+                                            student?.full_name || "Unknown"
+                                        )}
+                                    </div>
+
+                                    <span class="uid">
+                                        ${escapeHtml(
+                                            student?.student_uid || ""
+                                        )}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        score.subject || "—"
+                                    )}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        ${escapeHtml(
+                                            score.marks_obtained ?? "—"
+                                        )}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        score.max_marks ?? "—"
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        score.rank ?? "—"
+                                    )}
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    })
+                    .join("");
+
+        }
+
+
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
+
+        const navButtons =
+            document.querySelectorAll(
+                ".sidebar-nav button"
+            );
+
+
+        const pageTitles = {
+
+            overview: [
+                "Teacher Dashboard",
+                "Your academic workspace"
+            ],
+
+            batches: [
+                "My Batches",
+                "Batches assigned to you"
+            ],
+
+            students: [
+                "My Students",
+                "Students in your assigned batches"
+            ],
+
+            tests: [
+                "Tests",
+                "Tests in your assigned batches"
+            ],
+
+            results: [
+                "Results",
+                "Student test performance"
+            ],
+
+            profile: [
+                "My Profile",
+                "Your SIR teacher account"
+            ]
+
+        };
+
+
+        navButtons.forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const section =
+                            button.dataset.section;
+
+
+                        navButtons.forEach(
+                            btn =>
+                                btn.classList.remove(
+                                    "active"
+                                )
                         );
 
 
-                if (error) {
+                        button.classList.add(
+                            "active"
+                        );
 
-                    console.error(
-                        "Review insert error:",
-                        error
+
+                        document
+                            .querySelectorAll(
+                                ".page-section"
+                            )
+                            .forEach(
+                                sectionEl =>
+                                    sectionEl.classList.remove(
+                                        "active"
+                                    )
+                            );
+
+
+                        const target =
+                            document.getElementById(
+                                `section-${section}`
+                            );
+
+
+                        if (target) {
+
+                            target.classList.add(
+                                "active"
+                            );
+
+                        }
+
+
+                        const title =
+                            pageTitles[section];
+
+
+                        if (title) {
+
+                            document.getElementById(
+                                "pageTitle"
+                            ).textContent =
+                                title[0];
+
+
+                            document.getElementById(
+                                "pageSubtitle"
+                            ).textContent =
+                                title[1];
+
+                        }
+
+
+                        sidebar.classList.remove(
+                            "mobile-open"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* =====================================================
+           STUDENT SEARCH
+        ===================================================== */
+
+        document
+            .getElementById("studentSearch")
+            .addEventListener(
+                "input",
+                event => {
+
+                    renderStudents(
+                        event.target.value
                     );
 
-                    showToast(
-                        "Unable to save review. Check database permissions/columns."
+                }
+            );
+
+
+
+        /* =====================================================
+           MOBILE MENU
+        ===================================================== */
+
+        mobileMenuBtn.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "mobile-open"
+                );
+
+            }
+        );
+
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        document
+            .getElementById("logoutBtn")
+            .addEventListener(
+                "click",
+                async () => {
+
+                    await supabaseClient
+                        .auth
+                        .signOut();
+
+
+                    sessionStorage.removeItem(
+                        "sir_teacher_id"
                     );
+
+
+                    sessionStorage.removeItem(
+                        "sir_teacher_user_id"
+                    );
+
+
+                    sessionStorage.removeItem(
+                        "sir_teacher_name"
+                    );
+
+
+                    window.location.href =
+                        "teacher-login.html";
+
+                }
+            );
+
+
+
+        /* =====================================================
+           INITIALIZE
+        ===================================================== */
+
+        async function initialize() {
+
+            try {
+
+                clearError();
+
+
+                const teacherLoaded =
+                    await loadTeacher();
+
+
+                if (!teacherLoaded) {
 
                     return;
 
                 }
 
 
-                showToast(
-                    "Weekly review submitted successfully."
+                await loadBatches();
+
+                await loadStudents();
+
+                await loadTests();
+
+                await loadScores();
+
+
+                loading.style.display =
+                    "none";
+
+
+                console.log(
+                    "SIR Teacher Dashboard loaded."
                 );
 
 
-                document
-                    .getElementById(
-                        "reviewForm"
-                    )
-                    .reset();
+            } catch (error) {
+
+                console.error(
+                    "Dashboard error:",
+                    error
+                );
 
 
-                document.getElementById(
-                    "reviewDate"
-                ).value =
-                    new Date()
-                        .toISOString()
-                        .split("T")[0];
+                loading.style.display =
+                    "none";
 
 
-                await loadReviews();
-
-                updateStats();
-
-                renderReviews();
-
-
-            }
-            finally {
-
-                submitButton.disabled =
-                    false;
-
-                submitButton.textContent =
-                    "SUBMIT WEEKLY REVIEW";
+                showError(
+                    error.message ||
+                    "Unable to load Teacher Dashboard."
+                );
 
             }
 
         }
-    );
 
 
+        initialize();
 
-/* =========================================================
-   16 — STATS
-========================================================= */
-
-function updateStats() {
-
-    document.getElementById(
-        "statBatches"
-    ).textContent =
-        myBatches.length;
-
-
-    document.getElementById(
-        "statStudents"
-    ).textContent =
-        myStudents.length;
-
-
-    document.getElementById(
-        "statTests"
-    ).textContent =
-        myTests.length;
-
-
-    document.getElementById(
-        "statReviews"
-    ).textContent =
-        myReviews.length;
-
-}
-
-
-
-/* =========================================================
-   17 — HELPERS
-========================================================= */
-
-function getBatchName(
-    batchId
-) {
-
-    const batch =
-        myBatches.find(
-            item =>
-                String(item.id) ===
-                String(batchId)
-        );
-
-
-    return batch
-        ? batch.name
-        : "—";
-
-}
-
-
-function getStudentName(
-    studentId
-) {
-
-    const student =
-        myStudents.find(
-            item =>
-                String(item.id) ===
-                String(studentId)
-        );
-
-
-    return student
-        ? student.full_name
-        : "—";
-
-}
-
-
-function formatDate(
-    value
-) {
-
-    if (!value) {
-
-        return "—";
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return value;
-
-    }
-
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        }
-    );
-
-}
-
-
-function escapeHTML(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-
-/* =========================================================
-   18 — LOGOUT
-========================================================= */
-
-logoutButton.addEventListener(
-    "click",
-    async () => {
-
-        logoutButton.disabled =
-            true;
-
-
-        await supabaseClient
-            .auth
-            .signOut();
-
-
-        window.location.href =
-            "teacher-login.html";
-
-    }
-);
-
-
-
-/* =========================================================
-   19 — DEFAULT REVIEW DATE
-========================================================= */
-
-document.getElementById(
-    "reviewDate"
-).value =
-    new Date()
-        .toISOString()
-        .split("T")[0];
-
-
-
-/* =========================================================
-   20 — START
-========================================================= */
-
-initializeTeacher();
-
-</script>
-
+    </script>
 
 </body>
 
