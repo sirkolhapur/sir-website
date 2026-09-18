@@ -1,79 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <head>
+
+    <!-- =====================================================
+         SIR — BASIC SETUP
+    ====================================================== -->
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <!-- =========================
+    <meta
+        name="theme-color"
+        content="#07152f"
+    >
+
+
+    <!-- =====================================================
          SEO
-    ========================== -->
+    ====================================================== -->
 
     <title>
-        SIR Kolhapur | NEET & JEE Coaching Institute in Kolhapur
+        SIR Kolhapur | NEET, JEE & MHT-CET Preparation
     </title>
 
-    <meta name="description"
-        content="Suryavanshi Institute for Rankers (SIR) is a NEET and JEE coaching institute in Kolhapur focused on structured preparation, regular testing, performance analysis and student guidance.">
+    <meta
+        name="description"
+        content="Suryavanshi Institute for Rankers — Where Potential Finds Direction. Structured preparation for NEET, JEE and MHT-CET in Kolhapur."
+    >
 
-    <meta name="keywords"
-        content="NEET coaching in Kolhapur, JEE coaching in Kolhapur, NEET JEE coaching institute in Kolhapur, NEET classes in Kolhapur, JEE classes in Kolhapur, NEET preparation Kolhapur, JEE preparation Kolhapur, SIR Kolhapur, Suryavanshi Institute for Rankers">
+    <meta
+        name="keywords"
+        content="NEET coaching in Kolhapur, JEE coaching in Kolhapur, MHT-CET coaching in Kolhapur, NEET JEE coaching institute in Kolhapur, SIR Kolhapur, Suryavanshi Institute for Rankers"
+    >
 
-    <meta name="author"
-        content="Suryavanshi Institute for Rankers">
+    <meta
+        name="author"
+        content="Suryavanshi Institute for Rankers"
+    >
 
-    <meta name="robots"
-        content="index, follow">
+    <meta
+        name="robots"
+        content="index, follow"
+    >
 
-    <link rel="canonical"
-        href="https://sir.net.in/">
+    <link
+        rel="canonical"
+        href="https://sir.net.in/"
+    >
 
-    <meta name="theme-color"
-        content="#07152f">
 
-
-    <!-- =========================
+    <!-- =====================================================
          OPEN GRAPH
-    ========================== -->
+    ====================================================== -->
 
-    <meta property="og:type"
-        content="website">
+    <meta
+        property="og:type"
+        content="website"
+    >
 
-    <meta property="og:title"
-        content="SIR Kolhapur | NEET & JEE Coaching">
+    <meta
+        property="og:title"
+        content="SIR Kolhapur | Where Potential Finds Direction"
+    >
 
-    <meta property="og:description"
-        content="Where Potential Finds Direction — structured NEET & JEE preparation at SIR, Kolhapur.">
+    <meta
+        property="og:description"
+        content="Structured preparation for NEET, JEE and MHT-CET at Suryavanshi Institute for Rankers, Kolhapur."
+    >
 
-    <meta property="og:url"
-        content="https://sir.net.in/">
+    <meta
+        property="og:url"
+        content="https://sir.net.in/"
+    >
 
-    <meta property="og:site_name"
-        content="Suryavanshi Institute for Rankers">
+    <meta
+        property="og:site_name"
+        content="Suryavanshi Institute for Rankers"
+    >
 
 
-    <!-- =========================
+    <!-- =====================================================
          FAVICON
-    ========================== -->
+    ====================================================== -->
 
-    <link rel="icon"
-        href="sir logo.png">
+    <link
+        rel="icon"
+        href="sir-logo.svg"
+    >
 
 
-    <!-- =========================
+    <!-- =====================================================
+         SUPABASE
+         KEEP THIS — EXISTING SYSTEM DEPENDS ON IT
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <!-- =====================================================
          STYLES
-    ========================== -->
+    ====================================================== -->
 
-    <link rel="stylesheet"
-        href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 
-    <!-- =========================
+    <!-- =====================================================
          STRUCTURED DATA
-    ========================== -->
+    ====================================================== -->
 
     <script type="application/ld+json">
 
@@ -87,9 +128,9 @@
 
         "url": "https://sir.net.in/",
 
-        "logo": "https://sir.net.in/sir%20logo.png",
+        "logo": "https://sir.net.in/sir-logo.svg",
 
-        "description": "Suryavanshi Institute for Rankers is a NEET and JEE coaching institute in Kolhapur focused on structured preparation, testing, performance analysis and student guidance.",
+        "description": "Suryavanshi Institute for Rankers is an educational institute in Kolhapur focused on structured preparation, testing, performance analysis and student guidance.",
 
         "slogan": "Where Potential Finds Direction",
 
@@ -99,6 +140,7 @@
             "addressRegion": "Maharashtra",
             "addressCountry": "IN"
         }
+
     }
 
     </script>
@@ -109,61 +151,281 @@
 <body>
 
 
-    <!-- =========================
+    <!-- =====================================================
          HEADER
-    ========================== -->
+    ====================================================== -->
 
     <header class="site-header">
 
-        <a href="#top"
-            class="brand"
-            aria-label="SIR Home">
-
-            <img
-                src="sir logo.png"
-                alt="Suryavanshi Institute for Rankers logo">
-
-        </a>
+        <div class="header-inner">
 
 
-        <button
-            class="menu-toggle"
-            aria-label="Open navigation"
-            aria-expanded="false">
+            <!-- LOGO -->
 
-            <span></span>
-            <span></span>
+            <a
+                href="#top"
+                class="brand"
+                aria-label="SIR Home"
+            >
 
-        </button>
+                <img
+                    src="sir-logo.svg"
+                    alt="Suryavanshi Institute for Rankers logo"
+                >
+
+            </a>
+
+
+            <!-- DESKTOP NAVIGATION -->
+
+            <nav
+                class="main-nav"
+                aria-label="Main Navigation"
+            >
+
+                <a
+                    href="#top"
+                    class="nav-link active"
+                >
+                    HOME
+                </a>
+
+                <a
+                    href="student-guide.html"
+                    class="nav-link"
+                >
+                    STUDENT GUIDE
+                </a>
+
+                <a
+                    href="notice-board.html"
+                    class="nav-link"
+                >
+                    NOTICE BOARD
+                </a>
+
+                <a
+                    href="admission.html"
+                    class="nav-link"
+                >
+                    ADMISSION
+                </a>
+
+                <a
+                    href="contact.html"
+                    class="nav-link"
+                >
+                    CONTACT
+                </a>
+
+
+                <!-- LOGIN -->
+
+                <div class="login-dropdown">
+
+                    <button
+                        class="login-button"
+                        type="button"
+                        aria-expanded="false"
+                    >
+
+                        LOGIN
+
+                        <span class="login-arrow">
+                            ↓
+                        </span>
+
+                    </button>
+
+
+                    <div class="login-menu">
+
+                        <a href="student-login.html">
+
+                            <span>🎓</span>
+
+                            <div>
+
+                                <strong>
+                                    Student Login
+                                </strong>
+
+                                <small>
+                                    Student & Parent Portal
+                                </small>
+
+                            </div>
+
+                        </a>
+
+
+                        <a href="teacher-login.html">
+
+                            <span>👨‍🏫</span>
+
+                            <div>
+
+                                <strong>
+                                    Teacher Login
+                                </strong>
+
+                                <small>
+                                    Teacher Portal
+                                </small>
+
+                            </div>
+
+                        </a>
+
+
+                        <a href="admin-login.html">
+
+                            <span>🔐</span>
+
+                            <div>
+
+                                <strong>
+                                    Admin Login
+                                </strong>
+
+                                <small>
+                                    Administration
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </nav>
+
+
+            <!-- LANGUAGE -->
+
+            <div class="language-switcher">
+
+                <button
+                    class="language-btn active"
+                    type="button"
+                    data-lang="en"
+                >
+                    EN
+                </button>
+
+                <span>|</span>
+
+                <button
+                    class="language-btn"
+                    type="button"
+                    data-lang="mr"
+                >
+                    मराठी
+                </button>
+
+            </div>
+
+
+            <!-- MOBILE MENU -->
+
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-label="Open navigation"
+                aria-expanded="false"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+        </div>
+
+
+        <!-- MOBILE NAV -->
+
+        <div class="mobile-nav">
+
+            <a href="#top">
+                HOME
+            </a>
+
+            <a href="student-guide.html">
+                STUDENT GUIDE
+            </a>
+
+            <a href="notice-board.html">
+                NOTICE BOARD
+            </a>
+
+            <a href="admission.html">
+                ADMISSION
+            </a>
+
+            <a href="contact.html">
+                CONTACT
+            </a>
+
+
+            <div class="mobile-login">
+
+                <div class="mobile-login-title">
+                    LOGIN
+                </div>
+
+                <a href="student-login.html">
+                    🎓 Student Login
+                </a>
+
+                <a href="teacher-login.html">
+                    👨‍🏫 Teacher Login
+                </a>
+
+                <a href="admin-login.html">
+                    🔐 Admin Login
+                </a>
+
+            </div>
+
+        </div>
 
     </header>
 
 
-    <!-- =========================
-         MAIN
-    ========================== -->
+
+    <!-- =====================================================
+         MAIN STORY
+    ====================================================== -->
 
     <main id="top">
 
 
-        <!-- =========================
-             CHAPTER 01
-        ========================== -->
+        <!-- =================================================
+             01 — POTENTIAL
+        ================================================== -->
 
         <section
             class="story-section hero"
-            aria-label="Introduction">
+            id="potential"
+            aria-label="Every student starts with potential"
+        >
 
             <picture class="hero-media">
 
                 <source
                     media="(max-width: 700px)"
-                    srcset="hero-mobile.webp">
+                    srcset="hero-mobile.webp"
+                >
 
                 <img
                     src="hero-desktop.webp"
                     alt="Student preparing for competitive examinations"
-                    loading="eager">
+                    loading="eager"
+                >
 
             </picture>
 
@@ -177,11 +439,43 @@
                     01 — THE BEGINNING
                 </p>
 
+
                 <h1>
-                    Every student<br>
-                    starts with<br>
-                    <em>potential.</em>
+
+                    Every student
+                    <br>
+
+                    has
+                    <em>
+                        potential.
+                    </em>
+
                 </h1>
+
+
+                <p class="story-copy hero-copy">
+
+                    But potential needs
+                    direction.
+
+                </p>
+
+
+                <div class="exam-tags">
+
+                    <span>
+                        NEET
+                    </span>
+
+                    <span>
+                        JEE
+                    </span>
+
+                    <span>
+                        MHT-CET
+                    </span>
+
+                </div>
 
 
                 <div class="scroll-indicator">
@@ -199,12 +493,15 @@
         </section>
 
 
-        <!-- =========================
-             CHAPTER 02
-        ========================== -->
+
+        <!-- =================================================
+             02 — THE QUESTION
+        ================================================== -->
 
         <section
-            class="story-section question">
+            class="story-section question"
+            id="question"
+        >
 
             <div class="story-inner">
 
@@ -212,23 +509,27 @@
                     02 — THE QUESTION
                 </p>
 
+
                 <h2>
-                    But potential<br>
-                    alone isn't<br>
-                    <em>enough.</em>
+
+                    I am studying.
+
+                    <br>
+
+                    But am I preparing
+                    <br>
+
+                    <em>
+                        in the right direction?
+                    </em>
+
                 </h2>
 
 
                 <p class="story-copy">
 
-                    Every preparation begins
-                    with a question.
-
-                    <br>
-
-                    <strong>
-                        What should I do next?
-                    </strong>
+                    Every serious preparation
+                    eventually reaches this question.
 
                 </p>
 
@@ -237,223 +538,171 @@
         </section>
 
 
-        <!-- =========================
-             CHAPTER 03
-        ========================== -->
+
+        <!-- =================================================
+             03 — ONE TO ALL / ONE TO ONE
+        ================================================== -->
 
         <section
-            class="story-section direction">
+            class="story-section teaching-section"
+            id="direction"
+        >
 
             <div class="story-inner">
 
                 <p class="chapter-label">
-                    03 — THE REALIZATION
+                    03 — THE CLASSROOM
                 </p>
 
+
+                <div class="teaching-story">
+
+
+                    <!-- ONE TO ALL -->
+
+                    <div class="teaching-block one-to-all">
+
+                        <span class="chapter-number">
+                            01
+                        </span>
+
+
+                        <h2>
+                            ONE TO ALL
+                        </h2>
+
+
+                        <p class="large-line">
+
+                            One teacher.
+                            <br>
+
+                            One classroom.
+                            <br>
+
+                            Many students.
+
+                        </p>
+
+
+                        <p>
+
+                            A concept is taught
+                            to everyone.
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- TRANSITION -->
+
+                    <div class="story-transition">
+
+                        <span>
+                            AND THEN
+                        </span>
+
+                    </div>
+
+
+                    <!-- ONE TO ONE -->
+
+                    <div class="teaching-block one-to-one">
+
+                        <span class="chapter-number">
+                            02
+                        </span>
+
+
+                        <h2>
+                            ONE TO ONE
+                        </h2>
+
+
+                        <p class="large-line">
+
+                            One student.
+                            <br>
+
+                            One doubt.
+                            <br>
+
+                            One direction.
+
+                        </p>
+
+
+                        <p>
+
+                            Because every student
+                            understands and struggles
+                            differently.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             04 — DIRECTION BECOMES A SYSTEM
+        ================================================== -->
+
+        <section
+            class="story-section system-section"
+            id="system"
+        >
+
+            <div class="story-inner">
+
+                <p class="chapter-label">
+                    04 — DIRECTION BECOMES A SYSTEM
+                </p>
+
+
                 <h2>
-                    Preparation<br>
-                    needs <em>direction.</em>
+
+                    Preparation needs
+                    <br>
+
+                    <em>
+                        a system.
+                    </em>
+
                 </h2>
 
 
-                <p class="story-copy">
-
-                    Not just more hours.
-
-                    <br><br>
-
-                    The right concepts.
-                    The right practice.
-                    The right tests.
-                    The right analysis.
-
-                    <br><br>
-
-                    Preparation isn't about
-                    doing more.
-
-                    <br>
-
-                    <strong>
-                        It's about knowing what matters next.
-                    </strong>
-
-                </p>
-
-
-                <div class="process">
+                <div class="system-flow">
 
                     <span>LEARN</span>
+
                     <i>→</i>
 
                     <span>PRACTICE</span>
+
                     <i>→</i>
 
                     <span>TEST</span>
+
                     <i>→</i>
 
                     <span>ANALYSE</span>
+
                     <i>→</i>
 
                     <span>IMPROVE</span>
 
                 </div>
 
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CHAPTER 04
-        ========================== -->
-
-        <section
-            class="story-section reveal">
-
-            <div
-                class="story-inner reveal-content">
-
-                <p class="chapter-label">
-                    04 — THE DIRECTION
-                </p>
-
-                <p class="reveal-small">
-                    And this is where
-                </p>
-
-
-                <h2>
-                    SIR
-                </h2>
-
-
-                <p class="motto">
-                    WHERE POTENTIAL FINDS DIRECTION
-                </p>
-
 
                 <p class="story-copy">
-
-                    Suryavanshi Institute for Rankers
-                    is built around structured
-                    preparation for students
-                    pursuing NEET and JEE.
-
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CHAPTER 05
-        ========================== -->
-
-        <section
-            class="story-section system-section">
-
-            <div class="story-inner">
-
-                <p class="chapter-label">
-                    05 — THE SIR SYSTEM
-                </p>
-
-
-                <h2>
-                    Direction becomes<br>
-                    <em>a system.</em>
-                </h2>
-
-
-                <div class="system-flow">
-
-
-                    <div class="system-step">
-
-                        <span>01</span>
-
-                        <strong>
-                            LEARN
-                        </strong>
-
-                        <p>
-                            Build conceptual clarity.
-                        </p>
-
-                    </div>
-
-
-                    <div class="system-step">
-
-                        <span>02</span>
-
-                        <strong>
-                            PRACTICE
-                        </strong>
-
-                        <p>
-                            Turn understanding into application.
-                        </p>
-
-                    </div>
-
-
-                    <div class="system-step">
-
-                        <span>03</span>
-
-                        <strong>
-                            TEST
-                        </strong>
-
-                        <p>
-                            Put preparation under pressure.
-                        </p>
-
-                    </div>
-
-
-                    <div class="system-step">
-
-                        <span>04</span>
-
-                        <strong>
-                            ANALYSE
-                        </strong>
-
-                        <p>
-                            Understand performance beyond the score.
-                        </p>
-
-                    </div>
-
-
-                    <div class="system-step">
-
-                        <span>05</span>
-
-                        <strong>
-                            IMPROVE
-                        </strong>
-
-                        <p>
-                            Work specifically on the gaps.
-                        </p>
-
-                    </div>
-
-
-                </div>
-
-
-                <p class="story-copy">
-
-                    Learn → Practice → Test →
-                    Analyse → Improve.
-
-                    <br><br>
 
                     Not once.
 
@@ -470,507 +719,237 @@
         </section>
 
 
-        <!-- =========================
-             CHAPTER 06
-        ========================== -->
+
+        <!-- =================================================
+             05 — BEYOND THE SCORE
+        ================================================== -->
 
         <section
-            class="story-section analytics-intro">
+            class="story-section score-section"
+            id="analysis"
+        >
 
-            <div class="story-inner">
+            <div class="score-visual">
+
+                <div class="score-number">
+                    72
+                </div>
+
+
+                <div class="score-details">
+
+                    <span>
+                        CONCEPT
+                    </span>
+
+                    <span>
+                        MISTAKES
+                    </span>
+
+                    <span>
+                        SUBJECT
+                    </span>
+
+                    <span>
+                        ACCURACY
+                    </span>
+
+                    <span>
+                        IMPROVEMENT
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="story-content score-content">
 
                 <p class="chapter-label">
-                    06 — YOUR PROGRESS
+                    05 — BEYOND THE SCORE
                 </p>
 
 
                 <h2>
-                    A score tells you<br>
-                    <em>where you are.</em>
+
+                    A score tells you
+                    <br>
+
+                    <em>
+                        where you are.
+                    </em>
+
                 </h2>
 
 
-                <p class="story-copy">
+                <h3>
 
                     Analysis tells you
-                    what to do next.
+                    <br>
 
-                    <br><br>
+                    <span>
+                        what to do next.
+                    </span>
 
-                    Every test becomes more
-                    than a number.
+                </h3>
+
+
+                <p>
+
+                    Every test can become
+                    more than a number.
 
                 </p>
 
+            </div>
 
-                <div class="analytics-preview">
+        </section>
 
 
-                    <div>
 
-                        <small>
-                            PERFORMANCE
-                        </small>
+        <!-- =================================================
+             06 — THE REAL GOAL
+        ================================================== -->
+
+        <section
+            class="story-section readiness-section"
+            id="readiness"
+        >
+
+            <div class="story-inner">
+
+                <p class="chapter-label">
+                    06 — THE REAL GOAL
+                </p>
+
+
+                <h2>
+
+                    Completing the syllabus
+                    <br>
+
+                    is not the destination.
+
+                </h2>
+
+
+                <h3>
+
+                    <span>
+                        Being ready for the exam is.
+                    </span>
+
+                </h3>
+
+
+                <div class="exam-paths">
+
+                    <div class="exam-path">
 
                         <strong>
-                            Tracked.
+                            NEET
                         </strong>
+
+                        <small>
+                            MEDICAL ENTRANCE
+                        </small>
 
                     </div>
 
 
-                    <div>
-
-                        <small>
-                            PROGRESS
-                        </small>
+                    <div class="exam-path">
 
                         <strong>
-                            Measured.
+                            JEE
                         </strong>
+
+                        <small>
+                            ENGINEERING ENTRANCE
+                        </small>
 
                     </div>
 
 
-                    <div>
-
-                        <small>
-                            DIRECTION
-                        </small>
+                    <div class="exam-path">
 
                         <strong>
-                            Clear.
+                            MHT-CET
                         </strong>
+
+                        <small>
+                            MAHARASHTRA ENTRANCE
+                        </small>
 
                     </div>
 
-
                 </div>
 
-
-                <p class="story-copy">
-
-                    Subject performance.
-                    Test-wise progress.
-                    Average performance.
-                    Mean. Median. Mode.
-                    Strengths.
-                    Areas to improve.
-
-                    <br><br>
-
-                    <strong>
-                        Understand the student behind the score.
-                    </strong>
-
-                </p>
-
-
-                <a
-                    href="student-login.html"
-                    class="story-link">
-
-                    Student Analytics →
-
-                </a>
-
             </div>
 
         </section>
 
 
-        <!-- =========================
-             CHAPTER 07
-        ========================== -->
+
+        <!-- =================================================
+             FINAL — SIR
+        ================================================== -->
 
         <section
-            class="story-section review-section">
+            class="final-section"
+            id="sir"
+        >
 
-            <div class="story-inner">
+            <div class="final-content">
 
-                <p class="chapter-label">
-                    07 — BEYOND THE SCORE
-                </p>
 
-
-                <h2>
-                    Because every<br>
-                    student needs<br>
-                    <em>more than marks.</em>
-                </h2>
-
-
-                <p class="story-copy">
-
-                    Every week, teachers review
-                    the student's preparation.
-
-                    <br><br>
-
-                    What was covered?
-
-                    <br>
-
-                    How did the student perform?
-
-                    <br>
-
-                    Where are they struggling?
-
-                    <br>
-
-                    What should happen next?
-
-                </p>
-
-
-                <div class="review-line">
-
-                    <span>TEACHER</span>
-
-                    <i>→</i>
-
-                    <span>STUDENT</span>
-
-                    <i>→</i>
-
-                    <span>PARENT</span>
-
-                </div>
-
-
-                <a
-                    href="student-login.html"
-                    class="story-link">
-
-                    Student Login →
-
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CHAPTER 08
-        ========================== -->
-
-        <section
-            class="story-section guide-section">
-
-            <div class="story-inner">
-
-                <p class="chapter-label">
-                    08 — STUDENT GUIDE
-                </p>
-
-
-                <h2>
-                    Learning doesn't<br>
-                    stop when class <em>ends.</em>
-                </h2>
-
-
-                <p class="story-copy">
-
-                    A preparation system should
-                    continue beyond the classroom.
-
-                </p>
-
-
-                <div class="guide-grid">
-
-
-                    <a
-                        href="student-guide.html"
-                        class="guide-card">
-
-                        <span>01</span>
-
-                        <strong>
-                            PYQs
-                        </strong>
-
-                        <small>
-                            Previous Year Questions
-                        </small>
-
-                    </a>
-
-
-                    <a
-                        href="student-guide.html"
-                        class="guide-card">
-
-                        <span>02</span>
-
-                        <strong>
-                            TESTS
-                        </strong>
-
-                        <small>
-                            Practice & Assessment
-                        </small>
-
-                    </a>
-
-
-                    <a
-                        href="student-guide.html"
-                        class="guide-card">
-
-                        <span>03</span>
-
-                        <strong>
-                            STUDY MATERIAL
-                        </strong>
-
-                        <small>
-                            Useful resources and PDFs
-                        </small>
-
-                    </a>
-
-
-                    <a
-                        href="student-guide.html"
-                        class="guide-card">
-
-                        <span>04</span>
-
-                        <strong>
-                            GUIDANCE
-                        </strong>
-
-                        <small>
-                            Preparation strategies
-                        </small>
-
-                    </a>
-
-
-                </div>
-
-
-                <a
-                    href="student-guide.html"
-                    class="story-link">
-
-                    Explore Student Guide →
-
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CHAPTER 09
-        ========================== -->
-
-        <section
-            class="story-section notice-section">
-
-            <div class="story-inner">
-
-                <p class="chapter-label">
-                    09 — NOTICE BOARD
-                </p>
-
-
-                <h2>
-                    Stay in<br>
-                    <em>the loop.</em>
-                </h2>
-
-
-                <p class="story-copy">
-
-                    Important information
-                    shouldn't get lost.
-
-                </p>
-
-
-                <div class="notice-board">
-
-
-                    <a
-                        href="notice-board.html"
-                        class="notice-item">
-
-                        <small>
-                            CLASS SCHEDULE
-                        </small>
-
-                        <strong>
-                            Know what's happening next.
-                        </strong>
-
-                    </a>
-
-
-                    <a
-                        href="notice-board.html"
-                        class="notice-item">
-
-                        <small>
-                            TEST SCHEDULE
-                        </small>
-
-                        <strong>
-                            Know when you're being assessed.
-                        </strong>
-
-                    </a>
-
-
-                    <a
-                        href="notice-board.html"
-                        class="notice-item">
-
-                        <small>
-                            ANNOUNCEMENTS
-                        </small>
-
-                        <strong>
-                            Stay updated with SIR.
-                        </strong>
-
-                    </a>
-
-
-                </div>
-
-
-                <a
-                    href="notice-board.html"
-                    class="story-link">
-
-                    View Notice Board →
-
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             SEO SUPPORT SECTION
-        ========================== -->
-
-        <section
-            class="story-section seo-section">
-
-            <div class="story-inner">
-
-                <p class="chapter-label">
-                    NEET & JEE PREPARATION IN KOLHAPUR
-                </p>
-
-
-                <h2>
-                    Preparation<br>
-                    with <em>direction.</em>
-                </h2>
-
-
-                <p class="story-copy">
-
-                    Suryavanshi Institute for Rankers
-                    provides structured NEET and JEE
-                    preparation for students in Kolhapur.
-
-                    <br><br>
-
-                    The approach combines classroom
-                    learning, regular practice,
-                    testing, performance analysis
-                    and continuous academic guidance.
-
-                    <br><br>
-
-                    For students preparing for
-                    competitive medical and engineering
-                    entrance examinations, the focus is
-                    not only on completing the syllabus,
-                    but on understanding progress and
-                    identifying what needs attention next.
-
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CHAPTER 10
-        ========================== -->
-
-        <section
-            class="story-section begin-section">
-
-            <div class="story-inner">
-
-                <p class="chapter-label">
-                    10 — THE BEGINNING
-                </p>
-
-
-                <h2>
-                    Your journey<br>
-                    starts with<br>
-                    <em>direction.</em>
-                </h2>
-
-
-                <p class="story-copy">
-
+                <p>
                     Your potential is the beginning.
-
-                    <br>
-
-                    Your preparation is the journey.
-
-                    <br>
-
-                    Direction keeps it moving.
-
                 </p>
 
 
-                <div class="action-row">
-
-                    <a
-                        href="admission.html"
-                        class="primary-action">
-
-                        Online Admission
-
-                    </a>
+                <p>
+                    Your preparation is the journey.
+                </p>
 
 
-                    <a
-                        href="contact.html"
-                        class="secondary-action">
+                <p class="final-highlight">
+                    Direction keeps it moving.
+                </p>
 
-                        Talk to SIR
 
-                    </a>
+                <div class="final-logo">
+
+                    <img
+                        src="sir-logo.svg"
+                        alt="SIR — Suryavanshi Institute for Rankers"
+                    >
 
                 </div>
 
 
                 <p class="motto">
-
                     WHERE POTENTIAL FINDS DIRECTION
-
                 </p>
+
+
+                <div class="final-actions">
+
+                    <a
+                        href="admission.html"
+                        class="primary-button"
+                    >
+                        START YOUR JOURNEY
+                    </a>
+
+
+                    <a
+                        href="student-guide.html"
+                        class="secondary-button"
+                    >
+                        EXPLORE STUDENT GUIDE
+                    </a>
+
+                </div>
 
             </div>
 
@@ -980,9 +959,99 @@
     </main>
 
 
-    <!-- =========================
-         JAVASCRIPT
-    ========================== -->
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="site-footer">
+
+        <div class="footer-inner">
+
+
+            <div class="footer-brand">
+
+                <img
+                    src="sir-logo.svg"
+                    alt="Suryavanshi Institute for Rankers"
+                >
+
+                <p>
+                    Where Potential Finds Direction.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="#top">
+                    Home
+                </a>
+
+                <a href="student-guide.html">
+                    Student Guide
+                </a>
+
+                <a href="notice-board.html">
+                    Notice Board
+                </a>
+
+                <a href="admission.html">
+                    Admission
+                </a>
+
+                <a href="contact.html">
+                    Contact
+                </a>
+
+            </div>
+
+
+            <div class="footer-login">
+
+                <strong>
+                    PORTALS
+                </strong>
+
+                <a href="student-login.html">
+                    Student Login
+                </a>
+
+                <a href="teacher-login.html">
+                    Teacher Login
+                </a>
+
+                <a href="admin-login.html">
+                    Admin Login
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 Suryavanshi Institute for Rankers.
+                All rights reserved.
+            </p>
+
+            <p>
+                SIR — WHERE POTENTIAL FINDS DIRECTION
+            </p>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         APP JS
+         KEEP THIS FILE — NEXT WE WILL UPDATE IT
+    ====================================================== -->
 
     <script src="app.js"></script>
 
