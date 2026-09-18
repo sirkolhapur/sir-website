@@ -519,6 +519,65 @@
       color: #75dda0;
     }
 
+    .credentials-box {
+      display: none;
+      margin-top: 15px;
+      padding: 16px;
+      border: 1px solid rgba(201,168,78,.28);
+      border-radius: 9px;
+      background: rgba(201,168,78,.07);
+    }
+
+    .credentials-box.show {
+      display: block;
+    }
+
+    .credentials-box h3 {
+      color: #d9b75b;
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    .credentials-box p {
+      color: #aebacc;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 13px;
+    }
+
+    .credential-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 9px;
+    }
+
+    .credential-value {
+      padding: 10px 11px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 7px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 7px;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,.06);
+    }
+
     @media (max-width: 900px) {
       .sidebar {
         width: 190px;
@@ -1112,6 +1171,30 @@
           id="formMessage"
           class="message"
         ></div>
+
+        <div
+          id="credentialsBox"
+          class="credentials-box"
+        >
+          <h3>Student Login Created</h3>
+          <p>Save these credentials securely. The password is shown only after creation.</p>
+
+          <div class="credential-row">
+            <div>
+              <div style="color:#8190a5;font-size:11px;margin-bottom:5px;">Student UID</div>
+              <div id="createdStudentUid" class="credential-value">—</div>
+            </div>
+            <button type="button" class="copy-btn" data-copy-target="createdStudentUid">Copy</button>
+          </div>
+
+          <div class="credential-row">
+            <div>
+              <div style="color:#8190a5;font-size:11px;margin-bottom:5px;">Password / PIN</div>
+              <div id="createdStudentPassword" class="credential-value">—</div>
+            </div>
+            <button type="button" class="copy-btn" data-copy-target="createdStudentPassword">Copy</button>
+          </div>
+        </div>
 
 
         <div class="form-actions">
@@ -2095,6 +2178,10 @@
 
     hideFormMessage();
 
+    document.getElementById("credentialsBox").classList.remove("show");
+    document.getElementById("createdStudentUid").textContent = "—";
+    document.getElementById("createdStudentPassword").textContent = "—";
+
   }
 
 
@@ -2110,14 +2197,158 @@
 
         event.preventDefault();
 
+        const form = this;
+        const submitButton = form.querySelector('button[type="submit"]');
+        const credentialsBox = document.getElementById("credentialsBox");
 
-        showFormMessage(
-          "Student creation will be connected securely in the backend step.",
-          "success"
-        );
+        const full_name = document
+          .getElementById("studentName")
+          .value
+          .trim();
+
+        const email = document
+          .getElementById("studentEmail")
+          .value
+          .trim();
+
+        const phone = document
+          .getElementById("studentMobile")
+          .value
+          .trim();
+
+        const course_id = document
+          .getElementById("studentCourse")
+          .value || null;
+
+        const batch_id = document
+          .getElementById("studentBatch")
+          .value || null;
+
+        credentialsBox.classList.remove("show");
+        hideFormMessage();
+
+        if (!full_name || !email) {
+          showFormMessage(
+            "Please enter the student's full name and email.",
+            "error"
+          );
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating Student...";
+
+        try {
+
+          const { data, error } = await supabaseClient.functions.invoke(
+            "create-student",
+            {
+              body: {
+                full_name,
+                email,
+                phone,
+                course_id,
+                batch_id
+              }
+            }
+          );
+
+          if (error) {
+            console.error("Create student function error:", error);
+
+            let detailedMessage = error.message || "Unable to create student.";
+
+            try {
+              if (error.context && typeof error.context.json === "function") {
+                const errorBody = await error.context.json();
+                if (errorBody && errorBody.error) {
+                  detailedMessage = errorBody.error;
+                }
+              }
+            } catch (parseError) {
+              console.warn("Could not parse function error response:", parseError);
+            }
+
+            showFormMessage(detailedMessage, "error");
+            return;
+          }
+
+          if (!data || !data.success) {
+            showFormMessage(
+              (data && data.error) || "Student could not be created.",
+              "error"
+            );
+            return;
+          }
+
+          document.getElementById("createdStudentUid").textContent =
+            data.student_uid || "—";
+
+          document.getElementById("createdStudentPassword").textContent =
+            data.password || "—";
+
+          credentialsBox.classList.add("show");
+
+          showFormMessage(
+            "Student created successfully. Save the login credentials below.",
+            "success"
+          );
+
+          form.reset();
+
+          await loadStudents();
+
+        } catch (error) {
+
+          console.error("Student creation exception:", error);
+
+          showFormMessage(
+            error.message || "Something went wrong while creating the student.",
+            "error"
+          );
+
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = "Create Student";
+        }
 
       }
     );
+
+
+  /* =========================
+     COPY GENERATED CREDENTIALS
+  ========================= */
+
+  document
+    .querySelectorAll(".copy-btn")
+    .forEach(button => {
+
+      button.addEventListener("click", async function() {
+
+        const targetId = this.dataset.copyTarget;
+        const target = document.getElementById(targetId);
+        const value = target ? target.textContent.trim() : "";
+
+        if (!value || value === "—") {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(value);
+          const originalText = this.textContent;
+          this.textContent = "Copied";
+          setTimeout(() => {
+            this.textContent = originalText;
+          }, 1200);
+        } catch (error) {
+          console.error("Copy error:", error);
+          showFormMessage("Could not copy automatically. Please copy it manually.", "error");
+        }
+
+      });
+
+    });
 
 
   /* =========================
