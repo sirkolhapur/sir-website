@@ -1,1 +1,4242 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Teacher Dashboard | SIR
+    </title>
+
+    <meta
+        name="theme-color"
+        content="#07152f"
+    >
+
+    <link
+        rel="icon"
+        href="sir-logo.svg"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        /* =====================================================
+           RESET
+        ====================================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        :root {
+
+            --blue: #07152f;
+            --blue-2: #0b2148;
+            --blue-3: #12376f;
+
+            --gold: #d7a62a;
+            --gold-light: #f0c75e;
+
+            --white: #ffffff;
+            --bg: #f4f6fa;
+
+            --text: #172033;
+            --muted: #718096;
+
+            --border: #e4e8ef;
+
+            --success: #15803d;
+            --success-bg: #ecfdf3;
+
+            --danger: #b42318;
+            --danger-bg: #fef3f2;
+
+            --shadow:
+                0 10px 35px rgba(7,21,47,.07);
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            background: var(--bg);
+
+            color: var(--text);
+
+            -webkit-font-smoothing: antialiased;
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
+        /* =====================================================
+           APP
+        ====================================================== */
+
+        .app {
+
+            min-height: 100vh;
+
+            display: flex;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ====================================================== */
+
+        .sidebar {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 250px;
+
+            height: 100vh;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #06132b,
+                    #081a39
+                );
+
+            color: var(--white);
+
+            z-index: 100;
+
+            display: flex;
+
+            flex-direction: column;
+
+            border-right:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        .sidebar-logo {
+
+            height: 88px;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 18px 25px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        .sidebar-logo img {
+
+            width: 125px;
+
+            max-height: 55px;
+
+            object-fit: contain;
+        }
+
+
+        .sidebar-label {
+
+            padding:
+                25px 24px 12px;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .18em;
+
+            color:
+                rgba(255,255,255,.35);
+
+            text-transform: uppercase;
+        }
+
+
+        .sidebar-nav {
+
+            padding:
+                0 12px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+        }
+
+
+        .nav-item {
+
+            width: 100%;
+
+            border: 0;
+
+            background: transparent;
+
+            color:
+                rgba(255,255,255,.58);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding:
+                12px 13px;
+
+            border-radius: 8px;
+
+            text-align: left;
+
+            font-size: 12px;
+
+            transition:
+                background .2s ease,
+                color .2s ease;
+        }
+
+
+        .nav-item:hover,
+        .nav-item.active {
+
+            background:
+                rgba(255,255,255,.08);
+
+            color: var(--white);
+        }
+
+
+        .nav-icon {
+
+            width: 22px;
+
+            text-align: center;
+
+            font-size: 15px;
+        }
+
+
+        .sidebar-bottom {
+
+            margin-top: auto;
+
+            padding: 16px;
+
+            border-top:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        .logout-button {
+
+            width: 100%;
+
+            border: 1px solid
+                rgba(255,255,255,.12);
+
+            background:
+                rgba(255,255,255,.04);
+
+            color:
+                rgba(255,255,255,.65);
+
+            border-radius: 8px;
+
+            padding: 11px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            transition:
+                background .2s ease,
+                color .2s ease;
+        }
+
+
+        .logout-button:hover {
+
+            background:
+                rgba(215,166,42,.10);
+
+            color:
+                var(--gold-light);
+        }
+
+
+        /* =====================================================
+           MAIN
+        ====================================================== */
+
+        .main {
+
+            margin-left: 250px;
+
+            width:
+                calc(100% - 250px);
+
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           TOPBAR
+        ====================================================== */
+
+        .topbar {
+
+            position: sticky;
+
+            top: 0;
+
+            height: 72px;
+
+            background:
+                rgba(255,255,255,.94);
+
+            backdrop-filter:
+                blur(14px);
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 32px;
+
+            z-index: 50;
+        }
+
+
+        .mobile-menu {
+
+            display: none;
+
+            width: 40px;
+            height: 40px;
+
+            border: 1px solid var(--border);
+
+            background: var(--white);
+
+            border-radius: 8px;
+
+            font-size: 18px;
+        }
+
+
+        .topbar-title h1 {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            color: var(--blue);
+
+            letter-spacing: -.02em;
+        }
+
+
+        .topbar-title p {
+
+            font-size: 11px;
+
+            color: var(--muted);
+
+            margin-top: 3px;
+        }
+
+
+        .teacher-profile {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+        }
+
+
+        .teacher-avatar {
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                var(--blue);
+
+            color:
+                var(--gold-light);
+
+            font-size: 13px;
+
+            font-weight: 800;
+        }
+
+
+        .teacher-profile-text strong {
+
+            display: block;
+
+            font-size: 12px;
+
+            color: var(--blue);
+        }
+
+
+        .teacher-profile-text span {
+
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 10px;
+
+            color: var(--muted);
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ====================================================== */
+
+        .content {
+
+            padding:
+                30px 32px 50px;
+
+            max-width: 1500px;
+
+            margin: auto;
+        }
+
+
+        /* =====================================================
+           SECTIONS
+        ====================================================== */
+
+        .page-section {
+
+            display: none;
+
+            animation:
+                fadeIn .25s ease;
+        }
+
+
+        .page-section.active {
+
+            display: block;
+        }
+
+
+        @keyframes fadeIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           WELCOME
+        ====================================================== */
+
+        .welcome-card {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #07152f,
+                    #12376f
+                );
+
+            border-radius: 16px;
+
+            padding:
+                30px;
+
+            color: var(--white);
+
+            margin-bottom: 25px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        .welcome-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+            height: 250px;
+
+            border-radius: 50%;
+
+            right: -80px;
+            top: -120px;
+
+            border:
+                1px solid
+                rgba(215,166,42,.25);
+        }
+
+
+        .welcome-card small {
+
+            color:
+                rgba(255,255,255,.48);
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .18em;
+
+            text-transform: uppercase;
+        }
+
+
+        .welcome-card h2 {
+
+            margin-top: 10px;
+
+            font-size:
+                clamp(25px, 3vw, 36px);
+
+            font-weight: 600;
+
+            letter-spacing: -.035em;
+        }
+
+
+        .welcome-card p {
+
+            margin-top: 9px;
+
+            color:
+                rgba(255,255,255,.63);
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
+        .stats-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 16px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .stat-card {
+
+            background:
+                var(--white);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            padding: 21px;
+
+            box-shadow:
+                var(--shadow);
+        }
+
+
+        .stat-card .stat-label {
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .12em;
+
+            color:
+                var(--muted);
+
+            text-transform: uppercase;
+        }
+
+
+        .stat-card .stat-value {
+
+            margin-top: 9px;
+
+            font-size: 30px;
+
+            font-weight: 700;
+
+            color:
+                var(--blue);
+        }
+
+
+        .stat-card .stat-note {
+
+            margin-top: 4px;
+
+            font-size: 10px;
+
+            color:
+                var(--muted);
+        }
+
+
+        /* =====================================================
+           GRID
+        ====================================================== */
+
+        .two-column {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 20px;
+        }
+
+
+        .card {
+
+            background:
+                var(--white);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            box-shadow:
+                var(--shadow);
+
+            overflow: hidden;
+
+            margin-bottom: 20px;
+        }
+
+
+        .card-header {
+
+            min-height: 64px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                16px 20px;
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+
+        .card-header h3 {
+
+            color:
+                var(--blue);
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+
+        .card-header p {
+
+            margin-top: 3px;
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+        }
+
+
+        .card-body {
+
+            padding: 20px;
+        }
+
+
+        /* =====================================================
+           BATCH CARDS
+        ====================================================== */
+
+        .batch-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 13px;
+        }
+
+
+        .batch-card {
+
+            padding: 18px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            background:
+                #fbfcfe;
+
+            transition:
+                border-color .2s ease,
+                transform .2s ease;
+        }
+
+
+        .batch-card:hover {
+
+            border-color:
+                rgba(215,166,42,.6);
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        .batch-card strong {
+
+            display: block;
+
+            color:
+                var(--blue);
+
+            font-size: 14px;
+        }
+
+
+        .batch-card span {
+
+            display: block;
+
+            margin-top: 6px;
+
+            font-size: 10px;
+
+            color:
+                var(--muted);
+        }
+
+
+        .batch-status {
+
+            display: inline-flex;
+
+            margin-top: 12px;
+
+            padding:
+                5px 8px;
+
+            border-radius: 100px;
+
+            background:
+                var(--success-bg);
+
+            color:
+                var(--success);
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .08em;
+
+            text-transform: uppercase;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ====================================================== */
+
+        .table-wrap {
+
+            overflow-x: auto;
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 650px;
+        }
+
+
+        th {
+
+            text-align: left;
+
+            padding:
+                12px 16px;
+
+            background:
+                #f8fafc;
+
+            color:
+                var(--muted);
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .08em;
+
+            text-transform: uppercase;
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+
+        td {
+
+            padding:
+                14px 16px;
+
+            font-size: 12px;
+
+            border-bottom:
+                1px solid #edf0f4;
+
+            color:
+                var(--text);
+        }
+
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+
+        .student-name {
+
+            font-weight: 700;
+
+            color:
+                var(--blue);
+        }
+
+
+        .uid {
+
+            font-family:
+                monospace;
+
+            font-size: 10px;
+
+            color:
+                var(--muted);
+        }
+
+
+        .badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            padding:
+                5px 8px;
+
+            border-radius: 100px;
+
+            font-size: 8px;
+
+            font-weight: 800;
+        }
+
+
+        .badge-active {
+
+            color:
+                var(--success);
+
+            background:
+                var(--success-bg);
+        }
+
+
+        .badge-inactive {
+
+            color:
+                var(--danger);
+
+            background:
+                var(--danger-bg);
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ====================================================== */
+
+        .btn {
+
+            border: 0;
+
+            border-radius: 7px;
+
+            padding:
+                9px 13px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            transition:
+                transform .2s ease,
+                opacity .2s ease;
+        }
+
+
+        .btn:hover {
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .btn-primary {
+
+            background:
+                var(--blue);
+
+            color:
+                var(--white);
+        }
+
+
+        .btn-gold {
+
+            background:
+                var(--gold);
+
+            color:
+                var(--blue);
+        }
+
+
+        .btn-light {
+
+            background:
+                #eef2f7;
+
+            color:
+                var(--blue);
+        }
+
+
+        .btn-danger {
+
+            background:
+                var(--danger-bg);
+
+            color:
+                var(--danger);
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ====================================================== */
+
+        .empty {
+
+            padding:
+                35px 20px;
+
+            text-align: center;
+
+            color:
+                var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           LOADING
+        ====================================================== */
+
+        .loading {
+
+            padding:
+                35px 20px;
+
+            text-align: center;
+
+            color:
+                var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        .spinner {
+
+            width: 24px;
+            height: 24px;
+
+            border:
+                2px solid #e4e8ef;
+
+            border-top-color:
+                var(--gold);
+
+            border-radius: 50%;
+
+            animation:
+                spin .8s linear infinite;
+
+            margin:
+                0 auto 10px;
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        /* =====================================================
+           REVIEW FORM
+        ====================================================== */
+
+        .review-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 18px;
+        }
+
+
+        .form-group {
+
+            margin-bottom: 16px;
+        }
+
+
+        .form-group.full {
+
+            grid-column:
+                1 / -1;
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            color:
+                #475467;
+
+            letter-spacing: .08em;
+
+            text-transform: uppercase;
+        }
+
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+
+            width: 100%;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 8px;
+
+            background:
+                var(--white);
+
+            color:
+                var(--text);
+
+            outline: none;
+
+            font-size: 12px;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+
+        .form-input,
+        .form-select {
+
+            height: 45px;
+
+            padding:
+                0 12px;
+        }
+
+
+        .form-textarea {
+
+            min-height: 115px;
+
+            padding: 12px;
+
+            resize: vertical;
+        }
+
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+
+            border-color:
+                var(--gold);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(215,166,42,.10);
+        }
+
+
+        /* =====================================================
+           TOAST
+        ====================================================== */
+
+        .toast {
+
+            position: fixed;
+
+            right: 25px;
+
+            bottom: 25px;
+
+            max-width: 360px;
+
+            padding:
+                13px 17px;
+
+            background:
+                var(--blue);
+
+            color:
+                var(--white);
+
+            border-radius: 9px;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,.18);
+
+            font-size: 11px;
+
+            opacity: 0;
+
+            transform:
+                translateY(15px);
+
+            pointer-events: none;
+
+            transition:
+                opacity .25s ease,
+                transform .25s ease;
+
+            z-index: 9999;
+        }
+
+
+        .toast.show {
+
+            opacity: 1;
+
+            transform:
+                translateY(0);
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 1050px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+
+            .main {
+
+                margin-left: 220px;
+
+                width:
+                    calc(100% - 220px);
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+        }
+
+
+        @media (max-width: 800px) {
+
+            .sidebar {
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform .3s ease;
+            }
+
+
+            .sidebar.open {
+
+                transform:
+                    translateX(0);
+            }
+
+
+            .main {
+
+                margin-left: 0;
+
+                width: 100%;
+            }
+
+
+            .mobile-menu {
+
+                display: block;
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 18px;
+
+                gap: 12px;
+            }
+
+
+            .topbar-title {
+
+                flex: 1;
+            }
+
+
+            .topbar-title h1 {
+
+                font-size: 15px;
+            }
+
+
+            .teacher-profile-text {
+
+                display: none;
+            }
+
+
+            .content {
+
+                padding:
+                    22px 18px 40px;
+            }
+
+
+            .two-column {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .review-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+
+        @media (max-width: 560px) {
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 10px;
+            }
+
+
+            .stat-card {
+
+                padding: 15px;
+            }
+
+
+            .stat-card .stat-value {
+
+                font-size: 24px;
+            }
+
+
+            .welcome-card {
+
+                padding: 23px;
+            }
+
+
+            .welcome-card h2 {
+
+                font-size: 25px;
+            }
+
+
+            .batch-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .card-header {
+
+                padding:
+                    14px 16px;
+            }
+
+
+            .card-body {
+
+                padding:
+                    16px;
+            }
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+
+        <div class="sidebar-logo">
+
+            <img
+                src="sir-logo.svg"
+                alt="SIR"
+            >
+
+        </div>
+
+
+        <div class="sidebar-label">
+            Teacher Portal
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <button
+                class="nav-item active"
+                data-section="dashboard"
+            >
+
+                <span class="nav-icon">⌂</span>
+
+                Dashboard
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="batches"
+            >
+
+                <span class="nav-icon">▦</span>
+
+                My Batches
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="students"
+            >
+
+                <span class="nav-icon">♙</span>
+
+                Students
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="tests"
+            >
+
+                <span class="nav-icon">✓</span>
+
+                Tests & Results
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="reviews"
+            >
+
+                <span class="nav-icon">✎</span>
+
+                Weekly Reviews
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="profile"
+            >
+
+                <span class="nav-icon">◎</span>
+
+                My Profile
+
+            </button>
+
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                class="logout-button"
+                id="logoutButton"
+            >
+                Logout
+            </button>
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <div class="main">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+
+            <button
+                class="mobile-menu"
+                id="mobileMenu"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="topbar-title">
+
+                <h1 id="pageTitle">
+                    Teacher Dashboard
+                </h1>
+
+                <p>
+                    Suryavanshi Institute for Rankers
+                </p>
+
+            </div>
+
+
+            <div class="teacher-profile">
+
+                <div
+                    class="teacher-avatar"
+                    id="teacherAvatar"
+                >
+                    T
+                </div>
+
+
+                <div class="teacher-profile-text">
+
+                    <strong id="topTeacherName">
+                        Teacher
+                    </strong>
+
+                    <span id="topTeacherSubject">
+                        Teacher Portal
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <main class="content">
+
+
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
+
+            <section
+                class="page-section active"
+                id="section-dashboard"
+            >
+
+
+                <div class="welcome-card">
+
+                    <small>
+                        TEACHER PORTAL
+                    </small>
+
+
+                    <h2 id="welcomeName">
+                        Welcome, Teacher
+                    </h2>
+
+
+                    <p id="welcomeSubject">
+                        Your teaching dashboard is ready.
+                    </p>
+
+                </div>
+
+
+
+                <!-- STATS -->
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            My Batches
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="statBatches"
+                        >
+                            —
+                        </div>
+
+                        <div class="stat-note">
+                            Active batches
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            Students
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="statStudents"
+                        >
+                            —
+                        </div>
+
+                        <div class="stat-note">
+                            Students in my batches
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            Tests
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="statTests"
+                        >
+                            —
+                        </div>
+
+                        <div class="stat-note">
+                            Available tests
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            Reviews
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="statReviews"
+                        >
+                            —
+                        </div>
+
+                        <div class="stat-note">
+                            Reviews submitted
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- TWO COLUMNS -->
+
+                <div class="two-column">
+
+
+                    <!-- BATCHES -->
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <h3>
+                                    My Batches
+                                </h3>
+
+                                <p>
+                                    Your active academic batches
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="card-body"
+                            id="dashboardBatches"
+                        >
+
+                            <div class="loading">
+
+                                <div class="spinner"></div>
+
+                                Loading batches...
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- RECENT STUDENTS -->
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <h3>
+                                    My Students
+                                </h3>
+
+                                <p>
+                                    Students assigned to your batches
+                                </p>
+
+                            </div>
+
+
+                            <button
+                                class="btn btn-light"
+                                data-go="students"
+                            >
+                                View All
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="card-body"
+                            id="dashboardStudents"
+                        >
+
+                            <div class="loading">
+
+                                <div class="spinner"></div>
+
+                                Loading students...
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 BATCHES
+            ================================================== -->
+
+            <section
+                class="page-section"
+                id="section-batches"
+            >
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                My Batches
+                            </h3>
+
+                            <p>
+                                Batches available to you
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="card-body"
+                        id="allBatches"
+                    >
+
+                        <div class="loading">
+
+                            <div class="spinner"></div>
+
+                            Loading batches...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 STUDENTS
+            ================================================== -->
+
+            <section
+                class="page-section"
+                id="section-students"
+            >
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                My Students
+                            </h3>
+
+                            <p>
+                                Students in your assigned batches
+                            </p>
+
+                        </div>
+
+
+                        <input
+                            type="search"
+                            id="studentSearch"
+                            class="form-input"
+                            placeholder="Search student..."
+                            style="max-width:230px;"
+                        >
+
+                    </div>
+
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Student
+                                    </th>
+
+                                    <th>
+                                        UID
+                                    </th>
+
+                                    <th>
+                                        Email
+                                    </th>
+
+                                    <th>
+                                        Phone
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="studentsTable"
+                            >
+
+                                <tr>
+
+                                    <td colspan="5">
+
+                                        <div class="loading">
+
+                                            <div class="spinner"></div>
+
+                                            Loading students...
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 TESTS
+            ================================================== -->
+
+            <section
+                class="page-section"
+                id="section-tests"
+            >
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Tests & Results
+                            </h3>
+
+                            <p>
+                                Tests associated with your batches
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Test
+                                    </th>
+
+                                    <th>
+                                        Subject
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th>
+                                        Max Marks
+                                    </th>
+
+                                    <th>
+                                        Batch
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="testsTable"
+                            >
+
+                                <tr>
+
+                                    <td colspan="5">
+
+                                        <div class="loading">
+
+                                            <div class="spinner"></div>
+
+                                            Loading tests...
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 REVIEWS
+            ================================================== -->
+
+            <section
+                class="page-section"
+                id="section-reviews"
+            >
+
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Weekly Student Review
+                            </h3>
+
+                            <p>
+                                Record what happened during the week and what comes next.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <form
+                            id="reviewForm"
+                            class="review-grid"
+                        >
+
+
+                            <div class="form-group">
+
+                                <label for="reviewStudent">
+                                    Student
+                                </label>
+
+                                <select
+                                    id="reviewStudent"
+                                    class="form-select"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select student
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="reviewDate">
+                                    Review Date
+                                </label>
+
+                                <input
+                                    id="reviewDate"
+                                    type="date"
+                                    class="form-input"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="weekStart">
+                                    Week Start
+                                </label>
+
+                                <input
+                                    id="weekStart"
+                                    type="date"
+                                    class="form-input"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="weekEnd">
+                                    Week End
+                                </label>
+
+                                <input
+                                    id="weekEnd"
+                                    type="date"
+                                    class="form-input"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="topicsCovered">
+                                    Topics Covered
+                                </label>
+
+                                <textarea
+                                    id="topicsCovered"
+                                    class="form-textarea"
+                                    placeholder="What was covered this week?"
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="studentPerformance">
+                                    Student Performance
+                                </label>
+
+                                <textarea
+                                    id="studentPerformance"
+                                    class="form-textarea"
+                                    placeholder="How did the student perform?"
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="struggles">
+                                    Areas of Difficulty
+                                </label>
+
+                                <textarea
+                                    id="struggles"
+                                    class="form-textarea"
+                                    placeholder="Where is the student struggling?"
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="nextSteps">
+                                    What Should Happen Next?
+                                </label>
+
+                                <textarea
+                                    id="nextSteps"
+                                    class="form-textarea"
+                                    placeholder="What should the student focus on next?"
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-gold"
+                                    id="submitReview"
+                                >
+                                    SUBMIT WEEKLY REVIEW
+                                </button>
+
+                            </div>
+
+
+                        </form>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- EXISTING REVIEWS -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                My Recent Reviews
+                            </h3>
+
+                            <p>
+                                Reviews submitted by you
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Student
+                                    </th>
+
+                                    <th>
+                                        Review Date
+                                    </th>
+
+                                    <th>
+                                        Week
+                                    </th>
+
+                                    <th>
+                                        Topics
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="reviewsTable"
+                            >
+
+                                <tr>
+
+                                    <td colspan="4">
+
+                                        <div class="loading">
+
+                                            <div class="spinner"></div>
+
+                                            Loading reviews...
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 PROFILE
+            ================================================== -->
+
+            <section
+                class="page-section"
+                id="section-profile"
+            >
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                My Profile
+                            </h3>
+
+                            <p>
+                                Teacher account information
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="review-grid">
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Full Name
+                                </label>
+
+                                <input
+                                    id="profileName"
+                                    class="form-input"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Subject
+                                </label>
+
+                                <input
+                                    id="profileSubject"
+                                    class="form-input"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Email
+                                </label>
+
+                                <input
+                                    id="profileEmail"
+                                    class="form-input"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Phone
+                                </label>
+
+                                <input
+                                    id="profilePhone"
+                                    class="form-input"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Account Status
+                                </label>
+
+                                <input
+                                    id="profileStatus"
+                                    class="form-input"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     TOAST
+========================================================== -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+
+<script>
+
+
+/* =========================================================
+   01 — SUPABASE
+========================================================= */
+
+const SUPABASE_URL =
+    "https://asbyosqpupqspzvqqhfj.supabase.co";
+
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+
+/* =========================================================
+   02 — STATE
+========================================================= */
+
+let currentUser = null;
+
+let currentTeacher = null;
+
+let myBatches = [];
+
+let myStudents = [];
+
+let myTests = [];
+
+let myReviews = [];
+
+
+
+/* =========================================================
+   03 — ELEMENTS
+========================================================= */
+
+const sidebar =
+    document.getElementById(
+        "sidebar"
+    );
+
+
+const mobileMenu =
+    document.getElementById(
+        "mobileMenu"
+    );
+
+
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
+
+
+const toast =
+    document.getElementById(
+        "toast"
+    );
+
+
+
+/* =========================================================
+   04 — TOAST
+========================================================= */
+
+function showToast(
+    text
+) {
+
+    toast.textContent = text;
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        () => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        },
+        3000
+    );
+
+}
+
+
+
+/* =========================================================
+   05 — NAVIGATION
+========================================================= */
+
+const navItems =
+    document.querySelectorAll(
+        ".nav-item"
+    );
+
+
+const sections =
+    document.querySelectorAll(
+        ".page-section"
+    );
+
+
+const pageTitles = {
+
+    dashboard:
+        "Teacher Dashboard",
+
+    batches:
+        "My Batches",
+
+    students:
+        "My Students",
+
+    tests:
+        "Tests & Results",
+
+    reviews:
+        "Weekly Reviews",
+
+    profile:
+        "My Profile"
+
+};
+
+
+function openSection(
+    sectionName
+) {
+
+    navItems.forEach(
+        (item) => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.section === sectionName
+            );
+
+        }
+    );
+
+
+    sections.forEach(
+        (section) => {
+
+            section.classList.toggle(
+                "active",
+                section.id ===
+                `section-${sectionName}`
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "pageTitle"
+    ).textContent =
+        pageTitles[sectionName] ||
+        "Teacher Dashboard";
+
+
+    if (window.innerWidth <= 800) {
+
+        sidebar.classList.remove(
+            "open"
+        );
+
+    }
+
+}
+
+
+navItems.forEach(
+    (item) => {
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                openSection(
+                    item.dataset.section
+                );
+
+            }
+        );
+
+    }
+);
+
+
+document
+    .querySelectorAll(
+        "[data-go]"
+    )
+    .forEach(
+        (button) => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    openSection(
+                        button.dataset.go
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+
+/* =========================================================
+   06 — MOBILE MENU
+========================================================= */
+
+mobileMenu.addEventListener(
+    "click",
+    () => {
+
+        sidebar.classList.toggle(
+            "open"
+        );
+
+    }
+);
+
+
+
+/* =========================================================
+   07 — AUTH + TEACHER
+========================================================= */
+
+async function initializeTeacher() {
+
+    try {
+
+        const {
+            data: {
+                session
+            }
+        } =
+            await supabaseClient
+                .auth
+                .getSession();
+
+
+        if (!session) {
+
+            window.location.href =
+                "teacher-login.html";
+
+            return;
+
+        }
+
+
+        currentUser =
+            session.user;
+
+
+        const {
+            data: teacher,
+            error
+        } =
+            await supabaseClient
+                .from("teachers")
+                .select(
+                    "id, user_id, full_name, subject, phone, email, is_active"
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Teacher profile error:",
+                error
+            );
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+            window.location.href =
+                "teacher-login.html";
+
+            return;
+
+        }
+
+
+        if (!teacher) {
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+            window.location.href =
+                "teacher-login.html";
+
+            return;
+
+        }
+
+
+        if (
+            teacher.is_active !== true
+        ) {
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+            window.location.href =
+                "teacher-login.html";
+
+            return;
+
+        }
+
+
+        currentTeacher =
+            teacher;
+
+
+        renderTeacherProfile();
+
+
+        await loadTeacherData();
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Teacher initialization error:",
+            error
+        );
+
+
+        window.location.href =
+            "teacher-login.html";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   08 — PROFILE
+========================================================= */
+
+function renderTeacherProfile() {
+
+    const name =
+        currentTeacher.full_name ||
+        "Teacher";
+
+
+    const subject =
+        currentTeacher.subject ||
+        "Teacher";
+
+
+    document.getElementById(
+        "welcomeName"
+    ).textContent =
+        `Welcome, ${name}`;
+
+
+    document.getElementById(
+        "welcomeSubject"
+    ).textContent =
+        `${subject} Teacher • Suryavanshi Institute for Rankers`;
+
+
+    document.getElementById(
+        "topTeacherName"
+    ).textContent =
+        name;
+
+
+    document.getElementById(
+        "topTeacherSubject"
+    ).textContent =
+        subject;
+
+
+    document.getElementById(
+        "teacherAvatar"
+    ).textContent =
+        getInitials(name);
+
+
+    document.getElementById(
+        "profileName"
+    ).value =
+        currentTeacher.full_name || "";
+
+
+    document.getElementById(
+        "profileSubject"
+    ).value =
+        currentTeacher.subject || "";
+
+
+    document.getElementById(
+        "profileEmail"
+    ).value =
+        currentTeacher.email ||
+        currentUser.email ||
+        "";
+
+
+    document.getElementById(
+        "profilePhone"
+    ).value =
+        currentTeacher.phone || "";
+
+
+    document.getElementById(
+        "profileStatus"
+    ).value =
+        currentTeacher.is_active
+            ? "Active"
+            : "Inactive";
+
+}
+
+
+function getInitials(
+    name
+) {
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0,2)
+        .map(
+            word =>
+                word
+                    .charAt(0)
+                    .toUpperCase()
+        )
+        .join("");
+
+}
+
+
+
+/* =========================================================
+   09 — LOAD DATA
+========================================================= */
+
+async function loadTeacherData() {
+
+    await loadBatches();
+
+    await loadStudents();
+
+    await loadTests();
+
+    await loadReviews();
+
+    updateStats();
+
+    renderDashboard();
+
+    populateReviewStudents();
+
+}
+
+
+
+/* =========================================================
+   10 — BATCHES
+========================================================= */
+
+async function loadBatches() {
+
+    /*
+       Current teachers table does not contain a
+       batch_id / assigned_batches field.
+
+       Therefore this first version loads active batches
+       available in the institute.
+
+       Once teacher-batch assignment structure is finalized,
+       this query can be narrowed securely to assigned batches.
+    */
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("batches")
+            .select(
+                "id, course_id, name, academic_year, start_date, end_date, is_active"
+            )
+            .eq(
+                "is_active",
+                true
+            )
+            .order(
+                "start_date",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Batches error:",
+            error
+        );
+
+        myBatches = [];
+
+        renderBatchError();
+
+        return;
+
+    }
+
+
+    myBatches =
+        data || [];
+
+}
+
+
+/* =========================================================
+   BATCH RENDER
+========================================================= */
+
+function renderDashboard() {
+
+    const container =
+        document.getElementById(
+            "dashboardBatches"
+        );
+
+
+    if (!myBatches.length) {
+
+        container.innerHTML =
+            `<div class="empty">
+                No active batches found.
+             </div>`;
+
+    }
+    else {
+
+        container.innerHTML =
+            `
+            <div class="batch-grid">
+
+                ${myBatches
+                    .slice(0,4)
+                    .map(
+                        batch => batchCardHTML(batch)
+                    )
+                    .join("")}
+
+            </div>
+            `;
+
+    }
+
+
+    renderAllBatches();
+
+    renderStudents(
+        document.getElementById(
+            "dashboardStudents"
+        ),
+        myStudents.slice(0,5)
+    );
+
+
+    renderStudentsTable();
+
+    renderTests();
+
+    renderReviews();
+
+}
+
+
+function renderAllBatches() {
+
+    const container =
+        document.getElementById(
+            "allBatches"
+        );
+
+
+    if (!myBatches.length) {
+
+        container.innerHTML =
+            `<div class="empty">
+                No active batches found.
+             </div>`;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        `
+        <div class="batch-grid">
+
+            ${myBatches
+                .map(
+                    batch =>
+                        batchCardHTML(batch)
+                )
+                .join("")}
+
+        </div>
+        `;
+
+}
+
+
+function batchCardHTML(
+    batch
+) {
+
+    return `
+        <div class="batch-card">
+
+            <strong>
+                ${escapeHTML(
+                    batch.name || "Unnamed Batch"
+                )}
+            </strong>
+
+            <span>
+                Academic Year:
+                ${escapeHTML(
+                    batch.academic_year || "—"
+                )}
+            </span>
+
+            <span>
+                Start:
+                ${formatDate(
+                    batch.start_date
+                )}
+            </span>
+
+            <span>
+                End:
+                ${formatDate(
+                    batch.end_date
+                )}
+            </span>
+
+            <span class="batch-status">
+                Active
+            </span>
+
+        </div>
+    `;
+
+}
+
+
+function renderBatchError() {
+
+    document.getElementById(
+        "dashboardBatches"
+    ).innerHTML =
+        `<div class="empty">
+            Unable to load batches.
+         </div>`;
+
+}
+
+
+
+/* =========================================================
+   11 — STUDENTS
+========================================================= */
+
+async function loadStudents() {
+
+    /*
+       Current database structure shown earlier does not
+       expose a direct teacher_id on students.
+
+       Therefore this first version loads active students.
+       Teacher-specific assignment will be connected once
+       the teacher-batch relationship is defined.
+    */
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("students")
+            .select(
+                "id, user_id, student_uid, full_name, phone, email, school_name, is_active"
+            )
+            .order(
+                "full_name",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Students error:",
+            error
+        );
+
+        myStudents = [];
+
+        return;
+
+    }
+
+
+    myStudents =
+        data || [];
+
+}
+
+
+function renderStudents(
+    container,
+    students
+) {
+
+    if (!students.length) {
+
+        container.innerHTML =
+            `<div class="empty">
+                No students found.
+             </div>`;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        `
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Student
+                        </th>
+
+                        <th>
+                            UID
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${students
+                        .map(
+                            student =>
+                                `
+                                <tr>
+
+                                    <td>
+
+                                        <span class="student-name">
+                                            ${escapeHTML(
+                                                student.full_name || "—"
+                                            )}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="uid">
+                                            ${escapeHTML(
+                                                student.student_uid || "—"
+                                            )}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        ${
+                                            student.is_active
+                                            ?
+                                            `<span class="badge badge-active">
+                                                Active
+                                             </span>`
+                                            :
+                                            `<span class="badge badge-inactive">
+                                                Inactive
+                                             </span>`
+                                        }
+
+                                    </td>
+
+                                </tr>
+                                `
+                        )
+                        .join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+        `;
+
+}
+
+
+function renderStudentsTable(
+    filteredStudents =
+        myStudents
+) {
+
+    const tbody =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    if (!filteredStudents.length) {
+
+        tbody.innerHTML =
+            `
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+                    No students found.
+                </td>
+
+            </tr>
+            `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        filteredStudents
+            .map(
+                student =>
+                    `
+                    <tr>
+
+                        <td>
+
+                            <span class="student-name">
+                                ${escapeHTML(
+                                    student.full_name || "—"
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="uid">
+                                ${escapeHTML(
+                                    student.student_uid || "—"
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                student.email || "—"
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                student.phone || "—"
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                student.is_active
+                                ?
+                                `<span class="badge badge-active">
+                                    Active
+                                 </span>`
+                                :
+                                `<span class="badge badge-inactive">
+                                    Inactive
+                                 </span>`
+                            }
+
+                        </td>
+
+                    </tr>
+                    `
+            )
+            .join("");
+
+}
+
+
+
+/* =========================================================
+   STUDENT SEARCH
+========================================================= */
+
+document
+    .getElementById(
+        "studentSearch"
+    )
+    .addEventListener(
+        "input",
+        (event) => {
+
+            const search =
+                event.target.value
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!search) {
+
+                renderStudentsTable(
+                    myStudents
+                );
+
+                return;
+
+            }
+
+
+            const filtered =
+                myStudents.filter(
+                    student =>
+                        (
+                            student.full_name ||
+                            ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+                        ||
+                        (
+                            student.student_uid ||
+                            ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+                        ||
+                        (
+                            student.email ||
+                            ""
+                        )
+                        .toLowerCase()
+                        .includes(search)
+                );
+
+
+            renderStudentsTable(
+                filtered
+            );
+
+        }
+    );
+
+
+
+/* =========================================================
+   12 — TESTS
+========================================================= */
+
+async function loadTests() {
+
+    /*
+       Tests are loaded from existing tests table.
+       Current first version loads all tests.
+    */
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("tests")
+            .select(
+                "id, batch_id, title, subject, test_date, max_marks, duration_minutes, description"
+            )
+            .order(
+                "test_date",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Tests error:",
+            error
+        );
+
+        myTests = [];
+
+        return;
+
+    }
+
+
+    myTests =
+        data || [];
+
+}
+
+
+function renderTests() {
+
+    const tbody =
+        document.getElementById(
+            "testsTable"
+        );
+
+
+    if (!myTests.length) {
+
+        tbody.innerHTML =
+            `
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+                    No tests found.
+                </td>
+
+            </tr>
+            `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        myTests
+            .map(
+                test =>
+                    `
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${escapeHTML(
+                                    test.title || "—"
+                                )}
+                            </strong>
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                test.subject || "—"
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${formatDate(
+                                test.test_date
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                String(
+                                    test.max_marks ?? "—"
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                getBatchName(
+                                    test.batch_id
+                                )
+                            )}
+                        </td>
+
+                    </tr>
+                    `
+            )
+            .join("");
+
+}
+
+
+
+/* =========================================================
+   13 — REVIEWS
+========================================================= */
+
+async function loadReviews() {
+
+    if (!currentTeacher) {
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("teacher_reviews")
+            .select(
+                "*"
+            )
+            .eq(
+                "teacher_id",
+                currentTeacher.id
+            )
+            .order(
+                "review_date",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Reviews error:",
+            error
+        );
+
+        myReviews = [];
+
+        return;
+
+    }
+
+
+    myReviews =
+        data || [];
+
+}
+
+
+function renderReviews() {
+
+    const tbody =
+        document.getElementById(
+            "reviewsTable"
+        );
+
+
+    if (!myReviews.length) {
+
+        tbody.innerHTML =
+            `
+            <tr>
+
+                <td
+                    colspan="4"
+                    class="empty"
+                >
+                    No reviews submitted yet.
+                </td>
+
+            </tr>
+            `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        myReviews
+            .map(
+                review =>
+                    `
+                    <tr>
+
+                        <td>
+                            ${escapeHTML(
+                                getStudentName(
+                                    review.student_id
+                                )
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${formatDate(
+                                review.review_date
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${
+                                review.week_start
+                                    ?
+                                    formatDate(
+                                        review.week_start
+                                    )
+                                    :
+                                    "—"
+                            }
+
+                            ${
+                                review.week_end
+                                    ?
+                                    " → " +
+                                    formatDate(
+                                        review.week_end
+                                    )
+                                    :
+                                    ""
+                            }
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                review.topics_covered ||
+                                "—"
+                            )}
+                        </td>
+
+                    </tr>
+                    `
+            )
+            .join("");
+
+}
+
+
+
+/* =========================================================
+   14 — REVIEW STUDENT DROPDOWN
+========================================================= */
+
+function populateReviewStudents() {
+
+    const select =
+        document.getElementById(
+            "reviewStudent"
+        );
+
+
+    select.innerHTML =
+        `
+        <option value="">
+            Select student
+        </option>
+        `;
+
+
+    myStudents
+        .filter(
+            student =>
+                student.is_active !== false
+        )
+        .forEach(
+            student => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    student.id;
+
+
+                option.textContent =
+                    `${student.full_name || "Student"} (${student.student_uid || "—"})`;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =========================================================
+   15 — SUBMIT REVIEW
+========================================================= */
+
+document
+    .getElementById(
+        "reviewForm"
+    )
+    .addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+
+            if (!currentTeacher) {
+
+                showToast(
+                    "Teacher session not found."
+                );
+
+                return;
+
+            }
+
+
+            const submitButton =
+                document.getElementById(
+                    "submitReview"
+                );
+
+
+            const payload = {
+
+                student_id:
+                    document.getElementById(
+                        "reviewStudent"
+                    ).value,
+
+                teacher_id:
+                    currentTeacher.id,
+
+                review_date:
+                    document.getElementById(
+                        "reviewDate"
+                    ).value,
+
+                week_start:
+                    document.getElementById(
+                        "weekStart"
+                    ).value ||
+                    null,
+
+                week_end:
+                    document.getElementById(
+                        "weekEnd"
+                    ).value ||
+                    null,
+
+                topics_covered:
+                    document.getElementById(
+                        "topicsCovered"
+                    ).value.trim(),
+
+                student_performance:
+                    document.getElementById(
+                        "studentPerformance"
+                    ).value.trim(),
+
+                struggles:
+                    document.getElementById(
+                        "struggles"
+                    ).value.trim(),
+
+                next_steps:
+                    document.getElementById(
+                        "nextSteps"
+                    ).value.trim()
+
+            };
+
+
+            if (!payload.student_id) {
+
+                showToast(
+                    "Please select a student."
+                );
+
+                return;
+
+            }
+
+
+            if (!payload.review_date) {
+
+                showToast(
+                    "Please select review date."
+                );
+
+                return;
+
+            }
+
+
+            submitButton.disabled =
+                true;
+
+
+            submitButton.textContent =
+                "SAVING...";
+
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient
+                        .from("teacher_reviews")
+                        .insert(
+                            payload
+                        );
+
+
+                if (error) {
+
+                    console.error(
+                        "Review insert error:",
+                        error
+                    );
+
+                    showToast(
+                        "Unable to save review. Check database permissions/columns."
+                    );
+
+                    return;
+
+                }
+
+
+                showToast(
+                    "Weekly review submitted successfully."
+                );
+
+
+                document
+                    .getElementById(
+                        "reviewForm"
+                    )
+                    .reset();
+
+
+                document.getElementById(
+                    "reviewDate"
+                ).value =
+                    new Date()
+                        .toISOString()
+                        .split("T")[0];
+
+
+                await loadReviews();
+
+                updateStats();
+
+                renderReviews();
+
+
+            }
+            finally {
+
+                submitButton.disabled =
+                    false;
+
+                submitButton.textContent =
+                    "SUBMIT WEEKLY REVIEW";
+
+            }
+
+        }
+    );
+
+
+
+/* =========================================================
+   16 — STATS
+========================================================= */
+
+function updateStats() {
+
+    document.getElementById(
+        "statBatches"
+    ).textContent =
+        myBatches.length;
+
+
+    document.getElementById(
+        "statStudents"
+    ).textContent =
+        myStudents.length;
+
+
+    document.getElementById(
+        "statTests"
+    ).textContent =
+        myTests.length;
+
+
+    document.getElementById(
+        "statReviews"
+    ).textContent =
+        myReviews.length;
+
+}
+
+
+
+/* =========================================================
+   17 — HELPERS
+========================================================= */
+
+function getBatchName(
+    batchId
+) {
+
+    const batch =
+        myBatches.find(
+            item =>
+                String(item.id) ===
+                String(batchId)
+        );
+
+
+    return batch
+        ? batch.name
+        : "—";
+
+}
+
+
+function getStudentName(
+    studentId
+) {
+
+    const student =
+        myStudents.find(
+            item =>
+                String(item.id) ===
+                String(studentId)
+        );
+
+
+    return student
+        ? student.full_name
+        : "—";
+
+}
+
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+
+        return "—";
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return value;
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+
+/* =========================================================
+   18 — LOGOUT
+========================================================= */
+
+logoutButton.addEventListener(
+    "click",
+    async () => {
+
+        logoutButton.disabled =
+            true;
+
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+
+        window.location.href =
+            "teacher-login.html";
+
+    }
+);
+
+
+
+/* =========================================================
+   19 — DEFAULT REVIEW DATE
+========================================================= */
+
+document.getElementById(
+    "reviewDate"
+).value =
+    new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+
+/* =========================================================
+   20 — START
+========================================================= */
+
+initializeTeacher();
+
+</script>
+
+
+</body>
+
+</html>
