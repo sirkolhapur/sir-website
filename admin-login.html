@@ -1708,7 +1708,7 @@ document
     const fullName =
       document.getElementById("studentName").value.trim();
 
-    const studentUid =
+    const uid =
       document.getElementById("studentUid").value.trim().toUpperCase();
 
     const email =
@@ -1723,7 +1723,7 @@ document
     const batchId =
       document.getElementById("studentBatch").value || null;
 
-    if (!fullName || !studentUid || !email) {
+    if (!fullName || !uid || !email) {
       showMessage(
         "Please enter the student's name, Student UID and email.",
         "error"
@@ -1731,7 +1731,7 @@ document
       return;
     }
 
-    if (!/^SIR[0-9]{3,}$/.test(studentUid)) {
+    if (!/^SIR[0-9]{3,}$/.test(uid)) {
       showMessage(
         "Student UID must be in the format SIR001, SIR002, SIR003...",
         "error"
@@ -1750,7 +1750,7 @@ document
           {
             body: {
               full_name: fullName,
-              student_uid: studentUid,
+              student_uid: uid,
               email: email,
               phone: phone,
               course_id: courseId,
