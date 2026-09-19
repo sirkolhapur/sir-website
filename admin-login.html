@@ -419,6 +419,134 @@
       justify-content: flex-end;
     }
 
+    .test-manage-btn {
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.45);
+      color: #e1c86b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .test-manage-btn:hover {
+      background: rgba(201,168,78,.18);
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+      max-height: 330px;
+      overflow-y: auto;
+    }
+
+    .question-item {
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .question-item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .question-number {
+      color: #d9b75b;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .question-text {
+      color: #f3f5f8;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .question-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+      margin-top: 10px;
+      color: #9eabbd;
+      font-size: 11px;
+    }
+
+    .question-correct {
+      color: #75dda0;
+      font-weight: 700;
+    }
+
+    .question-meta {
+      color: #7f8da1;
+      font-size: 10px;
+      margin-top: 8px;
+    }
+
+    .question-actions {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .question-action-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.12);
+      color: #b9c4d3;
+      padding: 6px 9px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .question-action-btn:hover {
+      border-color: rgba(201,168,78,.45);
+      color: #e1c86b;
+    }
+
+    .question-action-btn.delete:hover {
+      border-color: rgba(220,90,90,.45);
+      color: #ff9a9a;
+    }
+
+    .question-builder-divider {
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 4px 0 20px;
+    }
+
+    .question-builder-title {
+      font-size: 14px;
+      color: #eef2f7;
+      margin-bottom: 12px;
+    }
+
+    .question-builder-subtitle {
+      color: #8190a4;
+      font-size: 11px;
+      margin-top: -7px;
+      margin-bottom: 16px;
+    }
+
+    .question-empty {
+      padding: 24px 12px;
+      text-align: center;
+      color: #77869b;
+      border: 1px dashed rgba(255,255,255,.09);
+      border-radius: 10px;
+    }
+
     .test-empty {
       padding: 35px;
       text-align: center;
@@ -561,6 +689,14 @@
 
       .test-actions {
         justify-content: flex-start;
+      }
+
+      .question-options {
+        grid-template-columns: 1fr;
+      }
+
+      .question-item-head {
+        flex-direction: column;
       }
 
       .form-grid {
@@ -906,7 +1042,7 @@
       <div class="section-head">
         <div>
           <h2>Tests</h2>
-          <div class="build-marker">TEST MANAGEMENT • V4</div>
+          <div class="build-marker">TEST MANAGEMENT • V5 • QUESTION BUILDER</div>
         </div>
 
         <button
@@ -1191,6 +1327,104 @@
 </div>
 
 
+
+<!-- QUESTION BUILDER MODAL -->
+
+<div class="modal" id="questionModal">
+
+  <div class="modal-box" style="max-width: 900px;">
+
+    <div class="modal-head">
+      <div>
+        <h2 id="questionModalTitle">Manage Questions</h2>
+        <div class="build-marker" id="questionModalMeta"></div>
+      </div>
+      <button class="close" id="closeQuestionModal">&times;</button>
+    </div>
+
+    <div id="questionList" class="question-list">
+      <div class="question-empty">Loading questions...</div>
+    </div>
+
+    <div class="question-builder-divider"></div>
+
+    <div class="question-builder-title" id="questionFormTitle">Add Question</div>
+    <div class="question-builder-subtitle">Add the question, four options, correct answer, and marking scheme.</div>
+
+    <form id="questionForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Question</label>
+          <textarea id="questionText" rows="4" placeholder="Enter the question text" required></textarea>
+        </div>
+
+        <div class="field">
+          <label>Option A</label>
+          <input type="text" id="optionA" required>
+        </div>
+
+        <div class="field">
+          <label>Option B</label>
+          <input type="text" id="optionB" required>
+        </div>
+
+        <div class="field">
+          <label>Option C</label>
+          <input type="text" id="optionC" required>
+        </div>
+
+        <div class="field">
+          <label>Option D</label>
+          <input type="text" id="optionD" required>
+        </div>
+
+        <div class="field">
+          <label>Correct Answer</label>
+          <select id="correctOption" required>
+            <option value="">Select Correct Option</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Marks</label>
+          <input type="number" id="questionMarks" min="0" step="0.01" value="4" required>
+        </div>
+
+        <div class="field">
+          <label>Negative Marks</label>
+          <input type="number" id="negativeMarks" min="0" step="0.01" value="0" required>
+        </div>
+
+        <div class="field">
+          <label>Question Order</label>
+          <input type="number" id="questionOrder" min="1" step="1" value="1" required>
+        </div>
+
+      </div>
+
+      <div id="questionMessage" class="message"></div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelQuestionEdit">
+          Clear
+        </button>
+        <button type="submit" class="primary-btn" id="saveQuestionBtn">
+          Add Question
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -1448,6 +1682,8 @@ loginForm.addEventListener(
       showDashboard();
 
       await loadStudents();
+      await loadAdminBatches();
+      await loadAdminTests();
       await loadCounters();
 
     } catch (error) {
@@ -1981,6 +2217,8 @@ async function loadBatches() {
 
 let adminTests = [];
 let adminBatches = [];
+let currentQuestionTestId = null;
+let editingQuestionId = null;
 
 async function loadAdminBatches() {
 
@@ -2133,7 +2371,13 @@ function renderAdminTests(tests) {
         </div>
 
         <div class="test-actions">
-          <span class="test-badge">Created</span>
+          <button
+            type="button"
+            class="test-manage-btn"
+            data-test-id="${escapeHtml(test.id)}"
+          >
+            Manage Questions
+          </button>
         </div>
 
       </div>
@@ -2141,6 +2385,328 @@ function renderAdminTests(tests) {
     `).join("");
 
 }
+
+/* --------------------------------
+   QUESTION BUILDER
+-------------------------------- */
+
+document
+  .getElementById("testList")
+  .addEventListener("click", function(event) {
+
+    const button =
+      event.target.closest(".test-manage-btn");
+
+    if (!button) return;
+
+    openQuestionModal(button.dataset.testId);
+
+  });
+
+
+async function openQuestionModal(testId) {
+
+  const test =
+    adminTests.find(item => item.id === testId);
+
+  if (!test) {
+    alert("Test record could not be found. Refresh the Tests section and try again.");
+    return;
+  }
+
+  currentQuestionTestId = testId;
+  editingQuestionId = null;
+
+  document.getElementById("questionModalTitle").textContent =
+    test.title || "Manage Questions";
+
+  document.getElementById("questionModalMeta").textContent =
+    `${test.subject || "Test"} • ${test.test_date || "No date"} • Max ${test.max_marks ?? "—"} marks`;
+
+  clearQuestionForm();
+  hideQuestionMessage();
+
+  document.getElementById("questionModal").classList.add("show");
+
+  await loadQuestions(testId);
+
+}
+
+
+function closeQuestionModal() {
+
+  document.getElementById("questionModal").classList.remove("show");
+  currentQuestionTestId = null;
+  editingQuestionId = null;
+  clearQuestionForm();
+  hideQuestionMessage();
+
+}
+
+
+async function loadQuestions(testId) {
+
+  const list = document.getElementById("questionList");
+
+  list.innerHTML = `<div class="question-empty">Loading questions...</div>`;
+
+  const { data, error } = await supabaseClient
+    .from("test_questions")
+    .select(`
+      id,
+      test_id,
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_option,
+      marks,
+      negative_marks,
+      question_order
+    `)
+    .eq("test_id", testId)
+    .order("question_order", { ascending: true });
+
+  if (error) {
+    console.error("Load questions error:", error);
+    list.innerHTML = `<div class="question-empty">Unable to load questions: ${escapeHtml(error.message || "Unknown error")}</div>`;
+    return;
+  }
+
+  renderQuestions(data || []);
+
+}
+
+
+function renderQuestions(questions) {
+
+  const list = document.getElementById("questionList");
+
+  if (!questions.length) {
+    list.innerHTML = `<div class="question-empty">No questions added yet. Add the first question below.</div>`;
+    return;
+  }
+
+  list.innerHTML = questions.map((question, index) => `
+    <div class="question-item">
+      <div class="question-item-head">
+        <div style="min-width:0; flex:1;">
+          <div class="question-number">QUESTION ${escapeHtml(question.question_order ?? index + 1)}</div>
+          <div class="question-text">${escapeHtml(question.question_text || "")}</div>
+          <div class="question-options">
+            <div>A. ${escapeHtml(question.option_a || "")}</div>
+            <div>B. ${escapeHtml(question.option_b || "")}</div>
+            <div>C. ${escapeHtml(question.option_c || "")}</div>
+            <div>D. ${escapeHtml(question.option_d || "")}</div>
+          </div>
+          <div class="question-meta">
+            <span class="question-correct">Correct: ${escapeHtml(question.correct_option || "—")}</span>
+            &nbsp; • &nbsp; ${escapeHtml(question.marks ?? 0)} marks
+            &nbsp; • &nbsp; Negative: ${escapeHtml(question.negative_marks ?? 0)}
+          </div>
+        </div>
+        <div class="question-actions">
+          <button type="button" class="question-action-btn" data-question-action="edit" data-question-id="${escapeHtml(question.id)}">Edit</button>
+          <button type="button" class="question-action-btn delete" data-question-action="delete" data-question-id="${escapeHtml(question.id)}">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+}
+
+
+document
+  .getElementById("questionList")
+  .addEventListener("click", async function(event) {
+
+    const button = event.target.closest("[data-question-action]");
+    if (!button) return;
+
+    const questionId = button.dataset.questionId;
+    const action = button.dataset.questionAction;
+
+    if (action === "edit") await editQuestion(questionId);
+    if (action === "delete") await deleteQuestion(questionId);
+
+  });
+
+
+async function editQuestion(questionId) {
+
+  const { data: question, error } = await supabaseClient
+    .from("test_questions")
+    .select(`
+      id,
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_option,
+      marks,
+      negative_marks,
+      question_order
+    `)
+    .eq("id", questionId)
+    .maybeSingle();
+
+  if (error || !question) {
+    showQuestionMessage(error?.message || "Unable to load this question.", "error");
+    return;
+  }
+
+  editingQuestionId = question.id;
+  document.getElementById("questionFormTitle").textContent = "Edit Question";
+  document.getElementById("saveQuestionBtn").textContent = "Update Question";
+  document.getElementById("questionText").value = question.question_text || "";
+  document.getElementById("optionA").value = question.option_a || "";
+  document.getElementById("optionB").value = question.option_b || "";
+  document.getElementById("optionC").value = question.option_c || "";
+  document.getElementById("optionD").value = question.option_d || "";
+  document.getElementById("correctOption").value = question.correct_option || "";
+  document.getElementById("questionMarks").value = question.marks ?? 4;
+  document.getElementById("negativeMarks").value = question.negative_marks ?? 0;
+  document.getElementById("questionOrder").value = question.question_order ?? 1;
+  hideQuestionMessage();
+  document.getElementById("questionText").focus();
+
+}
+
+
+async function deleteQuestion(questionId) {
+
+  if (!confirm("Delete this question? This cannot be undone.")) return;
+
+  const { error } = await supabaseClient
+    .from("test_questions")
+    .delete()
+    .eq("id", questionId);
+
+  if (error) {
+    console.error("Delete question error:", error);
+    showQuestionMessage(error.message || "Unable to delete question.", "error");
+    return;
+  }
+
+  clearQuestionForm();
+  showQuestionMessage("Question deleted successfully.", "success");
+  await loadQuestions(currentQuestionTestId);
+
+}
+
+
+function clearQuestionForm() {
+
+  const form = document.getElementById("questionForm");
+  if (form) form.reset();
+
+  document.getElementById("questionMarks").value = 4;
+  document.getElementById("negativeMarks").value = 0;
+  document.getElementById("questionOrder").value = 1;
+  document.getElementById("questionFormTitle").textContent = "Add Question";
+  document.getElementById("saveQuestionBtn").textContent = "Add Question";
+  editingQuestionId = null;
+
+}
+
+
+function showQuestionMessage(text, type) {
+  const box = document.getElementById("questionMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+
+function hideQuestionMessage() {
+  const box = document.getElementById("questionMessage");
+  box.textContent = "";
+  box.className = "message";
+}
+
+
+document
+  .getElementById("closeQuestionModal")
+  .addEventListener("click", closeQuestionModal);
+
+
+document
+  .getElementById("cancelQuestionEdit")
+  .addEventListener("click", function() {
+    clearQuestionForm();
+    hideQuestionMessage();
+  });
+
+
+document
+  .getElementById("questionForm")
+  .addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!currentQuestionTestId) {
+      showQuestionMessage("No test is selected.", "error");
+      return;
+    }
+
+    const saveBtn = document.getElementById("saveQuestionBtn");
+    saveBtn.disabled = true;
+    saveBtn.textContent = editingQuestionId ? "Updating..." : "Saving...";
+    hideQuestionMessage();
+
+    const payload = {
+      test_id: currentQuestionTestId,
+      question_text: document.getElementById("questionText").value.trim(),
+      option_a: document.getElementById("optionA").value.trim(),
+      option_b: document.getElementById("optionB").value.trim(),
+      option_c: document.getElementById("optionC").value.trim(),
+      option_d: document.getElementById("optionD").value.trim(),
+      correct_option: document.getElementById("correctOption").value,
+      marks: Number(document.getElementById("questionMarks").value),
+      negative_marks: Number(document.getElementById("negativeMarks").value),
+      question_order: Number(document.getElementById("questionOrder").value)
+    };
+
+    try {
+      let error = null;
+
+      if (editingQuestionId) {
+        const result = await supabaseClient
+          .from("test_questions")
+          .update(payload)
+          .eq("id", editingQuestionId);
+        error = result.error;
+      } else {
+        const result = await supabaseClient
+          .from("test_questions")
+          .insert(payload);
+        error = result.error;
+      }
+
+      if (error) {
+        console.error("Save question error:", error);
+        showQuestionMessage(error.message || "Unable to save question.", "error");
+        return;
+      }
+
+      showQuestionMessage(
+        editingQuestionId ? "Question updated successfully." : "Question added successfully.",
+        "success"
+      );
+
+      clearQuestionForm();
+      await loadQuestions(currentQuestionTestId);
+
+    } catch (error) {
+      console.error("Unexpected question save error:", error);
+      showQuestionMessage(error.message || "Something went wrong.", "error");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Add Question";
+    }
+
+  });
 
 
 function openTestModal() {
@@ -2274,11 +2840,23 @@ document
       };
 
       const {
+        data: createdTest,
         error: insertError
       } =
         await supabaseClient
           .from("tests")
-          .insert(payload);
+          .insert(payload)
+          .select(`
+            id,
+            batch_id,
+            title,
+            subject,
+            test_date,
+            max_marks,
+            duration_minutes,
+            description
+          `)
+          .single();
 
       if (insertError) {
 
@@ -2304,10 +2882,14 @@ document
       await loadAdminTests();
       await loadCounters();
 
-      setTimeout(
-        closeTestModal,
-        700
-      );
+      setTimeout(async () => {
+        closeTestModal();
+        await loadAdminTests();
+
+        if (createdTest && createdTest.id) {
+          await openQuestionModal(createdTest.id);
+        }
+      }, 700);
 
     } catch (error) {
 
