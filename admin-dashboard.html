@@ -2857,7 +2857,7 @@ document.getElementById("teacherForm").addEventListener("submit", async function
     if (password.length < 8) throw new Error("Password must contain at least 8 characters.");
     if (!selectedBatches.length) throw new Error("Select at least one batch.");
 
-    const { data, error } = await supabaseClient.functions.invoke("create-teacher", {
+    const { data, error } = await supabaseClient.functions.invoke("admin-create-teacher", {
       body: {
         full_name: document.getElementById("teacherName").value.trim(),
         email: document.getElementById("teacherEmail").value.trim(),
