@@ -752,7 +752,7 @@
           </p>
         </div>
 
-        <button class="primary-btn" id="createTestBtn">
+        <button type="button" class="primary-btn" id="createTestBtn" onclick="window.openTestModal && window.openTestModal()">
           + Create Test
         </button>
 
@@ -1145,6 +1145,26 @@
 
 </div>
 
+
+<script>
+window.openTestModal = function () {
+  const modal = document.getElementById("testModal");
+  const form = document.getElementById("testForm");
+  if (form) form.reset();
+  const max = document.getElementById("testMaxMarks");
+  const duration = document.getElementById("testDuration");
+  const negative = document.getElementById("testNegative");
+  if (max) max.value = 180;
+  if (duration) duration.value = 180;
+  if (negative) negative.value = 0;
+  if (modal) modal.classList.add("show");
+};
+
+window.closeTestModal = function () {
+  const modal = document.getElementById("testModal");
+  if (modal) modal.classList.remove("show");
+};
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
