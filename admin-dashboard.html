@@ -701,6 +701,24 @@
       padding: 6px 2px;
     }
 
+    #batchesTableBody td {
+      vertical-align: middle;
+    }
+
+    .batch-action-btn {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: #dbe4ef;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      margin-right: 6px;
+    }
+
+    .batch-action-btn:hover {
+      background: rgba(255,255,255,.08);
+    }
+
     #teacherCreateBatchList {
       max-height: 320px;
       overflow-y: auto;
@@ -1092,6 +1110,10 @@
       Teachers
     </button>
 
+    <button class="nav-btn" data-section="batches">
+      Batches
+    </button>
+
     <button class="nav-btn" data-section="tests">
       Tests
     </button>
@@ -1239,6 +1261,49 @@
     </section>
 
 
+    <!-- BATCHES -->
+
+    <section class="section" id="batches">
+
+      <div class="section-head">
+        <div>
+          <h2>Batches</h2>
+          <div class="build-marker">BATCH MANAGEMENT</div>
+        </div>
+
+        <button type="button" class="primary-btn" id="createBatchBtn">
+          + Create Batch
+        </button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-tools">
+          <input
+            type="text"
+            class="search"
+            id="batchSearch"
+            placeholder="Search batch..."
+          >
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Batch</th>
+              <th>Academic Year</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="batchesTableBody">
+            <tr><td colspan="4" class="empty">Loading batches...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+
     <!-- TESTS -->
 
     <section class="section" id="tests">
@@ -1329,6 +1394,61 @@
 
 </div>
 
+<!-- CREATE / EDIT BATCH MODAL -->
+
+<div class="modal" id="batchModal">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-head">
+      <div>
+        <h2 id="batchModalTitle">Create Batch</h2>
+        <small style="color:#8fa0b5;">CREATE OR UPDATE ACADEMIC BATCH</small>
+      </div>
+      <button class="close" id="closeBatchModal">&times;</button>
+    </div>
+
+    <form id="batchForm">
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Batch Name</label>
+          <input
+            type="text"
+            id="batchName"
+            placeholder="e.g. NEET 2026 Batch"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Academic Year</label>
+          <input
+            type="text"
+            id="batchAcademicYear"
+            placeholder="e.g. 2026-27"
+          >
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select id="batchIsActive">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div id="batchFormMessage" class="message"></div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelBatch">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveBatchBtn">Create Batch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 <!-- ADD STUDENT MODAL -->
 
 <div class="modal" id="studentModal">
@@ -1344,7 +1464,18 @@
 
       <div class="form-grid">
 
-        <div class="field full">
+        <div class="field">
+          <label>Student UID</label>
+          <input
+            type="text"
+            id="studentUid"
+            placeholder="e.g. SIR001"
+            maxlength="40"
+          >
+          <small style="color:#7f90a6;">Leave blank to auto-generate.</small>
+        </div>
+
+        <div class="field">
           <label>Full Name</label>
           <input
             type="text"
@@ -1434,7 +1565,18 @@
 
     <form id="teacherForm">
       <div class="form-grid">
-        <div class="field full">
+        <div class="field">
+          <label>Teacher ID</label>
+          <input
+            type="text"
+            id="teacherUid"
+            placeholder="e.g. TCH001"
+            maxlength="40"
+          >
+          <small style="color:#7f90a6;">Leave blank to auto-generate.</small>
+        </div>
+
+        <div class="field">
           <label>Full Name</label>
           <input type="text" id="teacherName" required placeholder="Teacher full name">
         </div>
@@ -1471,7 +1613,7 @@
         <div class="field full">
           <label>Assign Batches</label>
 
-          <div id="teacherCreateBatchList" class="batch-check-list">
+          <div id="teacherCreateBatchList" class="batch-check-list teacher-create-batch-list">
             <div class="empty">Loading batches...</div>
           </div>
 
@@ -3583,6 +3725,7 @@ document
 
     e.preventDefault();
 
+    const studentUid = document.getElementById("studentUid").value.trim();
     const name = document.getElementById("studentName").value.trim();
     const email = document.getElementById("studentEmail").value.trim().toLowerCase();
     const phone = document.getElementById("studentMobile").value.trim();
@@ -3602,7 +3745,16 @@ document
     try {
       const { data, error } = await supabaseClient.functions.invoke(
         "admin-create-student",
-        { body: { full_name: name, email, phone, course_id: courseId, batch_id: batchId } }
+        {
+          body: {
+            student_uid: studentUid || null,
+            full_name: name,
+            email,
+            phone,
+            course_id: courseId,
+            batch_id: batchId
+          }
+        }
       );
 
       if (error) throw new Error(error.message || "Failed to create student account.");
@@ -3630,6 +3782,192 @@ document
 
 
 /* --------------------------------
+   BATCH MANAGEMENT
+-------------------------------- */
+
+let editingBatchId = null;
+let allBatches = [];
+
+async function loadBatchesAdmin() {
+  const tbody = document.getElementById("batchesTableBody");
+  tbody.innerHTML = `<tr><td colspan="4" class="empty">Loading batches...</td></tr>`;
+
+  const { data, error } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year,is_active")
+    .order("name");
+
+  if (error) {
+    console.error("Batches error:", error);
+    tbody.innerHTML = `<tr><td colspan="4" class="empty">Unable to load batches.</td></tr>`;
+    return;
+  }
+
+  allBatches = data || [];
+  renderBatches(allBatches);
+}
+
+function renderBatches(batches) {
+  const tbody = document.getElementById("batchesTableBody");
+
+  if (!batches.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty">No batches found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = batches.map(batch => `
+    <tr>
+      <td><strong>${escapeHtml(batch.name || "—")}</strong></td>
+      <td>${escapeHtml(batch.academic_year || "—")}</td>
+      <td>
+        <span class="status ${batch.is_active ? "" : "inactive"}">
+          ${batch.is_active ? "Active" : "Inactive"}
+        </span>
+      </td>
+      <td>
+        <button
+          type="button"
+          class="batch-action-btn"
+          onclick="editBatch('${escapeHtml(batch.id)}')"
+        >Edit</button>
+
+        <button
+          type="button"
+          class="batch-action-btn"
+          onclick="toggleBatchStatus('${escapeHtml(batch.id)}', ${batch.is_active ? "true" : "false"})"
+        >${batch.is_active ? "Deactivate" : "Activate"}</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+const batchModal = document.getElementById("batchModal");
+
+document.getElementById("createBatchBtn").addEventListener("click", () => {
+  editingBatchId = null;
+  document.getElementById("batchModalTitle").textContent = "Create Batch";
+  document.getElementById("saveBatchBtn").textContent = "Create Batch";
+  document.getElementById("batchForm").reset();
+  document.getElementById("batchIsActive").value = "true";
+  document.getElementById("batchFormMessage").className = "message";
+  document.getElementById("batchFormMessage").textContent = "";
+  batchModal.classList.add("show");
+});
+
+document.getElementById("closeBatchModal").addEventListener("click", closeBatchModal);
+document.getElementById("cancelBatch").addEventListener("click", closeBatchModal);
+
+function closeBatchModal() {
+  batchModal.classList.remove("show");
+  editingBatchId = null;
+}
+
+function showBatchMessage(text, type) {
+  const box = document.getElementById("batchFormMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+window.editBatch = function(batchId) {
+  const batch = allBatches.find(item => item.id === batchId);
+  if (!batch) return;
+
+  editingBatchId = batchId;
+  document.getElementById("batchModalTitle").textContent = "Edit Batch";
+  document.getElementById("saveBatchBtn").textContent = "Save Batch";
+  document.getElementById("batchName").value = batch.name || "";
+  document.getElementById("batchAcademicYear").value = batch.academic_year || "";
+  document.getElementById("batchIsActive").value = String(Boolean(batch.is_active));
+  document.getElementById("batchFormMessage").className = "message";
+  document.getElementById("batchFormMessage").textContent = "";
+  batchModal.classList.add("show");
+};
+
+window.toggleBatchStatus = async function(batchId, currentlyActive) {
+  const batch = allBatches.find(item => item.id === batchId);
+  if (!batch) return;
+
+  const action = currentlyActive ? "deactivate" : "activate";
+  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} "${batch.name}"?`)) return;
+
+  const { error } = await supabaseClient
+    .from("batches")
+    .update({ is_active: !currentlyActive })
+    .eq("id", batchId);
+
+  if (error) {
+    alert(error.message || "Unable to update batch.");
+    return;
+  }
+
+  await loadBatchesAdmin();
+  await loadBatches();
+};
+
+document.getElementById("batchForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("batchName").value.trim();
+  const academic_year = document.getElementById("batchAcademicYear").value.trim();
+  const is_active = document.getElementById("batchIsActive").value === "true";
+  const button = document.getElementById("saveBatchBtn");
+
+  if (!name) {
+    showBatchMessage("Batch name is required.", "error");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = editingBatchId ? "Saving..." : "Creating...";
+
+  try {
+    let result;
+
+    if (editingBatchId) {
+      result = await supabaseClient
+        .from("batches")
+        .update({ name, academic_year, is_active })
+        .eq("id", editingBatchId);
+    } else {
+      result = await supabaseClient
+        .from("batches")
+        .insert({ name, academic_year, is_active });
+    }
+
+    if (result.error) throw result.error;
+
+    showBatchMessage(
+      editingBatchId ? "Batch updated successfully." : "Batch created successfully.",
+      "success"
+    );
+
+    await loadBatchesAdmin();
+    await loadBatches();
+
+    setTimeout(closeBatchModal, 700);
+
+  } catch (error) {
+    console.error("Batch save error:", error);
+    showBatchMessage(error.message || "Unable to save batch.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = editingBatchId ? "Save Batch" : "Create Batch";
+  }
+});
+
+document.getElementById("batchSearch").addEventListener("input", function() {
+  const q = this.value.toLowerCase().trim();
+
+  renderBatches(
+    allBatches.filter(batch =>
+      (batch.name || "").toLowerCase().includes(q) ||
+      (batch.academic_year || "").toLowerCase().includes(q)
+    )
+  );
+});
+
+
+/* --------------------------------
    TEACHER MANAGEMENT
 -------------------------------- */
 
@@ -3638,7 +3976,7 @@ let allTeachers = [];
 async function loadTeachers() {
   const { data, error } = await supabaseClient
     .from("teachers")
-    .select("id,user_id,full_name,email,phone,subject,is_active")
+    .select("id,user_id,teacher_uid,full_name,email,phone,subject,is_active")
     .order("full_name", { ascending: true });
 
   if (error) {
@@ -3676,7 +4014,10 @@ function renderTeachers(teachers) {
 
   tbody.innerHTML = teachers.map(t => `
     <tr>
-      <td><strong>${escapeHtml(t.full_name || "—")}</strong></td>
+      <td>
+        <strong>${escapeHtml(t.full_name || "—")}</strong>
+        <div class="test-meta">${escapeHtml(t.teacher_uid || "—")}</div>
+      </td>
       <td>${escapeHtml(t.email || "—")}</td>
       <td>${escapeHtml(t.subject || "—")}</td>
       <td>${t.batchCount || 0}</td>
@@ -3693,63 +4034,39 @@ function renderTeachers(teachers) {
 }
 
 async function loadTeacherBatches() {
+  const list = document.getElementById("teacherCreateBatchList");
+  list.innerHTML = `<div class="empty">Loading batches...</div>`;
 
-  const list =
-    document.getElementById("teacherCreateBatchList");
-
-  list.innerHTML =
-    `<div class="empty">Loading batches...</div>`;
-
-  const {
-    data,
-    error
-  } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("batches")
     .select("id,name,academic_year")
     .eq("is_active", true)
     .order("name");
 
   if (error) {
-
-    list.innerHTML =
-      `<div class="empty">Unable to load batches.</div>`;
-
+    list.innerHTML = `<div class="empty">Unable to load batches.</div>`;
     throw error;
   }
 
   if (!data || !data.length) {
-
-    list.innerHTML =
-      `<div class="empty">No active batches found.</div>`;
-
+    list.innerHTML = `<div class="empty">No active batches found. Create a batch first.</div>`;
     return;
   }
 
   list.innerHTML = data.map(batch => `
-
     <label class="batch-check-item">
-
       <input
         type="checkbox"
         class="teacher-create-batch-checkbox"
         value="${escapeHtml(batch.id)}"
       >
-
       <div>
-        <div class="batch-check-name">
-          ${escapeHtml(batch.name || "Unnamed Batch")}
-        </div>
-
-        <div class="batch-check-year">
-          ${escapeHtml(batch.academic_year || "")}
-        </div>
+        <div class="batch-check-name">${escapeHtml(batch.name || "Unnamed Batch")}</div>
+        <div class="batch-check-year">${escapeHtml(batch.academic_year || "")}</div>
       </div>
-
     </label>
-
   `).join("");
 }
-
 const teacherModal = document.getElementById("teacherModal");
 
 document.getElementById("addTeacherBtn").addEventListener("click", async () => {
@@ -3780,15 +4097,14 @@ function showTeacherMessage(text, type) {
 document.getElementById("teacherForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const teacher_uid = document.getElementById("teacherUid").value.trim();
   const full_name = document.getElementById("teacherName").value.trim();
   const email = document.getElementById("teacherEmail").value.trim().toLowerCase();
   const phone = document.getElementById("teacherMobile").value.trim();
   const subject = document.getElementById("teacherSubject").value;
   const password = document.getElementById("teacherPassword").value;
   const batch_ids = Array.from(
-    document.querySelectorAll(
-      ".teacher-create-batch-checkbox:checked"
-    )
+    document.querySelectorAll(".teacher-create-batch-checkbox:checked")
   ).map(input => input.value);
   const submit = document.getElementById("createTeacherSubmit");
 
@@ -3803,17 +4119,22 @@ document.getElementById("teacherForm").addEventListener("submit", async (e) => {
 
   try {
     const { data, error } = await supabaseClient.functions.invoke("admin-create-teacher", {
-      body: { full_name, email, phone, subject, password, batch_ids }
+      body: {
+        teacher_uid: teacher_uid || null,
+        full_name,
+        email,
+        phone,
+        subject,
+        password,
+        batch_ids
+      }
     });
 
     if (error) throw new Error(error.message || "Failed to send request to the Edge Function.");
     if (!data?.success) throw new Error(data?.error || "Unable to create teacher.");
 
-    const createdTeacherEmail =
-      data?.teacher?.email || email;
-
     showTeacherMessage(
-      `Teacher created successfully. Login: ${createdTeacherEmail} | Password: ${password}`,
+      `Teacher created. Login: ${data.email} | Password: ${data.initial_password}`,
       "success"
     );
     await loadTeachers();
