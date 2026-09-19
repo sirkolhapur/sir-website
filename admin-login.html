@@ -366,6 +366,72 @@
       color: #75dda0;
     }
 
+    /* =========================
+       TEST MANAGEMENT
+    ========================= */
+    .test-list {
+      width: 100%;
+    }
+
+    .test-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 110px;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .test-row:last-child {
+      border-bottom: 0;
+    }
+
+    .test-title {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .test-meta {
+      color: #8493a8;
+      font-size: 12px;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .test-badge {
+      display: inline-block;
+      color: #d9b75b;
+      border: 1px solid rgba(201,168,78,.28);
+      background: rgba(201,168,78,.06);
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .test-date {
+      color: #dce3ed;
+      font-size: 13px;
+    }
+
+    .test-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .test-empty {
+      padding: 35px;
+      text-align: center;
+      color: #77869b;
+    }
+
+    .build-marker {
+      color: #6f8096;
+      font-size: 10px;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    }
+
     .reset-password-btn {
       background: transparent;
       border: 1px solid rgba(201,168,78,.45);
@@ -487,6 +553,14 @@
 
       table {
         min-width: 700px;
+      }
+
+      .test-row {
+        grid-template-columns: 1fr;
+      }
+
+      .test-actions {
+        justify-content: flex-start;
       }
 
       .form-grid {
@@ -830,13 +904,25 @@
     <section class="section" id="tests">
 
       <div class="section-head">
-        <h2>Tests</h2>
-        <button class="primary-btn">+ Create Test</button>
+        <div>
+          <h2>Tests</h2>
+          <div class="build-marker">TEST MANAGEMENT • V4</div>
+        </div>
+
+        <button
+          type="button"
+          class="primary-btn"
+          id="createTestBtn"
+        >
+          + Create Test
+        </button>
       </div>
 
       <div class="table-card">
-        <div class="empty">
-          Test Management will be connected here.
+        <div id="testList" class="test-list">
+          <div class="test-empty">
+            Loading tests...
+          </div>
         </div>
       </div>
 
@@ -994,6 +1080,116 @@
 
 </div>
 
+<!-- CREATE TEST MODAL -->
+
+<div class="modal" id="testModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2>Create Test</h2>
+      <button class="close" id="closeTestModal">&times;</button>
+    </div>
+
+    <form id="testForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Test Title</label>
+          <input
+            type="text"
+            id="testTitle"
+            placeholder="e.g. NEET Full Syllabus Test 01"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Batch</label>
+          <select id="testBatch" required>
+            <option value="">Select Batch</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Subject</label>
+          <select id="testSubject" required>
+            <option value="">Select Subject</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Full Syllabus">Full Syllabus</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Test Date</label>
+          <input type="date" id="testDate" required>
+        </div>
+
+        <div class="field">
+          <label>Maximum Marks</label>
+          <input
+            type="number"
+            id="testMaxMarks"
+            min="1"
+            value="180"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Duration (minutes)</label>
+          <input
+            type="number"
+            id="testDuration"
+            min="1"
+            value="180"
+            required
+          >
+        </div>
+
+        <div class="field full">
+          <label>Description</label>
+          <input
+            type="text"
+            id="testDescription"
+            placeholder="Optional test description or instructions"
+          >
+        </div>
+
+      </div>
+
+      <div id="testMessage" class="message"></div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-btn"
+          id="cancelTest"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="primary-btn"
+          id="saveTestBtn"
+        >
+          Create Test
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1008,7 +1204,15 @@ const SUPABASE_PUBLISHABLE_KEY =
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+      auth: {
+        storageKey: "sir_admin_auth",
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
+      }
+    }
   );
 
 
@@ -1772,6 +1976,363 @@ async function loadBatches() {
 
 
 /* --------------------------------
+   TEST MANAGEMENT
+-------------------------------- */
+
+let adminTests = [];
+let adminBatches = [];
+
+async function loadAdminBatches() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+    console.error("Admin test batches error:", error);
+    return;
+  }
+
+  adminBatches = data || [];
+
+  const select =
+    document.getElementById("testBatch");
+
+  if (!select) return;
+
+  select.innerHTML =
+    `<option value="">Select Batch</option>`;
+
+  adminBatches.forEach(batch => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = batch.id;
+
+    option.textContent =
+      `${batch.name} — ${batch.academic_year}`;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+async function loadAdminTests() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("tests")
+    .select(`
+      id,
+      batch_id,
+      title,
+      subject,
+      test_date,
+      max_marks,
+      duration_minutes,
+      description
+    `)
+    .order("test_date", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error("Admin tests error:", error);
+
+    document.getElementById("testList").innerHTML = `
+      <div class="test-empty">
+        Unable to load tests. Check Admin access to the tests table.
+      </div>
+    `;
+
+    return;
+  }
+
+  adminTests = data || [];
+
+  renderAdminTests(adminTests);
+
+  document.getElementById("totalTests").textContent =
+    adminTests.length;
+
+}
+
+
+function renderAdminTests(tests) {
+
+  const list =
+    document.getElementById("testList");
+
+  if (!list) return;
+
+  if (!tests.length) {
+
+    list.innerHTML = `
+      <div class="test-empty">
+        No tests created yet.
+      </div>
+    `;
+
+    return;
+  }
+
+  const batchMap =
+    Object.fromEntries(
+      adminBatches.map(batch => [
+        batch.id,
+        `${batch.name} — ${batch.academic_year}`
+      ])
+    );
+
+  list.innerHTML =
+    tests.map(test => `
+
+      <div class="test-row">
+
+        <div>
+          <div class="test-title">
+            ${escapeHtml(test.title || "Untitled Test")}
+          </div>
+
+          <div class="test-meta">
+            ${escapeHtml(test.description || "No description")}
+          </div>
+        </div>
+
+        <div>
+          <span class="test-badge">
+            ${escapeHtml(test.subject || "Test")}
+          </span>
+
+          <div class="test-meta">
+            ${escapeHtml(batchMap[test.batch_id] || "Batch")}
+          </div>
+        </div>
+
+        <div>
+          <div class="test-date">
+            ${escapeHtml(test.test_date || "—")}
+          </div>
+
+          <div class="test-meta">
+            ${escapeHtml(test.max_marks ?? "—")} marks
+            ·
+            ${escapeHtml(test.duration_minutes ?? "—")} min
+          </div>
+        </div>
+
+        <div class="test-actions">
+          <span class="test-badge">Created</span>
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+function openTestModal() {
+
+  const form =
+    document.getElementById("testForm");
+
+  if (form) {
+    form.reset();
+  }
+
+  document.getElementById("testMaxMarks").value = 180;
+  document.getElementById("testDuration").value = 180;
+
+  hideTestMessage();
+
+  document
+    .getElementById("testModal")
+    .classList.add("show");
+
+}
+
+
+function closeTestModal() {
+
+  document
+    .getElementById("testModal")
+    .classList.remove("show");
+
+}
+
+
+function showTestMessage(text, type) {
+
+  const box =
+    document.getElementById("testMessage");
+
+  box.textContent = text;
+
+  box.className =
+    `message show ${type}`;
+
+}
+
+
+function hideTestMessage() {
+
+  const box =
+    document.getElementById("testMessage");
+
+  box.className = "message";
+
+  box.textContent = "";
+
+}
+
+
+document
+  .getElementById("createTestBtn")
+  .addEventListener("click", openTestModal);
+
+
+document
+  .getElementById("closeTestModal")
+  .addEventListener("click", closeTestModal);
+
+
+document
+  .getElementById("cancelTest")
+  .addEventListener("click", closeTestModal);
+
+
+document
+  .getElementById("testForm")
+  .addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const saveBtn =
+      document.getElementById("saveTestBtn");
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Creating...";
+
+    hideTestMessage();
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.getSession();
+
+      if (error || !data || !data.session) {
+
+        showTestMessage(
+          "Admin session expired. Please log in again.",
+          "error"
+        );
+
+        return;
+      }
+
+      const payload = {
+        batch_id:
+          document.getElementById("testBatch").value,
+
+        title:
+          document.getElementById("testTitle").value.trim(),
+
+        subject:
+          document.getElementById("testSubject").value,
+
+        test_date:
+          document.getElementById("testDate").value,
+
+        max_marks:
+          Number(
+            document.getElementById("testMaxMarks").value
+          ),
+
+        duration_minutes:
+          Number(
+            document.getElementById("testDuration").value
+          ),
+
+        description:
+          document.getElementById("testDescription").value.trim()
+          || null
+      };
+
+      const {
+        error: insertError
+      } =
+        await supabaseClient
+          .from("tests")
+          .insert(payload);
+
+      if (insertError) {
+
+        console.error(
+          "Create test error:",
+          insertError
+        );
+
+        showTestMessage(
+          insertError.message ||
+          "Unable to create test.",
+          "error"
+        );
+
+        return;
+      }
+
+      showTestMessage(
+        "Test created successfully.",
+        "success"
+      );
+
+      await loadAdminTests();
+      await loadCounters();
+
+      setTimeout(
+        closeTestModal,
+        700
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Unexpected create test error:",
+        error
+      );
+
+      showTestMessage(
+        error.message ||
+        "Something went wrong.",
+        "error"
+      );
+
+    } finally {
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Create Test";
+
+    }
+
+  });
+
+
+/* --------------------------------
    MODAL
 -------------------------------- */
 
@@ -1953,6 +2514,12 @@ document
   showDashboard();
 
   await loadStudents();
+
+  await loadBatches();
+
+  await loadAdminBatches();
+
+  await loadAdminTests();
 
   await loadCounters();
 
