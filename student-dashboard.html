@@ -439,69 +439,122 @@
     .review-card {
       border-left: 2px solid var(--gold);
       background: var(--card);
-      border-radius: 0 18px 18px 0;
-      padding: 25px;
+      border-radius: 0 16px 16px 0;
+      padding: 0;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .review-compact {
+      width: 100%;
+    }
+
+    .review-compact summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 17px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px 20px;
+      align-items: center;
+    }
+
+    .review-compact summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .review-compact summary:hover {
+      background: rgba(255,255,255,0.025);
+    }
+
+    .review-summary-main {
+      min-width: 0;
     }
 
     .review-date {
       color: var(--gold-light);
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 12px;
+      letter-spacing: 1.3px;
+      margin-bottom: 6px;
     }
 
-    .review-card h3 {
+    .review-summary-title {
+      color: #e5e9ef;
       font-family: Georgia, serif;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 400;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
-    .review-card p {
-      color: #c2cad4;
-      line-height: 1.75;
-      font-size: 14px;
+    .review-summary-preview {
+      color: #aeb8c5;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .review-grid {
+    .review-toggle {
+      color: var(--gold-light);
+      font-size: 11px;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+
+    .review-toggle::after {
+      content: "  ↓";
+      font-size: 13px;
+    }
+
+    .review-compact[open] .review-toggle::after {
+      content: "  ↑";
+    }
+
+    .review-details {
+      padding: 0 20px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .review-details .review-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 18px;
+      gap: 10px;
+      margin-top: 15px;
     }
 
     .review-item {
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px;
-      background: rgba(255,255,255,0.025);
+      border-radius: 12px;
+      padding: 13px;
+      background: rgba(255,255,255,0.02);
     }
 
     .review-item span,
     .teacher-note > span {
       display: block;
       color: var(--gold-light);
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .review-item strong {
       display: block;
       color: #d8dee7;
-      font-size: 13px;
-      line-height: 1.65;
+      font-size: 12px;
+      line-height: 1.55;
       font-weight: 400;
       white-space: pre-wrap;
     }
 
     .teacher-note {
-      margin-top: 14px;
+      margin-top: 10px;
       border: 1px solid rgba(217,170,69,0.18);
-      border-radius: 14px;
-      padding: 17px;
+      border-radius: 12px;
+      padding: 13px;
       background: rgba(217,170,69,0.035);
     }
 
@@ -2393,7 +2446,7 @@
 
 
     reviews.forEach(
-      review => {
+      (review, index) => {
 
         const card =
           document.createElement(
@@ -2413,76 +2466,146 @@
           formatDate(review.week_end);
 
 
+        const previewParts = [
+          review.academic_understanding,
+          review.class_participation,
+          review.practice_consistency
+        ].filter(Boolean);
+
+
+        const preview =
+          previewParts.join(" • ") ||
+          "Weekly teacher review";
+
+
         card.innerHTML = `
 
-          <div class="review-date">
-            Week: ${escapeHTML(weekStart)}
-            ${weekEnd ? " — " + escapeHTML(weekEnd) : ""}
-          </div>
+          <details
+            class="review-compact"
+            ${index === 0 ? "open" : ""}
+          >
 
-          <h3>
-            Weekly Academic Review
-          </h3>
+            <summary>
 
-          <div class="review-grid">
+              <div class="review-summary-main">
 
-            <div class="review-item">
-              <span>Academic Understanding</span>
-              <strong>
-                ${escapeHTML(
-                  review.academic_understanding || "—"
-                )}
-              </strong>
+                <div class="review-date">
+                  ${escapeHTML(weekStart)}
+                  ${weekEnd ? " — " + escapeHTML(weekEnd) : ""}
+                </div>
+
+                <div class="review-summary-title">
+                  Weekly Academic Review
+                </div>
+
+                <div class="review-summary-preview">
+                  ${escapeHTML(preview)}
+                </div>
+
+              </div>
+
+              <span class="review-toggle">
+                ${index === 0 ? "Hide Review" : "View Full Review"}
+              </span>
+
+            </summary>
+
+
+            <div class="review-details">
+
+              <div class="review-grid">
+
+                <div class="review-item">
+                  <span>Academic Understanding</span>
+                  <strong>
+                    ${escapeHTML(
+                      review.academic_understanding || "—"
+                    )}
+                  </strong>
+                </div>
+
+                <div class="review-item">
+                  <span>Class Participation</span>
+                  <strong>
+                    ${escapeHTML(
+                      review.class_participation || "—"
+                    )}
+                  </strong>
+                </div>
+
+                <div class="review-item">
+                  <span>Practice Consistency</span>
+                  <strong>
+                    ${escapeHTML(
+                      review.practice_consistency || "—"
+                    )}
+                  </strong>
+                </div>
+
+                <div class="review-item">
+                  <span>Strengths</span>
+                  <strong>
+                    ${escapeHTML(
+                      review.strengths || "—"
+                    )}
+                  </strong>
+                </div>
+
+                <div class="review-item">
+                  <span>Areas to Improve</span>
+                  <strong>
+                    ${escapeHTML(
+                      review.areas_to_improve || "—"
+                    )}
+                  </strong>
+                </div>
+
+              </div>
+
+
+              <div class="teacher-note">
+
+                <span>Teacher's Note</span>
+
+                <p>
+                  ${escapeHTML(
+                    review.teacher_note ||
+                    "No additional note."
+                  )}
+                </p>
+
+              </div>
+
             </div>
 
-            <div class="review-item">
-              <span>Class Participation</span>
-              <strong>
-                ${escapeHTML(
-                  review.class_participation || "—"
-                )}
-              </strong>
-            </div>
-
-            <div class="review-item">
-              <span>Practice Consistency</span>
-              <strong>
-                ${escapeHTML(
-                  review.practice_consistency || "—"
-                )}
-              </strong>
-            </div>
-
-            <div class="review-item">
-              <span>Strengths</span>
-              <strong>
-                ${escapeHTML(
-                  review.strengths || "—"
-                )}
-              </strong>
-            </div>
-
-            <div class="review-item">
-              <span>Areas to Improve</span>
-              <strong>
-                ${escapeHTML(
-                  review.areas_to_improve || "—"
-                )}
-              </strong>
-            </div>
-
-          </div>
-
-          <div class="teacher-note">
-            <span>Teacher's Note</span>
-            <p>
-              ${escapeHTML(
-                review.teacher_note || "No additional note."
-              )}
-            </p>
-          </div>
+          </details>
 
         `;
+
+
+        const details =
+          card.querySelector(
+            ".review-compact"
+          );
+
+
+        const toggle =
+          card.querySelector(
+            ".review-toggle"
+          );
+
+
+        details.addEventListener(
+          "toggle",
+          () => {
+
+            toggle.textContent =
+              details.open
+                ? "Hide Review"
+                : "View Full Review";
+
+          }
+        );
 
 
         container.appendChild(
@@ -2493,7 +2616,6 @@
     );
 
   }
-
 
   /* =====================================================
      DATE
