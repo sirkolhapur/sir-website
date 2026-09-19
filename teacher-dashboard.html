@@ -3477,45 +3477,6 @@
         }
 
 
-        document
-            .getElementById(
-                "studentModalClose"
-            )
-            .addEventListener(
-                "click",
-                closeStudentProfile
-            );
-
-
-        document
-            .getElementById(
-                "saveReviewBtn"
-            )
-            .addEventListener(
-                "click",
-                saveStudentReview
-            );
-
-
-        document
-            .getElementById(
-                "studentProfileModal"
-            )
-            .addEventListener(
-                "click",
-                event => {
-
-                    if (
-                        event.target.id ===
-                        "studentProfileModal"
-                    ) {
-
-                        closeStudentProfile();
-
-                    }
-
-                }
-            );
 
 
         /* =====================================================
@@ -4396,6 +4357,27 @@
     </div>
 
 
+<script>
+    // Student profile/review controls are bound after the modal HTML exists.
+    document.getElementById("studentModalClose")?.addEventListener(
+        "click",
+        closeStudentProfile
+    );
+
+    document.getElementById("saveReviewBtn")?.addEventListener(
+        "click",
+        saveStudentReview
+    );
+
+    document.getElementById("studentProfileModal")?.addEventListener(
+        "click",
+        event => {
+            if (event.target.id === "studentProfileModal") {
+                closeStudentProfile();
+            }
+        }
+    );
+</script>
 </body>
 
 </html>
