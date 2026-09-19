@@ -429,7 +429,25 @@
 
     .test-manage-btn,
     .test-toggle-btn,
-    .test-delete-btn {
+    .test-publish-btn {
+      background: rgba(220, 183, 91, .10);
+      border: 1px solid rgba(220, 183, 91, .40);
+      color: #f0d47a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .test-publish-btn.published {
+      background: rgba(70, 190, 120, .10);
+      border-color: rgba(70, 190, 120, .35);
+      color: #8ff0b5;
+    }
+
+.test-delete-btn {
       white-space: nowrap;
       min-height: 34px;
     }
@@ -601,6 +619,55 @@
       font-size: 11px;
       margin-top: -7px;
       margin-bottom: 16px;
+    }
+
+    .question-progress {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(201,168,78,.18);
+      background: rgba(201,168,78,.06);
+      border-radius: 10px;
+      color: #aeb9c8;
+      font-size: 11px;
+    }
+
+    .question-progress strong {
+      color: #e5c96b;
+      font-size: 12px;
+    }
+
+    .test-ready {
+      display: none;
+      padding: 22px;
+      border: 1px solid rgba(70,190,120,.28);
+      background: rgba(70,190,120,.07);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .test-ready.show {
+      display: block;
+    }
+
+    .test-ready h3 {
+      margin: 0 0 7px;
+      color: #8ff0b5;
+      font-size: 15px;
+    }
+
+    .test-ready p {
+      margin: 0 0 16px;
+      color: #9eabbd;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .question-form-area.hidden {
+      display: none;
     }
 
     .question-empty {
@@ -920,7 +987,67 @@
       display: none;
     }
 
-  </style>
+  
+    .question-type-row {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    .question-type-help {
+      color:#8d99aa;
+      font-size:11px;
+      line-height:1.5;
+      margin-top:6px;
+    }
+    .question-media-preview {
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;
+      padding:10px;
+      background:rgba(255,255,255,.025);
+    }
+    .question-media-preview img {
+      display:block;
+      max-width:100%;
+      max-height:240px;
+      margin:auto;
+      border-radius:8px;
+    }
+    .latex-preview {
+      min-height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:auto;
+      padding:12px;
+      color:#fff;
+    }
+    .question-type-badge {
+      display:inline-block;
+      margin-left:8px;
+      padding:3px 7px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      color:#d9b75b;
+      font-size:9px;
+      font-weight:800;
+      letter-spacing:.06em;
+    }
+    .question-image-thumb {
+      display:block;
+      max-width:260px;
+      max-height:140px;
+      margin-top:10px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.1);
+    }
+    @media (max-width: 650px) {
+      .question-type-row { grid-template-columns:1fr; }
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
 </head>
 
 <body>
@@ -1417,16 +1544,49 @@
 
     <div class="question-builder-divider"></div>
 
-    <div class="question-builder-title" id="questionFormTitle">Add Question</div>
-    <div class="question-builder-subtitle">Add the question, four options, correct answer, and marking scheme.</div>
+    <div class="question-progress">
+      <span>Question progress</span>
+      <strong id="questionProgressText">0 / 0</strong>
+    </div>
 
-    <form id="questionForm">
+    <div id="questionFormArea" class="question-form-area">
+      <div class="question-builder-title" id="questionFormTitle">Add Question</div>
+      <div class="question-builder-subtitle">Each question carries 4 marks. Add the required number of questions for this test.</div>
+
+      <form id="questionForm">
 
       <div class="form-grid">
 
         <div class="field full">
-          <label>Question</label>
+          <label>Question Type</label>
+          <select id="questionType" required>
+            <option value="text">Normal MCQ</option>
+            <option value="latex">Math / LaTeX</option>
+            <option value="image">Image / Graph / Diagram</option>
+          </select>
+          <div class="question-type-help" id="questionTypeHelp">Use normal text for standard MCQs.</div>
+        </div>
+
+        <div class="field full">
+          <label>Question Text</label>
           <textarea id="questionText" rows="4" placeholder="Enter the question text" required></textarea>
+        </div>
+
+        <div class="field full" id="latexField" style="display:none;">
+          <label>Math / LaTeX Formula</label>
+          <textarea id="questionLatex" rows="3" placeholder="Example: \frac{-b \pm \sqrt{b^2-4ac}}{2a}"></textarea>
+          <div class="question-type-help">Write only the LaTeX expression. It will be rendered as a mathematical formula.</div>
+          <div class="question-media-preview">
+            <div class="question-type-help">Preview</div>
+            <div id="latexPreview" class="latex-preview">Formula preview will appear here.</div>
+          </div>
+        </div>
+
+        <div class="field full" id="imageField" style="display:none;">
+          <label>Question Image / Graph / Diagram</label>
+          <input type="file" id="questionImage" accept="image/png,image/jpeg,image/webp,image/gif">
+          <div class="question-type-help">Upload a clear JPG, PNG, WEBP or GIF of the graph, diagram, figure or image.</div>
+          <div id="imagePreview" class="question-media-preview" style="display:none;"></div>
         </div>
 
         <div class="field">
@@ -1462,7 +1622,7 @@
 
         <div class="field">
           <label>Marks</label>
-          <input type="number" id="questionMarks" min="0" step="0.01" value="4" required>
+          <input type="number" id="questionMarks" min="4" max="4" step="1" value="4" readonly required>
         </div>
 
         <div class="field">
@@ -1479,16 +1639,25 @@
 
       <div id="questionMessage" class="message"></div>
 
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" id="cancelQuestionEdit">
-          Clear
-        </button>
-        <button type="submit" class="primary-btn" id="saveQuestionBtn">
-          Add Question
-        </button>
-      </div>
+        <div class="form-actions">
+          <button type="button" class="secondary-btn" id="cancelQuestionEdit">
+            Clear
+          </button>
+          <button type="submit" class="primary-btn" id="saveQuestionBtn">
+            Add Question
+          </button>
+        </div>
 
-    </form>
+      </form>
+    </div>
+
+    <div id="testReady" class="test-ready">
+      <h3>TEST READY</h3>
+      <p id="testReadyText">All required questions have been added.</p>
+      <button type="button" class="primary-btn" id="saveCompletedTestBtn">
+        SAVE TEST
+      </button>
+    </div>
 
   </div>
 
@@ -2288,6 +2457,10 @@ let adminTests = [];
 let adminBatches = [];
 let currentQuestionTestId = null;
 let editingQuestionId = null;
+let currentQuestionTarget = 0;
+let currentQuestionCount = 0;
+let currentQuestionImageUrl = null;
+
 
 async function loadAdminBatches() {
 
@@ -2348,7 +2521,8 @@ async function loadAdminTests() {
       max_marks,
       duration_minutes,
       description,
-      is_active
+      is_active,
+      is_published
     `)
     .order("test_date", {
       ascending: false
@@ -2427,6 +2601,10 @@ function renderAdminTests(tests) {
             ${test.is_active ? "ACTIVE" : "INACTIVE"}
           </span>
 
+          <span class="test-status ${test.is_published ? "active" : "inactive"}">
+            ${test.is_published ? "PUBLISHED" : "DRAFT"}
+          </span>
+
           <div class="test-meta">
             ${escapeHtml(batchMap[test.batch_id] || "Batch")}
           </div>
@@ -2451,6 +2629,14 @@ function renderAdminTests(tests) {
             data-test-id="${escapeHtml(test.id)}"
           >
             Manage Questions
+          </button>
+
+          <button
+            type="button"
+            class="test-publish-btn ${test.is_published ? "published" : ""}"
+            data-test-id="${escapeHtml(test.id)}"
+          >
+            ${test.is_published ? "Unpublish" : "Publish"}
           </button>
 
           <button
@@ -2492,6 +2678,14 @@ document
     return;
   }
 
+  const publishButton =
+      event.target.closest(".test-publish-btn");
+
+  if (publishButton) {
+    toggleTestPublish(publishButton.dataset.testId);
+    return;
+  }
+
   const toggleButton =
       event.target.closest(".test-toggle-btn");
 
@@ -2508,6 +2702,73 @@ document
   }
 
 });
+
+
+async function toggleTestPublish(testId) {
+
+  const test = adminTests.find(item => item.id === testId);
+  if (!test) return;
+
+  const nextState = !Boolean(test.is_published);
+
+  if (nextState) {
+    const target = Math.floor(Number(test.max_marks || 0) / 4);
+
+    if (!Number.isFinite(target) || target <= 0) {
+      alert("Please set valid test marks before publishing.");
+      return;
+    }
+
+    const { count, error: countError } = await supabaseClient
+      .from("test_questions")
+      .select("id", { count: "exact", head: true })
+      .eq("test_id", testId);
+
+    if (countError) {
+      console.error("Question count error:", countError);
+      alert(countError.message || "Could not verify the question count.");
+      return;
+    }
+
+    if ((count || 0) !== target) {
+      alert(`This test cannot be published yet.
+
+Required questions: ${target}
+Questions added: ${count || 0}
+
+Complete the question set first.`);
+      return;
+    }
+
+    if (!test.is_active) {
+      alert("Activate the test before publishing it.");
+      return;
+    }
+  }
+
+  const confirmed = window.confirm(
+    nextState
+      ? `Publish "${test.title || "this test"}"?\n\nIt will become visible on the assigned Teacher and Student portals.`
+      : `Unpublish "${test.title || "this test"}"?\n\nIt will remain in Admin but will be hidden from Teacher and Student portals.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabaseClient
+      .from("tests")
+      .update({ is_published: nextState })
+      .eq("id", testId);
+
+    if (error) throw error;
+
+    await loadAdminTests();
+  } catch (error) {
+    console.error("Publish test error:", error);
+    alert(error?.message || "Could not update test publication status.");
+  }
+
+}
 
 
 async function toggleAdminTest(testId) {
@@ -2605,6 +2866,8 @@ async function openQuestionModal(testId) {
 
   currentQuestionTestId = testId;
   editingQuestionId = null;
+  currentQuestionTarget = Math.floor(Number(test.max_marks || 0) / 4);
+  currentQuestionCount = 0;
 
   document.getElementById("questionModalTitle").textContent =
     test.title || "Manage Questions";
@@ -2627,6 +2890,8 @@ function closeQuestionModal() {
   document.getElementById("questionModal").classList.remove("show");
   currentQuestionTestId = null;
   editingQuestionId = null;
+  currentQuestionTarget = 0;
+  currentQuestionCount = 0;
   clearQuestionForm();
   hideQuestionMessage();
 
@@ -2652,7 +2917,10 @@ async function loadQuestions(testId) {
       correct_option,
       marks,
       negative_marks,
-      question_order
+      question_order,
+      question_type,
+      question_latex,
+      question_image_url
     `)
     .eq("test_id", testId)
     .order("question_order", { ascending: true });
@@ -2663,7 +2931,43 @@ async function loadQuestions(testId) {
     return;
   }
 
+  currentQuestionCount = (data || []).length;
+  updateQuestionBuilderState();
   renderQuestions(data || []);
+
+}
+
+
+function updateQuestionBuilderState() {
+
+  const progress = document.getElementById("questionProgressText");
+  const formArea = document.getElementById("questionFormArea");
+  const readyBox = document.getElementById("testReady");
+  const readyText = document.getElementById("testReadyText");
+  const orderInput = document.getElementById("questionOrder");
+
+  if (progress) {
+    progress.textContent = `${currentQuestionCount} / ${currentQuestionTarget}`;
+  }
+
+  const complete =
+    currentQuestionTarget > 0 &&
+    currentQuestionCount >= currentQuestionTarget;
+
+  if (complete && !editingQuestionId) {
+    formArea?.classList.add("hidden");
+    readyBox?.classList.add("show");
+    if (readyText) {
+      readyText.textContent = `All ${currentQuestionTarget} questions have been added. This test is ready to save.`;
+    }
+  } else {
+    formArea?.classList.remove("hidden");
+    readyBox?.classList.remove("show");
+  }
+
+  if (orderInput && !editingQuestionId) {
+    orderInput.value = Math.max(1, currentQuestionCount + 1);
+  }
 
 }
 
@@ -2682,7 +2986,9 @@ function renderQuestions(questions) {
       <div class="question-item-head">
         <div style="min-width:0; flex:1;">
           <div class="question-number">QUESTION ${escapeHtml(question.question_order ?? index + 1)}</div>
-          <div class="question-text">${escapeHtml(question.question_text || "")}</div>
+          <div class="question-text">${escapeHtml(question.question_text || "")}<span class="question-type-badge">${escapeHtml((question.question_type || "text").toUpperCase())}</span></div>
+          ${question.question_latex ? `<div class="question-media-preview latex-preview">${renderLatex(question.question_latex)}</div>` : ""}
+          ${question.question_image_url ? `<img class="question-image-thumb" src="${escapeHtml(question.question_image_url)}" alt="Question image">` : ""}
           <div class="question-options">
             <div>A. ${escapeHtml(question.option_a || "")}</div>
             <div>B. ${escapeHtml(question.option_b || "")}</div>
@@ -2736,7 +3042,10 @@ async function editQuestion(questionId) {
       correct_option,
       marks,
       negative_marks,
-      question_order
+      question_order,
+      question_type,
+      question_latex,
+      question_image_url
     `)
     .eq("id", questionId)
     .maybeSingle();
@@ -2747,9 +3056,18 @@ async function editQuestion(questionId) {
   }
 
   editingQuestionId = question.id;
+  document.getElementById("questionFormArea")?.classList.remove("hidden");
+  document.getElementById("testReady")?.classList.remove("show");
   document.getElementById("questionFormTitle").textContent = "Edit Question";
   document.getElementById("saveQuestionBtn").textContent = "Update Question";
+  document.getElementById("questionType").value = question.question_type || "text";
   document.getElementById("questionText").value = question.question_text || "";
+  document.getElementById("questionLatex").value = question.question_latex || "";
+  currentQuestionImageUrl = question.question_image_url || null;
+  updateQuestionTypeUI();
+  if (currentQuestionImageUrl) {
+    showImagePreview(currentQuestionImageUrl);
+  }
   document.getElementById("optionA").value = question.option_a || "";
   document.getElementById("optionB").value = question.option_b || "";
   document.getElementById("optionC").value = question.option_c || "";
@@ -2791,15 +3109,89 @@ function clearQuestionForm() {
   const form = document.getElementById("questionForm");
   if (form) form.reset();
 
+  document.getElementById("questionType").value = "text";
+  document.getElementById("questionLatex").value = "";
+  document.getElementById("questionImage").value = "";
+  currentQuestionImageUrl = null;
+  updateQuestionTypeUI();
   document.getElementById("questionMarks").value = 4;
   document.getElementById("negativeMarks").value = 0;
-  document.getElementById("questionOrder").value = 1;
+  document.getElementById("questionOrder").value = Math.max(1, currentQuestionCount + 1);
   document.getElementById("questionFormTitle").textContent = "Add Question";
   document.getElementById("saveQuestionBtn").textContent = "Add Question";
   editingQuestionId = null;
 
 }
 
+
+function renderLatex(value) {
+  if (!value) return "";
+  try {
+    if (window.katex) {
+      return window.katex.renderToString(value, { throwOnError: false, displayMode: true });
+    }
+  } catch (error) {
+    console.warn("LaTeX render error:", error);
+  }
+  return `<span>${escapeHtml(value)}</span>`;
+}
+
+function updateQuestionTypeUI() {
+  const type = document.getElementById("questionType")?.value || "text";
+  const latexField = document.getElementById("latexField");
+  const imageField = document.getElementById("imageField");
+  const help = document.getElementById("questionTypeHelp");
+  if (latexField) latexField.style.display = type === "latex" ? "block" : "none";
+  if (imageField) imageField.style.display = type === "image" ? "block" : "none";
+  if (help) {
+    help.textContent = type === "latex"
+      ? "Use this for equations, fractions, roots, chemical-style mathematical notation, etc."
+      : type === "image"
+        ? "Use this for Physics graphs, diagrams, figures, Chemistry structures or image-based questions."
+        : "Use normal text for standard MCQs.";
+  }
+}
+
+function showImagePreview(src) {
+  const box = document.getElementById("imagePreview");
+  if (!box) return;
+  if (!src) {
+    box.style.display = "none";
+    box.innerHTML = "";
+    return;
+  }
+  box.style.display = "block";
+  box.innerHTML = `<img src="${escapeHtml(src)}" alt="Question preview">`;
+}
+
+async function uploadQuestionImage(file) {
+  if (!file) return currentQuestionImageUrl;
+  const extension = (file.name.split(".").pop() || "png").toLowerCase();
+  const safeName = `question-${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+  const path = `${currentQuestionTestId}/${safeName}`;
+  const { error } = await supabaseClient.storage
+    .from("test-question-images")
+    .upload(path, file, { upsert: false, contentType: file.type || undefined });
+  if (error) throw error;
+  const { data } = supabaseClient.storage
+    .from("test-question-images")
+    .getPublicUrl(path);
+  return data.publicUrl;
+}
+
+
+document.getElementById("questionType").addEventListener("change", updateQuestionTypeUI);
+document.getElementById("questionLatex").addEventListener("input", function() {
+  const preview = document.getElementById("latexPreview");
+  if (preview) preview.innerHTML = this.value.trim() ? renderLatex(this.value.trim()) : "Formula preview will appear here.";
+});
+document.getElementById("questionImage").addEventListener("change", function() {
+  const file = this.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = event => showImagePreview(event.target.result);
+  reader.readAsDataURL(file);
+});
 
 function showQuestionMessage(text, type) {
   const box = document.getElementById("questionMessage");
@@ -2839,20 +3231,55 @@ document
       return;
     }
 
+    if (!editingQuestionId && currentQuestionCount >= currentQuestionTarget) {
+      updateQuestionBuilderState();
+      showQuestionMessage("The required number of questions has already been added.", "error");
+      return;
+    }
+
     const saveBtn = document.getElementById("saveQuestionBtn");
     saveBtn.disabled = true;
     saveBtn.textContent = editingQuestionId ? "Updating..." : "Saving...";
     hideQuestionMessage();
 
+    const questionType = document.getElementById("questionType").value;
+    const questionText = document.getElementById("questionText").value.trim();
+    const questionLatex = document.getElementById("questionLatex").value.trim() || null;
+    const imageFile = document.getElementById("questionImage").files?.[0] || null;
+
+    if (questionType === "image" && !imageFile && !currentQuestionImageUrl) {
+      showQuestionMessage("Please upload the question image / graph / diagram.", "error");
+      return;
+    }
+
+    if (questionType === "latex" && !questionLatex) {
+      showQuestionMessage("Please enter the LaTeX formula.", "error");
+      return;
+    }
+
+    try {
+      if (imageFile) {
+        currentQuestionImageUrl = await uploadQuestionImage(imageFile);
+        showImagePreview(currentQuestionImageUrl);
+      }
+    } catch (uploadError) {
+      console.error("Question image upload error:", uploadError);
+      showQuestionMessage(uploadError.message || "Unable to upload question image.", "error");
+      return;
+    }
+
     const payload = {
       test_id: currentQuestionTestId,
-      question_text: document.getElementById("questionText").value.trim(),
+      question_text: questionText,
+      question_type: questionType,
+      question_latex: questionType === "latex" ? questionLatex : null,
+      question_image_url: questionType === "image" ? currentQuestionImageUrl : null,
       option_a: document.getElementById("optionA").value.trim(),
       option_b: document.getElementById("optionB").value.trim(),
       option_c: document.getElementById("optionC").value.trim(),
       option_d: document.getElementById("optionD").value.trim(),
       correct_option: document.getElementById("correctOption").value,
-      marks: Number(document.getElementById("questionMarks").value),
+      marks: 4,
       negative_marks: Number(document.getElementById("negativeMarks").value),
       question_order: Number(document.getElementById("questionOrder").value)
     };
@@ -2895,6 +3322,17 @@ document
       saveBtn.textContent = "Add Question";
     }
 
+  });
+
+
+document
+  .getElementById("saveCompletedTestBtn")
+  .addEventListener("click", function() {
+    if (currentQuestionCount < currentQuestionTarget) {
+      return;
+    }
+    closeQuestionModal();
+    loadAdminTests();
   });
 
 
@@ -3000,6 +3438,18 @@ document
         return;
       }
 
+      const maxMarks = Number(
+        document.getElementById("testMaxMarks").value
+      );
+
+      if (!Number.isFinite(maxMarks) || maxMarks <= 0 || maxMarks % 4 !== 0) {
+        showTestMessage(
+          "Total marks must be a positive multiple of 4 because every question carries 4 marks.",
+          "error"
+        );
+        return;
+      }
+
       const payload = {
         batch_id:
           document.getElementById("testBatch").value,
@@ -3014,9 +3464,7 @@ document
           document.getElementById("testDate").value,
 
         max_marks:
-          Number(
-            document.getElementById("testMaxMarks").value
-          ),
+          maxMarks,
 
         duration_minutes:
           Number(
