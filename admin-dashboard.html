@@ -8,6 +8,9 @@
 
   <link rel="icon" href="sir logo.png" />
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -318,7 +321,8 @@
     }
 
     .field input,
-    .field select {
+    .field select,
+    .field textarea {
       width: 100%;
       padding: 11px 12px;
       background: #08172a;
@@ -364,6 +368,32 @@
     .message.success {
       background: rgba(70,180,110,.12);
       color: #75dda0;
+    }
+
+    .latex-preview {
+      margin-top: 8px;
+      min-height: 55px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #071426;
+      border: 1px solid rgba(255,255,255,.08);
+      overflow-x: auto;
+    }
+
+    .image-preview {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #071426;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .image-preview img {
+      display: block;
+      max-width: 100%;
+      max-height: 260px;
+      margin: 0 auto;
+      border-radius: 6px;
     }
 
     /* =========================
@@ -429,25 +459,7 @@
 
     .test-manage-btn,
     .test-toggle-btn,
-    .test-publish-btn {
-      background: rgba(220, 183, 91, .10);
-      border: 1px solid rgba(220, 183, 91, .40);
-      color: #f0d47a;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .test-publish-btn.published {
-      background: rgba(70, 190, 120, .10);
-      border-color: rgba(70, 190, 120, .35);
-      color: #8ff0b5;
-    }
-
-.test-delete-btn {
+    .test-delete-btn {
       white-space: nowrap;
       min-height: 34px;
     }
@@ -621,55 +633,6 @@
       margin-bottom: 16px;
     }
 
-    .question-progress {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 11px 13px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(201,168,78,.18);
-      background: rgba(201,168,78,.06);
-      border-radius: 10px;
-      color: #aeb9c8;
-      font-size: 11px;
-    }
-
-    .question-progress strong {
-      color: #e5c96b;
-      font-size: 12px;
-    }
-
-    .test-ready {
-      display: none;
-      padding: 22px;
-      border: 1px solid rgba(70,190,120,.28);
-      background: rgba(70,190,120,.07);
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .test-ready.show {
-      display: block;
-    }
-
-    .test-ready h3 {
-      margin: 0 0 7px;
-      color: #8ff0b5;
-      font-size: 15px;
-    }
-
-    .test-ready p {
-      margin: 0 0 16px;
-      color: #9eabbd;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
-    .question-form-area.hidden {
-      display: none;
-    }
-
     .question-empty {
       padding: 24px 12px;
       text-align: center;
@@ -712,6 +675,69 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .batch-manage-btn {
+      background: transparent;
+      border: 1px solid rgba(120,160,220,.45);
+      color: #a9c8ff;
+      padding: 7px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .batch-manage-btn:hover {
+      background: rgba(120,160,220,.12);
+    }
+
+    .batch-check-list {
+      display: grid;
+      gap: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px 2px;
+    }
+
+    #teacherCreateBatchList {
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px 2px;
+    }
+
+    .batch-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 9px;
+      background: rgba(255,255,255,.025);
+      cursor: pointer;
+    }
+
+    .batch-check-item:hover {
+      background: rgba(255,255,255,.05);
+    }
+
+    .batch-check-item input {
+      width: 17px;
+      height: 17px;
+      accent-color: #d9b75b;
+      cursor: pointer;
+    }
+
+    .batch-check-name {
+      font-weight: 700;
+      color: #f3f5f8;
+    }
+
+    .batch-check-year {
+      color: #8fa0b5;
+      font-size: 12px;
+      margin-top: 2px;
     }
 
     .status-action-btn {
@@ -987,129 +1013,7 @@
       display: none;
     }
 
-  
-    .teacher-actions,
-    .student-actions {
-      display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-    }
-    .teacher-action-btn,
-    .reset-password-btn,
-    .status-action-btn {
-      background:transparent;
-      border:1px solid rgba(255,255,255,.14);
-      color:#c9d3df;
-      padding:7px 9px;
-      border-radius:7px;
-      cursor:pointer;
-      font-size:10px;
-      font-weight:700;
-      white-space:nowrap;
-    }
-    .teacher-action-btn:hover,
-    .reset-password-btn:hover,
-    .status-action-btn:hover {
-      border-color:rgba(201,168,78,.45);
-      color:#e1c86b;
-    }
-    .status-action-btn.reactivate {
-      color:#8ff0b5;
-      border-color:rgba(70,190,120,.3);
-    }
-    .teacher-batch-list {
-      color:#8d99aa;
-      font-size:10px;
-      line-height:1.5;
-    }
-    .credential-note {
-      margin-top:12px;
-      padding:12px;
-      border-radius:8px;
-      background:rgba(201,168,78,.07);
-      border:1px solid rgba(201,168,78,.18);
-      color:#d9c88e;
-      font-size:11px;
-      line-height:1.5;
-    }
-
-    .question-type-row {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    .question-type-help {
-      color:#8d99aa;
-      font-size:11px;
-      line-height:1.5;
-      margin-top:6px;
-    }
-    .question-media-preview {
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:12px;
-      padding:10px;
-      background:rgba(255,255,255,.025);
-    }
-    .question-media-preview img {
-      display:block;
-      max-width:100%;
-      max-height:240px;
-      margin:auto;
-      border-radius:8px;
-    }
-    .latex-preview {
-      min-height:48px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:auto;
-      padding:12px;
-      color:#fff;
-    }
-    .question-type-badge {
-      display:inline-block;
-      margin-left:8px;
-      padding:3px 7px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      color:#d9b75b;
-      font-size:9px;
-      font-weight:800;
-      letter-spacing:.06em;
-    }
-    .question-image-thumb {
-      display:block;
-      max-width:260px;
-      max-height:140px;
-      margin-top:10px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,.1);
-    }
-    @media (max-width: 650px) {
-      .question-type-row { grid-template-columns:1fr; }
-    }
-
-    /* =========================
-       ADMIN EXTENSIONS
-    ========================= */
-    .admin-textarea{width:100%;padding:11px 12px;background:#08172a;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;outline:none;resize:vertical;font-family:inherit;line-height:1.5}
-    .admin-textarea:focus{border-color:#c9a84e}
-    .result-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .result-tools select,.result-tools input{max-width:360px;padding:11px 12px;background:#08172a;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;outline:none}
-    .inline-actions{display:flex;gap:7px;flex-wrap:wrap}
-    .small-action{background:transparent;border:1px solid rgba(255,255,255,.14);color:#dce3ed;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700}
-    .small-action:hover{border-color:rgba(201,168,78,.45);color:#e1c86b}
-    .small-action.danger{border-color:rgba(220,90,90,.35);color:#ff9b9b}
-    .small-action.success{border-color:rgba(70,190,120,.35);color:#8ff0b5}
-    .table-card table td .muted{color:#7f8da1;font-size:11px}
-    .notice-content-cell{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b8c4d4}
-    @media(max-width:700px){.result-tools{align-items:stretch}.result-tools select,.result-tools input{max-width:none;width:100%}}
-
   </style>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
 </head>
 
 <body>
@@ -1186,10 +1090,6 @@
 
     <button class="nav-btn" data-section="teachers">
       Teachers
-    </button>
-
-    <button class="nav-btn" data-section="batches">
-      Batches
     </button>
 
     <button class="nav-btn" data-section="tests">
@@ -1308,29 +1208,22 @@
       <div class="section-head">
         <div>
           <h2>Teachers</h2>
-          <div class="build-marker">TEACHER ACCOUNT MANAGEMENT</div>
+          <div class="build-marker">FACULTY & LOGIN MANAGEMENT</div>
         </div>
-
-        <button class="primary-btn" id="addTeacherBtn" type="button">
+        <button type="button" class="primary-btn" id="addTeacherBtn">
           + Add Teacher
         </button>
       </div>
 
       <div class="table-card">
         <div class="table-tools">
-          <input
-            type="text"
-            class="search"
-            id="teacherSearch"
-            placeholder="Search by name, email or subject..."
-          >
+          <input type="text" class="search" id="teacherSearch" placeholder="Search by name, email or subject...">
         </div>
-
         <table>
           <thead>
             <tr>
               <th>Teacher</th>
-              <th>Email / Login ID</th>
+              <th>Email / Login</th>
               <th>Subject</th>
               <th>Batches</th>
               <th>Status</th>
@@ -1376,60 +1269,57 @@
     </section>
 
 
-    <!-- BATCHES -->
-
-    <section class="section" id="batches">
-      <div class="section-head">
-        <div><h2>Batches</h2><div class="build-marker">ACADEMIC BATCH MANAGEMENT</div></div>
-        <button type="button" class="primary-btn" id="adminAddBatchBtn">+ Add Batch</button>
-      </div>
-      <div class="table-card">
-        <div class="table-tools"><input class="search" id="adminBatchSearch" placeholder="Search batch or academic year..."></div>
-        <table><thead><tr><th>Batch</th><th>Academic Year</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody id="adminBatchesBody"><tr><td colspan="4" class="empty">Loading batches...</td></tr></tbody></table>
-      </div>
-    </section>
-
     <!-- RESULTS -->
+
     <section class="section" id="results">
+
       <div class="section-head">
-        <div><h2>Results</h2><div class="build-marker">TEST PERFORMANCE</div></div>
-        <button type="button" class="secondary-btn" id="refreshResultsBtn">Refresh</button>
+        <h2>Results</h2>
+        <button class="primary-btn">+ Add Results</button>
       </div>
+
       <div class="table-card">
-        <div class="table-tools result-tools">
-          <select id="resultTestFilter"><option value="">All Tests</option></select>
-          <input class="search" id="resultStudentSearch" placeholder="Search student or UID...">
+        <div class="empty">
+          Result Management will be connected here.
         </div>
-        <table><thead><tr><th>Student</th><th>Test</th><th>Subject</th><th>Marks</th><th>%</th><th>Rank</th><th>Correct</th><th>Wrong</th><th>Unanswered</th></tr></thead>
-        <tbody id="adminResultsBody"><tr><td colspan="9" class="empty">Loading results...</td></tr></tbody></table>
       </div>
+
     </section>
+
 
     <!-- REVIEWS -->
+
     <section class="section" id="reviews">
+
       <div class="section-head">
-        <div><h2>Teacher Reviews</h2><div class="build-marker">WEEKLY STUDENT REVIEW</div></div>
-        <button type="button" class="primary-btn" id="adminAddReviewBtn">+ New Review</button>
+        <h2>Teacher Reviews</h2>
+        <button class="primary-btn">+ New Review</button>
       </div>
+
       <div class="table-card">
-        <div class="table-tools"><input class="search" id="adminReviewSearch" placeholder="Search student, teacher or week..."></div>
-        <table><thead><tr><th>Student</th><th>Teacher</th><th>Week</th><th>Understanding</th><th>Participation</th><th>Practice</th><th>Action</th></tr></thead>
-        <tbody id="adminReviewsBody"><tr><td colspan="7" class="empty">Loading reviews...</td></tr></tbody></table>
+        <div class="empty">
+          Teacher Review Management will be connected here.
+        </div>
       </div>
+
     </section>
 
+
     <!-- NOTICES -->
+
     <section class="section" id="notices">
+
       <div class="section-head">
-        <div><h2>Notice Board</h2><div class="build-marker">STUDENT / TEACHER COMMUNICATION</div></div>
-        <button type="button" class="primary-btn" id="adminAddNoticeBtn">+ Publish Notice</button>
+        <h2>Notice Board</h2>
+        <button class="primary-btn">+ Publish Notice</button>
       </div>
+
       <div class="table-card">
-        <div class="table-tools"><input class="search" id="adminNoticeSearch" placeholder="Search notices..."></div>
-        <table><thead><tr><th>Title</th><th>Content</th><th>Audience</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-        <tbody id="adminNoticesBody"><tr><td colspan="6" class="empty">Loading notices...</td></tr></tbody></table>
+        <div class="empty">
+          Notice Management will be connected here.
+        </div>
       </div>
+
     </section>
 
   </main>
@@ -1437,62 +1327,6 @@
 </div>
 
 
-</div>
-
-<!-- ADMIN BATCH MODAL -->
-<div class="modal" id="adminBatchModal">
-  <div class="modal-box">
-    <div class="modal-head"><h2 id="adminBatchModalTitle">Add Batch</h2><button class="close" id="adminBatchClose">&times;</button></div>
-    <form id="adminBatchForm">
-      <div class="form-grid">
-        <div class="field full"><label>Batch Name</label><input id="adminBatchName" required placeholder="NEET 2027 Batch"></div>
-        <div class="field"><label>Academic Year</label><input id="adminBatchYear" required placeholder="2026-27"></div>
-        <div class="field"><label>Status</label><select id="adminBatchActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
-      </div>
-      <div id="adminBatchMessage" class="message"></div>
-      <div class="form-actions"><button type="button" class="secondary-btn" id="adminBatchCancel">Cancel</button><button class="primary-btn" type="submit" id="adminBatchSave">Save Batch</button></div>
-    </form>
-  </div>
-</div>
-
-<!-- ADMIN REVIEW MODAL -->
-<div class="modal" id="adminReviewModal">
-  <div class="modal-box" style="max-width:760px">
-    <div class="modal-head"><div><h2 id="adminReviewModalTitle">New Teacher Review</h2><div class="build-marker">One review per student per week</div></div><button class="close" id="adminReviewClose">&times;</button></div>
-    <form id="adminReviewForm">
-      <div class="form-grid">
-        <div class="field"><label>Student</label><select id="adminReviewStudent" required></select></div>
-        <div class="field"><label>Teacher</label><select id="adminReviewTeacher" required></select></div>
-        <div class="field"><label>Week Start</label><input type="date" id="adminReviewWeekStart" required></div>
-        <div class="field"><label>Week End</label><input type="date" id="adminReviewWeekEnd" required></div>
-        <div class="field"><label>Academic Understanding</label><textarea id="adminReviewUnderstanding" rows="3" class="admin-textarea"></textarea></div>
-        <div class="field"><label>Class Participation</label><textarea id="adminReviewParticipation" rows="3" class="admin-textarea"></textarea></div>
-        <div class="field"><label>Practice Consistency</label><textarea id="adminReviewPractice" rows="3" class="admin-textarea"></textarea></div>
-        <div class="field"><label>Strengths</label><textarea id="adminReviewStrengths" rows="3" class="admin-textarea"></textarea></div>
-        <div class="field"><label>Areas to Improve</label><textarea id="adminReviewAreas" rows="3" class="admin-textarea"></textarea></div>
-        <div class="field full"><label>Teacher Note</label><textarea id="adminReviewNote" rows="4" class="admin-textarea"></textarea></div>
-      </div>
-      <div id="adminReviewMessage" class="message"></div>
-      <div class="form-actions"><button type="button" class="secondary-btn" id="adminReviewCancel">Cancel</button><button class="primary-btn" type="submit" id="adminReviewSave">Save Review</button></div>
-    </form>
-  </div>
-</div>
-
-<!-- ADMIN NOTICE MODAL -->
-<div class="modal" id="adminNoticeModal">
-  <div class="modal-box" style="max-width:720px">
-    <div class="modal-head"><div><h2 id="adminNoticeModalTitle">Publish Notice</h2><div class="build-marker">Existing notices table is used; no duplicate notice table is created.</div></div><button class="close" id="adminNoticeClose">&times;</button></div>
-    <form id="adminNoticeForm">
-      <div class="form-grid">
-        <div class="field full"><label>Title</label><input id="adminNoticeTitle" required placeholder="Important academic update"></div>
-        <div class="field full"><label>Content</label><textarea id="adminNoticeContent" rows="6" class="admin-textarea" required placeholder="Write the notice..."></textarea></div>
-        <div class="field"><label>Audience</label><select id="adminNoticeAudience"><option value="all">Everyone</option><option value="students">Students</option><option value="teachers">Teachers</option></select></div>
-        <div class="field"><label>Status</label><select id="adminNoticePublished"><option value="true">Published</option><option value="false">Draft</option></select></div>
-      </div>
-      <div id="adminNoticeMessage" class="message"></div>
-      <div class="form-actions"><button type="button" class="secondary-btn" id="adminNoticeCancel">Cancel</button><button class="primary-btn" type="submit" id="adminNoticeSave">Save Notice</button></div>
-    </form>
-  </div>
 </div>
 
 <!-- ADD STUDENT MODAL -->
@@ -1540,20 +1374,9 @@
         </div>
 
         <div class="field">
-          <label>Initial Password</label>
-          <input
-            type="text"
-            id="studentPassword"
-            placeholder="Minimum 8 characters"
-            minlength="8"
-            required
-          >
-        </div>
-
-        <div class="field">
           <label>Course</label>
 
-          <select id="studentCourse" required>
+          <select id="studentCourse">
             <option value="">Select Course</option>
           </select>
 
@@ -1562,7 +1385,7 @@
         <div class="field">
           <label>Batch</label>
 
-          <select id="studentBatch" required>
+          <select id="studentBatch">
             <option value="">Select Batch</option>
           </select>
 
@@ -1600,28 +1423,25 @@
 <!-- ADD TEACHER MODAL -->
 
 <div class="modal" id="teacherModal">
-
-  <div class="modal-box" style="max-width:760px;">
-
+  <div class="modal-box">
     <div class="modal-head">
       <div>
         <h2>Add Teacher</h2>
-        <div class="build-marker">CREATE SECURE LOGIN + ASSIGN BATCHES</div>
+        <small style="color:#8fa0b5;">CREATE SECURE LOGIN + ASSIGN BATCHES</small>
       </div>
       <button class="close" id="closeTeacherModal">&times;</button>
     </div>
 
     <form id="teacherForm">
       <div class="form-grid">
-
         <div class="field full">
           <label>Full Name</label>
-          <input type="text" id="teacherName" placeholder="Teacher full name" required>
+          <input type="text" id="teacherName" required placeholder="Teacher full name">
         </div>
 
         <div class="field">
           <label>Email / Login ID</label>
-          <input type="email" id="teacherEmail" placeholder="teacher@sir.net.in" required>
+          <input type="email" id="teacherEmail" required placeholder="teacher@sir.net.in">
         </div>
 
         <div class="field">
@@ -1637,33 +1457,62 @@
             <option value="Chemistry">Chemistry</option>
             <option value="Biology">Biology</option>
             <option value="Mathematics">Mathematics</option>
-            <option value="NEET Faculty">NEET Faculty</option>
-            <option value="JEE Faculty">JEE Faculty</option>
+            <option value="NEET">NEET</option>
+            <option value="JEE">JEE</option>
             <option value="Other">Other</option>
           </select>
         </div>
 
         <div class="field">
           <label>Initial Password</label>
-          <input type="text" id="teacherPassword" placeholder="Minimum 8 characters" minlength="8" required>
+          <input type="text" id="teacherPassword" required minlength="8" value="SIR@123456">
         </div>
 
         <div class="field full">
-         <div id="teacherCreateBatchList" class="batch-check-list teacher-create-batch-list">
-          <select id="teacherBatches" multiple size="5" required></select>
-          <div class="question-type-help">Hold Ctrl (Windows) / Command (Mac) to select multiple batches.</div>
-        </div>
+          <label>Assign Batches</label>
 
+          <div id="teacherCreateBatchList" class="batch-check-list">
+            <div class="empty">Loading batches...</div>
+          </div>
+
+          <small style="color:#7f90a6;">
+            Select one or multiple batches. No Ctrl / Command required.
+          </small>
+        </div>
       </div>
 
-      <div id="teacherMessage" class="message"></div>
+      <div id="teacherFormMessage" class="message"></div>
 
       <div class="form-actions">
         <button type="button" class="secondary-btn" id="cancelTeacher">Cancel</button>
-        <button type="submit" class="primary-btn" id="createTeacherBtn">Create Teacher</button>
+        <button type="submit" class="primary-btn" id="createTeacherSubmit">Create Teacher</button>
       </div>
     </form>
+  </div>
+</div>
 
+
+<!-- MANAGE TEACHER BATCHES MODAL -->
+<div class="modal" id="teacherBatchModal">
+  <div class="modal-box" style="max-width:620px;">
+    <div class="modal-head">
+      <div>
+        <h2>Manage Batches</h2>
+        <small id="teacherBatchModalSubtitle" style="color:#8fa0b5;">Select batches assigned to this teacher.</small>
+      </div>
+      <button class="close" id="closeTeacherBatchModal">&times;</button>
+    </div>
+
+    <div id="teacherBatchList" class="batch-check-list">
+      <div class="empty">Loading batches...</div>
+    </div>
+
+    <div id="teacherBatchMessage" class="message"></div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" id="cancelTeacherBatch">Cancel</button>
+      <button type="button" class="primary-btn" id="saveTeacherBatches">Save Batches</button>
+    </div>
   </div>
 </div>
 
@@ -1800,16 +1649,10 @@
 
     <div class="question-builder-divider"></div>
 
-    <div class="question-progress">
-      <span>Question progress</span>
-      <strong id="questionProgressText">0 / 0</strong>
-    </div>
+    <div class="question-builder-title" id="questionFormTitle">Add Question</div>
+    <div class="question-builder-subtitle">Add the question, four options, correct answer, and marking scheme.</div>
 
-    <div id="questionFormArea" class="question-form-area">
-      <div class="question-builder-title" id="questionFormTitle">Add Question</div>
-      <div class="question-builder-subtitle">Each question carries 4 marks. Add the required number of questions for this test.</div>
-
-      <form id="questionForm">
+    <form id="questionForm">
 
       <div class="form-grid">
 
@@ -1820,29 +1663,24 @@
             <option value="latex">Math / LaTeX</option>
             <option value="image">Image / Graph / Diagram</option>
           </select>
-          <div class="question-type-help" id="questionTypeHelp">Use normal text for standard MCQs.</div>
+          <small id="questionTypeHelp" style="color:#7f90a6;">Use normal text for standard MCQs.</small>
         </div>
 
         <div class="field full">
-          <label>Question Text</label>
+          <label>Question</label>
           <textarea id="questionText" rows="4" placeholder="Enter the question text" required></textarea>
         </div>
 
         <div class="field full" id="latexField" style="display:none;">
-          <label>Math / LaTeX Formula</label>
-          <textarea id="questionLatex" rows="3" placeholder="Example: \frac{-b \pm \sqrt{b^2-4ac}}{2a}"></textarea>
-          <div class="question-type-help">Write only the LaTeX expression. It will be rendered as a mathematical formula.</div>
-          <div class="question-media-preview">
-            <div class="question-type-help">Preview</div>
-            <div id="latexPreview" class="latex-preview">Formula preview will appear here.</div>
-          </div>
+          <label>LaTeX Formula</label>
+          <textarea id="questionLatex" rows="3" placeholder="e.g. \frac{1}{2}mv^2"></textarea>
+          <div id="latexPreview" class="latex-preview">Formula preview will appear here.</div>
         </div>
 
         <div class="field full" id="imageField" style="display:none;">
-          <label>Question Image / Graph / Diagram</label>
+          <label>Image / Graph / Diagram</label>
           <input type="file" id="questionImage" accept="image/png,image/jpeg,image/webp,image/gif">
-          <div class="question-type-help">Upload a clear JPG, PNG, WEBP or GIF of the graph, diagram, figure or image.</div>
-          <div id="imagePreview" class="question-media-preview" style="display:none;"></div>
+          <div id="imagePreview" class="image-preview" style="display:none;"></div>
         </div>
 
         <div class="field">
@@ -1878,7 +1716,7 @@
 
         <div class="field">
           <label>Marks</label>
-          <input type="number" id="questionMarks" min="4" max="4" step="1" value="4" readonly required>
+          <input type="number" id="questionMarks" min="0" step="0.01" value="4" required>
         </div>
 
         <div class="field">
@@ -1895,25 +1733,16 @@
 
       <div id="questionMessage" class="message"></div>
 
-        <div class="form-actions">
-          <button type="button" class="secondary-btn" id="cancelQuestionEdit">
-            Clear
-          </button>
-          <button type="submit" class="primary-btn" id="saveQuestionBtn">
-            Add Question
-          </button>
-        </div>
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelQuestionEdit">
+          Clear
+        </button>
+        <button type="submit" class="primary-btn" id="saveQuestionBtn">
+          Add Question
+        </button>
+      </div>
 
-      </form>
-    </div>
-
-    <div id="testReady" class="test-ready">
-      <h3>TEST READY</h3>
-      <p id="testReadyText">All required questions have been added.</p>
-      <button type="button" class="primary-btn" id="saveCompletedTestBtn">
-        SAVE TEST
-      </button>
-    </div>
+    </form>
 
   </div>
 
@@ -2177,7 +2006,6 @@ loginForm.addEventListener(
 
       await loadStudents();
       await loadAdminBatches();
-      await loadAdminTeachers();
       await loadAdminTests();
       await loadCounters();
 
@@ -2707,286 +2535,6 @@ async function loadBatches() {
 
 
 /* --------------------------------
-   TEACHER MANAGEMENT
--------------------------------- */
-
-let allTeachers = [];
-let adminBatchMap = {};
-
-async function loadAdminTeachers() {
-
-  const { data, error } = await supabaseClient
-    .from("teachers")
-    .select(`
-      id,
-      user_id,
-      full_name,
-      subject,
-      phone,
-      email,
-      is_active
-    `)
-    .order("full_name", { ascending: true });
-
-  if (error) {
-    console.error("Teachers error:", error);
-    document.getElementById("teachersTableBody").innerHTML = `
-      <tr><td colspan="6" class="empty">Unable to load teachers.</td></tr>`;
-    return;
-  }
-
-  allTeachers = data || [];
-  await renderTeachers(allTeachers);
-}
-
-async function renderTeachers(teachers) {
-  const tbody = document.getElementById("teachersTableBody");
-
-  if (!teachers.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No teachers found.</td></tr>`;
-    return;
-  }
-
-  const teacherIds = teachers.map(t => t.id);
-  let assignments = [];
-  let batches = [];
-
-  if (teacherIds.length) {
-    const assignmentResult = await supabaseClient
-      .from("teacher_batches")
-      .select("teacher_id,batch_id")
-      .in("teacher_id", teacherIds);
-
-    assignments = assignmentResult.data || [];
-
-    const batchIds = [...new Set(assignments.map(a => a.batch_id).filter(Boolean))];
-    if (batchIds.length) {
-      const batchResult = await supabaseClient
-        .from("batches")
-        .select("id,name,academic_year")
-        .in("id", batchIds);
-      batches = batchResult.data || [];
-    }
-  }
-
-  const batchMap = Object.fromEntries(batches.map(b => [b.id, b]));
-
-  tbody.innerHTML = teachers.map(teacher => {
-    const teacherAssignments = assignments.filter(a => a.teacher_id === teacher.id);
-    const batchNames = teacherAssignments
-      .map(a => batchMap[a.batch_id])
-      .filter(Boolean)
-      .map(b => `${b.name}${b.academic_year ? ` — ${b.academic_year}` : ""}`);
-
-    return `
-      <tr>
-        <td>${escapeHtml(teacher.full_name || "—")}</td>
-        <td>${escapeHtml(teacher.email || "—")}</td>
-        <td>${escapeHtml(teacher.subject || "—")}</td>
-        <td><div class="teacher-batch-list">${batchNames.length ? batchNames.map(escapeHtml).join("<br>") : "No batch assigned"}</div></td>
-        <td><span class="status ${teacher.is_active ? "" : "inactive"}">${teacher.is_active ? "Active" : "Inactive"}</span></td>
-        <td>
-          <div class="teacher-actions">
-            <button class="teacher-action-btn" onclick="resetTeacherPassword('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}')">Reset Password</button>
-            <button class="teacher-action-btn" onclick="manageTeacherBatches('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}')">Manage Batches</button>
-            <button class="status-action-btn ${teacher.is_active ? "" : "reactivate"}" onclick="toggleTeacherStatus('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}','${teacher.is_active ? "true" : "false"}')">${teacher.is_active ? "Deactivate" : "Reactivate"}</button>
-          </div>
-        </td>
-      </tr>`;
-  }).join("");
-}
-
-async function loadTeacherBatchOptions() {
-  const { data, error } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) throw error;
-
-  const select = document.getElementById("teacherBatches");
-  select.innerHTML = "";
-
-  (data || []).forEach(batch => {
-    const option = document.createElement("option");
-    option.value = batch.id;
-    option.textContent = `${batch.name} — ${batch.academic_year || ""}`;
-    select.appendChild(option);
-  });
-}
-
-function openTeacherModal() {
-  document.getElementById("teacherForm").reset();
-  document.getElementById("teacherPassword").value = generateInitialPassword();
-  document.getElementById("teacherMessage").className = "message";
-  document.getElementById("teacherMessage").textContent = "";
-  document.getElementById("teacherModal").classList.add("show");
-  loadTeacherBatchOptions().catch(error => showTeacherMessage(error.message || "Unable to load batches.", "error"));
-}
-
-function closeTeacherModal() {
-  document.getElementById("teacherModal").classList.remove("show");
-  document.getElementById("teacherForm").reset();
-  const box = document.getElementById("teacherMessage");
-  box.className = "message";
-  box.textContent = "";
-}
-
-function showTeacherMessage(text, type) {
-  const box = document.getElementById("teacherMessage");
-  box.textContent = text;
-  box.className = `message show ${type}`;
-}
-
-document.getElementById("addTeacherBtn").addEventListener("click", openTeacherModal);
-document.getElementById("closeTeacherModal").addEventListener("click", closeTeacherModal);
-document.getElementById("cancelTeacher").addEventListener("click", closeTeacherModal);
-
-document.getElementById("teacherForm").addEventListener("submit", async function(event) {
-  event.preventDefault();
-
-  const button = document.getElementById("createTeacherBtn");
-  button.disabled = true;
-  button.textContent = "Creating...";
-
-  try {
-    const selectedBatches = [...document.getElementById("teacherBatches").selectedOptions].map(o => o.value);
-    const password = document.getElementById("teacherPassword").value.trim();
-
-    if (password.length < 8) throw new Error("Password must contain at least 8 characters.");
-    if (!selectedBatches.length) throw new Error("Select at least one batch.");
-
-    const { data, error } = await supabaseClient.functions.invoke("admin-create-teacher", {
-      body: {
-        full_name: document.getElementById("teacherName").value.trim(),
-        email: document.getElementById("teacherEmail").value.trim(),
-        phone: document.getElementById("teacherMobile").value.trim() || null,
-        subject: document.getElementById("teacherSubject").value,
-        password,
-        batch_ids: selectedBatches
-      }
-    });
-
-    if (error) throw error;
-    if (!data?.success) throw new Error(data?.error || "Unable to create teacher.");
-
-    showTeacherMessage(`Teacher created successfully. Login: ${data.email}`, "success");
-
-    alert(`TEACHER CREATED SUCCESSFULLY\n\nName: ${data.full_name || document.getElementById("teacherName").value.trim()}\nLogin: ${data.email}\nPassword: ${password}\n\nSave these credentials securely.`);
-
-    setTimeout(async () => {
-      closeTeacherModal();
-      await loadAdminTeachers();
-    }, 900);
-
-  } catch (error) {
-    console.error("Create teacher error:", error);
-    showTeacherMessage(error.message || "Unable to create teacher.", "error");
-  } finally {
-    button.disabled = false;
-    button.textContent = "Create Teacher";
-  }
-});
-
-async function resetTeacherPassword(teacherId, teacherName) {
-  const newPassword = prompt(`Set new password for ${teacherName}`);
-  if (newPassword === null) return;
-  const password = newPassword.trim();
-  if (password.length < 8) {
-    alert("Password must contain at least 8 characters.");
-    return;
-  }
-
-  const { data, error } = await supabaseClient.functions.invoke("set-teacher-password", {
-    body: { teacher_id: teacherId, new_password: password }
-  });
-
-  if (error || !data?.success) {
-    alert(data?.error || error?.message || "Unable to reset teacher password.");
-    return;
-  }
-
-  alert("Teacher password updated successfully.");
-}
-
-async function toggleTeacherStatus(teacherId, teacherName, currentlyActive) {
-  const action = currentlyActive ? "deactivate" : "reactivate";
-  if (!confirm(`${action === "deactivate" ? "Deactivate" : "Reactivate"} ${teacherName}?\n\n${currentlyActive ? "Teacher login access will be blocked." : "Teacher login access will be restored."}`)) return;
-
-  const { data, error } = await supabaseClient.functions.invoke("set-teacher-status", {
-    body: { teacher_id: teacherId, is_active: !currentlyActive }
-  });
-
-  if (error || !data?.success) {
-    alert(data?.error || error?.message || "Unable to update teacher status.");
-    return;
-  }
-
-  await loadAdminTeachers();
-}
-
-async function manageTeacherBatches(teacherId, teacherName) {
-  const { data: teacherAssignments, error: assignmentError } = await supabaseClient
-    .from("teacher_batches")
-    .select("batch_id")
-    .eq("teacher_id", teacherId);
-
-  if (assignmentError) {
-    alert(assignmentError.message);
-    return;
-  }
-
-  const { data: batches, error: batchError } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
-
-  if (batchError) {
-    alert(batchError.message);
-    return;
-  }
-
-  const current = new Set((teacherAssignments || []).map(x => x.batch_id));
-  const available = (batches || []).map(b => `${b.id}|${b.name} — ${b.academic_year || ""}`);
-  const answer = prompt(`Manage batches for ${teacherName}.\n\nEnter batch IDs separated by commas.\nAvailable:\n${available.join("\n")}`,
-    [...current].join(",")
-  );
-
-  if (answer === null) return;
-
-  const batchIds = answer.split(",").map(x => x.trim()).filter(Boolean);
-  const validIds = new Set((batches || []).map(b => b.id));
-  const invalid = batchIds.filter(id => !validIds.has(id));
-  if (invalid.length) {
-    alert("Invalid batch ID(s): " + invalid.join(", "));
-    return;
-  }
-
-  const { data, error } = await supabaseClient.functions.invoke("set-teacher-batches", {
-    body: { teacher_id: teacherId, batch_ids: batchIds }
-  });
-
-  if (error || !data?.success) {
-    alert(data?.error || error?.message || "Unable to update teacher batches.");
-    return;
-  }
-
-  await loadAdminTeachers();
-}
-
-document.getElementById("teacherSearch").addEventListener("input", function() {
-  const q = this.value.toLowerCase().trim();
-  renderTeachers(allTeachers.filter(t =>
-    (t.full_name || "").toLowerCase().includes(q) ||
-    (t.email || "").toLowerCase().includes(q) ||
-    (t.subject || "").toLowerCase().includes(q)
-  ));
-});
-
-
-/* --------------------------------
    TEST MANAGEMENT
 -------------------------------- */
 
@@ -2994,11 +2542,8 @@ let adminTests = [];
 let adminBatches = [];
 let currentQuestionTestId = null;
 let editingQuestionId = null;
-let currentQuestionTarget = 0;
-let currentQuestionCount = 0;
 let currentQuestionImageUrl = null;
-let questionMediaSchemaAvailable = true;
-
+let questionMediaColumnsAvailable = true;
 
 async function loadAdminBatches() {
 
@@ -3171,18 +2716,18 @@ function renderAdminTests(tests) {
 
           <button
             type="button"
-            class="test-publish-btn ${test.is_published ? "published" : ""}"
-            data-test-id="${escapeHtml(test.id)}"
-          >
-            ${test.is_published ? "Unpublish" : "Publish"}
-          </button>
-
-          <button
-            type="button"
             class="test-toggle-btn ${test.is_active ? "active" : "inactive"}"
             data-test-id="${escapeHtml(test.id)}"
           >
             ${test.is_active ? "Deactivate" : "Activate"}
+          </button>
+
+          <button
+            type="button"
+            class="test-toggle-btn ${test.is_published ? "active" : "inactive"}"
+            data-test-publish-id="${escapeHtml(test.id)}"
+          >
+            ${test.is_published ? "Unpublish" : "Publish"}
           </button>
 
           <button
@@ -3216,19 +2761,19 @@ document
     return;
   }
 
-  const publishButton =
-      event.target.closest(".test-publish-btn");
-
-  if (publishButton) {
-    toggleTestPublish(publishButton.dataset.testId);
-    return;
-  }
-
   const toggleButton =
       event.target.closest(".test-toggle-btn");
 
   if (toggleButton) {
     toggleAdminTest(toggleButton.dataset.testId);
+    return;
+  }
+
+  const publishButton =
+      event.target.closest("[data-test-publish-id]");
+
+  if (publishButton) {
+    togglePublishTest(publishButton.dataset.testPublishId);
     return;
   }
 
@@ -3242,70 +2787,28 @@ document
 });
 
 
-async function toggleTestPublish(testId) {
-
+async function togglePublishTest(testId) {
   const test = adminTests.find(item => item.id === testId);
   if (!test) return;
 
   const nextState = !Boolean(test.is_published);
+  const message = nextState
+    ? "Publish this test? It will become visible on the assigned Teacher and Student portals."
+    : "Unpublish this test? It will remain in Admin but will be hidden from Teacher and Student portals.";
 
-  if (nextState) {
-    const target = Math.floor(Number(test.max_marks || 0) / 4);
+  if (!confirm(message)) return;
 
-    if (!Number.isFinite(target) || target <= 0) {
-      alert("Please set valid test marks before publishing.");
-      return;
-    }
+  const { error } = await supabaseClient
+    .from("tests")
+    .update({ is_published: nextState })
+    .eq("id", testId);
 
-    const { count, error: countError } = await supabaseClient
-      .from("test_questions")
-      .select("id", { count: "exact", head: true })
-      .eq("test_id", testId);
-
-    if (countError) {
-      console.error("Question count error:", countError);
-      alert(countError.message || "Could not verify the question count.");
-      return;
-    }
-
-    if ((count || 0) !== target) {
-      alert(`This test cannot be published yet.
-
-Required questions: ${target}
-Questions added: ${count || 0}
-
-Complete the question set first.`);
-      return;
-    }
-
-    if (!test.is_active) {
-      alert("Activate the test before publishing it.");
-      return;
-    }
+  if (error) {
+    alert(error.message || "Unable to update publication status.");
+    return;
   }
 
-  const confirmed = window.confirm(
-    nextState
-      ? `Publish "${test.title || "this test"}"?\n\nIt will become visible on the assigned Teacher and Student portals.`
-      : `Unpublish "${test.title || "this test"}"?\n\nIt will remain in Admin but will be hidden from Teacher and Student portals.`
-  );
-
-  if (!confirmed) return;
-
-  try {
-    const { error } = await supabaseClient
-      .from("tests")
-      .update({ is_published: nextState })
-      .eq("id", testId);
-
-    if (error) throw error;
-
-    await loadAdminTests();
-  } catch (error) {
-    console.error("Publish test error:", error);
-    alert(error?.message || "Could not update test publication status.");
-  }
-
+  await loadAdminTests();
 }
 
 
@@ -3392,6 +2895,68 @@ async function deleteAdminTest(testId) {
 }
 
 
+function renderLatex(value) {
+  if (!value) return "";
+  try {
+    if (window.katex) {
+      return window.katex.renderToString(value, { throwOnError: false, displayMode: true });
+    }
+  } catch (error) {
+    console.warn("LaTeX render error:", error);
+  }
+  return `<span>${escapeHtml(value)}</span>`;
+}
+
+function showImagePreview(src) {
+  const box = document.getElementById("imagePreview");
+  if (!box) return;
+  if (!src) {
+    box.style.display = "none";
+    box.innerHTML = "";
+    return;
+  }
+  box.style.display = "block";
+  box.innerHTML = `<img src="${escapeHtml(src)}" alt="Question preview">`;
+}
+
+function updateQuestionTypeUI() {
+  const type = document.getElementById("questionType")?.value || "text";
+  const latexField = document.getElementById("latexField");
+  const imageField = document.getElementById("imageField");
+  const help = document.getElementById("questionTypeHelp");
+  if (latexField) latexField.style.display = type === "latex" ? "block" : "none";
+  if (imageField) imageField.style.display = type === "image" ? "block" : "none";
+  if (help) help.textContent = type === "latex"
+    ? "Use this for equations, fractions, roots and mathematical notation."
+    : type === "image"
+      ? "Use this for Physics graphs, diagrams, Chemistry structures or figures."
+      : "Use normal text for standard MCQs.";
+}
+
+async function uploadQuestionImage(file) {
+  if (!file) return currentQuestionImageUrl;
+  const extension = (file.name.split(".").pop() || "png").toLowerCase();
+  const safeName = `question-${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+  const path = `${currentQuestionTestId}/${safeName}`;
+  const { error } = await supabaseClient.storage.from("test-question-images").upload(path, file, {
+    upsert: false,
+    contentType: file.type || undefined
+  });
+  if (error) throw error;
+  const { data } = supabaseClient.storage.from("test-question-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function getCurrentTest() {
+  return adminTests.find(t => t.id === currentQuestionTestId) || null;
+}
+
+function getQuestionTarget() {
+  const test = getCurrentTest();
+  const maxMarks = Number(test?.max_marks || 0);
+  return maxMarks > 0 && maxMarks % 4 === 0 ? maxMarks / 4 : null;
+}
+
 async function openQuestionModal(testId) {
 
   const test =
@@ -3404,8 +2969,6 @@ async function openQuestionModal(testId) {
 
   currentQuestionTestId = testId;
   editingQuestionId = null;
-  currentQuestionTarget = Math.floor(Number(test.max_marks || 0) / 4);
-  currentQuestionCount = 0;
 
   document.getElementById("questionModalTitle").textContent =
     test.title || "Manage Questions";
@@ -3428,8 +2991,6 @@ function closeQuestionModal() {
   document.getElementById("questionModal").classList.remove("show");
   currentQuestionTestId = null;
   editingQuestionId = null;
-  currentQuestionTarget = 0;
-  currentQuestionCount = 0;
   clearQuestionForm();
   hideQuestionMessage();
 
@@ -3437,130 +2998,53 @@ function closeQuestionModal() {
 
 
 async function loadQuestions(testId) {
-
   const list = document.getElementById("questionList");
-
   list.innerHTML = `<div class="question-empty">Loading questions...</div>`;
 
-  /*
-     First try the full media-enabled schema.
-     If the optional media columns have not been migrated yet,
-     automatically fall back to the original question schema so
-     existing questions never disappear from Admin.
-  */
-  let { data, error } = await supabaseClient
-    .from("test_questions")
-    .select(`
-      id,
-      test_id,
-      question_text,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      correct_option,
-      marks,
-      negative_marks,
-      question_order,
-      question_type,
-      question_latex,
-      question_image_url
-    `)
-    .eq("test_id", testId)
-    .order("question_order", { ascending: true });
+  let result = await supabaseClient.from("test_questions").select(`
+    id,test_id,question_text,option_a,option_b,option_c,option_d,
+    correct_option,marks,negative_marks,question_order,
+    question_type,question_latex,question_image_url
+  `).eq("test_id", testId).order("question_order", { ascending: true });
 
-  if (error) {
-    console.warn("Media-enabled question query failed. Falling back to legacy question schema:", error.message);
-    questionMediaSchemaAvailable = false;
-
-    const fallback = await supabaseClient
-      .from("test_questions")
-      .select(`
-        id,
-        test_id,
-        question_text,
-        option_a,
-        option_b,
-        option_c,
-        option_d,
-        correct_option,
-        marks,
-        negative_marks,
-        question_order
-      `)
-      .eq("test_id", testId)
-      .order("question_order", { ascending: true });
-
-    data = fallback.data;
-    error = fallback.error;
+  if (result.error) {
+    questionMediaColumnsAvailable = false;
+    result = await supabaseClient.from("test_questions").select(`
+      id,test_id,question_text,option_a,option_b,option_c,option_d,
+      correct_option,marks,negative_marks,question_order
+    `).eq("test_id", testId).order("question_order", { ascending: true });
   } else {
-    questionMediaSchemaAvailable = true;
+    questionMediaColumnsAvailable = true;
   }
 
-  if (error) {
-    console.error("Load questions error:", error);
-    list.innerHTML = `<div class="question-empty">Unable to load questions: ${escapeHtml(error.message || "Unknown error")}</div>`;
+  if (result.error) {
+    console.error("Load questions error:", result.error);
+    list.innerHTML = `<div class="question-empty">Unable to load questions: ${escapeHtml(result.error.message || "Unknown error")}</div>`;
     return;
   }
 
-  currentQuestionCount = (data || []).length;
-  updateQuestionBuilderState();
-  renderQuestions(data || []);
-
-}
-
-
-function updateQuestionBuilderState() {
-
-  const progress = document.getElementById("questionProgressText");
-  const formArea = document.getElementById("questionFormArea");
-  const readyBox = document.getElementById("testReady");
-  const readyText = document.getElementById("testReadyText");
-  const orderInput = document.getElementById("questionOrder");
-
-  if (progress) {
-    progress.textContent = `${currentQuestionCount} / ${currentQuestionTarget}`;
-  }
-
-  const complete =
-    currentQuestionTarget > 0 &&
-    currentQuestionCount >= currentQuestionTarget;
-
-  if (complete && !editingQuestionId) {
-    formArea?.classList.add("hidden");
-    readyBox?.classList.add("show");
-    if (readyText) {
-      readyText.textContent = `All ${currentQuestionTarget} questions have been added. This test is ready to save.`;
-    }
-  } else {
-    formArea?.classList.remove("hidden");
-    readyBox?.classList.remove("show");
-  }
-
-  if (orderInput && !editingQuestionId) {
-    orderInput.value = Math.max(1, currentQuestionCount + 1);
-  }
-
+  renderQuestions(result.data || []);
 }
 
 
 function renderQuestions(questions) {
-
   const list = document.getElementById("questionList");
-
   if (!questions.length) {
-    list.innerHTML = `<div class="question-empty">No questions added yet. Add the first question below.</div>`;
+    const target = getQuestionTarget();
+    list.innerHTML = `<div class="question-empty">No questions added yet.${target ? ` Target: ${target} questions.` : ""}</div>`;
     return;
   }
 
+  const target = getQuestionTarget();
   list.innerHTML = questions.map((question, index) => `
     <div class="question-item">
       <div class="question-item-head">
         <div style="min-width:0; flex:1;">
           <div class="question-number">QUESTION ${escapeHtml(question.question_order ?? index + 1)}</div>
-          <div class="question-text">${escapeHtml(question.question_text || "")}<span class="question-type-badge">${escapeHtml((question.question_type || "text").toUpperCase())}</span></div>
-          ${question.question_latex ? `<div class="question-media-preview latex-preview">${renderLatex(question.question_latex)}</div>` : ""}
-          ${question.question_image_url ? `<img class="question-image-thumb" src="${escapeHtml(question.question_image_url)}" alt="Question image">` : ""}
+          <div class="question-meta"><strong>${escapeHtml((question.question_type || "text").toUpperCase())}</strong>${target ? ` · ${questions.length}/${target}` : ""}</div>
+          <div class="question-text">${escapeHtml(question.question_text || "")}</div>
+          ${question.question_latex ? `<div class="latex-preview">${renderLatex(question.question_latex)}</div>` : ""}
+          ${question.question_image_url ? `<div class="image-preview"><img src="${escapeHtml(question.question_image_url)}" alt="Question image"></div>` : ""}
           <div class="question-options">
             <div>A. ${escapeHtml(question.option_a || "")}</div>
             <div>B. ${escapeHtml(question.option_b || "")}</div>
@@ -3580,7 +3064,6 @@ function renderQuestions(questions) {
       </div>
     </div>
   `).join("");
-
 }
 
 
@@ -3601,80 +3084,45 @@ document
 
 
 async function editQuestion(questionId) {
+  let result = await supabaseClient.from("test_questions").select(`
+    id,question_text,option_a,option_b,option_c,option_d,correct_option,
+    marks,negative_marks,question_order,question_type,question_latex,question_image_url
+  `).eq("id", questionId).maybeSingle();
 
-  let { data: question, error } = await supabaseClient
-    .from("test_questions")
-    .select(`
-      id,
-      question_text,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      correct_option,
-      marks,
-      negative_marks,
-      question_order,
-      question_type,
-      question_latex,
-      question_image_url
-    `)
-    .eq("id", questionId)
-    .maybeSingle();
-
-  if (error) {
-    questionMediaSchemaAvailable = false;
-
-    const fallback = await supabaseClient
-      .from("test_questions")
-      .select(`
-        id,
-        question_text,
-        option_a,
-        option_b,
-        option_c,
-        option_d,
-        correct_option,
-        marks,
-        negative_marks,
-        question_order
-      `)
-      .eq("id", questionId)
-      .maybeSingle();
-
-    question = fallback.data;
-    error = fallback.error;
+  if (result.error) {
+    questionMediaColumnsAvailable = false;
+    result = await supabaseClient.from("test_questions").select(`
+      id,question_text,option_a,option_b,option_c,option_d,correct_option,
+      marks,negative_marks,question_order
+    `).eq("id", questionId).maybeSingle();
   }
 
-  if (error || !question) {
-    showQuestionMessage(error?.message || "Unable to load this question.", "error");
+  const question = result.data;
+  if (result.error || !question) {
+    showQuestionMessage(result.error?.message || "Unable to load this question.", "error");
     return;
   }
 
   editingQuestionId = question.id;
-  document.getElementById("questionFormArea")?.classList.remove("hidden");
-  document.getElementById("testReady")?.classList.remove("show");
+  currentQuestionImageUrl = question.question_image_url || null;
   document.getElementById("questionFormTitle").textContent = "Edit Question";
   document.getElementById("saveQuestionBtn").textContent = "Update Question";
   document.getElementById("questionType").value = question.question_type || "text";
   document.getElementById("questionText").value = question.question_text || "";
   document.getElementById("questionLatex").value = question.question_latex || "";
-  currentQuestionImageUrl = question.question_image_url || null;
-  updateQuestionTypeUI();
-  if (currentQuestionImageUrl) {
-    showImagePreview(currentQuestionImageUrl);
-  }
   document.getElementById("optionA").value = question.option_a || "";
   document.getElementById("optionB").value = question.option_b || "";
   document.getElementById("optionC").value = question.option_c || "";
   document.getElementById("optionD").value = question.option_d || "";
   document.getElementById("correctOption").value = question.correct_option || "";
-  document.getElementById("questionMarks").value = question.marks ?? 4;
+  document.getElementById("questionMarks").value = 4;
   document.getElementById("negativeMarks").value = question.negative_marks ?? 0;
   document.getElementById("questionOrder").value = question.question_order ?? 1;
+  document.getElementById("latexPreview").innerHTML = question.question_latex ? renderLatex(question.question_latex) : "Formula preview will appear here.";
+  showImagePreview(currentQuestionImageUrl);
+  updateQuestionTypeUI();
   hideQuestionMessage();
   document.getElementById("questionText").focus();
-
 }
 
 
@@ -3705,89 +3153,23 @@ function clearQuestionForm() {
   const form = document.getElementById("questionForm");
   if (form) form.reset();
 
-  document.getElementById("questionType").value = "text";
-  document.getElementById("questionLatex").value = "";
-  document.getElementById("questionImage").value = "";
-  currentQuestionImageUrl = null;
-  updateQuestionTypeUI();
   document.getElementById("questionMarks").value = 4;
   document.getElementById("negativeMarks").value = 0;
-  document.getElementById("questionOrder").value = Math.max(1, currentQuestionCount + 1);
+  document.getElementById("questionType").value = "text";
+  document.getElementById("questionLatex").value = "";
+  document.getElementById("latexPreview").innerHTML = "Formula preview will appear here.";
+  currentQuestionImageUrl = null;
+  const imageInput = document.getElementById("questionImage");
+  if (imageInput) imageInput.value = "";
+  showImagePreview(null);
+  updateQuestionTypeUI();
+  document.getElementById("questionOrder").value = 1;
   document.getElementById("questionFormTitle").textContent = "Add Question";
   document.getElementById("saveQuestionBtn").textContent = "Add Question";
   editingQuestionId = null;
 
 }
 
-
-function renderLatex(value) {
-  if (!value) return "";
-  try {
-    if (window.katex) {
-      return window.katex.renderToString(value, { throwOnError: false, displayMode: true });
-    }
-  } catch (error) {
-    console.warn("LaTeX render error:", error);
-  }
-  return `<span>${escapeHtml(value)}</span>`;
-}
-
-function updateQuestionTypeUI() {
-  const type = document.getElementById("questionType")?.value || "text";
-  const latexField = document.getElementById("latexField");
-  const imageField = document.getElementById("imageField");
-  const help = document.getElementById("questionTypeHelp");
-  if (latexField) latexField.style.display = type === "latex" ? "block" : "none";
-  if (imageField) imageField.style.display = type === "image" ? "block" : "none";
-  if (help) {
-    help.textContent = type === "latex"
-      ? "Use this for equations, fractions, roots, chemical-style mathematical notation, etc."
-      : type === "image"
-        ? "Use this for Physics graphs, diagrams, figures, Chemistry structures or image-based questions."
-        : "Use normal text for standard MCQs.";
-  }
-}
-
-function showImagePreview(src) {
-  const box = document.getElementById("imagePreview");
-  if (!box) return;
-  if (!src) {
-    box.style.display = "none";
-    box.innerHTML = "";
-    return;
-  }
-  box.style.display = "block";
-  box.innerHTML = `<img src="${escapeHtml(src)}" alt="Question preview">`;
-}
-
-async function uploadQuestionImage(file) {
-  if (!file) return currentQuestionImageUrl;
-  const extension = (file.name.split(".").pop() || "png").toLowerCase();
-  const safeName = `question-${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
-  const path = `${currentQuestionTestId}/${safeName}`;
-  const { error } = await supabaseClient.storage
-    .from("test-question-images")
-    .upload(path, file, { upsert: false, contentType: file.type || undefined });
-  if (error) throw error;
-  const { data } = supabaseClient.storage
-    .from("test-question-images")
-    .getPublicUrl(path);
-  return data.publicUrl;
-}
-
-
-document.getElementById("questionType").addEventListener("change", updateQuestionTypeUI);
-document.getElementById("questionLatex").addEventListener("input", function() {
-  const preview = document.getElementById("latexPreview");
-  if (preview) preview.innerHTML = this.value.trim() ? renderLatex(this.value.trim()) : "Formula preview will appear here.";
-});
-document.getElementById("questionImage").addEventListener("change", function() {
-  const file = this.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = event => showImagePreview(event.target.result);
-  reader.readAsDataURL(file);
-});
 
 function showQuestionMessage(text, type) {
   const box = document.getElementById("questionMessage");
@@ -3816,6 +3198,15 @@ document
   });
 
 
+document.getElementById("questionType").addEventListener("change", updateQuestionTypeUI);
+document.getElementById("questionLatex").addEventListener("input", (event) => {
+  document.getElementById("latexPreview").innerHTML = event.target.value.trim() ? renderLatex(event.target.value.trim()) : "Formula preview will appear here.";
+});
+document.getElementById("questionImage").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (file) showImagePreview(URL.createObjectURL(file));
+});
+
 document
   .getElementById("questionForm")
   .addEventListener("submit", async function(event) {
@@ -3827,46 +3218,54 @@ document
       return;
     }
 
-    if (!editingQuestionId && currentQuestionCount >= currentQuestionTarget) {
-      updateQuestionBuilderState();
-      showQuestionMessage("The required number of questions has already been added.", "error");
-      return;
-    }
-
     const saveBtn = document.getElementById("saveQuestionBtn");
     saveBtn.disabled = true;
     saveBtn.textContent = editingQuestionId ? "Updating..." : "Saving...";
     hideQuestionMessage();
 
     const questionType = document.getElementById("questionType").value;
-    const questionText = document.getElementById("questionText").value.trim();
-    const questionLatex = document.getElementById("questionLatex").value.trim() || null;
-    const imageFile = document.getElementById("questionImage").files?.[0] || null;
+    const questionLatex = document.getElementById("questionLatex").value.trim();
+    const imageFile = document.getElementById("questionImage").files[0] || null;
+    const test = getCurrentTest();
+    const target = getQuestionTarget();
 
-    if (questionType === "image" && !imageFile && !currentQuestionImageUrl) {
-      showQuestionMessage("Please upload the question image / graph / diagram.", "error");
-      return;
+    if (target && !editingQuestionId) {
+      const { count } = await supabaseClient.from("test_questions").select("id", { count: "exact", head: true }).eq("test_id", currentQuestionTestId);
+      if ((count || 0) >= target) {
+        showQuestionMessage(`Question target already reached: ${target}.`, "error");
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Add Question";
+        return;
+      }
     }
 
     if (questionType === "latex" && !questionLatex) {
       showQuestionMessage("Please enter the LaTeX formula.", "error");
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingQuestionId ? "Update Question" : "Add Question";
       return;
     }
 
-    try {
-      if (imageFile) {
-        currentQuestionImageUrl = await uploadQuestionImage(imageFile);
-        showImagePreview(currentQuestionImageUrl);
-      }
-    } catch (uploadError) {
-      console.error("Question image upload error:", uploadError);
-      showQuestionMessage(uploadError.message || "Unable to upload question image.", "error");
+    if (questionType === "image" && !imageFile && !currentQuestionImageUrl) {
+      showQuestionMessage("Please upload an image / graph / diagram.", "error");
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingQuestionId ? "Update Question" : "Add Question";
       return;
     }
+
+    if (target && Number(document.getElementById("questionMarks").value) !== 4) {
+      showQuestionMessage(`Each question must carry 4 marks for this test (${test?.max_marks || ""} marks = ${target} questions).`, "error");
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingQuestionId ? "Update Question" : "Add Question";
+      return;
+    }
+
+    let imageUrl = currentQuestionImageUrl;
+    if (imageFile) imageUrl = await uploadQuestionImage(imageFile);
 
     const payload = {
       test_id: currentQuestionTestId,
-      question_text: questionText,
+      question_text: document.getElementById("questionText").value.trim(),
       option_a: document.getElementById("optionA").value.trim(),
       option_b: document.getElementById("optionB").value.trim(),
       option_c: document.getElementById("optionC").value.trim(),
@@ -3877,13 +3276,10 @@ document
       question_order: Number(document.getElementById("questionOrder").value)
     };
 
-    if (questionMediaSchemaAvailable) {
+    if (questionMediaColumnsAvailable) {
       payload.question_type = questionType;
       payload.question_latex = questionType === "latex" ? questionLatex : null;
-      payload.question_image_url = questionType === "image" ? currentQuestionImageUrl : null;
-    } else if (questionType !== "text") {
-      showQuestionMessage("Math / LaTeX and Image questions need the media database migration. Existing MCQs can still be edited and saved.", "error");
-      return;
+      payload.question_image_url = questionType === "image" ? imageUrl : null;
     }
 
     try {
@@ -3924,17 +3320,6 @@ document
       saveBtn.textContent = "Add Question";
     }
 
-  });
-
-
-document
-  .getElementById("saveCompletedTestBtn")
-  .addEventListener("click", function() {
-    if (currentQuestionCount < currentQuestionTarget) {
-      return;
-    }
-    closeQuestionModal();
-    loadAdminTests();
   });
 
 
@@ -4040,18 +3425,6 @@ document
         return;
       }
 
-      const maxMarks = Number(
-        document.getElementById("testMaxMarks").value
-      );
-
-      if (!Number.isFinite(maxMarks) || maxMarks <= 0 || maxMarks % 4 !== 0) {
-        showTestMessage(
-          "Total marks must be a positive multiple of 4 because every question carries 4 marks.",
-          "error"
-        );
-        return;
-      }
-
       const payload = {
         batch_id:
           document.getElementById("testBatch").value,
@@ -4066,7 +3439,9 @@ document
           document.getElementById("testDate").value,
 
         max_marks:
-          maxMarks,
+          Number(
+            document.getElementById("testMaxMarks").value
+          ),
 
         duration_minutes:
           Number(
@@ -4153,16 +3528,6 @@ document
   });
 
 
-function generateInitialPassword() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-  let result = "SIR@";
-  for (let i = 0; i < 8; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return result;
-}
-
-
 /* --------------------------------
    MODAL
 -------------------------------- */
@@ -4178,11 +3543,6 @@ document
   .addEventListener("click", async () => {
 
     modal.classList.add("show");
-
-    const passwordInput = document.getElementById("studentPassword");
-    if (passwordInput && !passwordInput.value) {
-      passwordInput.value = generateInitialPassword();
-    }
 
     await loadCourses();
     await loadBatches();
@@ -4223,55 +3583,397 @@ document
 
     e.preventDefault();
 
-    const submitBtn = this.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Creating...";
-    hideMessage();
+    const name = document.getElementById("studentName").value.trim();
+    const email = document.getElementById("studentEmail").value.trim().toLowerCase();
+    const phone = document.getElementById("studentMobile").value.trim();
+    const courseId = document.getElementById("studentCourse").value;
+    const batchId = document.getElementById("studentBatch").value;
+
+    if (!name || !email || !courseId || !batchId) {
+      showMessage("Please complete name, email, course and batch.", "error");
+      return;
+    }
+
+    const submit = e.target.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    submit.textContent = "Creating...";
+    showMessage("Creating secure student login...", "success");
 
     try {
-      const password = document.getElementById("studentPassword").value.trim();
-      if (password.length < 8) {
-        showMessage("Password must contain at least 8 characters.", "error");
-        return;
-      }
-
       const { data, error } = await supabaseClient.functions.invoke(
-        "create-student",
-        {
-          body: {
-            full_name: document.getElementById("studentName").value.trim(),
-            email: document.getElementById("studentEmail").value.trim(),
-            phone: document.getElementById("studentMobile").value.trim() || null,
-            password,
-            course_id: document.getElementById("studentCourse").value || null,
-            batch_id: document.getElementById("studentBatch").value || null
-          }
-        }
+        "admin-create-student",
+        { body: { full_name: name, email, phone, course_id: courseId, batch_id: batchId } }
       );
 
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Failed to create student account.");
       if (!data?.success) throw new Error(data?.error || "Unable to create student.");
 
-      showMessage(`Student created successfully. UID: ${data.student_uid}. Login: ${data.email}`, "success");
+      showMessage(
+        `Student created. UID: ${data.student_uid} | Login: ${data.email} | Password: ${data.initial_password}`,
+        "success"
+      );
+      await loadStudents();
 
-      alert(`STUDENT CREATED SUCCESSFULLY\n\nName: ${data.full_name || document.getElementById("studentName").value.trim()}\nUID: ${data.student_uid}\nLogin: ${data.email}\nPassword: ${password}\n\nSave these credentials securely.`);
-
-      setTimeout(async () => {
+      setTimeout(() => {
         closeModal();
-        await loadStudents();
-        await loadCounters();
-      }, 1000);
+      }, 2500);
 
     } catch (error) {
-      console.error("Create student error:", error);
-      showMessage(error.message || "Unable to create student.", "error");
+      console.error("Student creation error:", error);
+      showMessage(error.message || "Student creation failed.", "error");
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Create Student";
+      submit.disabled = false;
+      submit.textContent = "Create Student";
     }
 
   });
 
+
+/* --------------------------------
+   TEACHER MANAGEMENT
+-------------------------------- */
+
+let allTeachers = [];
+
+async function loadTeachers() {
+  const { data, error } = await supabaseClient
+    .from("teachers")
+    .select("id,user_id,full_name,email,phone,subject,is_active")
+    .order("full_name", { ascending: true });
+
+  if (error) {
+    console.error("Teachers error:", error);
+    document.getElementById("teachersTableBody").innerHTML =
+      `<tr><td colspan="6" class="empty">Unable to load teachers.</td></tr>`;
+    return;
+  }
+
+  const teacherIds = (data || []).map(t => t.id);
+  let assignments = [];
+
+  if (teacherIds.length) {
+    const { data: rows, error: assignmentError } = await supabaseClient
+      .from("teacher_batches")
+      .select("teacher_id,batch_id")
+      .in("teacher_id", teacherIds);
+    if (!assignmentError) assignments = rows || [];
+  }
+
+  allTeachers = (data || []).map(t => ({
+    ...t,
+    batchCount: assignments.filter(a => a.teacher_id === t.id).length
+  }));
+
+  renderTeachers(allTeachers);
+}
+
+function renderTeachers(teachers) {
+  const tbody = document.getElementById("teachersTableBody");
+  if (!teachers.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No teachers found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = teachers.map(t => `
+    <tr>
+      <td><strong>${escapeHtml(t.full_name || "—")}</strong></td>
+      <td>${escapeHtml(t.email || "—")}</td>
+      <td>${escapeHtml(t.subject || "—")}</td>
+      <td>${t.batchCount || 0}</td>
+      <td><span class="status ${t.is_active ? "" : "inactive"}">${t.is_active ? "Active" : "Inactive"}</span></td>
+      <td>
+        <div class="student-actions">
+          <button class="batch-manage-btn" onclick="manageTeacherBatches('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Manage Batches</button>
+          <button class="reset-password-btn" onclick="resetTeacherPassword('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Reset Password</button>
+          <button class="status-action-btn ${t.is_active ? "" : "reactivate"}" onclick="toggleTeacherStatus('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}',${t.is_active ? "true" : "false"})">${t.is_active ? "Deactivate" : "Reactivate"}</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function loadTeacherBatches() {
+
+  const list =
+    document.getElementById("teacherCreateBatchList");
+
+  list.innerHTML =
+    `<div class="empty">Loading batches...</div>`;
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+
+    list.innerHTML =
+      `<div class="empty">Unable to load batches.</div>`;
+
+    throw error;
+  }
+
+  if (!data || !data.length) {
+
+    list.innerHTML =
+      `<div class="empty">No active batches found.</div>`;
+
+    return;
+  }
+
+  list.innerHTML = data.map(batch => `
+
+    <label class="batch-check-item">
+
+      <input
+        type="checkbox"
+        class="teacher-create-batch-checkbox"
+        value="${escapeHtml(batch.id)}"
+      >
+
+      <div>
+        <div class="batch-check-name">
+          ${escapeHtml(batch.name || "Unnamed Batch")}
+        </div>
+
+        <div class="batch-check-year">
+          ${escapeHtml(batch.academic_year || "")}
+        </div>
+      </div>
+
+    </label>
+
+  `).join("");
+}
+
+const teacherModal = document.getElementById("teacherModal");
+
+document.getElementById("addTeacherBtn").addEventListener("click", async () => {
+  teacherModal.classList.add("show");
+  document.getElementById("teacherFormMessage").className = "message";
+  try { await loadTeacherBatches(); } catch (e) {
+    showTeacherMessage(e.message || "Unable to load batches.", "error");
+  }
+});
+
+document.getElementById("closeTeacherModal").addEventListener("click", closeTeacherModal);
+document.getElementById("cancelTeacher").addEventListener("click", closeTeacherModal);
+
+function closeTeacherModal() {
+  teacherModal.classList.remove("show");
+  document.getElementById("teacherForm").reset();
+  document.getElementById("teacherPassword").value = "SIR@123456";
+  document.getElementById("teacherFormMessage").className = "message";
+  document.getElementById("teacherFormMessage").textContent = "";
+}
+
+function showTeacherMessage(text, type) {
+  const box = document.getElementById("teacherFormMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+document.getElementById("teacherForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const full_name = document.getElementById("teacherName").value.trim();
+  const email = document.getElementById("teacherEmail").value.trim().toLowerCase();
+  const phone = document.getElementById("teacherMobile").value.trim();
+  const subject = document.getElementById("teacherSubject").value;
+  const password = document.getElementById("teacherPassword").value;
+  const batch_ids = Array.from(
+    document.querySelectorAll(
+      ".teacher-create-batch-checkbox:checked"
+    )
+  ).map(input => input.value);
+  const submit = document.getElementById("createTeacherSubmit");
+
+  if (!full_name || !email || !subject || password.length < 8) {
+    showTeacherMessage("Please complete all required fields. Password must be at least 8 characters.", "error");
+    return;
+  }
+
+  submit.disabled = true;
+  submit.textContent = "Creating...";
+  showTeacherMessage("Creating secure teacher login...", "success");
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke("admin-create-teacher", {
+      body: { full_name, email, phone, subject, password, batch_ids }
+    });
+
+    if (error) throw new Error(error.message || "Failed to send request to the Edge Function.");
+    if (!data?.success) throw new Error(data?.error || "Unable to create teacher.");
+
+    const createdTeacherEmail =
+      data?.teacher?.email || email;
+
+    showTeacherMessage(
+      `Teacher created successfully. Login: ${createdTeacherEmail} | Password: ${password}`,
+      "success"
+    );
+    await loadTeachers();
+    setTimeout(closeTeacherModal, 2500);
+  } catch (error) {
+    console.error("Teacher creation error:", error);
+    showTeacherMessage(error.message || "Teacher creation failed.", "error");
+  } finally {
+    submit.disabled = false;
+    submit.textContent = "Create Teacher";
+  }
+});
+
+let managingTeacherId = null;
+
+async function manageTeacherBatches(teacherId, teacherName) {
+  managingTeacherId = teacherId;
+  const modal = document.getElementById("teacherBatchModal");
+  const list = document.getElementById("teacherBatchList");
+  const message = document.getElementById("teacherBatchMessage");
+  document.getElementById("teacherBatchModalSubtitle").textContent = `Select batches assigned to ${teacherName}.`;
+  message.className = "message";
+  message.textContent = "";
+  list.innerHTML = `<div class="empty">Loading batches...</div>`;
+  modal.classList.add("show");
+
+  try {
+    const [batchResult, assignmentResult] = await Promise.all([
+      supabaseClient
+        .from("batches")
+        .select("id,name,academic_year")
+        .eq("is_active", true)
+        .order("name"),
+      supabaseClient
+        .from("teacher_batches")
+        .select("batch_id")
+        .eq("teacher_id", teacherId)
+    ]);
+
+    if (batchResult.error) throw batchResult.error;
+    if (assignmentResult.error) throw assignmentResult.error;
+
+    const assigned = new Set((assignmentResult.data || []).map(row => row.batch_id));
+    const batches = batchResult.data || [];
+
+    if (!batches.length) {
+      list.innerHTML = `<div class="empty">No active batches found.</div>`;
+      return;
+    }
+
+    list.innerHTML = batches.map(batch => `
+      <label class="batch-check-item">
+        <input type="checkbox" class="teacher-batch-checkbox" value="${escapeHtml(batch.id)}" ${assigned.has(batch.id) ? "checked" : ""}>
+        <div>
+          <div class="batch-check-name">${escapeHtml(batch.name || "Unnamed Batch")}</div>
+          <div class="batch-check-year">${escapeHtml(batch.academic_year || "")}</div>
+        </div>
+      </label>
+    `).join("");
+  } catch (error) {
+    console.error("Load teacher batches error:", error);
+    list.innerHTML = `<div class="empty">Unable to load batches.</div>`;
+    message.textContent = error.message || "Unable to load batches.";
+    message.className = "message show error";
+  }
+}
+
+function closeTeacherBatchModal() {
+  document.getElementById("teacherBatchModal").classList.remove("show");
+  managingTeacherId = null;
+}
+
+document.getElementById("closeTeacherBatchModal").addEventListener("click", closeTeacherBatchModal);
+document.getElementById("cancelTeacherBatch").addEventListener("click", closeTeacherBatchModal);
+
+document.getElementById("saveTeacherBatches").addEventListener("click", async () => {
+  if (!managingTeacherId) return;
+
+  const button = document.getElementById("saveTeacherBatches");
+  const message = document.getElementById("teacherBatchMessage");
+  const batchIds = Array.from(document.querySelectorAll(".teacher-batch-checkbox:checked"))
+    .map(input => input.value);
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const { error: deleteError } = await supabaseClient
+      .from("teacher_batches")
+      .delete()
+      .eq("teacher_id", managingTeacherId);
+
+    if (deleteError) throw deleteError;
+
+    if (batchIds.length) {
+      const rows = batchIds.map(batchId => ({
+        teacher_id: managingTeacherId,
+        batch_id: batchId
+      }));
+
+      const { error: insertError } = await supabaseClient
+        .from("teacher_batches")
+        .insert(rows);
+
+      if (insertError) throw insertError;
+    }
+
+    message.textContent = "Batches updated successfully.";
+    message.className = "message show success";
+    await loadTeachers();
+    setTimeout(closeTeacherBatchModal, 700);
+  } catch (error) {
+    console.error("Save teacher batches error:", error);
+    message.textContent = error.message || "Unable to update batches.";
+    message.className = "message show error";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Batches";
+  }
+});
+
+async function resetTeacherPassword(teacherId, teacherName) {
+  const password = prompt(`Set new password for ${teacherName}`);
+  if (password === null) return;
+  if (password.trim().length < 8) {
+    alert("Password must contain at least 8 characters.");
+    return;
+  }
+  const { data, error } = await supabaseClient.functions.invoke("admin-set-teacher-password", {
+    body: { teacher_id: teacherId, new_password: password.trim() }
+  });
+  if (error || !data?.success) {
+    alert(data?.error || error?.message || "Unable to reset teacher password.");
+    return;
+  }
+  alert("Teacher password updated successfully.");
+}
+
+async function toggleTeacherStatus(teacherId, teacherName, currentlyActive) {
+  const action = currentlyActive ? "deactivate" : "reactivate";
+  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${teacherName}?\n\n${currentlyActive ? "Login access will be blocked." : "Login access will be restored."}`)) return;
+
+  const { data, error } = await supabaseClient.functions.invoke("admin-set-teacher-status", {
+    body: { teacher_id: teacherId, is_active: !currentlyActive }
+  });
+  if (error || !data?.success) {
+    alert(data?.error || error?.message || "Unable to update teacher status.");
+    return;
+  }
+  await loadTeachers();
+}
+
+document.getElementById("teacherSearch").addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  renderTeachers(allTeachers.filter(t =>
+    (t.full_name || "").toLowerCase().includes(q) ||
+    (t.email || "").toLowerCase().includes(q) ||
+    (t.subject || "").toLowerCase().includes(q)
+  ));
+});
 
 /* --------------------------------
    COUNTERS
@@ -4393,11 +4095,11 @@ document
 
   await loadStudents();
 
+  await loadTeachers();
+
   await loadBatches();
 
   await loadAdminBatches();
-
-  await loadAdminTeachers();
 
   await loadAdminTests();
 
@@ -4405,148 +4107,6 @@ document
 
 })();
 
-</script>
-
-
-<script>
-/* ============================================================
-   SIR ADMIN EXTENSIONS
-   This block intentionally lives separately from the working
-   Test + Question Builder code above.
-   ============================================================ */
-(function(){
-  "use strict";
-
-  const $ = id => document.getElementById(id);
-  const esc = value => typeof escapeHtml === "function" ? escapeHtml(value ?? "") : String(value ?? "");
-  const showBox = (id,msg,type="error") => { const e=$(id); if(e){e.textContent=msg;e.className=`message show ${type}`;} };
-  const hideBox = id => { const e=$(id); if(e){e.textContent="";e.className="message";} };
-
-  /* ---------------- BATCHES ---------------- */
-  let extBatches=[];
-  let editingBatchId=null;
-
-  async function extLoadBatches(){
-    const body=$("adminBatchesBody"); if(!body)return;
-    const {data,error}=await supabaseClient.from("batches").select("id,name,academic_year,is_active").order("name");
-    if(error){body.innerHTML=`<tr><td colspan="4" class="empty">Unable to load batches: ${esc(error.message)}</td></tr>`;return;}
-    extBatches=data||[]; extRenderBatches();
-  }
-  function extRenderBatches(){
-    const body=$("adminBatchesBody"), q=($("adminBatchSearch")?.value||"").toLowerCase();
-    const rows=extBatches.filter(b=>`${b.name||""} ${b.academic_year||""}`.toLowerCase().includes(q));
-    body.innerHTML=rows.length?rows.map(b=>`<tr><td><strong>${esc(b.name||"—")}</strong></td><td>${esc(b.academic_year||"—")}</td><td><span class="status ${b.is_active===false?"inactive":""}">${b.is_active===false?"Inactive":"Active"}</span></td><td><div class="inline-actions"><button class="small-action" data-batch-edit="${esc(b.id)}">Edit</button><button class="small-action ${b.is_active===false?"success":"danger"}" data-batch-toggle="${esc(b.id)}">${b.is_active===false?"Activate":"Deactivate"}</button></div></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No batches found.</td></tr>`;
-  }
-  function openBatch(id=null){
-    editingBatchId=id; hideBox("adminBatchMessage"); const b=extBatches.find(x=>x.id===id);
-    $("adminBatchModalTitle").textContent=id?"Edit Batch":"Add Batch"; $("adminBatchName").value=b?.name||""; $("adminBatchYear").value=b?.academic_year||""; $("adminBatchActive").value=String(b?.is_active!==false); $("adminBatchModal").classList.add("show"); $("adminBatchName").focus();
-  }
-  function closeBatch(){$("adminBatchModal").classList.remove("show");editingBatchId=null;hideBox("adminBatchMessage");}
-  async function saveBatch(e){
-    e.preventDefault(); const name=$("adminBatchName").value.trim(), year=$("adminBatchYear").value.trim(), active=$("adminBatchActive").value==="true"; if(!name||!year){showBox("adminBatchMessage","Batch name and academic year are required.");return;}
-    const btn=$("adminBatchSave");btn.disabled=true;
-    try{let q=editingBatchId?supabaseClient.from("batches").update({name,academic_year:year,is_active:active}).eq("id",editingBatchId):supabaseClient.from("batches").insert({name,academic_year:year,is_active:active});const {error}=await q;if(error)throw error;closeBatch();await extLoadBatches();await loadBatches();await loadAdminBatches();}
-    catch(err){showBox("adminBatchMessage",err.message||"Unable to save batch.");}finally{btn.disabled=false;}
-  }
-  async function toggleBatch(id){const b=extBatches.find(x=>x.id===id);if(!b)return;if(!confirm(`${b.is_active===false?"Activate":"Deactivate"} ${b.name}?`))return;const {error}=await supabaseClient.from("batches").update({is_active:b.is_active===false}).eq("id",id);if(error){alert(error.message);return;}await extLoadBatches();await loadBatches();await loadAdminBatches();}
-
-  /* ---------------- RESULTS ---------------- */
-  let extResults=[], extTests=[];
-  async function extLoadResults(){
-    const body=$("adminResultsBody");if(!body)return;
-    const [sr,tr]=await Promise.all([
-      supabaseClient.from("test_scores").select("id,test_id,student_id,subject,marks_obtained,max_marks,rank,correct_answers,incorrect_answers,unanswered"),
-      supabaseClient.from("tests").select("id,title,subject,test_date,max_marks").order("test_date",{ascending:false})
-    ]);
-    if(sr.error){body.innerHTML=`<tr><td colspan="9" class="empty">Unable to load results: ${esc(sr.error.message)}</td></tr>`;return;}
-    extResults=sr.data||[];extTests=tr.data||[];
-    const sel=$("resultTestFilter");sel.innerHTML=`<option value="">All Tests</option>`+extTests.map(t=>`<option value="${esc(t.id)}">${esc(t.title||"Untitled Test")}</option>`).join("");
-    extRenderResults();
-  }
-  function extRenderResults(){
-    const body=$("adminResultsBody"), testId=$("resultTestFilter")?.value||"", q=($("resultStudentSearch")?.value||"").toLowerCase();
-    const studentMap=Object.fromEntries((allStudents||[]).map(s=>[s.id,s]));const testMap=Object.fromEntries(extTests.map(t=>[t.id,t]));
-    const rows=extResults.filter(r=>!testId||r.test_id===testId).filter(r=>{const s=studentMap[r.student_id];return `${s?.full_name||""} ${s?.student_uid||""}`.toLowerCase().includes(q)});
-    body.innerHTML=rows.length?rows.map(r=>{const s=studentMap[r.student_id]||{},t=testMap[r.test_id]||{};const max=Number(r.max_marks??t.max_marks??0),marks=Number(r.marks_obtained??0),pct=max?((marks/max)*100).toFixed(1):"—";return `<tr><td><strong>${esc(s.full_name||"Unknown")}</strong><div class="muted">${esc(s.student_uid||"")}</div></td><td>${esc(t.title||"—")}</td><td>${esc(r.subject||t.subject||"—")}</td><td><strong>${esc(r.marks_obtained??"—")}</strong> / ${esc(max||"—")}</td><td>${esc(pct)}${pct!=="—"?"%":""}</td><td>${esc(r.rank??"—")}</td><td>${esc(r.correct_answers??"—")}</td><td>${esc(r.incorrect_answers??"—")}</td><td>${esc(r.unanswered??"—")}</td></tr>`}).join(""):`<tr><td colspan="9" class="empty">No results available yet.</td></tr>`;
-  }
-
-  /* ---------------- REVIEWS ---------------- */
-  let extReviews=[], editingReviewId=null;
-  async function fillReviewSelects(){
-    const ss=$("adminReviewStudent"),tt=$("adminReviewTeacher"); if(!ss||!tt)return;
-    ss.innerHTML=`<option value="">Select Student</option>`+(allStudents||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.full_name||"Student")} — ${esc(s.student_uid||"")}</option>`).join("");
-    tt.innerHTML=`<option value="">Select Teacher</option>`+(allTeachers||[]).map(t=>`<option value="${esc(t.id)}">${esc(t.full_name||"Teacher")} — ${esc(t.subject||"")}</option>`).join("");
-  }
-  async function extLoadReviews(){
-    const body=$("adminReviewsBody");if(!body)return;
-    const {data,error}=await supabaseClient.from("student_reviews").select("id,student_id,teacher_id,week_start,week_end,academic_understanding,class_participation,practice_consistency,strengths,areas_to_improve,teacher_note,created_at,updated_at").order("week_start",{ascending:false});
-    if(error){body.innerHTML=`<tr><td colspan="7" class="empty">Unable to load reviews: ${esc(error.message)}</td></tr>`;return;}
-    extReviews=data||[];extRenderReviews();await fillReviewSelects();
-  }
-  function extRenderReviews(){
-    const body=$("adminReviewsBody"),q=($("adminReviewSearch")?.value||"").toLowerCase();const sm=Object.fromEntries((allStudents||[]).map(s=>[s.id,s])),tm=Object.fromEntries((allTeachers||[]).map(t=>[t.id,t]));
-    const rows=extReviews.filter(r=>{const s=sm[r.student_id],t=tm[r.teacher_id];return `${s?.full_name||""} ${s?.student_uid||""} ${t?.full_name||""} ${r.week_start||""}`.toLowerCase().includes(q)});
-    body.innerHTML=rows.length?rows.map(r=>{const s=sm[r.student_id]||{},t=tm[r.teacher_id]||{};return `<tr><td><strong>${esc(s.full_name||"Unknown")}</strong><div class="muted">${esc(s.student_uid||"")}</div></td><td>${esc(t.full_name||"Unknown")}</td><td>${esc(r.week_start||"—")} → ${esc(r.week_end||"—")}</td><td>${esc(r.academic_understanding||"—")}</td><td>${esc(r.class_participation||"—")}</td><td>${esc(r.practice_consistency||"—")}</td><td><div class="inline-actions"><button class="small-action" data-review-edit="${esc(r.id)}">Edit</button><button class="small-action danger" data-review-delete="${esc(r.id)}">Delete</button></div></td></tr>`}).join(""):`<tr><td colspan="7" class="empty">No teacher reviews found.</td></tr>`;
-  }
-  function openReview(id=null){
-    editingReviewId=id;hideBox("adminReviewMessage");const r=extReviews.find(x=>x.id===id);$("adminReviewModalTitle").textContent=id?"Edit Teacher Review":"New Teacher Review";
-    ["Student","Teacher"].forEach(()=>{});$("adminReviewStudent").value=r?.student_id||"";$("adminReviewTeacher").value=r?.teacher_id||"";$("adminReviewWeekStart").value=r?.week_start||"";$("adminReviewWeekEnd").value=r?.week_end||"";$("adminReviewUnderstanding").value=r?.academic_understanding||"";$("adminReviewParticipation").value=r?.class_participation||"";$("adminReviewPractice").value=r?.practice_consistency||"";$("adminReviewStrengths").value=r?.strengths||"";$("adminReviewAreas").value=r?.areas_to_improve||"";$("adminReviewNote").value=r?.teacher_note||"";$("adminReviewModal").classList.add("show");
-  }
-  function closeReview(){$("adminReviewModal").classList.remove("show");editingReviewId=null;hideBox("adminReviewMessage");}
-  async function saveReview(e){
-    e.preventDefault();const payload={student_id:$("adminReviewStudent").value,teacher_id:$("adminReviewTeacher").value,week_start:$("adminReviewWeekStart").value,week_end:$("adminReviewWeekEnd").value,academic_understanding:$("adminReviewUnderstanding").value.trim(),class_participation:$("adminReviewParticipation").value.trim(),practice_consistency:$("adminReviewPractice").value.trim(),strengths:$("adminReviewStrengths").value.trim(),areas_to_improve:$("adminReviewAreas").value.trim(),teacher_note:$("adminReviewNote").value.trim(),updated_at:new Date().toISOString()};
-    if(!payload.student_id||!payload.teacher_id||!payload.week_start||!payload.week_end){showBox("adminReviewMessage","Student, teacher and both week dates are required.");return;}
-    const btn=$("adminReviewSave");btn.disabled=true;try{let q;if(editingReviewId)q=supabaseClient.from("student_reviews").update(payload).eq("id",editingReviewId);else q=supabaseClient.from("student_reviews").insert({...payload,created_at:new Date().toISOString()});const {error}=await q;if(error)throw error;closeReview();await extLoadReviews();}catch(err){showBox("adminReviewMessage",err.message||"Unable to save review.");}finally{btn.disabled=false;}
-  }
-  async function deleteReview(id){if(!confirm("Delete this teacher review? This cannot be undone."))return;const {error}=await supabaseClient.from("student_reviews").delete().eq("id",id);if(error){alert(error.message);return;}await extLoadReviews();}
-
-  /* ---------------- NOTICES ---------------- */
-  let extNotices=[],editingNoticeId=null;
-  function noticeNormalize(n){return {id:n.id,title:n.title??n.notice_title??n.heading??"",content:n.content??n.body??n.message??n.notice??"",audience:n.audience??n.target_audience??n.target??n.visibility??"all",published:n.is_published??n.published??n.status==="published",created:n.created_at??n.published_at??n.date??""};}
-  async function extLoadNotices(){
-    const body=$("adminNoticesBody");if(!body)return;const {data,error}=await supabaseClient.from("notices").select("*");
-    if(error){body.innerHTML=`<tr><td colspan="6" class="empty">Unable to load notices: ${esc(error.message)}</td></tr>`;return;}extNotices=data||[];extRenderNotices();
-  }
-  function extRenderNotices(){const body=$("adminNoticesBody"),q=($("adminNoticeSearch")?.value||"").toLowerCase();const rows=extNotices.map(noticeNormalize).filter(n=>`${n.title} ${n.content} ${n.audience}`.toLowerCase().includes(q));body.innerHTML=rows.length?rows.map(n=>`<tr><td><strong>${esc(n.title||"Untitled")}</strong></td><td><div class="notice-content-cell">${esc(n.content||"—")}</div></td><td>${esc(n.audience||"all")}</td><td><span class="status ${n.published?"":"inactive"}">${n.published?"Published":"Draft"}</span></td><td>${esc(n.created?String(n.created).slice(0,10):"—")}</td><td><div class="inline-actions"><button class="small-action" data-notice-edit="${esc(n.id)}">Edit</button><button class="small-action danger" data-notice-delete="${esc(n.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No notices found.</td></tr>`;}
-  function openNotice(id=null){editingNoticeId=id;hideBox("adminNoticeMessage");const n=id?noticeNormalize(extNotices.find(x=>x.id===id)||{}):{};$("adminNoticeModalTitle").textContent=id?"Edit Notice":"Publish Notice";$("adminNoticeTitle").value=n.title||"";$("adminNoticeContent").value=n.content||"";$("adminNoticeAudience").value=n.audience||"all";$("adminNoticePublished").value=String(!!n.published);$("adminNoticeModal").classList.add("show");}
-  function closeNotice(){$("adminNoticeModal").classList.remove("show");editingNoticeId=null;hideBox("adminNoticeMessage");}
-  async function noticeWrite(payload,id=null){
-    const candidates=[
-      {title:payload.title,content:payload.content,audience:payload.audience,is_published:payload.published},
-      {title:payload.title,body:payload.content,target_audience:payload.audience,is_published:payload.published},
-      {title:payload.title,message:payload.content,target:payload.audience,published:payload.published},
-      {notice_title:payload.title,content:payload.content,target_audience:payload.audience,is_published:payload.published},
-      {heading:payload.title,body:payload.content,audience:payload.audience,published:payload.published}
-    ];
-    let last=null;for(const c of candidates){let q=id?supabaseClient.from("notices").update(c).eq("id",id):supabaseClient.from("notices").insert(c);const {error}=await q;if(!error)return;last=error;}throw last||new Error("Unable to write notice.");
-  }
-  async function saveNotice(e){e.preventDefault();const payload={title:$("adminNoticeTitle").value.trim(),content:$("adminNoticeContent").value.trim(),audience:$("adminNoticeAudience").value,published:$("adminNoticePublished").value==="true"};if(!payload.title||!payload.content){showBox("adminNoticeMessage","Title and content are required.");return;}const btn=$("adminNoticeSave");btn.disabled=true;try{await noticeWrite(payload,editingNoticeId);closeNotice();await extLoadNotices();await loadCounters();}catch(err){showBox("adminNoticeMessage",`Could not save notice. Existing notices table schema may use different column names. ${err.message||""}`);}finally{btn.disabled=false;}}
-  async function deleteNotice(id){if(!confirm("Delete this notice? This cannot be undone."))return;const {error}=await supabaseClient.from("notices").delete().eq("id",id);if(error){alert(error.message);return;}await extLoadNotices();await loadCounters();}
-
-  /* ---------------- EVENTS ---------------- */
-  document.addEventListener("click",e=>{
-    const b=e.target.closest("[data-batch-edit]");if(b){openBatch(b.dataset.batchEdit);return;}const bt=e.target.closest("[data-batch-toggle]");if(bt){toggleBatch(bt.dataset.batchToggle);return;}
-    const re=e.target.closest("[data-review-edit]");if(re){openReview(re.dataset.reviewEdit);return;}const rd=e.target.closest("[data-review-delete]");if(rd){deleteReview(rd.dataset.reviewDelete);return;}
-    const ne=e.target.closest("[data-notice-edit]");if(ne){openNotice(ne.dataset.noticeEdit);return;}const nd=e.target.closest("[data-notice-delete]");if(nd){deleteNotice(nd.dataset.noticeDelete);return;}
-  });
-  $("adminAddBatchBtn")?.addEventListener("click",()=>openBatch());$("adminBatchClose")?.addEventListener("click",closeBatch);$("adminBatchCancel")?.addEventListener("click",closeBatch);$("adminBatchForm")?.addEventListener("submit",saveBatch);$("adminBatchSearch")?.addEventListener("input",extRenderBatches);
-  $("refreshResultsBtn")?.addEventListener("click",extLoadResults);$("resultTestFilter")?.addEventListener("change",extRenderResults);$("resultStudentSearch")?.addEventListener("input",extRenderResults);
-  $("adminAddReviewBtn")?.addEventListener("click",()=>openReview());$("adminReviewClose")?.addEventListener("click",closeReview);$("adminReviewCancel")?.addEventListener("click",closeReview);$("adminReviewForm")?.addEventListener("submit",saveReview);$("adminReviewSearch")?.addEventListener("input",extRenderReviews);
-  $("adminAddNoticeBtn")?.addEventListener("click",()=>openNotice());$("adminNoticeClose")?.addEventListener("click",closeNotice);$("adminNoticeCancel")?.addEventListener("click",closeNotice);$("adminNoticeForm")?.addEventListener("submit",saveNotice);$("adminNoticeSearch")?.addEventListener("input",extRenderNotices);
-
-  // Extend existing navigation without touching its working listener.
-  document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>{
-    const section=btn.dataset.section;if(section==="batches")extLoadBatches();if(section==="results")extLoadResults();if(section==="reviews")extLoadReviews();if(section==="notices")extLoadNotices();
-  }));
-
-  // Initial data loads after the original admin init has populated students/teachers.
-  window.addEventListener("load",async()=>{
-    setTimeout(async()=>{try{await extLoadBatches();await extLoadResults();await extLoadReviews();await extLoadNotices();}catch(err){console.error("Admin extension load error",err);}},350);
-  });
-
-  // Expose for debugging only; existing Test functions are not replaced.
-  window.SIRAdminExtensions={reloadBatches:extLoadBatches,reloadResults:extLoadResults,reloadReviews:extLoadReviews,reloadNotices:extLoadNotices};
-})();
 </script>
 
 </body>
