@@ -3722,7 +3722,7 @@ document
 
     try {
       const { data, error } = await supabaseClient.functions.invoke(
-        "admin-create-student",
+        "create-student",
         { body: { full_name: name, email, phone, course_id: courseId, batch_id: batchId } }
       );
 
