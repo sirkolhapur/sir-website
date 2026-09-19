@@ -1320,6 +1320,227 @@
         }
 
 
+        /* =====================================================
+           STUDENT PROFILE + WEEKLY REVIEW MODAL
+        ===================================================== */
+
+        .student-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7,21,47,.58);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            z-index: 9999;
+        }
+
+        .student-modal.open {
+            display: flex;
+        }
+
+        .student-modal-card {
+            width: min(920px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 25px 70px rgba(7,21,47,.22);
+        }
+
+        .student-modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 24px 26px 18px;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .student-modal-head h2 {
+            margin: 0;
+            color: #07152f;
+            font-size: 20px;
+        }
+
+        .student-modal-head p {
+            margin: 5px 0 0;
+            color: #7a8495;
+            font-size: 10px;
+        }
+
+        .student-modal-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #dfe4ec;
+            border-radius: 8px;
+            background: #fff;
+            color: #07152f;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .student-modal-body {
+            padding: 24px 26px 28px;
+        }
+
+        .student-profile-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .student-profile-item {
+            background: #f8f9fb;
+            border-radius: 9px;
+            padding: 12px;
+        }
+
+        .student-profile-item small {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            margin-bottom: 5px;
+        }
+
+        .student-profile-item strong {
+            color: #07152f;
+            font-size: 11px;
+        }
+
+        .review-section-title {
+            margin: 0 0 5px;
+            color: #07152f;
+            font-size: 16px;
+        }
+
+        .review-section-subtitle {
+            margin: 0 0 18px;
+            color: #7a8495;
+            font-size: 10px;
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .review-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .review-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .review-field label {
+            color: #344054;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .review-field input,
+        .review-field textarea {
+            width: 100%;
+            border: 1px solid #dfe4ec;
+            border-radius: 8px;
+            padding: 10px 11px;
+            outline: none;
+            color: #172033;
+            background: #fff;
+            font: inherit;
+            font-size: 10px;
+            box-sizing: border-box;
+        }
+
+        .review-field textarea {
+            min-height: 76px;
+            resize: vertical;
+        }
+
+        .review-field input:focus,
+        .review-field textarea:focus {
+            border-color: #d7a62a;
+            box-shadow: 0 0 0 3px rgba(215,166,42,.08);
+        }
+
+        .review-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .review-message {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            flex: 1;
+        }
+
+        .review-message.success {
+            display: block;
+            background: #e9f8f0;
+            color: #147a4c;
+        }
+
+        .review-message.error {
+            display: block;
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .save-review-btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 18px;
+            background: #d7a62a;
+            color: #07152f;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .save-review-btn:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 760px) {
+            .student-modal {
+                padding: 10px;
+            }
+
+            .student-profile-summary,
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .review-field.full {
+                grid-column: auto;
+            }
+
+            .student-modal-head,
+            .student-modal-body {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .review-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+
         @media (max-width: 420px) {
 
             .stats-grid {
@@ -1757,6 +1978,10 @@
                                             STATUS
                                         </th>
 
+                                        <th>
+                                            ACTION
+                                        </th>
+
                                     </tr>
 
                                 </thead>
@@ -2142,6 +2367,8 @@
         let teacherTests = [];
 
         let teacherScores = [];
+
+        let selectedStudentForReview = null;
 
 
 
@@ -2699,7 +2926,7 @@
                     <tr>
 
                         <td
-                            colspan="5"
+                            colspan="6"
                             class="empty-state"
                         >
                             No students found.
@@ -2793,6 +3020,504 @@
 
 
 
+
+        /* =====================================================
+           STUDENT PROFILE + WEEKLY REVIEW
+        ===================================================== */
+
+        function getWeekDates() {
+
+            const today = new Date();
+
+            const day = today.getDay();
+
+            const diffToMonday =
+                day === 0
+                    ? -6
+                    : 1 - day;
+
+            const monday = new Date(today);
+
+            monday.setDate(
+                today.getDate() + diffToMonday
+            );
+
+            const sunday = new Date(monday);
+
+            sunday.setDate(
+                monday.getDate() + 6
+            );
+
+            const toISODate = date =>
+                date.toISOString().slice(0, 10);
+
+            return {
+                start: toISODate(monday),
+                end: toISODate(sunday)
+            };
+
+        }
+
+
+        function showReviewMessage(
+            message,
+            type
+        ) {
+
+            const box =
+                document.getElementById(
+                    "reviewMessage"
+                );
+
+            box.textContent =
+                message;
+
+            box.className =
+                "review-message " +
+                type;
+
+        }
+
+
+        function clearReviewMessage() {
+
+            const box =
+                document.getElementById(
+                    "reviewMessage"
+                );
+
+            box.textContent = "";
+
+            box.className =
+                "review-message";
+
+        }
+
+
+        function setReviewFormValues(
+            review
+        ) {
+
+            const week =
+                getWeekDates();
+
+            document.getElementById(
+                "reviewWeekStart"
+            ).value =
+                review?.week_start ||
+                week.start;
+
+            document.getElementById(
+                "reviewWeekEnd"
+            ).value =
+                review?.week_end ||
+                week.end;
+
+            document.getElementById(
+                "academicUnderstanding"
+            ).value =
+                review?.academic_understanding ||
+                "";
+
+            document.getElementById(
+                "classParticipation"
+            ).value =
+                review?.class_participation ||
+                "";
+
+            document.getElementById(
+                "practiceConsistency"
+            ).value =
+                review?.practice_consistency ||
+                "";
+
+            document.getElementById(
+                "strengths"
+            ).value =
+                review?.strengths ||
+                "";
+
+            document.getElementById(
+                "areasToImprove"
+            ).value =
+                review?.areas_to_improve ||
+                "";
+
+            document.getElementById(
+                "teacherNote"
+            ).value =
+                review?.teacher_note ||
+                "";
+
+        }
+
+
+        async function loadLatestStudentReview(
+            studentId
+        ) {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("student_reviews")
+                    .select(`
+                        id,
+                        week_start,
+                        week_end,
+                        academic_understanding,
+                        class_participation,
+                        practice_consistency,
+                        strengths,
+                        areas_to_improve,
+                        teacher_note,
+                        created_at,
+                        updated_at
+                    `)
+                    .eq(
+                        "student_id",
+                        studentId
+                    )
+                    .order(
+                        "week_start",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(1);
+
+            if (error) {
+
+                console.error(
+                    "Review load error:",
+                    error
+                );
+
+                return null;
+
+            }
+
+            return data?.[0] || null;
+
+        }
+
+
+        async function openStudentProfile(
+            studentId
+        ) {
+
+            const student =
+                assignedStudents.find(
+                    item =>
+                        item.id === studentId
+                );
+
+            if (!student) {
+
+                showError(
+                    "Unable to find this student."
+                );
+
+                return;
+
+            }
+
+            selectedStudentForReview =
+                student;
+
+            const batch =
+                assignedBatches.find(
+                    item =>
+                        item.id ===
+                        student.batch_id
+                );
+
+            document.getElementById(
+                "studentModalName"
+            ).textContent =
+                student.full_name ||
+                "Student Profile";
+
+            document.getElementById(
+                "studentModalSubtitle"
+            ).textContent =
+                "Student profile • Weekly teacher review";
+
+            document.getElementById(
+                "studentModalUid"
+            ).textContent =
+                student.student_uid ||
+                "—";
+
+            document.getElementById(
+                "studentModalSchool"
+            ).textContent =
+                student.school_name ||
+                "—";
+
+            document.getElementById(
+                "studentModalBatch"
+            ).textContent =
+                batch?.name ||
+                "—";
+
+            document.getElementById(
+                "studentModalStatus"
+            ).textContent =
+                student.is_active === true
+                    ? "ACTIVE"
+                    : "INACTIVE";
+
+            clearReviewMessage();
+
+            const modal =
+                document.getElementById(
+                    "studentProfileModal"
+                );
+
+            modal.classList.add("open");
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+            setReviewFormValues(null);
+
+            const latestReview =
+                await loadLatestStudentReview(
+                    student.id
+                );
+
+            if (latestReview) {
+
+                setReviewFormValues(
+                    latestReview
+                );
+
+            }
+
+        }
+
+
+        function closeStudentProfile() {
+
+            selectedStudentForReview =
+                null;
+
+            const modal =
+                document.getElementById(
+                    "studentProfileModal"
+                );
+
+            modal.classList.remove(
+                "open"
+            );
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            clearReviewMessage();
+
+        }
+
+
+        async function saveStudentReview() {
+
+            if (!selectedStudentForReview) {
+
+                return;
+
+            }
+
+            const saveButton =
+                document.getElementById(
+                    "saveReviewBtn"
+                );
+
+            const weekStart =
+                document.getElementById(
+                    "reviewWeekStart"
+                ).value;
+
+            const weekEnd =
+                document.getElementById(
+                    "reviewWeekEnd"
+                ).value;
+
+            if (!weekStart || !weekEnd) {
+
+                showReviewMessage(
+                    "Please select the review week.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (weekEnd < weekStart) {
+
+                showReviewMessage(
+                    "Week end cannot be before week start.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            saveButton.disabled = true;
+
+            saveButton.textContent =
+                "SAVING...";
+
+            clearReviewMessage();
+
+            try {
+
+                const payload = {
+                    student_id:
+                        selectedStudentForReview.id,
+
+                    teacher_id:
+                        currentTeacher.id,
+
+                    week_start:
+                        weekStart,
+
+                    week_end:
+                        weekEnd,
+
+                    academic_understanding:
+                        document.getElementById(
+                            "academicUnderstanding"
+                        ).value.trim(),
+
+                    class_participation:
+                        document.getElementById(
+                            "classParticipation"
+                        ).value.trim(),
+
+                    practice_consistency:
+                        document.getElementById(
+                            "practiceConsistency"
+                        ).value.trim(),
+
+                    strengths:
+                        document.getElementById(
+                            "strengths"
+                        ).value.trim(),
+
+                    areas_to_improve:
+                        document.getElementById(
+                            "areasToImprove"
+                        ).value.trim(),
+
+                    teacher_note:
+                        document.getElementById(
+                            "teacherNote"
+                        ).value.trim(),
+
+                    updated_at:
+                        new Date().toISOString()
+
+                };
+
+                const {
+                    error
+                } =
+                    await supabaseClient
+                        .from("student_reviews")
+                        .upsert(
+                            payload,
+                            {
+                                onConflict:
+                                    "student_id,week_start"
+                            }
+                        );
+
+                if (error) {
+
+                    console.error(
+                        "Review save error:",
+                        error
+                    );
+
+                    throw error;
+
+                }
+
+                showReviewMessage(
+                    "Review saved successfully. It will now appear in the student's portal.",
+                    "success"
+                );
+
+            } catch (error) {
+
+                showReviewMessage(
+                    error.message ||
+                    "Unable to save review.",
+                    "error"
+                );
+
+            } finally {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "SAVE REVIEW";
+
+            }
+
+        }
+
+
+        document
+            .getElementById(
+                "studentModalClose"
+            )
+            .addEventListener(
+                "click",
+                closeStudentProfile
+            );
+
+
+        document
+            .getElementById(
+                "saveReviewBtn"
+            )
+            .addEventListener(
+                "click",
+                saveStudentReview
+            );
+
+
+        document
+            .getElementById(
+                "studentProfileModal"
+            )
+            .addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.id ===
+                        "studentProfileModal"
+                    ) {
+
+                        closeStudentProfile();
+
+                    }
+
+                }
+            );
+
+
         /* =====================================================
            LOAD TESTS
         ===================================================== */
@@ -2830,11 +3555,16 @@
                         test_date,
                         max_marks,
                         duration_minutes,
-                        description
+                        description,
+                        is_active
                     `)
                     .in(
                         "batch_id",
                         batchIds
+                    )
+                    .eq(
+                        "is_active",
+                        true
                     )
                     .order(
                         "test_date",
@@ -3466,6 +4196,205 @@
         initialize();
 
     </script>
+
+
+    <!-- =====================================================
+         STUDENT PROFILE + WEEKLY REVIEW MODAL
+    ====================================================== -->
+
+    <div
+        class="student-modal"
+        id="studentProfileModal"
+        aria-hidden="true"
+    >
+
+        <div class="student-modal-card">
+
+            <div class="student-modal-head">
+
+                <div>
+                    <h2 id="studentModalName">
+                        Student Profile
+                    </h2>
+
+                    <p id="studentModalSubtitle">
+                        Student information and weekly teacher review
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="student-modal-close"
+                    id="studentModalClose"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="student-modal-body">
+
+                <div class="student-profile-summary">
+
+                    <div class="student-profile-item">
+                        <small>UID</small>
+                        <strong id="studentModalUid">—</strong>
+                    </div>
+
+                    <div class="student-profile-item">
+                        <small>SCHOOL</small>
+                        <strong id="studentModalSchool">—</strong>
+                    </div>
+
+                    <div class="student-profile-item">
+                        <small>BATCH</small>
+                        <strong id="studentModalBatch">—</strong>
+                    </div>
+
+                    <div class="student-profile-item">
+                        <small>STATUS</small>
+                        <strong id="studentModalStatus">—</strong>
+                    </div>
+
+                </div>
+
+
+                <h3 class="review-section-title">
+                    Weekly Teacher Review
+                </h3>
+
+                <p class="review-section-subtitle">
+                    Teacher → Student → Parent
+                </p>
+
+
+                <div class="review-grid">
+
+                    <div class="review-field">
+                        <label for="reviewWeekStart">
+                            Week Start
+                        </label>
+
+                        <input
+                            type="date"
+                            id="reviewWeekStart"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="reviewWeekEnd">
+                            Week End
+                        </label>
+
+                        <input
+                            type="date"
+                            id="reviewWeekEnd"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="academicUnderstanding">
+                            Academic Understanding
+                        </label>
+
+                        <textarea
+                            id="academicUnderstanding"
+                            placeholder="How well is the student understanding concepts?"
+                        ></textarea>
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="classParticipation">
+                            Class Participation
+                        </label>
+
+                        <textarea
+                            id="classParticipation"
+                            placeholder="Participation, questions, attention..."
+                        ></textarea>
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="practiceConsistency">
+                            Practice Consistency
+                        </label>
+
+                        <textarea
+                            id="practiceConsistency"
+                            placeholder="Practice, homework, test preparation..."
+                        ></textarea>
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="strengths">
+                            Strengths
+                        </label>
+
+                        <textarea
+                            id="strengths"
+                            placeholder="What is the student doing well?"
+                        ></textarea>
+                    </div>
+
+
+                    <div class="review-field">
+                        <label for="areasToImprove">
+                            Areas to Improve
+                        </label>
+
+                        <textarea
+                            id="areasToImprove"
+                            placeholder="What needs more attention?"
+                        ></textarea>
+                    </div>
+
+
+                    <div class="review-field full">
+                        <label for="teacherNote">
+                            Teacher Note
+                        </label>
+
+                        <textarea
+                            id="teacherNote"
+                            placeholder="Final note for the student and parent..."
+                        ></textarea>
+                    </div>
+
+                </div>
+
+
+                <div class="review-actions">
+
+                    <div
+                        class="review-message"
+                        id="reviewMessage"
+                    ></div>
+
+                    <button
+                        type="button"
+                        class="save-review-btn"
+                        id="saveReviewBtn"
+                    >
+                        SAVE REVIEW
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
 </body>
 
