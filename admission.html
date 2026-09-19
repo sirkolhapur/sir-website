@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission | Suryavanshi Institute for Rankers</title>
+<meta name="description" content="Admissions at Suryavanshi Institute for Rankers. Choose your programme and begin the admission process.">
+<style>
+:root{--navy:#07152f;--gold:#d8aa3d;--gold2:#f0ce70;--paper:#fbfaf7;--cream:#eee9dd;--ink:#111a2b;--muted:#687286;--line:#d9dce2}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Georgia,"Times New Roman",serif;background:var(--paper);color:var(--ink);line-height:1.6}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+.header{height:80px;background:var(--navy);display:flex;align-items:center}
+.header-inner{width:min(1180px,calc(100% - 42px));margin:auto;display:flex;align-items:center;justify-content:space-between}
+.logo{width:185px;display:block}
+.nav{display:flex;align-items:center;gap:24px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;color:#fff}
+.nav a:hover,.nav .active{color:var(--gold2)}
+.login{border:1px solid rgba(240,206,112,.6);padding:9px 14px;color:var(--gold2)!important}
+.menu{display:none;background:none;border:0;color:#fff;font-size:25px}
+.mobile{display:none;background:var(--navy);padding:0 21px 18px}
+.mobile.open{display:grid}
+.mobile a{color:#fff;font-family:Arial,sans-serif;font-size:11px;letter-spacing:.12em;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+
+.hero{background:var(--navy);color:#fff;padding:105px 0 115px}
+.wrap{width:min(1060px,calc(100% - 42px));margin:auto}
+.eyebrow,.label{font-family:Arial,sans-serif;font-size:10px;letter-spacing:.2em;font-weight:700;color:var(--gold);text-transform:uppercase}
+.hero h1{font-size:clamp(50px,7vw,88px);line-height:.95;font-weight:500;letter-spacing:-.05em;margin-top:24px}
+.hero p{max-width:570px;color:#bfc8d8;font-size:18px;margin-top:25px}
+
+.admission{padding:80px 0 110px}
+.layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:85px;align-items:start}
+.left h2{font-size:48px;line-height:1;font-weight:500;letter-spacing:-.04em;margin-top:18px}
+.left p{color:var(--muted);font-size:16px;margin-top:22px;max-width:350px}
+.note{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);font-family:Arial,sans-serif;font-size:10px;letter-spacing:.08em;color:#7a8290;max-width:330px}
+
+.form-box{background:#fff;border:1px solid var(--line);padding:38px 40px}
+.form-title{font-size:30px;font-weight:500;margin-bottom:28px}
+.field{margin-bottom:18px}
+.field label{display:block;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.1em;font-weight:700;color:#485166;margin-bottom:7px}
+.field input,.field select{width:100%;height:48px;border:1px solid #d5d9e0;padding:0 13px;background:#fff;color:var(--ink);outline:none;border-radius:0}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.programmes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:25px}
+.programme{position:relative}
+.programme input{position:absolute;opacity:0}
+.programme label{height:68px;border:1px solid #d5d9e0;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer}
+.programme input:checked+label{border-color:var(--gold);background:#fbf6e9;color:var(--navy)}
+.submit{width:100%;border:0;background:var(--navy);color:#fff;height:52px;cursor:pointer;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;margin-top:8px}
+.submit:hover{background:#0d2144}
+.payment-note{text-align:center;font-family:Arial,sans-serif;font-size:10px;color:#7b8493;margin-top:12px}
+
+.steps{border-top:1px solid var(--line);padding:34px 0;background:var(--cream)}
+.steps-inner{display:grid;grid-template-columns:repeat(4,1fr)}
+.step{padding:5px 25px;border-right:1px solid var(--line)}
+.step:first-child{padding-left:0}
+.step:last-child{border-right:0}
+.step b{display:block;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.13em;color:var(--gold)}
+.step span{display:block;font-size:17px;margin-top:7px}
+
+.footer{background:#040d1d;color:#fff;padding:45px 0 25px}
+.footer-inner{width:min(1060px,calc(100% - 42px));margin:auto;display:flex;justify-content:space-between;gap:35px}
+.footer img{width:180px}
+.footer p{color:#8e99ad;font-size:13px;max-width:310px;margin-top:15px}
+.footer-links{display:flex;gap:20px;align-items:center;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.1em;color:#b6bfce}
+.bottom{width:min(1060px,calc(100% - 42px));margin:32px auto 0;padding-top:17px;border-top:1px solid rgba(255,255,255,.08);font-family:Arial,sans-serif;font-size:9px;letter-spacing:.1em;color:#687487;display:flex;justify-content:space-between}
+
+@media(max-width:850px){
+.nav{display:none}.menu{display:block}
+.layout{grid-template-columns:1fr;gap:45px}
+.hero{padding:80px 0 90px}
+.steps-inner{grid-template-columns:1fr 1fr;gap:20px}
+.step{border-right:0}
+.step:first-child{padding-left:25px}
+.footer-inner{display:block}.footer-links{margin-top:28px;flex-wrap:wrap}
+}
+@media(max-width:600px){
+.wrap,.header-inner,.footer-inner,.bottom{width:calc(100% - 32px)}
+.header{height:70px}.logo{width:155px}
+.hero h1{font-size:53px}.hero p{font-size:16px}
+.admission{padding:60px 0 75px}
+.left h2{font-size:42px}
+.form-box{padding:27px 20px}
+.row,.programmes{grid-template-columns:1fr}
+.steps-inner{grid-template-columns:1fr}
+.step{padding:8px 0!important;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.bottom{display:block}.bottom span{display:block;margin-bottom:7px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html"><img class="logo" src="sir-logo.svg" alt="Suryavanshi Institute for Rankers"></a>
+    <nav class="nav">
+      <a href="index.html">HOME</a>
+      <a href="about.html">ABOUT US</a>
+      <a href="student-guide.html">STUDENT GUIDE</a>
+      <a href="notice-board.html">NOTICE BOARD</a>
+      <a href="admission.html" class="active">ADMISSION</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="login.html" class="login">LOGIN</a>
+    </nav>
+    <button class="menu" id="menu" aria-label="Menu">☰</button>
+  </div>
+</header>
+<div class="mobile" id="mobile">
+  <a href="index.html">HOME</a>
+  <a href="about.html">ABOUT US</a>
+  <a href="student-guide.html">STUDENT GUIDE</a>
+  <a href="notice-board.html">NOTICE BOARD</a>
+  <a href="admission.html">ADMISSION</a>
+  <a href="contact.html">CONTACT</a>
+  <a href="login.html">LOGIN</a>
+</div>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">ADMISSIONS · SIR KOLHAPUR</div>
+    <h1>Start your journey<br>with SIR.</h1>
+    <p>Choose your programme, enter the student's details, and continue with the admission process.</p>
+  </div>
+</section>
+
+<section class="admission">
+  <div class="wrap layout">
+    <div class="left">
+      <div class="label">01 — ADMISSION</div>
+      <h2>A simple<br>next step.</h2>
+      <p>We have kept the admission process straightforward. Select the programme you are applying for and provide the required student information.</p>
+      <div class="note">PLEASE ENTER THE DETAILS CAREFULLY. THEY WILL BE USED FOR THE ADMISSION RECORD.</div>
+    </div>
+
+    <div class="form-box">
+      <div class="form-title">Admission Details</div>
+      <form id="admissionForm">
+
+        <div class="field">
+          <label>SELECT PROGRAMME *</label>
+          <div class="programmes">
+            <div class="programme">
+              <input type="radio" id="neet" name="course" value="NEET" required>
+              <label for="neet">NEET</label>
+            </div>
+            <div class="programme">
+              <input type="radio" id="jee" name="course" value="JEE">
+              <label for="jee">JEE</label>
+            </div>
+            <div class="programme">
+              <input type="radio" id="cet" name="course" value="MHT-CET">
+              <label for="cet">MHT-CET</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="studentName">STUDENT NAME *</label>
+            <input id="studentName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="parentName">PARENT / GUARDIAN *</label>
+            <input id="parentName" type="text" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="mobile">MOBILE NUMBER *</label>
+            <input id="mobile" type="tel" inputmode="numeric" required>
+          </div>
+          <div class="field">
+            <label for="email">EMAIL</label>
+            <input id="email" type="email">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="classLevel">CURRENT CLASS *</label>
+            <select id="classLevel" required>
+              <option value="">Select class</option>
+              <option>8th</option><option>9th</option><option>10th</option>
+              <option>11th</option><option>12th</option><option>Dropper</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="city">CITY</label>
+            <input id="city" type="text" placeholder="Optional">
+          </div>
+        </div>
+
+        <button class="submit" type="submit">CONTINUE →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="wrap steps-inner">
+    <div class="step"><b>01 / SELECT</b><span>Programme</span></div>
+    <div class="step"><b>02 / DETAILS</b><span>Student information</span></div>
+    <div class="step"><b>03 / REVIEW</b><span>Admission details</span></div>
+    <div class="step"><b>04 / COMPLETE</b><span>Admission confirmation</span></div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <img src="sir-logo.svg" alt="SIR">
+      <p>Suryavanshi Institute for Rankers — Where Potential Finds Direction.</p>
+    </div>
+    <div class="footer-links">
+      <a href="about.html">ABOUT</a>
+      <a href="student-guide.html">STUDENT GUIDE</a>
+      <a href="notice-board.html">NOTICE BOARD</a>
+      <a href="contact.html">CONTACT</a>
+    </div>
+  </div>
+  <div class="bottom">
+    <span>© 2026 SURYAVANSHI INSTITUTE FOR RANKERS</span>
+    <span>WHERE POTENTIAL FINDS DIRECTION</span>
+  </div>
+</footer>
+
+<script>
+document.getElementById("menu").addEventListener("click",()=>document.getElementById("mobile").classList.toggle("open"));
+
+document.getElementById("admissionForm").addEventListener("submit",function(e){
+  e.preventDefault();
+
+  const course=document.querySelector('input[name="course"]:checked')?.value;
+  const studentName=document.getElementById("studentName").value.trim();
+  const parentName=document.getElementById("parentName").value.trim();
+  const mobile=document.getElementById("mobile").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const classLevel=document.getElementById("classLevel").value;
+  const city=document.getElementById("city").value.trim();
+
+  if(!course||!studentName||!parentName||!mobile||!classLevel){
+    alert("Please complete the required details.");
+    return;
+  }
+
+  /*
+    PAYMENT INTEGRATION POINT:
+    This is where the server-side admission/order creation and
+    payment gateway checkout will be connected.
+    Final admission confirmation must happen only after
+    server-side payment verification.
+  */
+
+  alert("Your admission details have been received. We will continue with the admission process.");
+});
+</script>
+</body>
+</html>
