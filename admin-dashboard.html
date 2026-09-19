@@ -1089,7 +1089,24 @@
     @media (max-width: 650px) {
       .question-type-row { grid-template-columns:1fr; }
     }
-</style>
+
+    /* =========================
+       ADMIN EXTENSIONS
+    ========================= */
+    .admin-textarea{width:100%;padding:11px 12px;background:#08172a;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;outline:none;resize:vertical;font-family:inherit;line-height:1.5}
+    .admin-textarea:focus{border-color:#c9a84e}
+    .result-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .result-tools select,.result-tools input{max-width:360px;padding:11px 12px;background:#08172a;border:1px solid rgba(255,255,255,.1);border-radius:7px;color:#fff;outline:none}
+    .inline-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .small-action{background:transparent;border:1px solid rgba(255,255,255,.14);color:#dce3ed;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700}
+    .small-action:hover{border-color:rgba(201,168,78,.45);color:#e1c86b}
+    .small-action.danger{border-color:rgba(220,90,90,.35);color:#ff9b9b}
+    .small-action.success{border-color:rgba(70,190,120,.35);color:#8ff0b5}
+    .table-card table td .muted{color:#7f8da1;font-size:11px}
+    .notice-content-cell{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b8c4d4}
+    @media(max-width:700px){.result-tools{align-items:stretch}.result-tools select,.result-tools input{max-width:none;width:100%}}
+
+  </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
@@ -1169,6 +1186,10 @@
 
     <button class="nav-btn" data-section="teachers">
       Teachers
+    </button>
+
+    <button class="nav-btn" data-section="batches">
+      Batches
     </button>
 
     <button class="nav-btn" data-section="tests">
@@ -1355,57 +1376,60 @@
     </section>
 
 
-    <!-- RESULTS -->
+    <!-- BATCHES -->
 
-    <section class="section" id="results">
-
+    <section class="section" id="batches">
       <div class="section-head">
-        <h2>Results</h2>
-        <button class="primary-btn">+ Add Results</button>
+        <div><h2>Batches</h2><div class="build-marker">ACADEMIC BATCH MANAGEMENT</div></div>
+        <button type="button" class="primary-btn" id="adminAddBatchBtn">+ Add Batch</button>
       </div>
-
       <div class="table-card">
-        <div class="empty">
-          Result Management will be connected here.
-        </div>
+        <div class="table-tools"><input class="search" id="adminBatchSearch" placeholder="Search batch or academic year..."></div>
+        <table><thead><tr><th>Batch</th><th>Academic Year</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="adminBatchesBody"><tr><td colspan="4" class="empty">Loading batches...</td></tr></tbody></table>
       </div>
-
     </section>
 
+    <!-- RESULTS -->
+    <section class="section" id="results">
+      <div class="section-head">
+        <div><h2>Results</h2><div class="build-marker">TEST PERFORMANCE</div></div>
+        <button type="button" class="secondary-btn" id="refreshResultsBtn">Refresh</button>
+      </div>
+      <div class="table-card">
+        <div class="table-tools result-tools">
+          <select id="resultTestFilter"><option value="">All Tests</option></select>
+          <input class="search" id="resultStudentSearch" placeholder="Search student or UID...">
+        </div>
+        <table><thead><tr><th>Student</th><th>Test</th><th>Subject</th><th>Marks</th><th>%</th><th>Rank</th><th>Correct</th><th>Wrong</th><th>Unanswered</th></tr></thead>
+        <tbody id="adminResultsBody"><tr><td colspan="9" class="empty">Loading results...</td></tr></tbody></table>
+      </div>
+    </section>
 
     <!-- REVIEWS -->
-
     <section class="section" id="reviews">
-
       <div class="section-head">
-        <h2>Teacher Reviews</h2>
-        <button class="primary-btn">+ New Review</button>
+        <div><h2>Teacher Reviews</h2><div class="build-marker">WEEKLY STUDENT REVIEW</div></div>
+        <button type="button" class="primary-btn" id="adminAddReviewBtn">+ New Review</button>
       </div>
-
       <div class="table-card">
-        <div class="empty">
-          Teacher Review Management will be connected here.
-        </div>
+        <div class="table-tools"><input class="search" id="adminReviewSearch" placeholder="Search student, teacher or week..."></div>
+        <table><thead><tr><th>Student</th><th>Teacher</th><th>Week</th><th>Understanding</th><th>Participation</th><th>Practice</th><th>Action</th></tr></thead>
+        <tbody id="adminReviewsBody"><tr><td colspan="7" class="empty">Loading reviews...</td></tr></tbody></table>
       </div>
-
     </section>
 
-
     <!-- NOTICES -->
-
     <section class="section" id="notices">
-
       <div class="section-head">
-        <h2>Notice Board</h2>
-        <button class="primary-btn">+ Publish Notice</button>
+        <div><h2>Notice Board</h2><div class="build-marker">STUDENT / TEACHER COMMUNICATION</div></div>
+        <button type="button" class="primary-btn" id="adminAddNoticeBtn">+ Publish Notice</button>
       </div>
-
       <div class="table-card">
-        <div class="empty">
-          Notice Management will be connected here.
-        </div>
+        <div class="table-tools"><input class="search" id="adminNoticeSearch" placeholder="Search notices..."></div>
+        <table><thead><tr><th>Title</th><th>Content</th><th>Audience</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="adminNoticesBody"><tr><td colspan="6" class="empty">Loading notices...</td></tr></tbody></table>
       </div>
-
     </section>
 
   </main>
@@ -1413,6 +1437,62 @@
 </div>
 
 
+</div>
+
+<!-- ADMIN BATCH MODAL -->
+<div class="modal" id="adminBatchModal">
+  <div class="modal-box">
+    <div class="modal-head"><h2 id="adminBatchModalTitle">Add Batch</h2><button class="close" id="adminBatchClose">&times;</button></div>
+    <form id="adminBatchForm">
+      <div class="form-grid">
+        <div class="field full"><label>Batch Name</label><input id="adminBatchName" required placeholder="NEET 2027 Batch"></div>
+        <div class="field"><label>Academic Year</label><input id="adminBatchYear" required placeholder="2026-27"></div>
+        <div class="field"><label>Status</label><select id="adminBatchActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+      </div>
+      <div id="adminBatchMessage" class="message"></div>
+      <div class="form-actions"><button type="button" class="secondary-btn" id="adminBatchCancel">Cancel</button><button class="primary-btn" type="submit" id="adminBatchSave">Save Batch</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- ADMIN REVIEW MODAL -->
+<div class="modal" id="adminReviewModal">
+  <div class="modal-box" style="max-width:760px">
+    <div class="modal-head"><div><h2 id="adminReviewModalTitle">New Teacher Review</h2><div class="build-marker">One review per student per week</div></div><button class="close" id="adminReviewClose">&times;</button></div>
+    <form id="adminReviewForm">
+      <div class="form-grid">
+        <div class="field"><label>Student</label><select id="adminReviewStudent" required></select></div>
+        <div class="field"><label>Teacher</label><select id="adminReviewTeacher" required></select></div>
+        <div class="field"><label>Week Start</label><input type="date" id="adminReviewWeekStart" required></div>
+        <div class="field"><label>Week End</label><input type="date" id="adminReviewWeekEnd" required></div>
+        <div class="field"><label>Academic Understanding</label><textarea id="adminReviewUnderstanding" rows="3" class="admin-textarea"></textarea></div>
+        <div class="field"><label>Class Participation</label><textarea id="adminReviewParticipation" rows="3" class="admin-textarea"></textarea></div>
+        <div class="field"><label>Practice Consistency</label><textarea id="adminReviewPractice" rows="3" class="admin-textarea"></textarea></div>
+        <div class="field"><label>Strengths</label><textarea id="adminReviewStrengths" rows="3" class="admin-textarea"></textarea></div>
+        <div class="field"><label>Areas to Improve</label><textarea id="adminReviewAreas" rows="3" class="admin-textarea"></textarea></div>
+        <div class="field full"><label>Teacher Note</label><textarea id="adminReviewNote" rows="4" class="admin-textarea"></textarea></div>
+      </div>
+      <div id="adminReviewMessage" class="message"></div>
+      <div class="form-actions"><button type="button" class="secondary-btn" id="adminReviewCancel">Cancel</button><button class="primary-btn" type="submit" id="adminReviewSave">Save Review</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- ADMIN NOTICE MODAL -->
+<div class="modal" id="adminNoticeModal">
+  <div class="modal-box" style="max-width:720px">
+    <div class="modal-head"><div><h2 id="adminNoticeModalTitle">Publish Notice</h2><div class="build-marker">Existing notices table is used; no duplicate notice table is created.</div></div><button class="close" id="adminNoticeClose">&times;</button></div>
+    <form id="adminNoticeForm">
+      <div class="form-grid">
+        <div class="field full"><label>Title</label><input id="adminNoticeTitle" required placeholder="Important academic update"></div>
+        <div class="field full"><label>Content</label><textarea id="adminNoticeContent" rows="6" class="admin-textarea" required placeholder="Write the notice..."></textarea></div>
+        <div class="field"><label>Audience</label><select id="adminNoticeAudience"><option value="all">Everyone</option><option value="students">Students</option><option value="teachers">Teachers</option></select></div>
+        <div class="field"><label>Status</label><select id="adminNoticePublished"><option value="true">Published</option><option value="false">Draft</option></select></div>
+      </div>
+      <div id="adminNoticeMessage" class="message"></div>
+      <div class="form-actions"><button type="button" class="secondary-btn" id="adminNoticeCancel">Cancel</button><button class="primary-btn" type="submit" id="adminNoticeSave">Save Notice</button></div>
+    </form>
+  </div>
 </div>
 
 <!-- ADD STUDENT MODAL -->
@@ -4325,6 +4405,148 @@ document
 
 })();
 
+</script>
+
+
+<script>
+/* ============================================================
+   SIR ADMIN EXTENSIONS
+   This block intentionally lives separately from the working
+   Test + Question Builder code above.
+   ============================================================ */
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const esc = value => typeof escapeHtml === "function" ? escapeHtml(value ?? "") : String(value ?? "");
+  const showBox = (id,msg,type="error") => { const e=$(id); if(e){e.textContent=msg;e.className=`message show ${type}`;} };
+  const hideBox = id => { const e=$(id); if(e){e.textContent="";e.className="message";} };
+
+  /* ---------------- BATCHES ---------------- */
+  let extBatches=[];
+  let editingBatchId=null;
+
+  async function extLoadBatches(){
+    const body=$("adminBatchesBody"); if(!body)return;
+    const {data,error}=await supabaseClient.from("batches").select("id,name,academic_year,is_active").order("name");
+    if(error){body.innerHTML=`<tr><td colspan="4" class="empty">Unable to load batches: ${esc(error.message)}</td></tr>`;return;}
+    extBatches=data||[]; extRenderBatches();
+  }
+  function extRenderBatches(){
+    const body=$("adminBatchesBody"), q=($("adminBatchSearch")?.value||"").toLowerCase();
+    const rows=extBatches.filter(b=>`${b.name||""} ${b.academic_year||""}`.toLowerCase().includes(q));
+    body.innerHTML=rows.length?rows.map(b=>`<tr><td><strong>${esc(b.name||"—")}</strong></td><td>${esc(b.academic_year||"—")}</td><td><span class="status ${b.is_active===false?"inactive":""}">${b.is_active===false?"Inactive":"Active"}</span></td><td><div class="inline-actions"><button class="small-action" data-batch-edit="${esc(b.id)}">Edit</button><button class="small-action ${b.is_active===false?"success":"danger"}" data-batch-toggle="${esc(b.id)}">${b.is_active===false?"Activate":"Deactivate"}</button></div></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No batches found.</td></tr>`;
+  }
+  function openBatch(id=null){
+    editingBatchId=id; hideBox("adminBatchMessage"); const b=extBatches.find(x=>x.id===id);
+    $("adminBatchModalTitle").textContent=id?"Edit Batch":"Add Batch"; $("adminBatchName").value=b?.name||""; $("adminBatchYear").value=b?.academic_year||""; $("adminBatchActive").value=String(b?.is_active!==false); $("adminBatchModal").classList.add("show"); $("adminBatchName").focus();
+  }
+  function closeBatch(){$("adminBatchModal").classList.remove("show");editingBatchId=null;hideBox("adminBatchMessage");}
+  async function saveBatch(e){
+    e.preventDefault(); const name=$("adminBatchName").value.trim(), year=$("adminBatchYear").value.trim(), active=$("adminBatchActive").value==="true"; if(!name||!year){showBox("adminBatchMessage","Batch name and academic year are required.");return;}
+    const btn=$("adminBatchSave");btn.disabled=true;
+    try{let q=editingBatchId?supabaseClient.from("batches").update({name,academic_year:year,is_active:active}).eq("id",editingBatchId):supabaseClient.from("batches").insert({name,academic_year:year,is_active:active});const {error}=await q;if(error)throw error;closeBatch();await extLoadBatches();await loadBatches();await loadAdminBatches();}
+    catch(err){showBox("adminBatchMessage",err.message||"Unable to save batch.");}finally{btn.disabled=false;}
+  }
+  async function toggleBatch(id){const b=extBatches.find(x=>x.id===id);if(!b)return;if(!confirm(`${b.is_active===false?"Activate":"Deactivate"} ${b.name}?`))return;const {error}=await supabaseClient.from("batches").update({is_active:b.is_active===false}).eq("id",id);if(error){alert(error.message);return;}await extLoadBatches();await loadBatches();await loadAdminBatches();}
+
+  /* ---------------- RESULTS ---------------- */
+  let extResults=[], extTests=[];
+  async function extLoadResults(){
+    const body=$("adminResultsBody");if(!body)return;
+    const [sr,tr]=await Promise.all([
+      supabaseClient.from("test_scores").select("id,test_id,student_id,subject,marks_obtained,max_marks,rank,correct_answers,incorrect_answers,unanswered"),
+      supabaseClient.from("tests").select("id,title,subject,test_date,max_marks").order("test_date",{ascending:false})
+    ]);
+    if(sr.error){body.innerHTML=`<tr><td colspan="9" class="empty">Unable to load results: ${esc(sr.error.message)}</td></tr>`;return;}
+    extResults=sr.data||[];extTests=tr.data||[];
+    const sel=$("resultTestFilter");sel.innerHTML=`<option value="">All Tests</option>`+extTests.map(t=>`<option value="${esc(t.id)}">${esc(t.title||"Untitled Test")}</option>`).join("");
+    extRenderResults();
+  }
+  function extRenderResults(){
+    const body=$("adminResultsBody"), testId=$("resultTestFilter")?.value||"", q=($("resultStudentSearch")?.value||"").toLowerCase();
+    const studentMap=Object.fromEntries((allStudents||[]).map(s=>[s.id,s]));const testMap=Object.fromEntries(extTests.map(t=>[t.id,t]));
+    const rows=extResults.filter(r=>!testId||r.test_id===testId).filter(r=>{const s=studentMap[r.student_id];return `${s?.full_name||""} ${s?.student_uid||""}`.toLowerCase().includes(q)});
+    body.innerHTML=rows.length?rows.map(r=>{const s=studentMap[r.student_id]||{},t=testMap[r.test_id]||{};const max=Number(r.max_marks??t.max_marks??0),marks=Number(r.marks_obtained??0),pct=max?((marks/max)*100).toFixed(1):"—";return `<tr><td><strong>${esc(s.full_name||"Unknown")}</strong><div class="muted">${esc(s.student_uid||"")}</div></td><td>${esc(t.title||"—")}</td><td>${esc(r.subject||t.subject||"—")}</td><td><strong>${esc(r.marks_obtained??"—")}</strong> / ${esc(max||"—")}</td><td>${esc(pct)}${pct!=="—"?"%":""}</td><td>${esc(r.rank??"—")}</td><td>${esc(r.correct_answers??"—")}</td><td>${esc(r.incorrect_answers??"—")}</td><td>${esc(r.unanswered??"—")}</td></tr>`}).join(""):`<tr><td colspan="9" class="empty">No results available yet.</td></tr>`;
+  }
+
+  /* ---------------- REVIEWS ---------------- */
+  let extReviews=[], editingReviewId=null;
+  async function fillReviewSelects(){
+    const ss=$("adminReviewStudent"),tt=$("adminReviewTeacher"); if(!ss||!tt)return;
+    ss.innerHTML=`<option value="">Select Student</option>`+(allStudents||[]).map(s=>`<option value="${esc(s.id)}">${esc(s.full_name||"Student")} — ${esc(s.student_uid||"")}</option>`).join("");
+    tt.innerHTML=`<option value="">Select Teacher</option>`+(allTeachers||[]).map(t=>`<option value="${esc(t.id)}">${esc(t.full_name||"Teacher")} — ${esc(t.subject||"")}</option>`).join("");
+  }
+  async function extLoadReviews(){
+    const body=$("adminReviewsBody");if(!body)return;
+    const {data,error}=await supabaseClient.from("student_reviews").select("id,student_id,teacher_id,week_start,week_end,academic_understanding,class_participation,practice_consistency,strengths,areas_to_improve,teacher_note,created_at,updated_at").order("week_start",{ascending:false});
+    if(error){body.innerHTML=`<tr><td colspan="7" class="empty">Unable to load reviews: ${esc(error.message)}</td></tr>`;return;}
+    extReviews=data||[];extRenderReviews();await fillReviewSelects();
+  }
+  function extRenderReviews(){
+    const body=$("adminReviewsBody"),q=($("adminReviewSearch")?.value||"").toLowerCase();const sm=Object.fromEntries((allStudents||[]).map(s=>[s.id,s])),tm=Object.fromEntries((allTeachers||[]).map(t=>[t.id,t]));
+    const rows=extReviews.filter(r=>{const s=sm[r.student_id],t=tm[r.teacher_id];return `${s?.full_name||""} ${s?.student_uid||""} ${t?.full_name||""} ${r.week_start||""}`.toLowerCase().includes(q)});
+    body.innerHTML=rows.length?rows.map(r=>{const s=sm[r.student_id]||{},t=tm[r.teacher_id]||{};return `<tr><td><strong>${esc(s.full_name||"Unknown")}</strong><div class="muted">${esc(s.student_uid||"")}</div></td><td>${esc(t.full_name||"Unknown")}</td><td>${esc(r.week_start||"—")} → ${esc(r.week_end||"—")}</td><td>${esc(r.academic_understanding||"—")}</td><td>${esc(r.class_participation||"—")}</td><td>${esc(r.practice_consistency||"—")}</td><td><div class="inline-actions"><button class="small-action" data-review-edit="${esc(r.id)}">Edit</button><button class="small-action danger" data-review-delete="${esc(r.id)}">Delete</button></div></td></tr>`}).join(""):`<tr><td colspan="7" class="empty">No teacher reviews found.</td></tr>`;
+  }
+  function openReview(id=null){
+    editingReviewId=id;hideBox("adminReviewMessage");const r=extReviews.find(x=>x.id===id);$("adminReviewModalTitle").textContent=id?"Edit Teacher Review":"New Teacher Review";
+    ["Student","Teacher"].forEach(()=>{});$("adminReviewStudent").value=r?.student_id||"";$("adminReviewTeacher").value=r?.teacher_id||"";$("adminReviewWeekStart").value=r?.week_start||"";$("adminReviewWeekEnd").value=r?.week_end||"";$("adminReviewUnderstanding").value=r?.academic_understanding||"";$("adminReviewParticipation").value=r?.class_participation||"";$("adminReviewPractice").value=r?.practice_consistency||"";$("adminReviewStrengths").value=r?.strengths||"";$("adminReviewAreas").value=r?.areas_to_improve||"";$("adminReviewNote").value=r?.teacher_note||"";$("adminReviewModal").classList.add("show");
+  }
+  function closeReview(){$("adminReviewModal").classList.remove("show");editingReviewId=null;hideBox("adminReviewMessage");}
+  async function saveReview(e){
+    e.preventDefault();const payload={student_id:$("adminReviewStudent").value,teacher_id:$("adminReviewTeacher").value,week_start:$("adminReviewWeekStart").value,week_end:$("adminReviewWeekEnd").value,academic_understanding:$("adminReviewUnderstanding").value.trim(),class_participation:$("adminReviewParticipation").value.trim(),practice_consistency:$("adminReviewPractice").value.trim(),strengths:$("adminReviewStrengths").value.trim(),areas_to_improve:$("adminReviewAreas").value.trim(),teacher_note:$("adminReviewNote").value.trim(),updated_at:new Date().toISOString()};
+    if(!payload.student_id||!payload.teacher_id||!payload.week_start||!payload.week_end){showBox("adminReviewMessage","Student, teacher and both week dates are required.");return;}
+    const btn=$("adminReviewSave");btn.disabled=true;try{let q;if(editingReviewId)q=supabaseClient.from("student_reviews").update(payload).eq("id",editingReviewId);else q=supabaseClient.from("student_reviews").insert({...payload,created_at:new Date().toISOString()});const {error}=await q;if(error)throw error;closeReview();await extLoadReviews();}catch(err){showBox("adminReviewMessage",err.message||"Unable to save review.");}finally{btn.disabled=false;}
+  }
+  async function deleteReview(id){if(!confirm("Delete this teacher review? This cannot be undone."))return;const {error}=await supabaseClient.from("student_reviews").delete().eq("id",id);if(error){alert(error.message);return;}await extLoadReviews();}
+
+  /* ---------------- NOTICES ---------------- */
+  let extNotices=[],editingNoticeId=null;
+  function noticeNormalize(n){return {id:n.id,title:n.title??n.notice_title??n.heading??"",content:n.content??n.body??n.message??n.notice??"",audience:n.audience??n.target_audience??n.target??n.visibility??"all",published:n.is_published??n.published??n.status==="published",created:n.created_at??n.published_at??n.date??""};}
+  async function extLoadNotices(){
+    const body=$("adminNoticesBody");if(!body)return;const {data,error}=await supabaseClient.from("notices").select("*");
+    if(error){body.innerHTML=`<tr><td colspan="6" class="empty">Unable to load notices: ${esc(error.message)}</td></tr>`;return;}extNotices=data||[];extRenderNotices();
+  }
+  function extRenderNotices(){const body=$("adminNoticesBody"),q=($("adminNoticeSearch")?.value||"").toLowerCase();const rows=extNotices.map(noticeNormalize).filter(n=>`${n.title} ${n.content} ${n.audience}`.toLowerCase().includes(q));body.innerHTML=rows.length?rows.map(n=>`<tr><td><strong>${esc(n.title||"Untitled")}</strong></td><td><div class="notice-content-cell">${esc(n.content||"—")}</div></td><td>${esc(n.audience||"all")}</td><td><span class="status ${n.published?"":"inactive"}">${n.published?"Published":"Draft"}</span></td><td>${esc(n.created?String(n.created).slice(0,10):"—")}</td><td><div class="inline-actions"><button class="small-action" data-notice-edit="${esc(n.id)}">Edit</button><button class="small-action danger" data-notice-delete="${esc(n.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No notices found.</td></tr>`;}
+  function openNotice(id=null){editingNoticeId=id;hideBox("adminNoticeMessage");const n=id?noticeNormalize(extNotices.find(x=>x.id===id)||{}):{};$("adminNoticeModalTitle").textContent=id?"Edit Notice":"Publish Notice";$("adminNoticeTitle").value=n.title||"";$("adminNoticeContent").value=n.content||"";$("adminNoticeAudience").value=n.audience||"all";$("adminNoticePublished").value=String(!!n.published);$("adminNoticeModal").classList.add("show");}
+  function closeNotice(){$("adminNoticeModal").classList.remove("show");editingNoticeId=null;hideBox("adminNoticeMessage");}
+  async function noticeWrite(payload,id=null){
+    const candidates=[
+      {title:payload.title,content:payload.content,audience:payload.audience,is_published:payload.published},
+      {title:payload.title,body:payload.content,target_audience:payload.audience,is_published:payload.published},
+      {title:payload.title,message:payload.content,target:payload.audience,published:payload.published},
+      {notice_title:payload.title,content:payload.content,target_audience:payload.audience,is_published:payload.published},
+      {heading:payload.title,body:payload.content,audience:payload.audience,published:payload.published}
+    ];
+    let last=null;for(const c of candidates){let q=id?supabaseClient.from("notices").update(c).eq("id",id):supabaseClient.from("notices").insert(c);const {error}=await q;if(!error)return;last=error;}throw last||new Error("Unable to write notice.");
+  }
+  async function saveNotice(e){e.preventDefault();const payload={title:$("adminNoticeTitle").value.trim(),content:$("adminNoticeContent").value.trim(),audience:$("adminNoticeAudience").value,published:$("adminNoticePublished").value==="true"};if(!payload.title||!payload.content){showBox("adminNoticeMessage","Title and content are required.");return;}const btn=$("adminNoticeSave");btn.disabled=true;try{await noticeWrite(payload,editingNoticeId);closeNotice();await extLoadNotices();await loadCounters();}catch(err){showBox("adminNoticeMessage",`Could not save notice. Existing notices table schema may use different column names. ${err.message||""}`);}finally{btn.disabled=false;}}
+  async function deleteNotice(id){if(!confirm("Delete this notice? This cannot be undone."))return;const {error}=await supabaseClient.from("notices").delete().eq("id",id);if(error){alert(error.message);return;}await extLoadNotices();await loadCounters();}
+
+  /* ---------------- EVENTS ---------------- */
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("[data-batch-edit]");if(b){openBatch(b.dataset.batchEdit);return;}const bt=e.target.closest("[data-batch-toggle]");if(bt){toggleBatch(bt.dataset.batchToggle);return;}
+    const re=e.target.closest("[data-review-edit]");if(re){openReview(re.dataset.reviewEdit);return;}const rd=e.target.closest("[data-review-delete]");if(rd){deleteReview(rd.dataset.reviewDelete);return;}
+    const ne=e.target.closest("[data-notice-edit]");if(ne){openNotice(ne.dataset.noticeEdit);return;}const nd=e.target.closest("[data-notice-delete]");if(nd){deleteNotice(nd.dataset.noticeDelete);return;}
+  });
+  $("adminAddBatchBtn")?.addEventListener("click",()=>openBatch());$("adminBatchClose")?.addEventListener("click",closeBatch);$("adminBatchCancel")?.addEventListener("click",closeBatch);$("adminBatchForm")?.addEventListener("submit",saveBatch);$("adminBatchSearch")?.addEventListener("input",extRenderBatches);
+  $("refreshResultsBtn")?.addEventListener("click",extLoadResults);$("resultTestFilter")?.addEventListener("change",extRenderResults);$("resultStudentSearch")?.addEventListener("input",extRenderResults);
+  $("adminAddReviewBtn")?.addEventListener("click",()=>openReview());$("adminReviewClose")?.addEventListener("click",closeReview);$("adminReviewCancel")?.addEventListener("click",closeReview);$("adminReviewForm")?.addEventListener("submit",saveReview);$("adminReviewSearch")?.addEventListener("input",extRenderReviews);
+  $("adminAddNoticeBtn")?.addEventListener("click",()=>openNotice());$("adminNoticeClose")?.addEventListener("click",closeNotice);$("adminNoticeCancel")?.addEventListener("click",closeNotice);$("adminNoticeForm")?.addEventListener("submit",saveNotice);$("adminNoticeSearch")?.addEventListener("input",extRenderNotices);
+
+  // Extend existing navigation without touching its working listener.
+  document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>{
+    const section=btn.dataset.section;if(section==="batches")extLoadBatches();if(section==="results")extLoadResults();if(section==="reviews")extLoadReviews();if(section==="notices")extLoadNotices();
+  }));
+
+  // Initial data loads after the original admin init has populated students/teachers.
+  window.addEventListener("load",async()=>{
+    setTimeout(async()=>{try{await extLoadBatches();await extLoadResults();await extLoadReviews();await extLoadNotices();}catch(err){console.error("Admin extension load error",err);}},350);
+  });
+
+  // Expose for debugging only; existing Test functions are not replaced.
+  window.SIRAdminExtensions={reloadBatches:extLoadBatches,reloadResults:extLoadResults,reloadReviews:extLoadReviews,reloadNotices:extLoadNotices};
+})();
 </script>
 
 </body>
