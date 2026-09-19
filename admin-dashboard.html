@@ -366,6 +366,264 @@
       color: #75dda0;
     }
 
+    /* =========================
+       TEST MANAGEMENT
+    ========================= */
+    .test-list {
+      width: 100%;
+    }
+
+    .test-row {
+      display: grid;
+      grid-template-columns: minmax(220px,1.5fr) minmax(150px,1fr) minmax(150px,1fr) minmax(280px,auto);
+      gap: 18px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .test-row:last-child {
+      border-bottom: 0;
+    }
+
+    .test-title {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .test-meta {
+      color: #8493a8;
+      font-size: 12px;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .test-badge {
+      display: inline-block;
+      color: #d9b75b;
+      border: 1px solid rgba(201,168,78,.28);
+      background: rgba(201,168,78,.06);
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .test-date {
+      color: #dce3ed;
+      font-size: 13px;
+    }
+
+    .test-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .test-manage-btn,
+    .test-toggle-btn,
+    .test-delete-btn {
+      white-space: nowrap;
+      min-height: 34px;
+    }
+
+    .test-manage-btn {
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.45);
+      color: #e1c86b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .test-manage-btn:hover {
+      background: rgba(201,168,78,.18);
+    }
+
+    .test-status {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.test-status.active {
+  background: rgba(70, 190, 120, .16);
+  color: #8ff0b5;
+}
+.test-status.inactive {
+  background: rgba(220, 90, 90, .16);
+  color: #ffaaaA;
+}
+.test-toggle-btn {
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.test-toggle-btn.active {
+  color: #ffd76a;
+}
+.test-toggle-btn.inactive {
+  color: #8ff0b5;
+}
+
+.test-delete-btn {
+      background: rgba(220, 70, 70, .08);
+      border: 1px solid rgba(220, 70, 70, .38);
+      color: #ff9b9b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .test-delete-btn:hover {
+      background: rgba(220, 70, 70, .16);
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+      max-height: 330px;
+      overflow-y: auto;
+    }
+
+    .question-item {
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .question-item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .question-number {
+      color: #d9b75b;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .question-text {
+      color: #f3f5f8;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .question-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+      margin-top: 10px;
+      color: #9eabbd;
+      font-size: 11px;
+    }
+
+    .question-correct {
+      color: #75dda0;
+      font-weight: 700;
+    }
+
+    .question-meta {
+      color: #7f8da1;
+      font-size: 10px;
+      margin-top: 8px;
+    }
+
+    .question-actions {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .question-action-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.12);
+      color: #b9c4d3;
+      padding: 6px 9px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .question-action-btn:hover {
+      border-color: rgba(201,168,78,.45);
+      color: #e1c86b;
+    }
+
+    .question-action-btn.delete:hover {
+      border-color: rgba(220,90,90,.45);
+      color: #ff9a9a;
+    }
+
+    .question-builder-divider {
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 4px 0 20px;
+    }
+
+    .question-builder-title {
+      font-size: 14px;
+      color: #eef2f7;
+      margin-bottom: 12px;
+    }
+
+    .question-builder-subtitle {
+      color: #8190a4;
+      font-size: 11px;
+      margin-top: -7px;
+      margin-bottom: 16px;
+    }
+
+    .question-empty {
+      padding: 24px 12px;
+      text-align: center;
+      color: #77869b;
+      border: 1px dashed rgba(255,255,255,.09);
+      border-radius: 10px;
+    }
+
+    .test-empty {
+      padding: 35px;
+      text-align: center;
+      color: #77869b;
+    }
+
+    .build-marker {
+      color: #6f8096;
+      font-size: 10px;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    }
+
     .reset-password-btn {
       background: transparent;
       border: 1px solid rgba(201,168,78,.45);
@@ -487,6 +745,27 @@
 
       table {
         min-width: 700px;
+      }
+
+      .test-row {
+        grid-template-columns: 1fr;
+      }
+
+      .test-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+        justify-content: flex-start;
+      }
+
+      .question-options {
+        grid-template-columns: 1fr;
+      }
+
+      .question-item-head {
+        flex-direction: column;
       }
 
       .form-grid {
@@ -832,33 +1111,23 @@
       <div class="section-head">
         <div>
           <h2>Tests</h2>
-          <p class="section-note">Create and manage academic tests for SIR batches.</p>
+          <div class="build-marker">TEST MANAGEMENT</div>
         </div>
-        <button type="button" class="primary-btn" id="createTestBtn">+ Create Test</button>
+
+        <button
+          type="button"
+          class="primary-btn"
+          id="createTestBtn"
+        >
+          + Create Test
+        </button>
       </div>
 
       <div class="table-card">
-        <div class="table-tools test-tools">
-          <span class="build-tag">TEST MANAGEMENT v3</span>
-          <button type="button" class="secondary-btn" id="refreshTestsBtn">Refresh</button>
-        </div>
-
-        <div class="test-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Test</th>
-                <th>Subject</th>
-                <th>Batch</th>
-                <th>Date</th>
-                <th>Marks</th>
-                <th>Duration</th>
-              </tr>
-            </thead>
-            <tbody id="testsTableBody">
-              <tr><td colspan="6" class="empty">Open Tests to load existing tests.</td></tr>
-            </tbody>
-          </table>
+        <div id="testList" class="test-list">
+          <div class="test-empty">
+            Loading tests...
+          </div>
         </div>
       </div>
 
@@ -924,78 +1193,6 @@
 
 
 </div>
-
-<!-- CREATE TEST MODAL -->
-
-<div class="modal" id="testModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div>
-        <h2>Create Test</h2>
-        <p class="modal-subtitle">Create the test record first. Questions will be added in the next step.</p>
-      </div>
-      <button type="button" class="close" id="closeTestModal">&times;</button>
-    </div>
-
-    <form id="testForm">
-      <div class="form-grid">
-        <div class="field full">
-          <label>Test Title</label>
-          <input id="testTitle" type="text" placeholder="e.g. NEET Full Syllabus Test 01" required>
-        </div>
-
-        <div class="field">
-          <label>Batch</label>
-          <select id="testBatch" required>
-            <option value="">Select Batch</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Subject</label>
-          <select id="testSubject" required>
-            <option value="">Select Subject</option>
-            <option value="Physics">Physics</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Biology">Biology</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="NEET">NEET</option>
-            <option value="JEE">JEE</option>
-            <option value="Mixed">Mixed</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Test Date</label>
-          <input id="testDate" type="date" required>
-        </div>
-
-        <div class="field">
-          <label>Maximum Marks</label>
-          <input id="testMaxMarks" type="number" min="1" value="180" required>
-        </div>
-
-        <div class="field">
-          <label>Duration (minutes)</label>
-          <input id="testDuration" type="number" min="1" value="180" required>
-        </div>
-
-        <div class="field full">
-          <label>Description</label>
-          <textarea id="testDescription" rows="4" placeholder="Optional test instructions or syllabus details"></textarea>
-        </div>
-      </div>
-
-      <div id="testMessage" class="message"></div>
-
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" id="cancelTest">Cancel</button>
-        <button type="submit" class="primary-btn" id="saveTestBtn">Create Test</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 
 <!-- ADD STUDENT MODAL -->
 
@@ -1088,6 +1285,214 @@
 
 </div>
 
+<!-- CREATE TEST MODAL -->
+
+<div class="modal" id="testModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2>Create Test</h2>
+      <button class="close" id="closeTestModal">&times;</button>
+    </div>
+
+    <form id="testForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Test Title</label>
+          <input
+            type="text"
+            id="testTitle"
+            placeholder="e.g. NEET Full Syllabus Test 01"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Batch</label>
+          <select id="testBatch" required>
+            <option value="">Select Batch</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Subject</label>
+          <select id="testSubject" required>
+            <option value="">Select Subject</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Full Syllabus">Full Syllabus</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Test Date</label>
+          <input type="date" id="testDate" required>
+        </div>
+
+        <div class="field">
+          <label>Maximum Marks</label>
+          <input
+            type="number"
+            id="testMaxMarks"
+            min="1"
+            value="180"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Duration (minutes)</label>
+          <input
+            type="number"
+            id="testDuration"
+            min="1"
+            value="180"
+            required
+          >
+        </div>
+
+        <div class="field full">
+          <label>Description</label>
+          <input
+            type="text"
+            id="testDescription"
+            placeholder="Optional test description or instructions"
+          >
+        </div>
+
+      </div>
+
+      <div id="testMessage" class="message"></div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-btn"
+          id="cancelTest"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="primary-btn"
+          id="saveTestBtn"
+        >
+          Create Test
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+<!-- QUESTION BUILDER MODAL -->
+
+<div class="modal" id="questionModal">
+
+  <div class="modal-box" style="max-width: 900px;">
+
+    <div class="modal-head">
+      <div>
+        <h2 id="questionModalTitle">Manage Questions</h2>
+        <div class="build-marker" id="questionModalMeta"></div>
+      </div>
+      <button class="close" id="closeQuestionModal">&times;</button>
+    </div>
+
+    <div id="questionList" class="question-list">
+      <div class="question-empty">Loading questions...</div>
+    </div>
+
+    <div class="question-builder-divider"></div>
+
+    <div class="question-builder-title" id="questionFormTitle">Add Question</div>
+    <div class="question-builder-subtitle">Add the question, four options, correct answer, and marking scheme.</div>
+
+    <form id="questionForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Question</label>
+          <textarea id="questionText" rows="4" placeholder="Enter the question text" required></textarea>
+        </div>
+
+        <div class="field">
+          <label>Option A</label>
+          <input type="text" id="optionA" required>
+        </div>
+
+        <div class="field">
+          <label>Option B</label>
+          <input type="text" id="optionB" required>
+        </div>
+
+        <div class="field">
+          <label>Option C</label>
+          <input type="text" id="optionC" required>
+        </div>
+
+        <div class="field">
+          <label>Option D</label>
+          <input type="text" id="optionD" required>
+        </div>
+
+        <div class="field">
+          <label>Correct Answer</label>
+          <select id="correctOption" required>
+            <option value="">Select Correct Option</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Marks</label>
+          <input type="number" id="questionMarks" min="0" step="0.01" value="4" required>
+        </div>
+
+        <div class="field">
+          <label>Negative Marks</label>
+          <input type="number" id="negativeMarks" min="0" step="0.01" value="0" required>
+        </div>
+
+        <div class="field">
+          <label>Question Order</label>
+          <input type="number" id="questionOrder" min="1" step="1" value="1" required>
+        </div>
+
+      </div>
+
+      <div id="questionMessage" class="message"></div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelQuestionEdit">
+          Clear
+        </button>
+        <button type="submit" class="primary-btn" id="saveQuestionBtn">
+          Add Question
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1346,6 +1751,8 @@ loginForm.addEventListener(
       showDashboard();
 
       await loadStudents();
+      await loadAdminBatches();
+      await loadAdminTests();
       await loadCounters();
 
     } catch (error) {
@@ -1874,6 +2281,829 @@ async function loadBatches() {
 
 
 /* --------------------------------
+   TEST MANAGEMENT
+-------------------------------- */
+
+let adminTests = [];
+let adminBatches = [];
+let currentQuestionTestId = null;
+let editingQuestionId = null;
+
+async function loadAdminBatches() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) {
+    console.error("Admin test batches error:", error);
+    return;
+  }
+
+  adminBatches = data || [];
+
+  const select =
+    document.getElementById("testBatch");
+
+  if (!select) return;
+
+  select.innerHTML =
+    `<option value="">Select Batch</option>`;
+
+  adminBatches.forEach(batch => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = batch.id;
+
+    option.textContent =
+      `${batch.name} — ${batch.academic_year}`;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+async function loadAdminTests() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("tests")
+    .select(`
+      id,
+      batch_id,
+      title,
+      subject,
+      test_date,
+      max_marks,
+      duration_minutes,
+      description,
+      is_active
+    `)
+    .order("test_date", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error("Admin tests error:", error);
+
+    document.getElementById("testList").innerHTML = `
+      <div class="test-empty">
+        Unable to load tests. Check Admin access to the tests table.
+      </div>
+    `;
+
+    return;
+  }
+
+  adminTests = data || [];
+
+  renderAdminTests(adminTests);
+
+  document.getElementById("totalTests").textContent =
+    adminTests.length;
+
+}
+
+
+function renderAdminTests(tests) {
+
+  const list =
+    document.getElementById("testList");
+
+  if (!list) return;
+
+  if (!tests.length) {
+
+    list.innerHTML = `
+      <div class="test-empty">
+        No tests created yet.
+      </div>
+    `;
+
+    return;
+  }
+
+  const batchMap =
+    Object.fromEntries(
+      adminBatches.map(batch => [
+        batch.id,
+        `${batch.name} — ${batch.academic_year}`
+      ])
+    );
+
+  list.innerHTML =
+    tests.map(test => `
+
+      <div class="test-row">
+
+        <div>
+          <div class="test-title">
+            ${escapeHtml(test.title || "Untitled Test")}
+          </div>
+
+          <div class="test-meta">
+            ${escapeHtml(test.description || "No description")}
+          </div>
+        </div>
+
+        <div>
+          <span class="test-badge">
+            ${escapeHtml(test.subject || "Test")}
+          </span>
+
+          <span class="test-status ${test.is_active ? "active" : "inactive"}">
+            ${test.is_active ? "ACTIVE" : "INACTIVE"}
+          </span>
+
+          <div class="test-meta">
+            ${escapeHtml(batchMap[test.batch_id] || "Batch")}
+          </div>
+        </div>
+
+        <div>
+          <div class="test-date">
+            ${escapeHtml(test.test_date || "—")}
+          </div>
+
+          <div class="test-meta">
+            ${escapeHtml(test.max_marks ?? "—")} marks
+            ·
+            ${escapeHtml(test.duration_minutes ?? "—")} min
+          </div>
+        </div>
+
+        <div class="test-actions">
+          <button
+            type="button"
+            class="test-manage-btn"
+            data-test-id="${escapeHtml(test.id)}"
+          >
+            Manage Questions
+          </button>
+
+          <button
+            type="button"
+            class="test-toggle-btn ${test.is_active ? "active" : "inactive"}"
+            data-test-id="${escapeHtml(test.id)}"
+          >
+            ${test.is_active ? "Deactivate" : "Activate"}
+          </button>
+
+          <button
+            type="button"
+            class="test-delete-btn"
+            data-test-id="${escapeHtml(test.id)}"
+          >
+            Delete Test
+          </button>
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+/* --------------------------------
+   QUESTION BUILDER
+-------------------------------- */
+
+document
+  .getElementById("testList")
+  .addEventListener("click", function(event) {
+
+    const manageButton =
+      event.target.closest(".test-manage-btn");
+
+  if (manageButton) {
+    openQuestionModal(manageButton.dataset.testId);
+    return;
+  }
+
+  const toggleButton =
+      event.target.closest(".test-toggle-btn");
+
+  if (toggleButton) {
+    toggleAdminTest(toggleButton.dataset.testId);
+    return;
+  }
+
+  const deleteButton =
+      event.target.closest(".test-delete-btn");
+
+  if (deleteButton) {
+    deleteAdminTest(deleteButton.dataset.testId);
+  }
+
+});
+
+
+async function toggleAdminTest(testId) {
+
+  const test =
+    adminTests.find(item => item.id === testId);
+
+  if (!test) return;
+
+  const nextState = !Boolean(test.is_active);
+  const action = nextState ? "activate" : "deactivate";
+
+  const confirmed =
+    window.confirm(
+      `${nextState ? "Activate" : "Deactivate"} "${test.title || "this test"}"?\n\n${nextState ? "Students and teachers will be able to see this test again." : "The test will remain in Admin but will be hidden from student and teacher portals."}`
+    );
+
+  if (!confirmed) return;
+
+  try {
+
+    const { error } =
+      await supabaseClient
+        .from("tests")
+        .update({ is_active: nextState })
+        .eq("id", testId);
+
+    if (error) throw error;
+
+    await loadAdminTests();
+
+  } catch (error) {
+
+    console.error(`Test ${action} error:`, error);
+
+    alert(
+      error?.message ||
+      `Could not ${action} this test.`
+    );
+
+  }
+
+}
+
+
+async function deleteAdminTest(testId) {
+
+  const test =
+    adminTests.find(item => item.id === testId);
+
+  if (!test) return;
+
+  const confirmed =
+    window.confirm(
+      `Delete "${test.title || "this test"}"?\n\nThis will also delete its questions because they belong to this test.`
+    );
+
+  if (!confirmed) return;
+
+  try {
+
+    const { error } =
+      await supabaseClient
+        .from("tests")
+        .delete()
+        .eq("id", testId);
+
+    if (error) throw error;
+
+    await loadAdminTests();
+
+  } catch (error) {
+
+    console.error("Delete test error:", error);
+
+    alert(
+      error?.message ||
+      "Could not delete this test."
+    );
+
+  }
+
+}
+
+
+async function openQuestionModal(testId) {
+
+  const test =
+    adminTests.find(item => item.id === testId);
+
+  if (!test) {
+    alert("Test record could not be found. Refresh the Tests section and try again.");
+    return;
+  }
+
+  currentQuestionTestId = testId;
+  editingQuestionId = null;
+
+  document.getElementById("questionModalTitle").textContent =
+    test.title || "Manage Questions";
+
+  document.getElementById("questionModalMeta").textContent =
+    `${test.subject || "Test"} • ${test.test_date || "No date"} • Max ${test.max_marks ?? "—"} marks`;
+
+  clearQuestionForm();
+  hideQuestionMessage();
+
+  document.getElementById("questionModal").classList.add("show");
+
+  await loadQuestions(testId);
+
+}
+
+
+function closeQuestionModal() {
+
+  document.getElementById("questionModal").classList.remove("show");
+  currentQuestionTestId = null;
+  editingQuestionId = null;
+  clearQuestionForm();
+  hideQuestionMessage();
+
+}
+
+
+async function loadQuestions(testId) {
+
+  const list = document.getElementById("questionList");
+
+  list.innerHTML = `<div class="question-empty">Loading questions...</div>`;
+
+  const { data, error } = await supabaseClient
+    .from("test_questions")
+    .select(`
+      id,
+      test_id,
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_option,
+      marks,
+      negative_marks,
+      question_order
+    `)
+    .eq("test_id", testId)
+    .order("question_order", { ascending: true });
+
+  if (error) {
+    console.error("Load questions error:", error);
+    list.innerHTML = `<div class="question-empty">Unable to load questions: ${escapeHtml(error.message || "Unknown error")}</div>`;
+    return;
+  }
+
+  renderQuestions(data || []);
+
+}
+
+
+function renderQuestions(questions) {
+
+  const list = document.getElementById("questionList");
+
+  if (!questions.length) {
+    list.innerHTML = `<div class="question-empty">No questions added yet. Add the first question below.</div>`;
+    return;
+  }
+
+  list.innerHTML = questions.map((question, index) => `
+    <div class="question-item">
+      <div class="question-item-head">
+        <div style="min-width:0; flex:1;">
+          <div class="question-number">QUESTION ${escapeHtml(question.question_order ?? index + 1)}</div>
+          <div class="question-text">${escapeHtml(question.question_text || "")}</div>
+          <div class="question-options">
+            <div>A. ${escapeHtml(question.option_a || "")}</div>
+            <div>B. ${escapeHtml(question.option_b || "")}</div>
+            <div>C. ${escapeHtml(question.option_c || "")}</div>
+            <div>D. ${escapeHtml(question.option_d || "")}</div>
+          </div>
+          <div class="question-meta">
+            <span class="question-correct">Correct: ${escapeHtml(question.correct_option || "—")}</span>
+            &nbsp; • &nbsp; ${escapeHtml(question.marks ?? 0)} marks
+            &nbsp; • &nbsp; Negative: ${escapeHtml(question.negative_marks ?? 0)}
+          </div>
+        </div>
+        <div class="question-actions">
+          <button type="button" class="question-action-btn" data-question-action="edit" data-question-id="${escapeHtml(question.id)}">Edit</button>
+          <button type="button" class="question-action-btn delete" data-question-action="delete" data-question-id="${escapeHtml(question.id)}">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+}
+
+
+document
+  .getElementById("questionList")
+  .addEventListener("click", async function(event) {
+
+    const button = event.target.closest("[data-question-action]");
+    if (!button) return;
+
+    const questionId = button.dataset.questionId;
+    const action = button.dataset.questionAction;
+
+    if (action === "edit") await editQuestion(questionId);
+    if (action === "delete") await deleteQuestion(questionId);
+
+  });
+
+
+async function editQuestion(questionId) {
+
+  const { data: question, error } = await supabaseClient
+    .from("test_questions")
+    .select(`
+      id,
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_option,
+      marks,
+      negative_marks,
+      question_order
+    `)
+    .eq("id", questionId)
+    .maybeSingle();
+
+  if (error || !question) {
+    showQuestionMessage(error?.message || "Unable to load this question.", "error");
+    return;
+  }
+
+  editingQuestionId = question.id;
+  document.getElementById("questionFormTitle").textContent = "Edit Question";
+  document.getElementById("saveQuestionBtn").textContent = "Update Question";
+  document.getElementById("questionText").value = question.question_text || "";
+  document.getElementById("optionA").value = question.option_a || "";
+  document.getElementById("optionB").value = question.option_b || "";
+  document.getElementById("optionC").value = question.option_c || "";
+  document.getElementById("optionD").value = question.option_d || "";
+  document.getElementById("correctOption").value = question.correct_option || "";
+  document.getElementById("questionMarks").value = question.marks ?? 4;
+  document.getElementById("negativeMarks").value = question.negative_marks ?? 0;
+  document.getElementById("questionOrder").value = question.question_order ?? 1;
+  hideQuestionMessage();
+  document.getElementById("questionText").focus();
+
+}
+
+
+async function deleteQuestion(questionId) {
+
+  if (!confirm("Delete this question? This cannot be undone.")) return;
+
+  const { error } = await supabaseClient
+    .from("test_questions")
+    .delete()
+    .eq("id", questionId);
+
+  if (error) {
+    console.error("Delete question error:", error);
+    showQuestionMessage(error.message || "Unable to delete question.", "error");
+    return;
+  }
+
+  clearQuestionForm();
+  showQuestionMessage("Question deleted successfully.", "success");
+  await loadQuestions(currentQuestionTestId);
+
+}
+
+
+function clearQuestionForm() {
+
+  const form = document.getElementById("questionForm");
+  if (form) form.reset();
+
+  document.getElementById("questionMarks").value = 4;
+  document.getElementById("negativeMarks").value = 0;
+  document.getElementById("questionOrder").value = 1;
+  document.getElementById("questionFormTitle").textContent = "Add Question";
+  document.getElementById("saveQuestionBtn").textContent = "Add Question";
+  editingQuestionId = null;
+
+}
+
+
+function showQuestionMessage(text, type) {
+  const box = document.getElementById("questionMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+
+function hideQuestionMessage() {
+  const box = document.getElementById("questionMessage");
+  box.textContent = "";
+  box.className = "message";
+}
+
+
+document
+  .getElementById("closeQuestionModal")
+  .addEventListener("click", closeQuestionModal);
+
+
+document
+  .getElementById("cancelQuestionEdit")
+  .addEventListener("click", function() {
+    clearQuestionForm();
+    hideQuestionMessage();
+  });
+
+
+document
+  .getElementById("questionForm")
+  .addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (!currentQuestionTestId) {
+      showQuestionMessage("No test is selected.", "error");
+      return;
+    }
+
+    const saveBtn = document.getElementById("saveQuestionBtn");
+    saveBtn.disabled = true;
+    saveBtn.textContent = editingQuestionId ? "Updating..." : "Saving...";
+    hideQuestionMessage();
+
+    const payload = {
+      test_id: currentQuestionTestId,
+      question_text: document.getElementById("questionText").value.trim(),
+      option_a: document.getElementById("optionA").value.trim(),
+      option_b: document.getElementById("optionB").value.trim(),
+      option_c: document.getElementById("optionC").value.trim(),
+      option_d: document.getElementById("optionD").value.trim(),
+      correct_option: document.getElementById("correctOption").value,
+      marks: Number(document.getElementById("questionMarks").value),
+      negative_marks: Number(document.getElementById("negativeMarks").value),
+      question_order: Number(document.getElementById("questionOrder").value)
+    };
+
+    try {
+      let error = null;
+
+      if (editingQuestionId) {
+        const result = await supabaseClient
+          .from("test_questions")
+          .update(payload)
+          .eq("id", editingQuestionId);
+        error = result.error;
+      } else {
+        const result = await supabaseClient
+          .from("test_questions")
+          .insert(payload);
+        error = result.error;
+      }
+
+      if (error) {
+        console.error("Save question error:", error);
+        showQuestionMessage(error.message || "Unable to save question.", "error");
+        return;
+      }
+
+      showQuestionMessage(
+        editingQuestionId ? "Question updated successfully." : "Question added successfully.",
+        "success"
+      );
+
+      clearQuestionForm();
+      await loadQuestions(currentQuestionTestId);
+
+    } catch (error) {
+      console.error("Unexpected question save error:", error);
+      showQuestionMessage(error.message || "Something went wrong.", "error");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Add Question";
+    }
+
+  });
+
+
+function openTestModal() {
+
+  const form =
+    document.getElementById("testForm");
+
+  if (form) {
+    form.reset();
+  }
+
+  document.getElementById("testMaxMarks").value = 180;
+  document.getElementById("testDuration").value = 180;
+
+  hideTestMessage();
+
+  document
+    .getElementById("testModal")
+    .classList.add("show");
+
+}
+
+
+function closeTestModal() {
+
+  document
+    .getElementById("testModal")
+    .classList.remove("show");
+
+}
+
+
+function showTestMessage(text, type) {
+
+  const box =
+    document.getElementById("testMessage");
+
+  box.textContent = text;
+
+  box.className =
+    `message show ${type}`;
+
+}
+
+
+function hideTestMessage() {
+
+  const box =
+    document.getElementById("testMessage");
+
+  box.className = "message";
+
+  box.textContent = "";
+
+}
+
+
+document
+  .getElementById("createTestBtn")
+  .addEventListener("click", openTestModal);
+
+
+document
+  .getElementById("closeTestModal")
+  .addEventListener("click", closeTestModal);
+
+
+document
+  .getElementById("cancelTest")
+  .addEventListener("click", closeTestModal);
+
+
+document
+  .getElementById("testForm")
+  .addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const saveBtn =
+      document.getElementById("saveTestBtn");
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Creating...";
+
+    hideTestMessage();
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.getSession();
+
+      if (error || !data || !data.session) {
+
+        showTestMessage(
+          "Admin session expired. Please log in again.",
+          "error"
+        );
+
+        return;
+      }
+
+      const payload = {
+        batch_id:
+          document.getElementById("testBatch").value,
+
+        title:
+          document.getElementById("testTitle").value.trim(),
+
+        subject:
+          document.getElementById("testSubject").value,
+
+        test_date:
+          document.getElementById("testDate").value,
+
+        max_marks:
+          Number(
+            document.getElementById("testMaxMarks").value
+          ),
+
+        duration_minutes:
+          Number(
+            document.getElementById("testDuration").value
+          ),
+
+        description:
+          document.getElementById("testDescription").value.trim()
+          || null
+      };
+
+      const {
+        data: createdTest,
+        error: insertError
+      } =
+        await supabaseClient
+          .from("tests")
+          .insert(payload)
+          .select(`
+            id,
+            batch_id,
+            title,
+            subject,
+            test_date,
+            max_marks,
+            duration_minutes,
+            description
+          `)
+          .single();
+
+      if (insertError) {
+
+        console.error(
+          "Create test error:",
+          insertError
+        );
+
+        showTestMessage(
+          insertError.message ||
+          "Unable to create test.",
+          "error"
+        );
+
+        return;
+      }
+
+      showTestMessage(
+        "Test created successfully.",
+        "success"
+      );
+
+      await loadAdminTests();
+      await loadCounters();
+
+      setTimeout(async () => {
+        closeTestModal();
+        await loadAdminTests();
+
+        if (createdTest && createdTest.id) {
+          await openQuestionModal(createdTest.id);
+        }
+      }, 700);
+
+    } catch (error) {
+
+      console.error(
+        "Unexpected create test error:",
+        error
+      );
+
+      showTestMessage(
+        error.message ||
+        "Something went wrong.",
+        "error"
+      );
+
+    } finally {
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Create Test";
+
+    }
+
+  });
+
+
+/* --------------------------------
    MODAL
 -------------------------------- */
 
@@ -1915,176 +3145,6 @@ function closeModal() {
 
   hideMessage();
 
-}
-
-
-/* --------------------------------
-   TEST MANAGEMENT — CLEAN v3
--------------------------------- */
-
-let adminBatches = [];
-let adminTests = [];
-
-function showTestMessage(text, type) {
-  const box = document.getElementById("testMessage");
-  box.textContent = text;
-  box.className = `message show ${type}`;
-}
-
-function hideTestMessage() {
-  const box = document.getElementById("testMessage");
-  box.textContent = "";
-  box.className = "message";
-}
-
-function openTestModal() {
-  const modal = document.getElementById("testModal");
-  const form = document.getElementById("testForm");
-  form.reset();
-  document.getElementById("testMaxMarks").value = 180;
-  document.getElementById("testDuration").value = 180;
-  hideTestMessage();
-  populateTestBatches();
-  modal.classList.add("show");
-}
-
-function closeTestModal() {
-  document.getElementById("testModal").classList.remove("show");
-  hideTestMessage();
-}
-
-async function loadAdminBatches() {
-  const { data, error } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) {
-    console.error("Admin batch load error:", error);
-    adminBatches = [];
-    return;
-  }
-
-  adminBatches = data || [];
-}
-
-function populateTestBatches() {
-  const select = document.getElementById("testBatch");
-  select.innerHTML = `<option value="">Select Batch</option>`;
-
-  adminBatches.forEach(batch => {
-    const option = document.createElement("option");
-    option.value = batch.id;
-    option.textContent = `${batch.name}${batch.academic_year ? ` — ${batch.academic_year}` : ""}`;
-    select.appendChild(option);
-  });
-}
-
-async function loadAdminTests() {
-  const tbody = document.getElementById("testsTableBody");
-  tbody.innerHTML = `<tr><td colspan="6" class="empty">Loading tests...</td></tr>`;
-
-  const { data, error } = await supabaseClient
-    .from("tests")
-    .select(`
-      id,
-      batch_id,
-      title,
-      subject,
-      test_date,
-      max_marks,
-      duration_minutes,
-      description
-    `)
-    .order("test_date", { ascending: false });
-
-  if (error) {
-    console.error("Admin test load error:", error);
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">Unable to load tests. Check the browser console for the Supabase error.</td></tr>`;
-    return;
-  }
-
-  adminTests = data || [];
-
-  if (!adminTests.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No tests have been created yet.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = adminTests.map(test => {
-    const batch = adminBatches.find(b => b.id === test.batch_id);
-    return `
-      <tr>
-        <td><strong>${escapeHtml(test.title || "—")}</strong></td>
-        <td>${escapeHtml(test.subject || "—")}</td>
-        <td>${escapeHtml(batch?.name || "—")}</td>
-        <td>${escapeHtml(test.test_date || "—")}</td>
-        <td>${escapeHtml(test.max_marks ?? "—")}</td>
-        <td>${escapeHtml(test.duration_minutes ?? "—")} min</td>
-      </tr>
-    `;
-  }).join("");
-}
-
-async function createAdminTest(event) {
-  event.preventDefault();
-
-  const saveBtn = document.getElementById("saveTestBtn");
-  saveBtn.disabled = true;
-  saveBtn.textContent = "Creating...";
-  hideTestMessage();
-
-  try {
-    const payload = {
-      batch_id: document.getElementById("testBatch").value,
-      title: document.getElementById("testTitle").value.trim(),
-      subject: document.getElementById("testSubject").value,
-      test_date: document.getElementById("testDate").value,
-      max_marks: Number(document.getElementById("testMaxMarks").value),
-      duration_minutes: Number(document.getElementById("testDuration").value),
-      description: document.getElementById("testDescription").value.trim() || null
-    };
-
-    if (!payload.batch_id || !payload.title || !payload.subject || !payload.test_date) {
-      throw new Error("Please fill all required fields.");
-    }
-
-    const { error } = await supabaseClient
-      .from("tests")
-      .insert(payload);
-
-    if (error) {
-      console.error("Create test error:", error);
-      throw new Error(error.message || "Unable to create test.");
-    }
-
-    showTestMessage("Test created successfully.", "success");
-    await loadAdminTests();
-
-    setTimeout(() => {
-      closeTestModal();
-    }, 700);
-
-  } catch (error) {
-    console.error(error);
-    showTestMessage(error.message || "Unable to create test.", "error");
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = "Create Test";
-  }
-}
-
-function bindTestManagement() {
-  document.getElementById("createTestBtn").addEventListener("click", openTestModal);
-  document.getElementById("closeTestModal").addEventListener("click", closeTestModal);
-  document.getElementById("cancelTest").addEventListener("click", closeTestModal);
-  document.getElementById("testForm").addEventListener("submit", createAdminTest);
-  document.getElementById("refreshTestsBtn").addEventListener("click", loadAdminTests);
-
-  document.getElementById("testModal").addEventListener("click", event => {
-    if (event.target.id === "testModal") closeTestModal();
-  });
 }
 
 
@@ -2224,12 +3284,15 @@ document
 
   showDashboard();
 
-  bindTestManagement();
-
   await loadStudents();
-  await loadCounters();
+
+  await loadBatches();
+
   await loadAdminBatches();
+
   await loadAdminTests();
+
+  await loadCounters();
 
 })();
 
