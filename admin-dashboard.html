@@ -988,6 +988,51 @@
     }
 
   
+    .teacher-actions,
+    .student-actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+    }
+    .teacher-action-btn,
+    .reset-password-btn,
+    .status-action-btn {
+      background:transparent;
+      border:1px solid rgba(255,255,255,.14);
+      color:#c9d3df;
+      padding:7px 9px;
+      border-radius:7px;
+      cursor:pointer;
+      font-size:10px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .teacher-action-btn:hover,
+    .reset-password-btn:hover,
+    .status-action-btn:hover {
+      border-color:rgba(201,168,78,.45);
+      color:#e1c86b;
+    }
+    .status-action-btn.reactivate {
+      color:#8ff0b5;
+      border-color:rgba(70,190,120,.3);
+    }
+    .teacher-batch-list {
+      color:#8d99aa;
+      font-size:10px;
+      line-height:1.5;
+    }
+    .credential-note {
+      margin-top:12px;
+      padding:12px;
+      border-radius:8px;
+      background:rgba(201,168,78,.07);
+      border:1px solid rgba(201,168,78,.18);
+      color:#d9c88e;
+      font-size:11px;
+      line-height:1.5;
+    }
+
     .question-type-row {
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -1122,6 +1167,10 @@
       Students
     </button>
 
+    <button class="nav-btn" data-section="teachers">
+      Teachers
+    </button>
+
     <button class="nav-btn" data-section="tests">
       Tests
     </button>
@@ -1226,6 +1275,51 @@
 
         </table>
 
+      </div>
+
+    </section>
+
+
+    <!-- TEACHERS -->
+
+    <section class="section" id="teachers">
+
+      <div class="section-head">
+        <div>
+          <h2>Teachers</h2>
+          <div class="build-marker">TEACHER ACCOUNT MANAGEMENT</div>
+        </div>
+
+        <button class="primary-btn" id="addTeacherBtn" type="button">
+          + Add Teacher
+        </button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-tools">
+          <input
+            type="text"
+            class="search"
+            id="teacherSearch"
+            placeholder="Search by name, email or subject..."
+          >
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Teacher</th>
+              <th>Email / Login ID</th>
+              <th>Subject</th>
+              <th>Batches</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="teachersTableBody">
+            <tr><td colspan="6" class="empty">Loading teachers...</td></tr>
+          </tbody>
+        </table>
       </div>
 
     </section>
@@ -1366,9 +1460,20 @@
         </div>
 
         <div class="field">
+          <label>Initial Password</label>
+          <input
+            type="text"
+            id="studentPassword"
+            placeholder="Minimum 8 characters"
+            minlength="8"
+            required
+          >
+        </div>
+
+        <div class="field">
           <label>Course</label>
 
-          <select id="studentCourse">
+          <select id="studentCourse" required>
             <option value="">Select Course</option>
           </select>
 
@@ -1377,7 +1482,7 @@
         <div class="field">
           <label>Batch</label>
 
-          <select id="studentBatch">
+          <select id="studentBatch" required>
             <option value="">Select Batch</option>
           </select>
 
@@ -1411,6 +1516,77 @@
   </div>
 
 </div>
+
+<!-- ADD TEACHER MODAL -->
+
+<div class="modal" id="teacherModal">
+
+  <div class="modal-box" style="max-width:760px;">
+
+    <div class="modal-head">
+      <div>
+        <h2>Add Teacher</h2>
+        <div class="build-marker">CREATE SECURE LOGIN + ASSIGN BATCHES</div>
+      </div>
+      <button class="close" id="closeTeacherModal">&times;</button>
+    </div>
+
+    <form id="teacherForm">
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Full Name</label>
+          <input type="text" id="teacherName" placeholder="Teacher full name" required>
+        </div>
+
+        <div class="field">
+          <label>Email / Login ID</label>
+          <input type="email" id="teacherEmail" placeholder="teacher@sir.net.in" required>
+        </div>
+
+        <div class="field">
+          <label>Mobile</label>
+          <input type="tel" id="teacherMobile" placeholder="Mobile number">
+        </div>
+
+        <div class="field">
+          <label>Subject</label>
+          <select id="teacherSubject" required>
+            <option value="">Select Subject</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="NEET Faculty">NEET Faculty</option>
+            <option value="JEE Faculty">JEE Faculty</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Initial Password</label>
+          <input type="text" id="teacherPassword" placeholder="Minimum 8 characters" minlength="8" required>
+        </div>
+
+        <div class="field full">
+          <label>Assign Batches</label>
+          <select id="teacherBatches" multiple size="5" required></select>
+          <div class="question-type-help">Hold Ctrl (Windows) / Command (Mac) to select multiple batches.</div>
+        </div>
+
+      </div>
+
+      <div id="teacherMessage" class="message"></div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelTeacher">Cancel</button>
+        <button type="submit" class="primary-btn" id="createTeacherBtn">Create Teacher</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
 
 <!-- CREATE TEST MODAL -->
 
@@ -1921,6 +2097,7 @@ loginForm.addEventListener(
 
       await loadStudents();
       await loadAdminBatches();
+      await loadAdminTeachers();
       await loadAdminTests();
       await loadCounters();
 
@@ -2450,6 +2627,286 @@ async function loadBatches() {
 
 
 /* --------------------------------
+   TEACHER MANAGEMENT
+-------------------------------- */
+
+let allTeachers = [];
+let adminBatchMap = {};
+
+async function loadAdminTeachers() {
+
+  const { data, error } = await supabaseClient
+    .from("teachers")
+    .select(`
+      id,
+      user_id,
+      full_name,
+      subject,
+      phone,
+      email,
+      is_active
+    `)
+    .order("full_name", { ascending: true });
+
+  if (error) {
+    console.error("Teachers error:", error);
+    document.getElementById("teachersTableBody").innerHTML = `
+      <tr><td colspan="6" class="empty">Unable to load teachers.</td></tr>`;
+    return;
+  }
+
+  allTeachers = data || [];
+  await renderTeachers(allTeachers);
+}
+
+async function renderTeachers(teachers) {
+  const tbody = document.getElementById("teachersTableBody");
+
+  if (!teachers.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No teachers found.</td></tr>`;
+    return;
+  }
+
+  const teacherIds = teachers.map(t => t.id);
+  let assignments = [];
+  let batches = [];
+
+  if (teacherIds.length) {
+    const assignmentResult = await supabaseClient
+      .from("teacher_batches")
+      .select("teacher_id,batch_id")
+      .in("teacher_id", teacherIds);
+
+    assignments = assignmentResult.data || [];
+
+    const batchIds = [...new Set(assignments.map(a => a.batch_id).filter(Boolean))];
+    if (batchIds.length) {
+      const batchResult = await supabaseClient
+        .from("batches")
+        .select("id,name,academic_year")
+        .in("id", batchIds);
+      batches = batchResult.data || [];
+    }
+  }
+
+  const batchMap = Object.fromEntries(batches.map(b => [b.id, b]));
+
+  tbody.innerHTML = teachers.map(teacher => {
+    const teacherAssignments = assignments.filter(a => a.teacher_id === teacher.id);
+    const batchNames = teacherAssignments
+      .map(a => batchMap[a.batch_id])
+      .filter(Boolean)
+      .map(b => `${b.name}${b.academic_year ? ` — ${b.academic_year}` : ""}`);
+
+    return `
+      <tr>
+        <td>${escapeHtml(teacher.full_name || "—")}</td>
+        <td>${escapeHtml(teacher.email || "—")}</td>
+        <td>${escapeHtml(teacher.subject || "—")}</td>
+        <td><div class="teacher-batch-list">${batchNames.length ? batchNames.map(escapeHtml).join("<br>") : "No batch assigned"}</div></td>
+        <td><span class="status ${teacher.is_active ? "" : "inactive"}">${teacher.is_active ? "Active" : "Inactive"}</span></td>
+        <td>
+          <div class="teacher-actions">
+            <button class="teacher-action-btn" onclick="resetTeacherPassword('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}')">Reset Password</button>
+            <button class="teacher-action-btn" onclick="manageTeacherBatches('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}')">Manage Batches</button>
+            <button class="status-action-btn ${teacher.is_active ? "" : "reactivate"}" onclick="toggleTeacherStatus('${escapeHtml(teacher.id)}','${escapeHtml(teacher.full_name || "")}','${teacher.is_active ? "true" : "false"}')">${teacher.is_active ? "Deactivate" : "Reactivate"}</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+}
+
+async function loadTeacherBatchOptions() {
+  const { data, error } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) throw error;
+
+  const select = document.getElementById("teacherBatches");
+  select.innerHTML = "";
+
+  (data || []).forEach(batch => {
+    const option = document.createElement("option");
+    option.value = batch.id;
+    option.textContent = `${batch.name} — ${batch.academic_year || ""}`;
+    select.appendChild(option);
+  });
+}
+
+function openTeacherModal() {
+  document.getElementById("teacherForm").reset();
+  document.getElementById("teacherPassword").value = generateInitialPassword();
+  document.getElementById("teacherMessage").className = "message";
+  document.getElementById("teacherMessage").textContent = "";
+  document.getElementById("teacherModal").classList.add("show");
+  loadTeacherBatchOptions().catch(error => showTeacherMessage(error.message || "Unable to load batches.", "error"));
+}
+
+function closeTeacherModal() {
+  document.getElementById("teacherModal").classList.remove("show");
+  document.getElementById("teacherForm").reset();
+  const box = document.getElementById("teacherMessage");
+  box.className = "message";
+  box.textContent = "";
+}
+
+function showTeacherMessage(text, type) {
+  const box = document.getElementById("teacherMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+document.getElementById("addTeacherBtn").addEventListener("click", openTeacherModal);
+document.getElementById("closeTeacherModal").addEventListener("click", closeTeacherModal);
+document.getElementById("cancelTeacher").addEventListener("click", closeTeacherModal);
+
+document.getElementById("teacherForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const button = document.getElementById("createTeacherBtn");
+  button.disabled = true;
+  button.textContent = "Creating...";
+
+  try {
+    const selectedBatches = [...document.getElementById("teacherBatches").selectedOptions].map(o => o.value);
+    const password = document.getElementById("teacherPassword").value.trim();
+
+    if (password.length < 8) throw new Error("Password must contain at least 8 characters.");
+    if (!selectedBatches.length) throw new Error("Select at least one batch.");
+
+    const { data, error } = await supabaseClient.functions.invoke("create-teacher", {
+      body: {
+        full_name: document.getElementById("teacherName").value.trim(),
+        email: document.getElementById("teacherEmail").value.trim(),
+        phone: document.getElementById("teacherMobile").value.trim() || null,
+        subject: document.getElementById("teacherSubject").value,
+        password,
+        batch_ids: selectedBatches
+      }
+    });
+
+    if (error) throw error;
+    if (!data?.success) throw new Error(data?.error || "Unable to create teacher.");
+
+    showTeacherMessage(`Teacher created successfully. Login: ${data.email}`, "success");
+
+    alert(`TEACHER CREATED SUCCESSFULLY\n\nName: ${data.full_name || document.getElementById("teacherName").value.trim()}\nLogin: ${data.email}\nPassword: ${password}\n\nSave these credentials securely.`);
+
+    setTimeout(async () => {
+      closeTeacherModal();
+      await loadAdminTeachers();
+    }, 900);
+
+  } catch (error) {
+    console.error("Create teacher error:", error);
+    showTeacherMessage(error.message || "Unable to create teacher.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Teacher";
+  }
+});
+
+async function resetTeacherPassword(teacherId, teacherName) {
+  const newPassword = prompt(`Set new password for ${teacherName}`);
+  if (newPassword === null) return;
+  const password = newPassword.trim();
+  if (password.length < 8) {
+    alert("Password must contain at least 8 characters.");
+    return;
+  }
+
+  const { data, error } = await supabaseClient.functions.invoke("set-teacher-password", {
+    body: { teacher_id: teacherId, new_password: password }
+  });
+
+  if (error || !data?.success) {
+    alert(data?.error || error?.message || "Unable to reset teacher password.");
+    return;
+  }
+
+  alert("Teacher password updated successfully.");
+}
+
+async function toggleTeacherStatus(teacherId, teacherName, currentlyActive) {
+  const action = currentlyActive ? "deactivate" : "reactivate";
+  if (!confirm(`${action === "deactivate" ? "Deactivate" : "Reactivate"} ${teacherName}?\n\n${currentlyActive ? "Teacher login access will be blocked." : "Teacher login access will be restored."}`)) return;
+
+  const { data, error } = await supabaseClient.functions.invoke("set-teacher-status", {
+    body: { teacher_id: teacherId, is_active: !currentlyActive }
+  });
+
+  if (error || !data?.success) {
+    alert(data?.error || error?.message || "Unable to update teacher status.");
+    return;
+  }
+
+  await loadAdminTeachers();
+}
+
+async function manageTeacherBatches(teacherId, teacherName) {
+  const { data: teacherAssignments, error: assignmentError } = await supabaseClient
+    .from("teacher_batches")
+    .select("batch_id")
+    .eq("teacher_id", teacherId);
+
+  if (assignmentError) {
+    alert(assignmentError.message);
+    return;
+  }
+
+  const { data: batches, error: batchError } = await supabaseClient
+    .from("batches")
+    .select("id,name,academic_year")
+    .eq("is_active", true)
+    .order("name");
+
+  if (batchError) {
+    alert(batchError.message);
+    return;
+  }
+
+  const current = new Set((teacherAssignments || []).map(x => x.batch_id));
+  const available = (batches || []).map(b => `${b.id}|${b.name} — ${b.academic_year || ""}`);
+  const answer = prompt(`Manage batches for ${teacherName}.\n\nEnter batch IDs separated by commas.\nAvailable:\n${available.join("\n")}`,
+    [...current].join(",")
+  );
+
+  if (answer === null) return;
+
+  const batchIds = answer.split(",").map(x => x.trim()).filter(Boolean);
+  const validIds = new Set((batches || []).map(b => b.id));
+  const invalid = batchIds.filter(id => !validIds.has(id));
+  if (invalid.length) {
+    alert("Invalid batch ID(s): " + invalid.join(", "));
+    return;
+  }
+
+  const { data, error } = await supabaseClient.functions.invoke("set-teacher-batches", {
+    body: { teacher_id: teacherId, batch_ids: batchIds }
+  });
+
+  if (error || !data?.success) {
+    alert(data?.error || error?.message || "Unable to update teacher batches.");
+    return;
+  }
+
+  await loadAdminTeachers();
+}
+
+document.getElementById("teacherSearch").addEventListener("input", function() {
+  const q = this.value.toLowerCase().trim();
+  renderTeachers(allTeachers.filter(t =>
+    (t.full_name || "").toLowerCase().includes(q) ||
+    (t.email || "").toLowerCase().includes(q) ||
+    (t.subject || "").toLowerCase().includes(q)
+  ));
+});
+
+
+/* --------------------------------
    TEST MANAGEMENT
 -------------------------------- */
 
@@ -2460,6 +2917,7 @@ let editingQuestionId = null;
 let currentQuestionTarget = 0;
 let currentQuestionCount = 0;
 let currentQuestionImageUrl = null;
+let questionMediaSchemaAvailable = true;
 
 
 async function loadAdminBatches() {
@@ -2904,7 +3362,13 @@ async function loadQuestions(testId) {
 
   list.innerHTML = `<div class="question-empty">Loading questions...</div>`;
 
-  const { data, error } = await supabaseClient
+  /*
+     First try the full media-enabled schema.
+     If the optional media columns have not been migrated yet,
+     automatically fall back to the original question schema so
+     existing questions never disappear from Admin.
+  */
+  let { data, error } = await supabaseClient
     .from("test_questions")
     .select(`
       id,
@@ -2924,6 +3388,34 @@ async function loadQuestions(testId) {
     `)
     .eq("test_id", testId)
     .order("question_order", { ascending: true });
+
+  if (error) {
+    console.warn("Media-enabled question query failed. Falling back to legacy question schema:", error.message);
+    questionMediaSchemaAvailable = false;
+
+    const fallback = await supabaseClient
+      .from("test_questions")
+      .select(`
+        id,
+        test_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        negative_marks,
+        question_order
+      `)
+      .eq("test_id", testId)
+      .order("question_order", { ascending: true });
+
+    data = fallback.data;
+    error = fallback.error;
+  } else {
+    questionMediaSchemaAvailable = true;
+  }
 
   if (error) {
     console.error("Load questions error:", error);
@@ -3030,7 +3522,7 @@ document
 
 async function editQuestion(questionId) {
 
-  const { data: question, error } = await supabaseClient
+  let { data: question, error } = await supabaseClient
     .from("test_questions")
     .select(`
       id,
@@ -3049,6 +3541,30 @@ async function editQuestion(questionId) {
     `)
     .eq("id", questionId)
     .maybeSingle();
+
+  if (error) {
+    questionMediaSchemaAvailable = false;
+
+    const fallback = await supabaseClient
+      .from("test_questions")
+      .select(`
+        id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_option,
+        marks,
+        negative_marks,
+        question_order
+      `)
+      .eq("id", questionId)
+      .maybeSingle();
+
+    question = fallback.data;
+    error = fallback.error;
+  }
 
   if (error || !question) {
     showQuestionMessage(error?.message || "Unable to load this question.", "error");
@@ -3271,9 +3787,6 @@ document
     const payload = {
       test_id: currentQuestionTestId,
       question_text: questionText,
-      question_type: questionType,
-      question_latex: questionType === "latex" ? questionLatex : null,
-      question_image_url: questionType === "image" ? currentQuestionImageUrl : null,
       option_a: document.getElementById("optionA").value.trim(),
       option_b: document.getElementById("optionB").value.trim(),
       option_c: document.getElementById("optionC").value.trim(),
@@ -3283,6 +3796,15 @@ document
       negative_marks: Number(document.getElementById("negativeMarks").value),
       question_order: Number(document.getElementById("questionOrder").value)
     };
+
+    if (questionMediaSchemaAvailable) {
+      payload.question_type = questionType;
+      payload.question_latex = questionType === "latex" ? questionLatex : null;
+      payload.question_image_url = questionType === "image" ? currentQuestionImageUrl : null;
+    } else if (questionType !== "text") {
+      showQuestionMessage("Math / LaTeX and Image questions need the media database migration. Existing MCQs can still be edited and saved.", "error");
+      return;
+    }
 
     try {
       let error = null;
@@ -3551,6 +4073,16 @@ document
   });
 
 
+function generateInitialPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  let result = "SIR@";
+  for (let i = 0; i < 8; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+}
+
+
 /* --------------------------------
    MODAL
 -------------------------------- */
@@ -3566,6 +4098,11 @@ document
   .addEventListener("click", async () => {
 
     modal.classList.add("show");
+
+    const passwordInput = document.getElementById("studentPassword");
+    if (passwordInput && !passwordInput.value) {
+      passwordInput.value = generateInitialPassword();
+    }
 
     await loadCourses();
     await loadBatches();
@@ -3606,10 +4143,52 @@ document
 
     e.preventDefault();
 
-    showMessage(
-      "Student creation will be connected securely in the next backend step.",
-      "success"
-    );
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating...";
+    hideMessage();
+
+    try {
+      const password = document.getElementById("studentPassword").value.trim();
+      if (password.length < 8) {
+        showMessage("Password must contain at least 8 characters.", "error");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.functions.invoke(
+        "create-student",
+        {
+          body: {
+            full_name: document.getElementById("studentName").value.trim(),
+            email: document.getElementById("studentEmail").value.trim(),
+            phone: document.getElementById("studentMobile").value.trim() || null,
+            password,
+            course_id: document.getElementById("studentCourse").value || null,
+            batch_id: document.getElementById("studentBatch").value || null
+          }
+        }
+      );
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Unable to create student.");
+
+      showMessage(`Student created successfully. UID: ${data.student_uid}. Login: ${data.email}`, "success");
+
+      alert(`STUDENT CREATED SUCCESSFULLY\n\nName: ${data.full_name || document.getElementById("studentName").value.trim()}\nUID: ${data.student_uid}\nLogin: ${data.email}\nPassword: ${password}\n\nSave these credentials securely.`);
+
+      setTimeout(async () => {
+        closeModal();
+        await loadStudents();
+        await loadCounters();
+      }, 1000);
+
+    } catch (error) {
+      console.error("Create student error:", error);
+      showMessage(error.message || "Unable to create student.", "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Student";
+    }
 
   });
 
@@ -3737,6 +4316,8 @@ document
   await loadBatches();
 
   await loadAdminBatches();
+
+  await loadAdminTeachers();
 
   await loadAdminTests();
 
