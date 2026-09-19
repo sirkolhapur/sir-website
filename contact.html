@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Contact SIR | Suryavanshi Institute for Rankers</title>
+<meta name="description" content="Contact Suryavanshi Institute for Rankers in Kolhapur. Speak with the SIR team about NEET, JEE and MHT-CET preparation.">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="sir-logo.svg">
+
+<style>
+:root{
+  --navy:#07152f;
+  --navy2:#0b2145;
+  --gold:#d8aa3d;
+  --gold-light:#f0ce70;
+  --paper:#fbfaf7;
+  --cream:#eee9dd;
+  --ink:#101827;
+  --muted:#687286;
+  --line:rgba(7,21,47,.12);
+  --white:#fff;
+  --max:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}
+img{display:block;max-width:100%}
+
+/* HEADER */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(7,21,47,.96);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.header-inner{
+  width:min(94%,1260px);
+  min-height:76px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:28px;
+}
+.brand img{width:52px;height:52px;object-fit:contain}
+.main-nav{display:flex;align-items:center;gap:26px}
+.nav-link{
+  color:rgba(255,255,255,.72);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  transition:.25s ease;
+}
+.nav-link:hover,.nav-link.active{color:var(--gold-light)}
+.header-cta{
+  border:1px solid rgba(240,206,112,.5);
+  color:var(--gold-light);
+  padding:10px 15px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.1em;
+}
+.mobile-note{display:none}
+
+/* HERO */
+.hero{
+  background:
+    radial-gradient(circle at 82% 25%,rgba(216,170,61,.14),transparent 28%),
+    linear-gradient(135deg,#030b1a 0%,#07152f 62%,#0c2854 100%);
+  color:#fff;
+  padding:120px 0 105px;
+}
+.container{width:min(90%,1180px);margin:auto}
+.hero-inner{max-width:900px}
+.kicker{
+  color:var(--gold-light);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.hero h1{
+  font-size:clamp(48px,8vw,96px);
+  line-height:.91;
+  letter-spacing:-.055em;
+}
+.hero h1 span{color:var(--gold-light)}
+.hero p{
+  max-width:610px;
+  margin-top:30px;
+  color:rgba(255,255,255,.68);
+  font-size:18px;
+}
+
+/* MAIN CONTACT */
+.contact-section{padding:100px 0}
+.contact-grid{
+  display:grid;
+  grid-template-columns:.78fr 1.22fr;
+  gap:80px;
+  align-items:start;
+}
+.story h2{
+  color:var(--navy);
+  font-size:clamp(36px,5vw,62px);
+  line-height:.98;
+  letter-spacing:-.045em;
+}
+.story p{
+  color:var(--muted);
+  font-size:16px;
+  margin-top:22px;
+  max-width:500px;
+}
+.story-quote{
+  margin-top:38px;
+  padding:24px 0 24px 20px;
+  border-left:2px solid var(--gold);
+  color:var(--navy);
+  font-size:20px;
+  font-weight:700;
+  line-height:1.35;
+}
+.direct{
+  margin-top:42px;
+  display:grid;
+  gap:12px;
+}
+.direct a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:17px 18px;
+  border:1px solid var(--line);
+  background:#fff;
+  transition:.25s ease;
+}
+.direct a:hover{
+  border-color:rgba(216,170,61,.65);
+  transform:translateX(3px);
+}
+.direct small{
+  display:block;
+  color:#9b7722;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.15em;
+  margin-bottom:3px;
+}
+.direct strong{
+  color:var(--navy);
+  font-size:14px;
+}
+.arrow{color:#9b7722;font-size:18px}
+
+/* FORM */
+.form-card{
+  background:#fff;
+  border:1px solid var(--line);
+  padding:42px;
+  box-shadow:0 20px 55px rgba(7,21,47,.07);
+}
+.form-head{
+  margin-bottom:28px;
+}
+.form-head .kicker{color:#9b7722;margin-bottom:9px}
+.form-head h2{
+  color:var(--navy);
+  font-size:29px;
+  line-height:1.05;
+  letter-spacing:-.03em;
+}
+.form-head p{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:9px;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{
+  color:#596477;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.14em;
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  border:1px solid rgba(7,21,47,.14);
+  background:#fcfcfa;
+  color:var(--ink);
+  padding:13px 14px;
+  outline:none;
+  transition:.2s ease;
+  border-radius:0;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(216,170,61,.1);
+}
+.field textarea{
+  min-height:125px;
+  resize:vertical;
+}
+.submit{
+  width:100%;
+  margin-top:20px;
+  border:0;
+  background:var(--navy);
+  color:#fff;
+  padding:16px;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.14em;
+  transition:.25s ease;
+}
+.submit:hover{background:#0d2b58}
+.form-note{
+  text-align:center;
+  color:#8a93a2;
+  font-size:10px;
+  margin-top:12px;
+}
+
+/* CTA */
+.bottom{
+  background:var(--cream);
+  padding:85px 0;
+  text-align:center;
+}
+.bottom h2{
+  color:var(--navy);
+  font-size:clamp(35px,5vw,65px);
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.bottom p{
+  color:var(--muted);
+  margin:18px auto 28px;
+  max-width:570px;
+}
+.whatsapp{
+  display:inline-flex;
+  padding:14px 22px;
+  background:var(--navy);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.13em;
+}
+
+/* FOOTER */
+.site-footer{
+  background:#030b1a;
+  color:rgba(255,255,255,.65);
+  padding:55px 0 25px;
+}
+.footer-inner{
+  width:min(90%,1180px);
+  margin:auto;
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1fr;
+  gap:50px;
+}
+.footer-brand img{width:78px}
+.footer-brand p{margin-top:15px;font-size:12px}
+.footer-title{
+  color:var(--gold-light);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.15em;
+  margin-bottom:16px;
+}
+.footer-links a{display:block;font-size:12px;margin:9px 0}
+.footer-bottom{
+  width:min(90%,1180px);
+  margin:45px auto 0;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  font-size:10px;
+}
+
+/* MOBILE */
+@media(max-width:850px){
+  .main-nav{display:none}
+  .mobile-note{display:block;color:rgba(255,255,255,.55);font-size:10px}
+  .header-inner{min-height:68px}
+  .header-cta{display:none}
+  .hero{padding:90px 0 80px}
+  .contact-grid{grid-template-columns:1fr;gap:55px}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .footer-brand{grid-column:1/-1}
+}
+@media(max-width:560px){
+  .contact-section{padding:70px 0}
+  .hero h1{font-size:53px}
+  .hero p{font-size:16px}
+  .form-card{padding:27px 20px}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .footer-inner{grid-template-columns:1fr}
+  .footer-brand{grid-column:auto}
+  .footer-bottom{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand" aria-label="SIR Home">
+      <img src="sir-logo.svg" alt="Suryavanshi Institute for Rankers">
+    </a>
+
+    <nav class="main-nav" aria-label="Main Navigation">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="about.html" class="nav-link">ABOUT US</a>
+      <a href="student-guide.html" class="nav-link">STUDENT GUIDE</a>
+      <a href="notice-board.html" class="nav-link">NOTICE BOARD</a>
+      <a href="admission.html" class="nav-link">ADMISSION</a>
+      <a href="contact.html" class="nav-link active">CONTACT</a>
+    </nav>
+
+    <a href="admission.html" class="header-cta">START YOUR JOURNEY</a>
+    <span class="mobile-note">CONTACT SIR</span>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="kicker">Start with a conversation</div>
+
+    <h1>
+      THE NEXT STEP<br>
+      <span>IS YOURS.</span>
+    </h1>
+
+    <p>
+      Every preparation begins with a conversation.
+      If you have a question about SIR, our courses or a student's preparation, start here.
+    </p>
+  </div>
+</section>
+
+<section class="contact-section">
+  <div class="container contact-grid">
+
+    <div class="story">
+      <div class="kicker" style="color:#9b7722">Talk to SIR</div>
+
+      <h2>
+        Sometimes,<br>
+        the first step<br>
+        is simply asking.
+      </h2>
+
+      <p>
+        Choosing the right academic path is a decision worth discussing.
+      </p>
+
+      <p>
+        Tell us where the student is today, what they are preparing for, and where they want to go.
+        We will help you understand the next step.
+      </p>
+
+      <div class="story-quote">
+        The right direction can begin with one conversation.
+      </div>
+
+      <div class="direct">
+
+        <a href="tel:+919552657799">
+          <div>
+            <small>CALL US</small>
+            <strong>+91 95526 57799</strong>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a href="https://wa.me/919552657799" target="_blank" rel="noopener">
+          <div>
+            <small>WHATSAPP</small>
+            <strong>Start a conversation</strong>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+        <a href="mailto:management@sir.net.in">
+          <div>
+            <small>EMAIL</small>
+            <strong>management@sir.net.in</strong>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="form-card">
+
+      <div class="form-head">
+        <div class="kicker">Send an enquiry</div>
+        <h2>Tell us a little about the student.</h2>
+        <p>We'll use this information to understand your enquiry before getting in touch.</p>
+      </div>
+
+      <form id="enquiryForm">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="studentName">STUDENT NAME</label>
+            <input id="studentName" name="studentName" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="parentName">PARENT / GUARDIAN</label>
+            <input id="parentName" name="parentName" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="mobile">MOBILE NUMBER</label>
+            <input id="mobile" name="mobile" type="tel" inputmode="tel" required>
+          </div>
+
+          <div class="field">
+            <label for="course">INTERESTED COURSE</label>
+            <select id="course" name="course" required>
+              <option value="">Select</option>
+              <option>NEET</option>
+              <option>JEE</option>
+              <option>MHT-CET</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="classLevel">CURRENT CLASS</label>
+            <select id="classLevel" name="classLevel" required>
+              <option value="">Select</option>
+              <option>8th</option>
+              <option>9th</option>
+              <option>10th</option>
+              <option>11th</option>
+              <option>12th</option>
+              <option>Dropper</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="callback">PREFERRED CONTACT</label>
+            <select id="callback" name="callback">
+              <option>WhatsApp</option>
+              <option>Phone Call</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="message">MESSAGE</label>
+            <textarea id="message" name="message" placeholder="What would you like to know?"></textarea>
+          </div>
+
+        </div>
+
+        <button class="submit" type="submit">
+          SEND ENQUIRY ON WHATSAPP →
+        </button>
+
+        <div class="form-note">
+          Your enquiry will open in WhatsApp with the details you entered.
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<section class="bottom">
+  <div class="container">
+    <h2>Have a question?<br>Let's talk.</h2>
+
+    <p>
+      No complicated process. No long form. Just a conversation about the student's preparation.
+    </p>
+
+    <a class="whatsapp"
+       href="https://wa.me/919552657799"
+       target="_blank"
+       rel="noopener">
+      CHAT ON WHATSAPP
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      <img src="sir-logo.svg" alt="Suryavanshi Institute for Rankers">
+      <p>Where Potential Finds Direction.</p>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-title">EXPLORE</div>
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="student-guide.html">Student Guide</a>
+      <a href="notice-board.html">Notice Board</a>
+      <a href="admission.html">Admission</a>
+      <a href="contact.html">Contact</a>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-title">PORTALS</div>
+      <a href="student-login.html">Student Login</a>
+      <a href="teacher-login.html">Teacher Login</a>
+      <a href="admin-login.html">Admin Login</a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Suryavanshi Institute for Rankers. All rights reserved.</p>
+    <p>SIR — WHERE POTENTIAL FINDS DIRECTION</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById("enquiryForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const student = document.getElementById("studentName").value.trim();
+  const parent = document.getElementById("parentName").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const course = document.getElementById("course").value;
+  const classLevel = document.getElementById("classLevel").value;
+  const callback = document.getElementById("callback").value;
+  const message = document.getElementById("message").value.trim();
+
+  const text =
+`Hello SIR,
+
+I would like to enquire about preparation for a student.
+
+Student Name: ${student}
+Parent / Guardian: ${parent}
+Mobile: ${mobile}
+Course: ${course}
+Current Class: ${classLevel}
+Preferred Contact: ${callback}
+Message: ${message || "No additional message."}
+
+Please guide us on the next step.`;
+
+  window.open(
+    "https://wa.me/919552657799?text=" + encodeURIComponent(text),
+    "_blank"
+  );
+});
+</script>
+
+</body>
+</html>
