@@ -1087,184 +1087,6 @@
         }
 
 
-
-        /* =====================================================
-           TEST MANAGEMENT
-        ===================================================== */
-
-        .test-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .primary-btn,
-        .secondary-btn {
-            border-radius: 8px;
-            padding: 11px 15px;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: .06em;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .primary-btn {
-            border: 1px solid #d7a62a;
-            background: #07152f;
-            color: #f0c75e;
-        }
-
-        .primary-btn:hover { background: #10234a; }
-
-        .secondary-btn {
-            border: 1px solid #dfe4ec;
-            background: #ffffff;
-            color: #344054;
-        }
-
-        .secondary-btn:hover { border-color: #d7a62a; }
-
-        .test-card-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .small-btn {
-            border: 1px solid #dfe4ec;
-            background: #ffffff;
-            color: #344054;
-            border-radius: 7px;
-            padding: 8px 10px;
-            font-size: 9px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .small-btn:hover {
-            border-color: #d7a62a;
-            color: #9a7214;
-        }
-
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(7,21,47,.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 500;
-        }
-
-        .modal-backdrop.active { display: flex; }
-
-        .modal {
-            width: min(620px, 100%);
-            max-height: 90vh;
-            overflow-y: auto;
-            background: #ffffff;
-            border-radius: 14px;
-            box-shadow: 0 25px 80px rgba(0,0,0,.2);
-            padding: 24px;
-        }
-
-        .modal h3 {
-            color: #07152f;
-            font-size: 19px;
-            margin-bottom: 5px;
-        }
-
-        .modal-subtitle {
-            color: #7a8495;
-            font-size: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 13px;
-        }
-
-        .form-field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-field.full { grid-column: 1 / -1; }
-
-        .form-field label {
-            color: #667085;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: .07em;
-        }
-
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            width: 100%;
-            border: 1px solid #dfe4ec;
-            border-radius: 8px;
-            padding: 10px 11px;
-            outline: none;
-            color: #172033;
-            background: #ffffff;
-            font-size: 11px;
-        }
-
-        .form-field textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .form-field input:focus,
-        .form-field select:focus,
-        .form-field textarea:focus {
-            border-color: #d7a62a;
-            box-shadow: 0 0 0 3px rgba(215,166,42,.08);
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 9px;
-            margin-top: 20px;
-        }
-
-        .modal-message {
-            display: none;
-            margin-top: 12px;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 10px;
-        }
-
-        .modal-message.error {
-            display: block;
-            color: #b42318;
-            background: #fff5f5;
-            border: 1px solid #ffd6d6;
-        }
-
-        .modal-message.success {
-            display: block;
-            color: #147a4c;
-            background: #effaf4;
-            border: 1px solid #ccebd9;
-        }
-
-        @media (max-width: 600px) {
-            .test-actions { justify-content: stretch; }
-            .test-actions button { flex: 1; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-field.full { grid-column: auto; }
-        }
-
         /* =====================================================
            RESULTS
         ===================================================== */
@@ -1317,6 +1139,317 @@
                 #07152f;
 
             font-size: 20px;
+        }
+
+
+        /* =====================================================
+           STUDENT PROFILE + WEEKLY REVIEW
+        ===================================================== */
+
+        .view-student-btn {
+            border: 1px solid #d7a62a;
+            background: #ffffff;
+            color: #9a7214;
+            padding: 8px 11px;
+            border-radius: 7px;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            cursor: pointer;
+            transition: .2s ease;
+            white-space: nowrap;
+        }
+
+        .view-student-btn:hover {
+            background: #07152f;
+            color: #ffffff;
+            border-color: #07152f;
+        }
+
+        .student-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7,21,47,.62);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 5000;
+        }
+
+        .student-modal.open {
+            display: flex;
+        }
+
+        .student-modal-box {
+            width: min(920px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(7,21,47,.25);
+        }
+
+        .student-modal-header {
+            padding: 22px 24px;
+            background: #07152f;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .student-modal-header small {
+            display: block;
+            color: #d7a62a;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .16em;
+            margin-bottom: 6px;
+        }
+
+        .student-modal-header h2 {
+            font-size: 20px;
+            font-weight: 650;
+        }
+
+        .student-modal-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.06);
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .student-modal-close:hover {
+            border-color: #d7a62a;
+            color: #f0c75e;
+        }
+
+        .student-modal-body {
+            padding: 24px;
+        }
+
+        .student-profile-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .student-info-box {
+            background: #f8f9fb;
+            border: 1px solid #edf0f4;
+            border-radius: 9px;
+            padding: 13px;
+        }
+
+        .student-info-box small {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            margin-bottom: 6px;
+        }
+
+        .student-info-box strong {
+            display: block;
+            color: #07152f;
+            font-size: 11px;
+            font-weight: 650;
+            word-break: break-word;
+        }
+
+        .review-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 15px;
+            margin: 8px 0 15px;
+        }
+
+        .review-heading h3 {
+            color: #07152f;
+            font-size: 16px;
+            font-weight: 650;
+        }
+
+        .review-heading p {
+            color: #98a2b3;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .review-week {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .review-week label {
+            color: #667085;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .05em;
+        }
+
+        .review-week input {
+            height: 36px;
+            border: 1px solid #dfe4ec;
+            border-radius: 7px;
+            padding: 0 9px;
+            color: #344054;
+            font-size: 10px;
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .review-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .review-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .review-field label {
+            color: #667085;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .07em;
+        }
+
+        .review-field textarea {
+            width: 100%;
+            min-height: 92px;
+            resize: vertical;
+            border: 1px solid #dfe4ec;
+            border-radius: 8px;
+            outline: none;
+            padding: 11px 12px;
+            color: #344054;
+            background: #ffffff;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .review-field textarea:focus,
+        .review-week input:focus {
+            border-color: #d7a62a;
+            box-shadow: 0 0 0 3px rgba(215,166,42,.08);
+        }
+
+        .review-status {
+            display: none;
+            margin: 15px 0 0;
+            padding: 11px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .review-status.success {
+            display: block;
+            background: #e9f8f0;
+            color: #147a4c;
+        }
+
+        .review-status.error {
+            display: block;
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .review-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .review-cancel-btn,
+        .review-save-btn {
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .07em;
+        }
+
+        .review-cancel-btn {
+            border: 1px solid #dfe4ec;
+            background: #ffffff;
+            color: #667085;
+        }
+
+        .review-save-btn {
+            border: 1px solid #07152f;
+            background: #07152f;
+            color: #ffffff;
+        }
+
+        .review-save-btn:hover {
+            border-color: #d7a62a;
+            background: #10254b;
+        }
+
+        .review-save-btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 760px) {
+            .student-modal {
+                padding: 10px;
+            }
+
+            .student-modal-body {
+                padding: 18px;
+            }
+
+            .student-profile-summary {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .review-field.full {
+                grid-column: auto;
+            }
+
+            .review-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .student-profile-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .review-actions {
+                flex-direction: column;
+            }
+
+            .review-cancel-btn,
+            .review-save-btn {
+                width: 100%;
+            }
         }
 
 
@@ -1935,6 +2068,10 @@
                                             STATUS
                                         </th>
 
+                                        <th>
+                                            ACTION
+                                        </th>
+
                                     </tr>
 
                                 </thead>
@@ -1972,22 +2109,11 @@
                             </h2>
 
                             <p>
-                                Create tests and manage student results.
+                                Tests available in your assigned batches.
                             </p>
 
                         </div>
 
-                    </div>
-
-
-                    <div class="test-actions">
-                        <button
-                            type="button"
-                            class="primary-btn"
-                            id="createTestBtn"
-                        >
-                            + CREATE TEST
-                        </button>
                     </div>
 
 
@@ -2280,6 +2406,191 @@
                 </section>
 
 
+                <!-- =================================================
+                     STUDENT PROFILE + WEEKLY REVIEW MODAL
+                ================================================== -->
+
+                <div
+                    class="student-modal"
+                    id="studentModal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="studentModalName"
+                >
+                    <div class="student-modal-box">
+
+                        <div class="student-modal-header">
+
+                            <div>
+                                <small>STUDENT PROFILE</small>
+                                <h2 id="studentModalName">Student</h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="student-modal-close"
+                                id="studentModalClose"
+                                aria-label="Close"
+                            >×</button>
+
+                        </div>
+
+                        <div class="student-modal-body">
+
+                            <div
+                                class="student-profile-summary"
+                                id="studentProfileSummary"
+                            ></div>
+
+                            <div class="review-heading">
+
+                                <div>
+                                    <h3>Weekly Teacher Review</h3>
+                                    <p>
+                                        Record this student's academic progress,
+                                        participation and practice for the selected week.
+                                    </p>
+                                </div>
+
+                                <div class="review-week">
+
+                                    <label for="reviewWeekStart">
+                                        WEEK
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="reviewWeekStart"
+                                    >
+
+                                    <span>to</span>
+
+                                    <input
+                                        type="date"
+                                        id="reviewWeekEnd"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                            <form id="weeklyReviewForm">
+
+                                <div class="review-grid">
+
+                                    <div class="review-field">
+
+                                        <label for="academicUnderstanding">
+                                            ACADEMIC UNDERSTANDING
+                                        </label>
+
+                                        <textarea
+                                            id="academicUnderstanding"
+                                            placeholder="How well is the student understanding concepts?"
+                                        ></textarea>
+
+                                    </div>
+
+                                    <div class="review-field">
+
+                                        <label for="classParticipation">
+                                            CLASS PARTICIPATION
+                                        </label>
+
+                                        <textarea
+                                            id="classParticipation"
+                                            placeholder="Comment on attention, participation and doubt-solving."
+                                        ></textarea>
+
+                                    </div>
+
+                                    <div class="review-field">
+
+                                        <label for="practiceConsistency">
+                                            PRACTICE CONSISTENCY
+                                        </label>
+
+                                        <textarea
+                                            id="practiceConsistency"
+                                            placeholder="Comment on homework, practice, tests and consistency."
+                                        ></textarea>
+
+                                    </div>
+
+                                    <div class="review-field">
+
+                                        <label for="strengths">
+                                            STRENGTHS
+                                        </label>
+
+                                        <textarea
+                                            id="strengths"
+                                            placeholder="What is the student doing well?"
+                                        ></textarea>
+
+                                    </div>
+
+                                    <div class="review-field">
+
+                                        <label for="areasToImprove">
+                                            AREAS TO IMPROVE
+                                        </label>
+
+                                        <textarea
+                                            id="areasToImprove"
+                                            placeholder="What should the student focus on next?"
+                                        ></textarea>
+
+                                    </div>
+
+                                    <div class="review-field full">
+
+                                        <label for="teacherNote">
+                                            TEACHER NOTE
+                                        </label>
+
+                                        <textarea
+                                            id="teacherNote"
+                                            placeholder="Any additional message for the student/parent."
+                                        ></textarea>
+
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    class="review-status"
+                                    id="reviewStatus"
+                                ></div>
+
+                                <div class="review-actions">
+
+                                    <button
+                                        type="button"
+                                        class="review-cancel-btn"
+                                        id="reviewCancelBtn"
+                                    >
+                                        CLOSE
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        class="review-save-btn"
+                                        id="reviewSaveBtn"
+                                    >
+                                        SAVE WEEKLY REVIEW
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
             </div>
 
         </main>
@@ -2324,6 +2635,9 @@
 
         let teacherScores = [];
 
+        let selectedStudent = null;
+        let selectedReviewId = null;
+
 
 
         /* =====================================================
@@ -2344,6 +2658,24 @@
 
         const mobileMenuBtn =
             document.getElementById("mobileMenuBtn");
+
+        const studentModal =
+            document.getElementById("studentModal");
+
+        const studentModalClose =
+            document.getElementById("studentModalClose");
+
+        const reviewCancelBtn =
+            document.getElementById("reviewCancelBtn");
+
+        const weeklyReviewForm =
+            document.getElementById("weeklyReviewForm");
+
+        const reviewSaveBtn =
+            document.getElementById("reviewSaveBtn");
+
+        const reviewStatus =
+            document.getElementById("reviewStatus");
 
 
 
@@ -2664,8 +2996,6 @@
 
             renderBatches();
 
-            populateTestBatchOptions();
-
         }
 
 
@@ -2882,7 +3212,7 @@
                     <tr>
 
                         <td
-                            colspan="5"
+                            colspan="6"
                             class="empty-state"
                         >
                             No students found.
@@ -2956,6 +3286,14 @@
                                     }
 
                                 </td>
+                                <td>
+    <button
+        class="view-student-btn"
+        onclick="openStudentProfile('${student.id}')"
+    >
+        VIEW PROFILE
+    </button>
+</td>
 
                             </tr>
 
@@ -2966,6 +3304,418 @@
 
         }
 
+
+
+        /* =====================================================
+           STUDENT PROFILE + WEEKLY REVIEW
+        ===================================================== */
+
+        function formatDateInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+
+
+        function getCurrentWeekRange() {
+            const today = new Date();
+            const day = today.getDay();
+            const diffToMonday = day === 0 ? -6 : 1 - day;
+
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diffToMonday);
+
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+
+            return {
+                start: formatDateInput(monday),
+                end: formatDateInput(sunday)
+            };
+        }
+
+
+        function setDefaultReviewWeek() {
+            const range = getCurrentWeekRange();
+
+            document.getElementById("reviewWeekStart").value =
+                range.start;
+
+            document.getElementById("reviewWeekEnd").value =
+                range.end;
+        }
+
+
+        function clearReviewStatus() {
+            reviewStatus.textContent = "";
+            reviewStatus.className = "review-status";
+        }
+
+
+        function showReviewStatus(message, type) {
+            reviewStatus.textContent = message;
+            reviewStatus.className = `review-status ${type}`;
+        }
+
+
+        function clearReviewForm() {
+            document.getElementById("academicUnderstanding").value = "";
+            document.getElementById("classParticipation").value = "";
+            document.getElementById("practiceConsistency").value = "";
+            document.getElementById("strengths").value = "";
+            document.getElementById("areasToImprove").value = "";
+            document.getElementById("teacherNote").value = "";
+
+            selectedReviewId = null;
+            clearReviewStatus();
+            setDefaultReviewWeek();
+        }
+
+
+        function renderStudentModalProfile(student) {
+            const batch =
+                assignedBatches.find(
+                    batch => batch.id === student.batch_id
+                );
+
+            document.getElementById("studentModalName").textContent =
+                student.full_name || "Student";
+
+            document.getElementById("studentProfileSummary").innerHTML = `
+
+                <div class="student-info-box">
+                    <small>STUDENT UID</small>
+                    <strong>${escapeHtml(student.student_uid || "—")}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>SCHOOL</small>
+                    <strong>${escapeHtml(student.school_name || "—")}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>BATCH</small>
+                    <strong>${escapeHtml(batch?.name || "—")}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>STATUS</small>
+                    <strong>${student.is_active === true ? "ACTIVE" : "INACTIVE"}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>EMAIL</small>
+                    <strong>${escapeHtml(student.email || "—")}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>PHONE</small>
+                    <strong>${escapeHtml(student.phone || "—")}</strong>
+                </div>
+
+                <div class="student-info-box">
+                    <small>DATE OF BIRTH</small>
+                    <strong>${escapeHtml(student.date_of_birth || "—")}</strong>
+                </div>
+
+            `;
+        }
+
+
+        function openStudentProfile(studentId) {
+            const student =
+                assignedStudents.find(
+                    item => item.id === studentId
+                );
+
+            if (!student) {
+                showError("Unable to open this student profile.");
+                return;
+            }
+
+            selectedStudent = student;
+
+            renderStudentModalProfile(student);
+            clearReviewForm();
+
+            studentModal.classList.add("open");
+            document.body.style.overflow = "hidden";
+
+            loadWeeklyReview();
+        }
+
+
+        function closeStudentProfile() {
+            studentModal.classList.remove("open");
+            document.body.style.overflow = "";
+            selectedStudent = null;
+            selectedReviewId = null;
+            clearReviewStatus();
+        }
+
+
+        async function loadWeeklyReview() {
+            if (!selectedStudent || !currentTeacher) {
+                return;
+            }
+
+            clearReviewStatus();
+
+            const weekStart =
+                document.getElementById("reviewWeekStart").value;
+
+            if (!weekStart) {
+                return;
+            }
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("student_reviews")
+                .select(`
+                    id,
+                    student_id,
+                    teacher_id,
+                    week_start,
+                    week_end,
+                    academic_understanding,
+                    class_participation,
+                    practice_consistency,
+                    strengths,
+                    areas_to_improve,
+                    teacher_note
+                `)
+                .eq("student_id", selectedStudent.id)
+                .eq("teacher_id", currentTeacher.id)
+                .eq("week_start", weekStart)
+                .maybeSingle();
+
+            if (error) {
+                console.error(error);
+                showReviewStatus(
+                    "Could not load the existing weekly review.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!data) {
+                selectedReviewId = null;
+                return;
+            }
+
+            selectedReviewId = data.id;
+
+            document.getElementById("reviewWeekEnd").value =
+                data.week_end || "";
+
+            document.getElementById("academicUnderstanding").value =
+                data.academic_understanding || "";
+
+            document.getElementById("classParticipation").value =
+                data.class_participation || "";
+
+            document.getElementById("practiceConsistency").value =
+                data.practice_consistency || "";
+
+            document.getElementById("strengths").value =
+                data.strengths || "";
+
+            document.getElementById("areasToImprove").value =
+                data.areas_to_improve || "";
+
+            document.getElementById("teacherNote").value =
+                data.teacher_note || "";
+
+            showReviewStatus(
+                "Existing review loaded. Saving will update this week's review.",
+                "success"
+            );
+        }
+
+
+        document
+            .getElementById("reviewWeekStart")
+            .addEventListener(
+                "change",
+                async () => {
+                    const start =
+                        document.getElementById("reviewWeekStart").value;
+
+                    if (!start) {
+                        return;
+                    }
+
+                    const startDate =
+                        new Date(`${start}T00:00:00`);
+
+                    const endDate =
+                        new Date(startDate);
+
+                    endDate.setDate(
+                        startDate.getDate() + 6
+                    );
+
+                    document.getElementById("reviewWeekEnd").value =
+                        formatDateInput(endDate);
+
+                    clearReviewStatus();
+
+                    await loadWeeklyReview();
+                }
+            );
+
+
+        document
+            .getElementById("reviewWeekEnd")
+            .addEventListener(
+                "change",
+                () => {
+                    clearReviewStatus();
+                }
+            );
+
+
+        weeklyReviewForm.addEventListener(
+            "submit",
+            async event => {
+
+                event.preventDefault();
+
+                if (!selectedStudent || !currentTeacher) {
+                    showReviewStatus(
+                        "No student is selected.",
+                        "error"
+                    );
+                    return;
+                }
+
+                const weekStart =
+                    document.getElementById("reviewWeekStart").value;
+
+                const weekEnd =
+                    document.getElementById("reviewWeekEnd").value;
+
+                if (!weekStart || !weekEnd) {
+                    showReviewStatus(
+                        "Please select the review week.",
+                        "error"
+                    );
+                    return;
+                }
+
+                reviewSaveBtn.disabled = true;
+                reviewSaveBtn.textContent = "SAVING...";
+
+                clearReviewStatus();
+
+                const payload = {
+                    student_id: selectedStudent.id,
+                    teacher_id: currentTeacher.id,
+                    week_start: weekStart,
+                    week_end: weekEnd,
+                    academic_understanding:
+                        document.getElementById(
+                            "academicUnderstanding"
+                        ).value.trim() || null,
+                    class_participation:
+                        document.getElementById(
+                            "classParticipation"
+                        ).value.trim() || null,
+                    practice_consistency:
+                        document.getElementById(
+                            "practiceConsistency"
+                        ).value.trim() || null,
+                    strengths:
+                        document.getElementById(
+                            "strengths"
+                        ).value.trim() || null,
+                    areas_to_improve:
+                        document.getElementById(
+                            "areasToImprove"
+                        ).value.trim() || null,
+                    teacher_note:
+                        document.getElementById(
+                            "teacherNote"
+                        ).value.trim() || null,
+                    updated_at: new Date().toISOString()
+                };
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("student_reviews")
+                    .upsert(
+                        payload,
+                        {
+                            onConflict: "student_id,week_start"
+                        }
+                    )
+                    .select()
+                    .single();
+
+                reviewSaveBtn.disabled = false;
+                reviewSaveBtn.textContent =
+                    "SAVE WEEKLY REVIEW";
+
+                if (error) {
+                    console.error(error);
+
+                    showReviewStatus(
+                        `Unable to save review: ${error.message}`,
+                        "error"
+                    );
+
+                    return;
+                }
+
+                selectedReviewId =
+                    data?.id || selectedReviewId;
+
+                showReviewStatus(
+                    "Weekly review saved successfully.",
+                    "success"
+                );
+            }
+        );
+
+
+        studentModalClose.addEventListener(
+            "click",
+            closeStudentProfile
+        );
+
+
+        reviewCancelBtn.addEventListener(
+            "click",
+            closeStudentProfile
+        );
+
+
+        studentModal.addEventListener(
+            "click",
+            event => {
+                if (event.target === studentModal) {
+                    closeStudentProfile();
+                }
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+                if (
+                    event.key === "Escape" &&
+                    studentModal.classList.contains("open")
+                ) {
+                    closeStudentProfile();
+                }
+            }
+        );
 
 
         /* =====================================================
@@ -3118,16 +3868,6 @@
                                         batch?.name || "—"
                                     )}
                                 </p>
-
-                                <div class="test-card-actions">
-                                    <button
-                                        type="button"
-                                        class="small-btn"
-                                        onclick="openManualResult('${test.id}')"
-                                    >
-                                        ENTER OFFLINE RESULT
-                                    </button>
-                                </div>
 
                             </div>
 
@@ -3383,485 +4123,6 @@
         }
 
 
-
-
-        /* =====================================================
-           TEST MANAGEMENT
-        ===================================================== */
-
-        function populateTestBatchOptions() {
-
-            const select =
-                document.getElementById("testBatch");
-
-            if (!select) return;
-
-            select.innerHTML =
-                `<option value="">Select batch</option>` +
-                assignedBatches
-                    .map(batch => `
-                        <option value="${batch.id}">
-                            ${escapeHtml(batch.name)}
-                        </option>
-                    `)
-                    .join("");
-
-        }
-
-
-        function openModal(id) {
-
-            const modal =
-                document.getElementById(id);
-
-            if (modal) {
-                modal.classList.add("active");
-            }
-
-        }
-
-
-        function closeModal(id) {
-
-            const modal =
-                document.getElementById(id);
-
-            if (modal) {
-                modal.classList.remove("active");
-            }
-
-        }
-
-
-        function showModalMessage(
-            elementId,
-            message,
-            type
-        ) {
-
-            const box =
-                document.getElementById(elementId);
-
-            if (!box) return;
-
-            box.textContent = message;
-            box.className =
-                `modal-message ${type}`;
-
-        }
-
-
-        document
-            .getElementById("createTestBtn")
-            .addEventListener(
-                "click",
-                () => {
-
-                    populateTestBatchOptions();
-
-                    document
-                        .getElementById("testForm")
-                        .reset();
-
-                    document
-                        .getElementById("testDate")
-                        .value =
-                        new Date()
-                            .toISOString()
-                            .slice(0, 10);
-
-                    openModal(
-                        "testModalBackdrop"
-                    );
-
-                }
-            );
-
-
-        document
-            .querySelectorAll(
-                "[data-close-modal]"
-            )
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        closeModal(
-                            button.dataset.closeModal
-                        );
-
-                    }
-                );
-
-            });
-
-
-        document
-            .querySelectorAll(".modal-backdrop")
-            .forEach(backdrop => {
-
-                backdrop.addEventListener(
-                    "click",
-                    event => {
-
-                        if (event.target === backdrop) {
-                            closeModal(backdrop.id);
-                        }
-
-                    }
-                );
-
-            });
-
-
-        document
-            .getElementById("testForm")
-            .addEventListener(
-                "submit",
-                async event => {
-
-                    event.preventDefault();
-
-                    const title =
-                        document
-                            .getElementById("testTitle")
-                            .value
-                            .trim();
-
-                    const batchId =
-                        document
-                            .getElementById("testBatch")
-                            .value;
-
-                    const subject =
-                        document
-                            .getElementById("testSubject")
-                            .value;
-
-                    const testDate =
-                        document
-                            .getElementById("testDate")
-                            .value;
-
-                    const maxMarks =
-                        Number(
-                            document
-                                .getElementById("testMaxMarks")
-                                .value
-                        );
-
-                    const durationValue =
-                        document
-                            .getElementById("testDuration")
-                            .value;
-
-                    const description =
-                        document
-                            .getElementById("testDescription")
-                            .value
-                            .trim();
-
-
-                    if (
-                        !title ||
-                        !batchId ||
-                        !subject ||
-                        !testDate ||
-                        !Number.isFinite(maxMarks) ||
-                        maxMarks <= 0
-                    ) {
-
-                        showModalMessage(
-                            "testFormMessage",
-                            "Please complete all required fields.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    const payload = {
-                        batch_id: batchId,
-                        title,
-                        subject,
-                        test_date: testDate,
-                        max_marks: maxMarks,
-                        duration_minutes:
-                            durationValue
-                                ? Number(durationValue)
-                                : null,
-                        description:
-                            description || null
-                    };
-
-
-                    const {
-                        error
-                    } =
-                        await supabaseClient
-                            .from("tests")
-                            .insert(payload);
-
-
-                    if (error) {
-
-                        console.error(
-                            "Create test error:",
-                            error
-                        );
-
-                        showModalMessage(
-                            "testFormMessage",
-                            "Unable to create the test. Check database permissions.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    showModalMessage(
-                        "testFormMessage",
-                        "Test created successfully.",
-                        "success"
-                    );
-
-                    await loadTests();
-
-                    setTimeout(
-                        () => closeModal("testModalBackdrop"),
-                        500
-                    );
-
-                }
-            );
-
-
-        function openManualResult(testId) {
-
-            const test =
-                teacherTests.find(
-                    item => item.id === testId
-                );
-
-            if (!test) return;
-
-
-            document
-                .getElementById("resultTestId")
-                .value = test.id;
-
-            document
-                .getElementById("resultTestName")
-                .value = test.title || "";
-
-            document
-                .getElementById("resultSubject")
-                .value = test.subject || "";
-
-            document
-                .getElementById("resultMaxMarks")
-                .value = test.max_marks ?? "";
-
-
-            const studentSelect =
-                document.getElementById("resultStudent");
-
-
-            studentSelect.innerHTML =
-                `<option value="">Select student</option>` +
-                assignedStudents
-                    .map(student => `
-                        <option value="${student.id}">
-                            ${escapeHtml(student.full_name)}
-                            — ${escapeHtml(student.student_uid || "")}
-                        </option>
-                    `)
-                    .join("");
-
-
-            document
-                .getElementById("resultMarks")
-                .value = "";
-
-
-            document
-                .getElementById("resultFormMessage")
-                .className =
-                "modal-message";
-
-
-            openModal("resultModalBackdrop");
-
-        }
-
-
-        window.openManualResult =
-            openManualResult;
-
-
-        document
-            .getElementById("resultForm")
-            .addEventListener(
-                "submit",
-                async event => {
-
-                    event.preventDefault();
-
-
-                    const testId =
-                        document
-                            .getElementById("resultTestId")
-                            .value;
-
-                    const studentId =
-                        document
-                            .getElementById("resultStudent")
-                            .value;
-
-                    const marks =
-                        Number(
-                            document
-                                .getElementById("resultMarks")
-                                .value
-                        );
-
-                    const maxMarks =
-                        Number(
-                            document
-                                .getElementById("resultMaxMarks")
-                                .value
-                        );
-
-
-                    if (
-                        !testId ||
-                        !studentId ||
-                        !Number.isFinite(marks) ||
-                        !Number.isFinite(maxMarks) ||
-                        marks < 0 ||
-                        marks > maxMarks
-                    ) {
-
-                        showModalMessage(
-                            "resultFormMessage",
-                            "Enter valid marks between 0 and the maximum marks.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    const test =
-                        teacherTests.find(
-                            item => item.id === testId
-                        );
-
-
-                    const payload = {
-                        test_id: testId,
-                        student_id: studentId,
-                        subject: test?.subject || null,
-                        marks_obtained: marks,
-                        max_marks: maxMarks
-                    };
-
-
-                    const {
-                        data: existing,
-                        error: existingError
-                    } =
-                        await supabaseClient
-                            .from("test_scores")
-                            .select("id")
-                            .eq("test_id", testId)
-                            .eq("student_id", studentId)
-                            .maybeSingle();
-
-
-                    if (existingError) {
-
-                        console.error(
-                            "Existing result lookup:",
-                            existingError
-                        );
-
-                        showModalMessage(
-                            "resultFormMessage",
-                            "Unable to check the existing result.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    let saveError = null;
-
-
-                    if (existing) {
-
-                        const response =
-                            await supabaseClient
-                                .from("test_scores")
-                                .update(payload)
-                                .eq("id", existing.id);
-
-                        saveError = response.error;
-
-                    } else {
-
-                        const response =
-                            await supabaseClient
-                                .from("test_scores")
-                                .insert(payload);
-
-                        saveError = response.error;
-
-                    }
-
-
-                    if (saveError) {
-
-                        console.error(
-                            "Save result error:",
-                            saveError
-                        );
-
-                        showModalMessage(
-                            "resultFormMessage",
-                            "Unable to save the result. Check database permissions.",
-                            "error"
-                        );
-
-                        return;
-
-                    }
-
-
-                    showModalMessage(
-                        "resultFormMessage",
-                        "Result saved successfully.",
-                        "success"
-                    );
-
-                    await loadScores();
-
-                    setTimeout(
-                        () => closeModal("resultModalBackdrop"),
-                        700
-                    );
-
-                }
-            );
 
         /* =====================================================
            NAVIGATION
@@ -4130,129 +4391,6 @@
         initialize();
 
     </script>
-
-
-<!-- CREATE TEST MODAL -->
-<div class="modal-backdrop" id="testModalBackdrop">
-    <div class="modal">
-        <h3>Create Test</h3>
-        <p class="modal-subtitle">
-            Add the test once. Results can then be recorded automatically
-            or entered manually for offline exams.
-        </p>
-
-        <form id="testForm">
-            <div class="form-grid">
-                <div class="form-field full">
-                    <label>TEST TITLE</label>
-                    <input id="testTitle" required placeholder="e.g. NEET Physics Weekly Test 01">
-                </div>
-
-                <div class="form-field">
-                    <label>BATCH</label>
-                    <select id="testBatch" required></select>
-                </div>
-
-                <div class="form-field">
-                    <label>SUBJECT</label>
-                    <select id="testSubject" required>
-                        <option value="">Select subject</option>
-                        <option>Physics</option>
-                        <option>Chemistry</option>
-                        <option>Biology</option>
-                        <option>Mathematics</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-
-                <div class="form-field">
-                    <label>TEST DATE</label>
-                    <input id="testDate" type="date" required>
-                </div>
-
-                <div class="form-field">
-                    <label>MAXIMUM MARKS</label>
-                    <input id="testMaxMarks" type="number" min="1" step="1" required placeholder="100">
-                </div>
-
-                <div class="form-field">
-                    <label>DURATION (MINUTES)</label>
-                    <input id="testDuration" type="number" min="1" step="1" placeholder="180">
-                </div>
-
-                <div class="form-field full">
-                    <label>DESCRIPTION (OPTIONAL)</label>
-                    <textarea id="testDescription" placeholder="Optional test information"></textarea>
-                </div>
-            </div>
-
-            <div id="testFormMessage" class="modal-message"></div>
-
-            <div class="modal-actions">
-                <button type="button" class="secondary-btn" data-close-modal="testModalBackdrop">
-                    CANCEL
-                </button>
-                <button type="submit" class="primary-btn">
-                    SAVE TEST
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-<!-- MANUAL RESULT MODAL -->
-<div class="modal-backdrop" id="resultModalBackdrop">
-    <div class="modal">
-        <h3>Enter Offline Result</h3>
-        <p class="modal-subtitle">
-            Use this when the student took the exam offline.
-            The saved result will appear in the same Student Portal.
-        </p>
-
-        <form id="resultForm">
-            <input type="hidden" id="resultTestId">
-
-            <div class="form-grid">
-                <div class="form-field full">
-                    <label>TEST</label>
-                    <input id="resultTestName" disabled>
-                </div>
-
-                <div class="form-field full">
-                    <label>STUDENT</label>
-                    <select id="resultStudent" required></select>
-                </div>
-
-                <div class="form-field">
-                    <label>SUBJECT</label>
-                    <input id="resultSubject" disabled>
-                </div>
-
-                <div class="form-field">
-                    <label>MAXIMUM MARKS</label>
-                    <input id="resultMaxMarks" disabled>
-                </div>
-
-                <div class="form-field">
-                    <label>MARKS OBTAINED</label>
-                    <input id="resultMarks" type="number" min="0" step="0.01" required>
-                </div>
-            </div>
-
-            <div id="resultFormMessage" class="modal-message"></div>
-
-            <div class="modal-actions">
-                <button type="button" class="secondary-btn" data-close-modal="resultModalBackdrop">
-                    CANCEL
-                </button>
-                <button type="submit" class="primary-btn">
-                    SAVE RESULT
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
 </body>
 
