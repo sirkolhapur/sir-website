@@ -464,6 +464,51 @@
       font-size: 14px;
     }
 
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .review-item span,
+    .teacher-note > span {
+      display: block;
+      color: var(--gold-light);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .review-item strong {
+      display: block;
+      color: #d8dee7;
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 400;
+      white-space: pre-wrap;
+    }
+
+    .teacher-note {
+      margin-top: 14px;
+      border: 1px solid rgba(217,170,69,0.18);
+      border-radius: 14px;
+      padding: 17px;
+      background: rgba(217,170,69,0.035);
+    }
+
+    .teacher-note p {
+      margin: 0;
+    }
+
     /* FOOTER */
 
     footer {
@@ -566,6 +611,10 @@
 
       .chart {
         gap: 7px;
+      }
+
+      .review-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1465,11 +1514,31 @@
       error
     } =
       await supabaseClient
-        .from("teacher_reviews")
-        .select("*")
+        .from("student_reviews")
+        .select(`
+          id,
+          student_id,
+          teacher_id,
+          week_start,
+          week_end,
+          academic_understanding,
+          class_participation,
+          practice_consistency,
+          strengths,
+          areas_to_improve,
+          teacher_note,
+          created_at,
+          updated_at
+        `)
         .eq(
           "student_id",
           studentId
+        )
+        .order(
+          "week_start",
+          {
+            ascending: false
+          }
         )
         .order(
           "created_at",
@@ -1482,7 +1551,7 @@
     if (error) {
 
       console.warn(
-        "Review query:",
+        "Student review query:",
         error
       );
 
@@ -2308,6 +2377,12 @@
 
     if (!reviews.length) {
 
+      container.innerHTML = `
+        <div class="empty">
+          No teacher review has been added yet.
+        </div>
+      `;
+
       return;
 
     }
@@ -2317,67 +2392,104 @@
       "";
 
 
-    const latest =
-      reviews[0];
+    reviews.forEach(
+      review => {
+
+        const card =
+          document.createElement(
+            "div"
+          );
 
 
-    const date =
-      latest.review_date ||
-      latest.created_at ||
-      "";
+        card.className =
+          "review-card";
 
 
-    const observation =
-      latest.observations ||
-      latest.observation ||
-      latest.teacher_feedback ||
-      latest.feedback ||
-      latest.review ||
-      "Your teacher review will appear here.";
+        const weekStart =
+          formatDate(review.week_start);
 
 
-    const title =
-      latest.title ||
-      "Weekly Academic Review";
+        const weekEnd =
+          formatDate(review.week_end);
 
 
-    const card =
-      document.createElement(
-        "div"
-      );
+        card.innerHTML = `
+
+          <div class="review-date">
+            Week: ${escapeHTML(weekStart)}
+            ${weekEnd ? " — " + escapeHTML(weekEnd) : ""}
+          </div>
+
+          <h3>
+            Weekly Academic Review
+          </h3>
+
+          <div class="review-grid">
+
+            <div class="review-item">
+              <span>Academic Understanding</span>
+              <strong>
+                ${escapeHTML(
+                  review.academic_understanding || "—"
+                )}
+              </strong>
+            </div>
+
+            <div class="review-item">
+              <span>Class Participation</span>
+              <strong>
+                ${escapeHTML(
+                  review.class_participation || "—"
+                )}
+              </strong>
+            </div>
+
+            <div class="review-item">
+              <span>Practice Consistency</span>
+              <strong>
+                ${escapeHTML(
+                  review.practice_consistency || "—"
+                )}
+              </strong>
+            </div>
+
+            <div class="review-item">
+              <span>Strengths</span>
+              <strong>
+                ${escapeHTML(
+                  review.strengths || "—"
+                )}
+              </strong>
+            </div>
+
+            <div class="review-item">
+              <span>Areas to Improve</span>
+              <strong>
+                ${escapeHTML(
+                  review.areas_to_improve || "—"
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="teacher-note">
+            <span>Teacher's Note</span>
+            <p>
+              ${escapeHTML(
+                review.teacher_note || "No additional note."
+              )}
+            </p>
+          </div>
+
+        `;
 
 
-    card.className =
-      "review-card";
+        container.appendChild(
+          card
+        );
 
-
-    card.innerHTML = `
-
-      <div class="review-date">
-
-        ${formatDate(date)}
-
-      </div>
-
-
-      <h3>
-
-        ${escapeHTML(title)}
-
-      </h3>
-
-
-      <p>
-
-        ${escapeHTML(observation)}
-
-      </p>
-
-    `;
-
-
-    container.appendChild(
-      card
+      }
     );
 
   }
