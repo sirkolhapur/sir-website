@@ -803,7 +803,15 @@
         const supabaseClient =
             window.supabase.createClient(
                 SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
+                SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: {
+                        storageKey: "sir_teacher_auth",
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: false
+                    }
+                }
             );
 
 
