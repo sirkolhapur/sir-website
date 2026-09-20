@@ -143,13 +143,13 @@ a {
 
     z-index: 1000;
 
-    background:
-        linear-gradient(
-            to bottom,
-            rgba(3,10,24,.96),
-            rgba(3,10,24,.78)
-        );
-
+   background: linear-gradient(
+    to bottom,
+    rgba(3,10,24,.96),
+    rgba(3,10,24,.78)
+);
+border-bottom: 1px solid rgba(255,255,255,.08);
+backdrop-filter: blur(18px);
     border-bottom:
         1px solid rgba(255,255,255,.08);
 
