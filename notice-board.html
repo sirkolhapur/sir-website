@@ -7,7 +7,7 @@
 <title>Notice Board | SIR — Suryavanshi Institute for Rankers</title>
 <meta name="description" content="Official notice board of Suryavanshi Institute for Rankers, Kolhapur. Stay updated with class schedules, test schedules and important announcements.">
 
-<link rel="icon" href="sir-logo.png">
+<link rel="icon" href="https://sir.net.in/sir-logo.png">
 
 <!-- Supabase: notices are loaded from the same SIR database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,10 +19,10 @@
    ========================================================= */
 
 :root{
-  --navy:#071b2b;
-  --navy-2:#0c2639;
-  --gold:#d6ad55;
-  --cream:#f5f1e8;
+  --navy:#07152f;
+  --navy-2:#0b2148;
+  --gold:#d7a62a;
+  --cream:#f5f7fa;
   --paper:#fbfaf6;
   --ink:#13202a;
   --muted:#66717a;
@@ -50,18 +50,23 @@ button{font:inherit}
   position:sticky;
   top:0;
   z-index:1000;
-  background:rgba(7,27,43,.97);
-  border-bottom:1px solid rgba(214,173,85,.35);
-  backdrop-filter:blur(12px);
+  background:linear-gradient(
+    to bottom,
+    rgba(3,10,24,.96),
+    rgba(3,10,24,.78)
+  );
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
 }
 
 .header-inner{
-  width:min(1180px,92%);
-  min-height:86px;
+  width:min(1240px,calc(100% - 48px));
+  min-height:82px;
   margin:auto;
   display:flex;
   align-items:center;
-  gap:40px;
+  gap:30px;
 }
 
 .brand{
@@ -71,7 +76,7 @@ button{font:inherit}
 }
 
 .brand img{
-  width:190px;
+  width:125px;
   height:auto;
   display:block;
 }
@@ -80,15 +85,15 @@ button{font:inherit}
   margin-left:auto;
   display:flex;
   align-items:center;
-  gap:25px;
+  gap:27px;
 }
 
 .nav-link,
 .login-button{
   color:#f7f3ea;
   font-family:Arial,Helvetica,sans-serif;
-  font-size:12px;
-  letter-spacing:.09em;
+  font-size:11px;
+  letter-spacing:.13em;
   text-transform:uppercase;
   transition:.2s ease;
 }
@@ -200,7 +205,7 @@ button{font:inherit}
 .page-hero{
   background:var(--navy);
   color:#fff;
-  padding:100px 5% 110px;
+  padding:100px 0 110px;
   position:relative;
   overflow:hidden;
 }
@@ -217,7 +222,7 @@ button{font:inherit}
 }
 
 .page-hero-inner{
-  width:min(1180px,92%);
+  width:min(1240px,calc(100% - 48px));
   margin:auto;
   position:relative;
   z-index:1;
@@ -464,8 +469,8 @@ button{font:inherit}
 
 /* MOBILE */
 @media(max-width:850px){
-  .header-inner{min-height:72px}
-  .brand img{width:165px}
+  .header-inner{min-height:68px}
+  .brand img{width:102px}
   .main-nav{display:none}
   .menu-toggle{display:block}
   .mobile-nav.open{display:block}
@@ -521,9 +526,12 @@ button{font:inherit}
 
 <body>
 
-<a href="index.html" class="brand" aria-label="SIR Home">
-    <img src="sir-logo.png" alt="Suryavanshi Institute for Rankers">
-</a>
+<header class="site-header">
+  <div class="header-inner">
+
+    <a href="index.html" class="brand" aria-label="SIR Home">
+      <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
+    </a>
 
     <nav class="main-nav" aria-label="Main Navigation">
       <a href="index.html" class="nav-link">HOME</a>
@@ -651,7 +659,7 @@ button{font:inherit}
   <div class="footer-inner">
 
     <div class="footer-brand">
-      <img src=""sir-logo.png"" alt="Suryavanshi Institute for Rankers">
+      <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
       <p>Where Potential Finds Direction.</p>
     </div>
 
