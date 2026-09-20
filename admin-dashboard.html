@@ -2076,9 +2076,6 @@
         <button type="button" class="secondary-btn" id="cancelQuestionEdit">
           Clear
         </button>
-        <button type="button" class="primary-btn" id="finishTestBtn" style="display:none;">
-          Save Test
-        </button>
         <button type="submit" class="primary-btn" id="saveQuestionBtn">
           Add Question
         </button>
@@ -3408,45 +3405,7 @@ function getCurrentTest() {
 function getQuestionTarget() {
   const test = getCurrentTest();
   const maxMarks = Number(test?.max_marks || 0);
-
-  // SIR tests use 4 marks per question.
-  // Required questions are therefore determined by the test's maximum marks.
-  // Examples: 80 marks = 20 questions, 180 marks = 45 questions,
-  // 720 marks = 180 questions.
-  if (!Number.isFinite(maxMarks) || maxMarks <= 0 || maxMarks % 4 !== 0) {
-    return null;
-  }
-
-  return maxMarks / 4;
-}
-
-function updateQuestionBuilderActions(questionCount) {
-  const target = getQuestionTarget();
-  const addBtn = document.getElementById("saveQuestionBtn");
-  const finishBtn = document.getElementById("finishTestBtn");
-
-  if (!addBtn || !finishBtn) return;
-
-  if (target && questionCount >= target) {
-    addBtn.style.display = "none";
-    finishBtn.style.display = "inline-flex";
-  } else {
-    addBtn.style.display = "inline-flex";
-    finishBtn.style.display = "none";
-  }
-}
-
-function finishTestQuestionBuilder() {
-  const target = getQuestionTarget();
-  const list = document.getElementById("questionList");
-  const count = list ? list.querySelectorAll(".question-item").length : 0;
-
-  if (target && count < target) {
-    showQuestionMessage(`Please add all ${target} questions before saving the test. Currently ${count} question${count === 1 ? "" : "s"} added.`, "error");
-    return;
-  }
-
-  closeQuestionModal();
+  return maxMarks > 0 && maxMarks % 4 === 0 ? maxMarks / 4 : null;
 }
 
 async function openQuestionModal(testId) {
@@ -3524,7 +3483,6 @@ function renderQuestions(questions) {
   if (!questions.length) {
     const target = getQuestionTarget();
     list.innerHTML = `<div class="question-empty">No questions added yet.${target ? ` Target: ${target} questions.` : ""}</div>`;
-    updateQuestionBuilderActions(0);
     return;
   }
 
@@ -3557,7 +3515,6 @@ function renderQuestions(questions) {
       </div>
     </div>
   `).join("");
-  updateQuestionBuilderActions(questions.length);
 }
 
 
@@ -3660,8 +3617,6 @@ function clearQuestionForm() {
   document.getElementById("questionOrder").value = 1;
   document.getElementById("questionFormTitle").textContent = "Add Question";
   document.getElementById("saveQuestionBtn").textContent = "Add Question";
-  document.getElementById("saveQuestionBtn").style.display = "inline-flex";
-  document.getElementById("finishTestBtn").style.display = "none";
   editingQuestionId = null;
 
 }
@@ -3702,8 +3657,6 @@ document.getElementById("questionImage").addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (file) showImagePreview(URL.createObjectURL(file));
 });
-
-document.getElementById("finishTestBtn").addEventListener("click", finishTestQuestionBuilder);
 
 document
   .getElementById("questionForm")
