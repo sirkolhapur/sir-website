@@ -1,299 +1,863 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
+<title>Notice Board | SIR — Suryavanshi Institute for Rankers</title>
+<meta name="description" content="Official notice board of Suryavanshi Institute for Rankers, Kolhapur. Stay updated with class schedules, test schedules and important announcements.">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<link rel="icon" href=""sir-logo.png"">
 
-    <title>
-        Notice Board — Suryavanshi Institute for Rankers
-    </title>
+<!-- Supabase: notices are loaded from the same SIR database -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
+/* =========================================================
+   SIR NOTICE BOARD
+   Self-contained page — does NOT depend on style.css.
+   ========================================================= */
+
+:root{
+  --navy:#071b2b;
+  --navy-2:#0c2639;
+  --gold:#d6ad55;
+  --cream:#f5f1e8;
+  --paper:#fbfaf6;
+  --ink:#13202a;
+  --muted:#66717a;
+  --line:rgba(19,32,42,.16);
+  --white:#fff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{scroll-behavior:smooth}
+
+body{
+  font-family: Georgia, "Times New Roman", serif;
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.6;
+}
+
+a{color:inherit;text-decoration:none}
+
+button{font:inherit}
+
+/* HEADER */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:rgba(7,27,43,.97);
+  border-bottom:1px solid rgba(214,173,85,.35);
+  backdrop-filter:blur(12px);
+}
+
+.header-inner{
+  width:min(1180px,92%);
+  min-height:86px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:40px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  flex-shrink:0;
+}
+
+.brand img{
+  width:190px;
+  height:auto;
+  display:block;
+}
+
+.main-nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:25px;
+}
+
+.nav-link,
+.login-button{
+  color:#f7f3ea;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  transition:.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active{
+  color:var(--gold);
+}
+
+.login-dropdown{position:relative}
+
+.login-button{
+  background:none;
+  border:0;
+  cursor:pointer;
+  padding:10px 0;
+}
+
+.login-arrow{
+  display:inline-block;
+  margin-left:5px;
+  transition:transform .2s ease;
+}
+
+.login-menu{
+  position:absolute;
+  right:0;
+  top:calc(100% + 12px);
+  width:250px;
+  background:var(--white);
+  border:1px solid var(--line);
+  box-shadow:0 18px 45px rgba(0,0,0,.18);
+  padding:8px;
+  display:none;
+}
+
+.login-dropdown.open .login-menu{display:block}
+
+.login-menu a{
+  display:flex;
+  gap:12px;
+  padding:13px;
+  color:var(--ink);
+  border-bottom:1px solid rgba(19,32,42,.08);
+}
+
+.login-menu a:last-child{border-bottom:0}
+
+.login-menu a:hover{background:#f3efe6}
+
+.login-menu strong{
+  display:block;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:13px;
+}
+
+.login-menu small{
+  color:var(--muted);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;
+}
+
+.menu-toggle{
+  display:none;
+  margin-left:auto;
+  border:0;
+  background:none;
+  cursor:pointer;
+}
+
+.menu-toggle span{
+  display:block;
+  width:27px;
+  height:2px;
+  margin:6px 0;
+  background:#fff;
+}
+
+.mobile-nav{
+  display:none;
+  padding:0 4% 22px;
+  background:var(--navy);
+}
+
+.mobile-nav a{
+  display:block;
+  padding:13px 0;
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.mobile-login{
+  padding-top:10px;
+}
+
+.mobile-login-title{
+  color:var(--gold);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;
+  letter-spacing:.1em;
+  padding:10px 0;
+}
+
+/* PAGE INTRO */
+.page-hero{
+  background:var(--navy);
+  color:#fff;
+  padding:100px 5% 110px;
+  position:relative;
+  overflow:hidden;
+}
+
+.page-hero:after{
+  content:"";
+  position:absolute;
+  width:460px;
+  height:460px;
+  border:1px solid rgba(214,173,85,.18);
+  border-radius:50%;
+  right:-170px;
+  top:-210px;
+}
+
+.page-hero-inner{
+  width:min(1180px,92%);
+  margin:auto;
+  position:relative;
+  z-index:1;
+}
+
+.eyebrow{
+  color:var(--gold);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:22px;
+}
+
+.page-hero h1{
+  font-size:clamp(48px,7vw,88px);
+  font-weight:400;
+  line-height:.98;
+  max-width:760px;
+}
+
+.page-hero h1 em{
+  color:#d9d4c8;
+  font-weight:400;
+}
+
+.page-hero p{
+  margin-top:28px;
+  color:#d8d9d7;
+  font-size:18px;
+  max-width:560px;
+}
+
+/* CONTENT */
+.notice-wrap{
+  width:min(1180px,92%);
+  margin:0 auto;
+  padding:80px 0 110px;
+}
+
+.notice-section{
+  margin-bottom:70px;
+}
+
+.section-kicker{
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+.section-heading{
+  font-size:clamp(30px,4vw,48px);
+  font-weight:400;
+  line-height:1.08;
+  margin-bottom:12px;
+}
+
+.section-heading span{
+  color:#53646f;
+  font-style:italic;
+}
+
+.section-rule{
+  width:70px;
+  height:2px;
+  background:var(--gold);
+  margin:22px 0 30px;
+}
+
+.notice-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+.notice-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  padding:30px;
+  min-height:170px;
+  position:relative;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.notice-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 35px rgba(19,32,42,.08);
+}
+
+.notice-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.notice-type{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+.notice-date{
+  color:var(--muted);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;
+}
+
+.notice-card h3{
+  font-size:25px;
+  line-height:1.15;
+  font-weight:400;
+  margin-bottom:10px;
+}
+
+.notice-card p{
+  color:#59656d;
+  font-size:15px;
+  white-space:pre-line;
+}
+
+.notice-empty{
+  grid-column:1/-1;
+  padding:45px 30px;
+  border:1px dashed rgba(19,32,42,.25);
+  text-align:center;
+  color:var(--muted);
+  background:rgba(255,255,255,.35);
+}
+
+.notice-empty strong{
+  display:block;
+  color:var(--ink);
+  font-size:21px;
+  margin-bottom:5px;
+  font-weight:400;
+}
+
+/* STATIC CATEGORY CARDS */
+.info-card{
+  border-top:1px solid var(--line);
+  padding:28px 0;
+  display:grid;
+  grid-template-columns:230px 1fr 30px;
+  gap:25px;
+  align-items:center;
+}
+
+.info-card:last-child{border-bottom:1px solid var(--line)}
+
+.info-label{
+  color:var(--muted);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+
+.info-card h3{
+  font-size:28px;
+  font-weight:400;
+  line-height:1.1;
+}
+
+.info-arrow{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:22px;
+}
+
+/* FOOTER */
+.site-footer{
+  background:var(--navy);
+  color:#eee;
+  padding:65px 5% 25px;
+}
+
+.footer-inner{
+  width:min(1180px,92%);
+  margin:auto;
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1fr;
+  gap:60px;
+  padding-bottom:50px;
+}
+
+.footer-brand img{
+  width:190px;
+  max-width:100%;
+  display:block;
+  margin-bottom:15px;
+}
+
+.footer-brand p{
+  color:#c9c8c1;
+  font-size:14px;
+}
+
+.footer-links,
+.footer-login{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.footer-links a,
+.footer-login a{
+  color:#cfd1cf;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+.footer-links a:hover,
+.footer-login a:hover{color:var(--gold)}
+
+.footer-login strong{
+  color:var(--gold);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;
+  letter-spacing:.16em;
+  margin-bottom:4px;
+}
+
+.footer-bottom{
+  width:min(1180px,92%);
+  margin:auto;
+  padding-top:22px;
+  border-top:1px solid rgba(255,255,255,.12);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:#929b9f;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;
+  letter-spacing:.04em;
+}
+
+/* MOBILE */
+@media(max-width:850px){
+  .header-inner{min-height:72px}
+  .brand img{width:165px}
+  .main-nav{display:none}
+  .menu-toggle{display:block}
+  .mobile-nav.open{display:block}
+
+  .page-hero{
+    padding:75px 4% 85px;
+  }
+
+  .notice-wrap{
+    padding:60px 0 80px;
+  }
+
+  .notice-grid{
+    grid-template-columns:1fr;
+  }
+
+  .info-card{
+    grid-template-columns:1fr 25px;
+    gap:8px;
+  }
+
+  .info-label{
+    grid-column:1/-1;
+  }
+
+  .info-card h3{
+    font-size:23px;
+  }
+
+  .footer-inner{
+    grid-template-columns:1fr;
+    gap:35px;
+  }
+
+  .footer-bottom{
+    flex-direction:column;
+  }
+}
+
+@media(max-width:520px){
+  .page-hero h1{font-size:48px}
+  .page-hero p{font-size:16px}
+  .notice-card{padding:23px}
+  .notice-card h3{font-size:22px}
+}
+
+/* Prevent an ugly flash if JS is loading */
+#dynamicNoticeGrid[data-loading="true"] .notice-empty{
+  opacity:.7;
+}
+</style>
 </head>
-
 
 <body>
 
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <header>
-
-        <div>
-
-            <a href="index.html">
-
-                <img
-                    src="sir-logo.svg"
-                    alt="Suryavanshi Institute for Rankers"
-                >
-
-            </a>
-
-
-            <nav>
-
-                <a href="index.html">
-                    HOME
-                </a>
-
-                <a href="about.html">
-                    ABOUT US
-                </a>
-
-                <a href="student-guide.html">
-                    STUDENT GUIDE
-                </a>
-
-                <a
-                    href="notice-board.html"
-                    class="active"
-                >
-                    NOTICE BOARD
-                </a>
-
-                <a href="admission.html">
-                    ADMISSION
-                </a>
-
-                <a href="contact.html">
-                    CONTACT
-                </a>
-
-            </nav>
-
-        </div>
-
-    </header>
-
-
-
-    <!-- =====================================================
-         NOTICE BOARD
-    ====================================================== -->
-
-    <main>
-
-
-        <section class="notice-section">
-
-
-            <div class="notice-inner">
-
-
-                <p class="chapter-label">
-                    09 — NOTICE BOARD
-                </p>
-
-
-                <h1>
-
-                    Stay in<br>
-
-                    <em>
-                        the loop.
-                    </em>
-
-                </h1>
-
-
-                <p class="notice-intro">
-
-                    Important information
-                    shouldn't get lost.
-
-                </p>
-
-
-
-                <!-- =================================================
-                     NOTICE LIST
-                ================================================== -->
-
-                <div class="notice-board">
-
-
-                    <div class="notice-item">
-
-
-                        <div>
-
-                            <small>
-                                CLASS SCHEDULE
-                            </small>
-
-                            <h2>
-                                Know what's happening next.
-                            </h2>
-
-                        </div>
-
-
-                        <span>
-                            →
-                        </span>
-
-
-                    </div>
-
-
-
-                    <div class="notice-item">
-
-
-                        <div>
-
-                            <small>
-                                TEST SCHEDULE
-                            </small>
-
-                            <h2>
-                                Know when you're being assessed.
-                            </h2>
-
-                        </div>
-
-
-                        <span>
-                            →
-                        </span>
-
-
-                    </div>
-
-
-
-                    <div class="notice-item">
-
-
-                        <div>
-
-                            <small>
-                                ANNOUNCEMENTS
-                            </small>
-
-                            <h2>
-                                Stay updated with SIR.
-                            </h2>
-
-                        </div>
-
-
-                        <span>
-                            →
-                        </span>
-
-
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- =================================================
-                     EMPTY / FUTURE NOTICE AREA
-                ================================================== -->
-
-                <div class="notice-empty">
-
-                    <p>
-                        New notices and important
-                        announcements will appear here.
-                    </p>
-
-                </div>
-
-
+<header class="site-header">
+  <div class="header-inner">
+
+    <a href="index.html" class="brand" aria-label="SIR Home">
+      <img src=""sir-logo.png"" alt="Suryavanshi Institute for Rankers">
+    </a>
+
+    <nav class="main-nav" aria-label="Main Navigation">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="about.html" class="nav-link">ABOUT US</a>
+      <a href="student-guide.html" class="nav-link">STUDENT GUIDE</a>
+      <a href="notice-board.html" class="nav-link active">NOTICE BOARD</a>
+      <a href="admission.html" class="nav-link">ADMISSION</a>
+      <a href="contact.html" class="nav-link">CONTACT</a>
+
+      <div class="login-dropdown" id="loginDropdown">
+        <button class="login-button" id="loginButton" type="button" aria-expanded="false">
+          LOGIN <span class="login-arrow">↓</span>
+        </button>
+
+        <div class="login-menu">
+          <a href="student-login.html">
+            <span>🎓</span>
+            <div>
+              <strong>Student Login</strong>
+              <small>Student & Parent Portal</small>
             </div>
+          </a>
+          <a href="teacher-login.html">
+            <span>👨‍🏫</span>
+            <div>
+              <strong>Teacher Login</strong>
+              <small>Teacher Portal</small>
+            </div>
+          </a>
+          <a href="admin-login.html">
+            <span>🔐</span>
+            <div>
+              <strong>Admin Login</strong>
+              <small>Administration</small>
+            </div>
+          </a>
+        </div>
+      </div>
+    </nav>
 
-        </section>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
 
+  </div>
 
-    </main>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT US</a>
+    <a href="student-guide.html">STUDENT GUIDE</a>
+    <a href="notice-board.html">NOTICE BOARD</a>
+    <a href="admission.html">ADMISSION</a>
+    <a href="contact.html">CONTACT</a>
 
+    <div class="mobile-login">
+      <div class="mobile-login-title">LOGIN</div>
+      <a href="student-login.html">🎓 Student Login</a>
+      <a href="teacher-login.html">👨‍🏫 Teacher Login</a>
+      <a href="admin-login.html">🔐 Admin Login</a>
+    </div>
+  </div>
+</header>
 
+<main>
 
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <p class="eyebrow">09 — NOTICE BOARD</p>
 
-    <footer>
+      <h1>
+        Stay in<br>
+        <em>the loop.</em>
+      </h1>
 
-        <div>
+      <p>
+        Important information shouldn't get lost.
+        Find schedules, tests and announcements from SIR in one place.
+      </p>
+    </div>
+  </section>
 
-            <img
-                src="sir-logo.svg"
-                alt="Suryavanshi Institute for Rankers"
-            >
+  <div class="notice-wrap">
 
-            <p>
-                WHERE POTENTIAL FINDS DIRECTION
-            </p>
+    <section class="notice-section">
+      <p class="section-kicker">LIVE UPDATES</p>
+      <h2 class="section-heading">
+        What's happening <span>at SIR.</span>
+      </h2>
+      <div class="section-rule"></div>
 
+      <div class="notice-grid" id="dynamicNoticeGrid" data-loading="true">
+        <div class="notice-empty">
+          <strong>Loading notices…</strong>
+          Please wait.
+        </div>
+      </div>
+    </section>
+
+    <section class="notice-section">
+      <p class="section-kicker">WHAT YOU'LL FIND HERE</p>
+
+      <div class="info-card">
+        <div class="info-label">CLASS SCHEDULE</div>
+        <h3>Know what's happening next.</h3>
+        <div class="info-arrow">→</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">TEST SCHEDULE</div>
+        <h3>Know when you're being assessed.</h3>
+        <div class="info-arrow">→</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">ANNOUNCEMENTS</div>
+        <h3>Stay updated with SIR.</h3>
+        <div class="info-arrow">→</div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      <img src=""sir-logo.png"" alt="Suryavanshi Institute for Rankers">
+      <p>Where Potential Finds Direction.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="student-guide.html">Student Guide</a>
+      <a href="notice-board.html">Notice Board</a>
+      <a href="admission.html">Admission</a>
+      <a href="contact.html">Contact</a>
+    </div>
+
+    <div class="footer-login">
+      <strong>PORTALS</strong>
+      <a href="student-login.html">Student Login</a>
+      <a href="teacher-login.html">Teacher Login</a>
+      <a href="admin-login.html">Admin Login</a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Suryavanshi Institute for Rankers. All rights reserved.</p>
+    <p>SIR — WHERE POTENTIAL FINDS DIRECTION</p>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+const loginDropdown = document.getElementById("loginDropdown");
+const loginButton = document.getElementById("loginButton");
+
+loginButton.addEventListener("click", function(event){
+  event.stopPropagation();
+  const open = loginDropdown.classList.toggle("open");
+  loginButton.setAttribute("aria-expanded", String(open));
+});
+
+document.addEventListener("click", function(event){
+  if(!loginDropdown.contains(event.target)){
+    loginDropdown.classList.remove("open");
+    loginButton.setAttribute("aria-expanded", "false");
+  }
+});
+
+const menuToggle = document.getElementById("menuToggle");
+const mobileNav = document.getElementById("mobileNav");
+
+menuToggle.addEventListener("click", function(){
+  const open = mobileNav.classList.toggle("open");
+  menuToggle.setAttribute("aria-expanded", String(open));
+});
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const noticeGrid = document.getElementById("dynamicNoticeGrid");
+
+function escapeHTML(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatDate(value){
+  if(!value) return "";
+
+  const date = new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return String(value);
+  }
+
+  return date.toLocaleDateString("en-IN", {
+    day:"numeric",
+    month:"short",
+    year:"numeric"
+  });
+}
+
+function typeLabel(value){
+  const text = String(value || "ANNOUNCEMENT")
+    .replace(/_/g, " ")
+    .trim();
+
+  return text.toUpperCase();
+}
+
+function renderNotices(notices){
+
+  if(!notices || !notices.length){
+    noticeGrid.innerHTML = `
+      <div class="notice-empty">
+        <strong>No new notices right now.</strong>
+        New notices and important announcements will appear here.
+      </div>
+    `;
+    noticeGrid.dataset.loading = "false";
+    return;
+  }
+
+  noticeGrid.innerHTML = notices.map(notice => {
+
+    const date =
+      notice.event_date ||
+      notice.published_at ||
+      notice.created_at ||
+      notice.updated_at;
+
+    return `
+      <article class="notice-card">
+        <div class="notice-meta">
+          <span class="notice-type">${escapeHTML(typeLabel(notice.notice_type))}</span>
+          ${date ? `<span class="notice-date">${escapeHTML(formatDate(date))}</span>` : ""}
         </div>
 
+        <h3>${escapeHTML(notice.title || "SIR Notice")}</h3>
 
-        <div>
+        <p>${escapeHTML(notice.content || "")}</p>
 
-            <a href="index.html">
-                Home
-            </a>
+        ${
+          notice.expiry_date
+            ? `<div class="notice-date" style="margin-top:18px;">
+                 Valid until ${escapeHTML(formatDate(notice.expiry_date))}
+               </div>`
+            : ""
+        }
+      </article>
+    `;
+  }).join("");
 
-            <a href="student-guide.html">
-                Student Guide
-            </a>
+  noticeGrid.dataset.loading = "false";
+}
 
-            <a href="notice-board.html">
-                Notice Board
-            </a>
+async function loadNotices(){
 
-            <a href="admission.html">
-                Admission
-            </a>
+  try{
 
-            <a href="contact.html">
-                Contact
-            </a>
+    const { data, error } = await supabaseClient
+      .from("notices")
+      .select(`
+        id,
+        title,
+        content,
+        notice_type,
+        event_date,
+        expiry_date,
+        is_published,
+        published_at,
+        created_at,
+        updated_at
+      `)
+      .eq("is_published", true)
+      .order("event_date", { ascending:false, nullsFirst:false })
+      .order("created_at", { ascending:false });
 
-        </div>
+    if(error) throw error;
 
+    const now = new Date();
 
-        <div>
+    const visible = (data || []).filter(notice => {
 
-            <strong>
-                PORTALS
-            </strong>
+      if(!notice.expiry_date) return true;
 
-            <a href="student-login.html">
-                Student Login
-            </a>
+      const expiry = new Date(notice.expiry_date);
 
-            <a href="teacher-login.html">
-                Teacher Login
-            </a>
+      return Number.isNaN(expiry.getTime()) || expiry >= now;
+    });
 
-            <a href="admin-login.html">
-                Admin Login
-            </a>
+    renderNotices(visible);
 
-        </div>
+  }catch(error){
 
+    console.error("Notice Board error:", error);
 
-    </footer>
+    noticeGrid.innerHTML = `
+      <div class="notice-empty">
+        <strong>Notices are being updated.</strong>
+        Please check again shortly.
+      </div>
+    `;
 
+    noticeGrid.dataset.loading = "false";
+  }
+}
 
-
-    <script src="app.js"></script>
-
+loadNotices();
+</script>
 
 </body>
-
 </html>
