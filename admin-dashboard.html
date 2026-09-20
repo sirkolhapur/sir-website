@@ -1236,6 +1236,7 @@
         <table>
           <thead>
             <tr>
+              <th>Teacher ID</th>
               <th>Teacher</th>
               <th>Email / Login</th>
               <th>Subject</th>
@@ -1245,7 +1246,7 @@
             </tr>
           </thead>
           <tbody id="teachersTableBody">
-            <tr><td colspan="6" class="empty">Loading teachers...</td></tr>
+            <tr><td colspan="7" class="empty">Loading teachers...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1484,6 +1485,142 @@
 
   </div>
 
+</div>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal" id="editStudentModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2>Edit Student</h2>
+        <small style="color:#8fa0b5;">SIR prefix is fixed. Edit the suffix as required.</small>
+      </div>
+      <button class="close" id="closeEditStudentModal">&times;</button>
+    </div>
+
+    <form id="editStudentForm">
+      <input type="hidden" id="editStudentDbId">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Student UID</label>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+            <span style="padding:11px 13px;border:1px solid rgba(201,168,78,.35);border-radius:7px;background:rgba(201,168,78,.08);color:#d9b75b;font-weight:800;">SIR</span>
+            <input type="text" id="editStudentUidSuffix" placeholder="00001 or NEET-001" required>
+          </div>
+          <small style="color:#7f90a6;">Full UID will be saved as SIR + suffix. Example: SIR00001</small>
+        </div>
+
+        <div class="field full">
+          <label>Full Name</label>
+          <input type="text" id="editStudentName" required>
+        </div>
+
+        <div class="field">
+          <label>Email / Login</label>
+          <input type="email" id="editStudentEmail" readonly>
+        </div>
+
+        <div class="field">
+          <label>Mobile</label>
+          <input type="tel" id="editStudentMobile">
+        </div>
+
+        <div class="field">
+          <label>Course</label>
+          <select id="editStudentCourse"><option value="">Select Course</option></select>
+        </div>
+
+        <div class="field">
+          <label>Batch</label>
+          <select id="editStudentBatch"><option value="">Select Batch</option></select>
+        </div>
+
+        <div class="field full">
+          <label>Status</label>
+          <select id="editStudentActive">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="editStudentMessage" class="message"></div>
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelEditStudent">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveEditStudent">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT TEACHER MODAL -->
+<div class="modal" id="editTeacherModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2>Edit Teacher</h2>
+        <small style="color:#8fa0b5;">SIRT prefix is fixed. Edit the suffix as required.</small>
+      </div>
+      <button class="close" id="closeEditTeacherModal">&times;</button>
+    </div>
+
+    <form id="editTeacherForm">
+      <input type="hidden" id="editTeacherDbId">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Teacher ID</label>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+            <span style="padding:11px 13px;border:1px solid rgba(201,168,78,.35);border-radius:7px;background:rgba(201,168,78,.08);color:#d9b75b;font-weight:800;">SIRT</span>
+            <input type="text" id="editTeacherIdSuffix" placeholder="0001 or BIO-01" required>
+          </div>
+          <small style="color:#7f90a6;">Full Teacher ID will be saved as SIRT + suffix. Example: SIRT0001</small>
+        </div>
+
+        <div class="field full">
+          <label>Full Name</label>
+          <input type="text" id="editTeacherName" required>
+        </div>
+
+        <div class="field">
+          <label>Email / Login</label>
+          <input type="email" id="editTeacherEmail" readonly>
+        </div>
+
+        <div class="field">
+          <label>Mobile</label>
+          <input type="tel" id="editTeacherMobile">
+        </div>
+
+        <div class="field">
+          <label>Subject</label>
+          <select id="editTeacherSubject" required>
+            <option value="">Select Subject</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="NEET">NEET</option>
+            <option value="JEE">JEE</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <select id="editTeacherActive">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="editTeacherMessage" class="message"></div>
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" id="cancelEditTeacher">Cancel</button>
+        <button type="submit" class="primary-btn" id="saveEditTeacher">Save Changes</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- ADD TEACHER MODAL -->
@@ -2306,11 +2443,11 @@ function renderStudents(students) {
         </td>
 
         <td>
-          —
+          ${escapeHtml((allCourses.find(c => c.id === student.course_id)?.name) || "—")}
         </td>
 
         <td>
-          —
+          ${escapeHtml((allActiveBatches.find(b => b.id === student.batch_id)?.name) || "—")}
         </td>
 
         <td>
@@ -2321,6 +2458,14 @@ function renderStudents(students) {
 
         <td>
           <div class="student-actions">
+            <button
+              class="secondary-btn"
+              type="button"
+              onclick="editStudent('${escapeHtml(student.id)}')"
+            >
+              Edit Details
+            </button>
+
             <button
               class="reset-password-btn"
               onclick="resetStudentPassword(
@@ -2528,6 +2673,103 @@ This will restore student login access.`;
 }
 
 
+async function loadEditStudentLists() {
+  await Promise.all([loadCourses(), loadBatches()]);
+
+  const courseSelect = document.getElementById("editStudentCourse");
+  const batchSelect = document.getElementById("editStudentBatch");
+
+  courseSelect.innerHTML = `<option value="">Select Course</option>`;
+  allCourses.forEach(course => {
+    const option = document.createElement("option");
+    option.value = course.id;
+    option.textContent = `${course.name} (${course.exam || ""})`;
+    courseSelect.appendChild(option);
+  });
+
+  batchSelect.innerHTML = `<option value="">Select Batch</option>`;
+  allActiveBatches.forEach(batch => {
+    const option = document.createElement("option");
+    option.value = batch.id;
+    option.textContent = `${batch.name} — ${batch.academic_year || ""}`;
+    batchSelect.appendChild(option);
+  });
+}
+
+async function editStudent(studentId) {
+  const student = allStudents.find(s => s.id === studentId);
+  if (!student) return;
+
+  await loadEditStudentLists();
+
+  document.getElementById("editStudentDbId").value = student.id;
+  document.getElementById("editStudentUidSuffix").value = String(student.student_uid || "").toUpperCase().startsWith("SIR")
+    ? String(student.student_uid).slice(3)
+    : String(student.student_uid || "");
+  document.getElementById("editStudentName").value = student.full_name || "";
+  document.getElementById("editStudentEmail").value = student.email || "";
+  document.getElementById("editStudentMobile").value = student.phone || "";
+  document.getElementById("editStudentCourse").value = student.course_id || "";
+  document.getElementById("editStudentBatch").value = student.batch_id || "";
+  document.getElementById("editStudentActive").value = String(Boolean(student.is_active));
+  document.getElementById("editStudentMessage").className = "message";
+  document.getElementById("editStudentMessage").textContent = "";
+  document.getElementById("editStudentModal").classList.add("show");
+}
+
+function closeEditStudentModal() {
+  document.getElementById("editStudentModal").classList.remove("show");
+}
+
+document.getElementById("closeEditStudentModal").addEventListener("click", closeEditStudentModal);
+document.getElementById("cancelEditStudent").addEventListener("click", closeEditStudentModal);
+
+document.getElementById("editStudentForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+  const id = document.getElementById("editStudentDbId").value;
+  const suffix = document.getElementById("editStudentUidSuffix").value.trim();
+  const uid = `SIR${suffix}`;
+  const message = document.getElementById("editStudentMessage");
+  const button = document.getElementById("saveEditStudent");
+
+  if (!suffix) {
+    message.className = "message show error";
+    message.textContent = "Student UID suffix is required.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const duplicate = await supabaseClient.from("students").select("id").eq("student_uid", uid).neq("id", id).maybeSingle();
+    if (duplicate.error) throw duplicate.error;
+    if (duplicate.data) throw new Error(`Student UID ${uid} is already in use.`);
+
+    const { error } = await supabaseClient.from("students").update({
+      student_uid: uid,
+      full_name: document.getElementById("editStudentName").value.trim(),
+      phone: document.getElementById("editStudentMobile").value.trim(),
+      course_id: document.getElementById("editStudentCourse").value || null,
+      batch_id: document.getElementById("editStudentBatch").value || null,
+      is_active: document.getElementById("editStudentActive").value === "true"
+    }).eq("id", id);
+
+    if (error) throw error;
+    message.className = "message show success";
+    message.textContent = `Student updated successfully. UID: ${uid}`;
+    await loadStudents();
+    setTimeout(closeEditStudentModal, 700);
+  } catch (error) {
+    console.error("Edit student error:", error);
+    message.className = "message show error";
+    message.textContent = error.message || "Unable to update student.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Changes";
+  }
+});
+
 document
   .getElementById("studentSearch")
   .addEventListener("input", function () {
@@ -2565,6 +2807,9 @@ document
    COURSES
 -------------------------------- */
 
+let allCourses = [];
+let allActiveBatches = [];
+
 async function loadCourses() {
 
   const {
@@ -2583,6 +2828,8 @@ async function loadCourses() {
 
   }
 
+  allCourses = data || [];
+
   const select =
     document.getElementById(
       "studentCourse"
@@ -2591,7 +2838,7 @@ async function loadCourses() {
   select.innerHTML =
     `<option value="">Select Course</option>`;
 
-  (data || []).forEach(course => {
+  allCourses.forEach(course => {
 
     const option =
       document.createElement("option");
@@ -2630,6 +2877,8 @@ async function loadBatches() {
 
   }
 
+  allActiveBatches = data || [];
+
   const select =
     document.getElementById(
       "studentBatch"
@@ -2638,7 +2887,7 @@ async function loadBatches() {
   select.innerHTML =
     `<option value="">Select Batch</option>`;
 
-  (data || []).forEach(batch => {
+  allActiveBatches.forEach(batch => {
 
     const option =
       document.createElement("option");
@@ -4045,13 +4294,13 @@ let allTeachers = [];
 async function loadTeachers() {
   const { data, error } = await supabaseClient
     .from("teachers")
-    .select("id,user_id,full_name,email,phone,subject,is_active")
+    .select("id,user_id,teacher_id,full_name,email,phone,subject,is_active")
     .order("full_name", { ascending: true });
 
   if (error) {
     console.error("Teachers error:", error);
     document.getElementById("teachersTableBody").innerHTML =
-      `<tr><td colspan="6" class="empty">Unable to load teachers.</td></tr>`;
+      `<tr><td colspan="7" class="empty">Unable to load teachers.</td></tr>`;
     return;
   }
 
@@ -4077,12 +4326,13 @@ async function loadTeachers() {
 function renderTeachers(teachers) {
   const tbody = document.getElementById("teachersTableBody");
   if (!teachers.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">No teachers found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No teachers found.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = teachers.map(t => `
     <tr>
+      <td><span class="uid">${escapeHtml(t.teacher_id || "—")}</span></td>
       <td><strong>${escapeHtml(t.full_name || "—")}</strong></td>
       <td>${escapeHtml(t.email || "—")}</td>
       <td>${escapeHtml(t.subject || "—")}</td>
@@ -4090,6 +4340,7 @@ function renderTeachers(teachers) {
       <td><span class="status ${t.is_active ? "" : "inactive"}">${t.is_active ? "Active" : "Inactive"}</span></td>
       <td>
         <div class="student-actions">
+          <button class="secondary-btn" type="button" onclick="editTeacher('${escapeHtml(t.id)}')">Edit Details</button>
           <button class="batch-manage-btn" onclick="manageTeacherBatches('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Manage Batches</button>
           <button class="reset-password-btn" onclick="resetTeacherPassword('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Reset Password</button>
           <button class="status-action-btn ${t.is_active ? "" : "reactivate"}" onclick="toggleTeacherStatus('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}',${t.is_active ? "true" : "false"})">${t.is_active ? "Deactivate" : "Reactivate"}</button>
@@ -4223,6 +4474,7 @@ document.getElementById("teacherForm").addEventListener("submit", async (e) => {
       `Teacher created successfully. Login: ${createdTeacherEmail} | Password: ${password}`,
       "success"
     );
+    await ensureMissingTeacherIds();
     await loadTeachers();
     setTimeout(closeTeacherModal, 2500);
   } catch (error) {
@@ -4231,6 +4483,119 @@ document.getElementById("teacherForm").addEventListener("submit", async (e) => {
   } finally {
     submit.disabled = false;
     submit.textContent = "Create Teacher";
+  }
+});
+
+async function ensureTeacherId(teacherId) {
+  if (!teacherId) return;
+  const { data: existing, error: readError } = await supabaseClient
+    .from("teachers")
+    .select("id,teacher_id")
+    .eq("id", teacherId)
+    .maybeSingle();
+  if (readError) throw readError;
+  if (existing?.teacher_id) return existing.teacher_id;
+
+  const { data: rows, error } = await supabaseClient
+    .from("teachers")
+    .select("teacher_id")
+    .like("teacher_id", "SIRT%" );
+  if (error) throw error;
+
+  let max = 0;
+  for (const row of rows || []) {
+    const match = String(row.teacher_id || "").match(/^SIRT(\d+)$/i);
+    if (match) max = Math.max(max, Number(match[1]));
+  }
+  const teacherIdValue = `SIRT${String(max + 1).padStart(4, "0")}`;
+  const { error: updateError } = await supabaseClient
+    .from("teachers")
+    .update({ teacher_id: teacherIdValue })
+    .eq("id", teacherId);
+  if (updateError) throw updateError;
+  return teacherIdValue;
+}
+
+async function ensureMissingTeacherIds() {
+  const { data, error } = await supabaseClient.from("teachers").select("id,teacher_id").order("created_at", { ascending: true });
+  if (error) return;
+  for (const teacher of data || []) {
+    if (!teacher.teacher_id) {
+      try { await ensureTeacherId(teacher.id); } catch (e) { console.error("Teacher ID generation error:", e); }
+    }
+  }
+}
+
+async function editTeacher(teacherDbId) {
+  const teacher = allTeachers.find(t => t.id === teacherDbId);
+  if (!teacher) return;
+
+  try {
+    const teacherId = teacher.teacher_id || await ensureTeacherId(teacherDbId);
+    document.getElementById("editTeacherDbId").value = teacherDbId;
+    document.getElementById("editTeacherIdSuffix").value = String(teacherId || "").toUpperCase().startsWith("SIRT") ? String(teacherId).slice(4) : String(teacherId || "");
+    document.getElementById("editTeacherName").value = teacher.full_name || "";
+    document.getElementById("editTeacherEmail").value = teacher.email || "";
+    document.getElementById("editTeacherMobile").value = teacher.phone || "";
+    document.getElementById("editTeacherSubject").value = teacher.subject || "";
+    document.getElementById("editTeacherActive").value = String(Boolean(teacher.is_active));
+    document.getElementById("editTeacherMessage").className = "message";
+    document.getElementById("editTeacherMessage").textContent = "";
+    document.getElementById("editTeacherModal").classList.add("show");
+  } catch (error) {
+    alert(error.message || "Unable to load teacher details.");
+  }
+}
+
+function closeEditTeacherModal() {
+  document.getElementById("editTeacherModal").classList.remove("show");
+}
+
+document.getElementById("closeEditTeacherModal").addEventListener("click", closeEditTeacherModal);
+document.getElementById("cancelEditTeacher").addEventListener("click", closeEditTeacherModal);
+
+document.getElementById("editTeacherForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+  const id = document.getElementById("editTeacherDbId").value;
+  const suffix = document.getElementById("editTeacherIdSuffix").value.trim();
+  const teacherIdValue = `SIRT${suffix}`;
+  const message = document.getElementById("editTeacherMessage");
+  const button = document.getElementById("saveEditTeacher");
+
+  if (!suffix) {
+    message.className = "message show error";
+    message.textContent = "Teacher ID suffix is required.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const duplicate = await supabaseClient.from("teachers").select("id").eq("teacher_id", teacherIdValue).neq("id", id).maybeSingle();
+    if (duplicate.error) throw duplicate.error;
+    if (duplicate.data) throw new Error(`Teacher ID ${teacherIdValue} is already in use.`);
+
+    const { error } = await supabaseClient.from("teachers").update({
+      teacher_id: teacherIdValue,
+      full_name: document.getElementById("editTeacherName").value.trim(),
+      phone: document.getElementById("editTeacherMobile").value.trim(),
+      subject: document.getElementById("editTeacherSubject").value,
+      is_active: document.getElementById("editTeacherActive").value === "true"
+    }).eq("id", id);
+
+    if (error) throw error;
+    message.className = "message show success";
+    message.textContent = `Teacher updated successfully. ID: ${teacherIdValue}`;
+    await loadTeachers();
+    setTimeout(closeEditTeacherModal, 700);
+  } catch (error) {
+    console.error("Edit teacher error:", error);
+    message.className = "message show error";
+    message.textContent = error.message || "Unable to update teacher.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Changes";
   }
 });
 
@@ -4378,7 +4743,8 @@ document.getElementById("teacherSearch").addEventListener("input", (e) => {
   renderTeachers(allTeachers.filter(t =>
     (t.full_name || "").toLowerCase().includes(q) ||
     (t.email || "").toLowerCase().includes(q) ||
-    (t.subject || "").toLowerCase().includes(q)
+    (t.subject || "").toLowerCase().includes(q) ||
+    (t.teacher_id || "").toLowerCase().includes(q)
   ));
 });
 
