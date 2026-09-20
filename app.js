@@ -608,6 +608,162 @@ document.addEventListener(
         console.log(
             "SIR website loaded successfully."
         );
+       /* =========================================================
+   SIR — HOMEPAGE NOTICE SYSTEM
+========================================================= */
+
+async function loadHomepageNotices() {
+
+    const bulletinSection =
+        document.querySelector(".sir-bulletin-section");
+
+    if (!bulletinSection) return;
+
+    const grid =
+        bulletinSection.querySelector(".bulletin-grid");
+
+    if (!grid) return;
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("notices")
+                .select("*")
+                .eq("is_published", true)
+                .order("published_at", {
+                    ascending: false
+                })
+                .limit(4);
+
+        if (error) {
+
+            console.error(
+                "SIR Notice System:",
+                error
+            );
+
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            return;
+        }
+
+        grid.innerHTML = data.map(
+            (notice, index) => {
+
+                const category =
+                    escapeNoticeHTML(
+                        String(
+                            notice.category || "GENERAL"
+                        ).toUpperCase()
+                    );
+
+                const title =
+                    escapeNoticeHTML(
+                        notice.title || "SIR Notice"
+                    );
+
+                const description =
+                    escapeNoticeHTML(
+                        notice.description || ""
+                    );
+
+                const date =
+                    notice.published_at
+                        ? formatNoticeDate(
+                            notice.published_at
+                        )
+                        : "";
+
+                return `
+                    <article class="bulletin-card${index === 0 ? " bulletin-featured" : ""}">
+
+                        <div class="bulletin-top">
+
+                            <span class="bulletin-category">
+                                ${category}
+                            </span>
+
+                            ${
+                                date
+                                    ? `<span class="bulletin-date">${date}</span>`
+                                    : ""
+                            }
+
+                        </div>
+
+                        <h3>${title}</h3>
+
+                        <p>${description}</p>
+
+                        <a href="notice-board.html">
+                            VIEW NOTICE →
+                        </a>
+
+                    </article>
+                `;
+
+            }
+        ).join("");
+
+    } catch (error) {
+
+        console.error(
+            "SIR Notice System Error:",
+            error
+        );
+
+    }
+
+}
+
+
+function formatNoticeDate(dateValue) {
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    ).toUpperCase();
+
+}
+
+
+function escapeNoticeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   LOAD NOTICES WHEN HOMEPAGE LOADS
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadHomepageNotices();
+
+    }
+);
 
     }
 );
