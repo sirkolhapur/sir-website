@@ -2147,7 +2147,15 @@ body.menu-open
 
     letter-spacing: .03em;
 }
+.footer-bottom a {
+    color: var(--sir-gold-light);
+    font-weight: 600;
+    transition: color var(--transition);
+}
 
+.footer-bottom a:hover {
+    color: var(--white);
+}
 
 /* =========================================================
    14 — STORY REVEAL ANIMATION
