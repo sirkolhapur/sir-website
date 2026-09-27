@@ -413,7 +413,7 @@ button,input,select{font:inherit}
   </div>
 </header>
 
-<div class="mobile" id="mobile">
+<div class="mobile" id="mobileMenu">
   <a href="index.html">HOME</a>
   <a href="about.html">ABOUT US</a>
   <a href="student-guide.html">STUDENT GUIDE</a>
@@ -542,11 +542,11 @@ button,input,select{font:inherit}
 document.addEventListener("DOMContentLoaded", function () {
 
   const menu = document.getElementById("menu");
-  const mobile = document.getElementById("mobile");
+  const mobileMenu = document.getElementById("mobileMenu");
 
-  if (menu && mobile) {
+  if (menu && mobileMenu) {
     menu.addEventListener("click", function () {
-      mobile.classList.toggle("open");
+      mobileMenu.classList.toggle("open");
     });
   }
 
