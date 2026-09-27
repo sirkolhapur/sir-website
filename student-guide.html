@@ -19,7 +19,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SIR — JEE · NEET · MHT-CET Student Guide</title>
-<meta name="description" content="Patterns, weightage, past papers, books and a preparation plan for JEE, NEET and MHT-CET aspirants. By SIR.">
+<meta name="description" content="JEE, NEET and MHT-CET student guide by SIR — exam patterns, preparation strategy, PYQs, books, study planning and official resources.">
 <link rel="icon" href="https://sir.net.in/sir-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,27 +29,27 @@
   :root{
     color-scheme: light;
 
-    --navy-950:#020711;
-    --navy-900:#07152f;
-    --navy-800:#0b2148;
-    --navy-700:#12376f;
-    --navy:#07152f;
+    --navy-950:#07152F;
+    --navy-900:#07152F;
+    --navy-800:#0B2148;
+    --navy-700:#12376F;
+    --navy:#07152F;
 
     --ink:#101828;
     --body:#344054;
     --muted:#667085;
     --faint:#98a2b3;
 
-    --paper:#f5f7fa;
-    --paper-2:#eef2f7;
-    --surface:#ffffff;
-    --surface-2:#f5f7fa;
-    --line:#dfe6f1;
-    --line-2:#cbd5e1;
+    --paper:#F5F7FA;
+    --paper-2:#EEF2F7;
+    --surface:#FFFFFF;
+    --surface-2:#F5F7FA;
+    --line:#DFE6F1;
+    --line-2:#CBD5E1;
 
-    --gold:#d7a62a;
-    --gold-deep:#a97d17;
-    --gold-tint:#fbf3dc;
+    --gold:#D7A62A;
+    --gold-deep:#D7A62A;
+    --gold-tint:#FBF3DC;
 
     --neg:#b54708;
     --neg-tint:#fff1e8;
@@ -60,8 +60,8 @@
     --d-muted:#aebbd0;
     --d-line:rgba(255,255,255,.10);
     --d-line-strong:rgba(255,255,255,.16);
-    --d-panel:#0b2148;
-    --d-surface2:#12376f;
+    --d-panel:#0B2148;
+    --d-surface2:#12376F;
 
     /* exam accents — kept distinct but within the SIR system */
     --e-jee:#d7a62a;
@@ -104,30 +104,108 @@
   .skip:focus{left:12px; top:12px}
 
   /* ---------- HEADER ---------- */
-  .site-hdr{position:sticky; top:0; z-index:50; background:linear-gradient(to bottom,rgba(3,10,24,.96),rgba(3,10,24,.78)); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border-bottom:1px solid rgba(255,255,255,.08); padding-top:env(safe-area-inset-top,0px)}
-  .nav{display:flex; align-items:center; gap:16px; height:var(--hdr)}
-  /* SWAP: replace .brand contents with <img src="your-sir-logo.svg" alt="SIR"> */
-  .brand{text-decoration:none; display:flex; align-items:center; gap:.75rem; white-space:nowrap}
+  .site-hdr{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:#07152F;
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  .nav{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    min-height:76px;
+  }
+  .brand{
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
   .brand-logo{
-    width:125px;
-    height:auto;
-    max-height:48px;
+    width:82px;
+    height:70px;
+    max-width:none;
     object-fit:contain;
     display:block;
+    transform:scale(1.08);
+    transform-origin:center left;
   }
-  .brand .sub{color:var(--d-muted); font-size:.9rem; font-weight:600}
-  .nav-links{display:flex; gap:2px; margin-left:auto; align-items:center; overflow-x:auto; scrollbar-width:none}
+  .brand .sub{
+    color:var(--d-muted);
+    font-size:.9rem;
+    font-weight:600;
+    padding-left:2px;
+  }
+  .nav-links{
+    display:flex;
+    gap:2px;
+    margin-left:auto;
+    align-items:center;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
   .nav-links::-webkit-scrollbar{display:none}
-  .nav-links a{text-decoration:none; color:var(--d-muted); font-size:.92rem; font-weight:600; padding:7px 11px; border-radius:8px; white-space:nowrap}
-  .nav-links a:hover{color:#fff; background:var(--navy-800)}
-  .nav-links a:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
-  #navToggle{display:none; width:40px; height:40px; border-radius:9px; border:1px solid var(--d-line-strong); background:var(--navy-800); color:#fff; cursor:pointer; font-size:1.1rem; line-height:1; place-items:center}
+  .nav-links a{
+    text-decoration:none;
+    color:rgba(255,255,255,.72);
+    font-size:.86rem;
+    font-weight:700;
+    padding:8px 10px;
+    border-radius:8px;
+    white-space:nowrap;
+    letter-spacing:.04em;
+  }
+  .nav-links a:hover{
+    color:var(--gold);
+    background:rgba(255,255,255,.04);
+  }
+  .nav-links a.active{
+    color:var(--gold-light);
+  }
+  .nav-links a:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+  #navToggle{
+    display:none;
+    width:40px;
+    height:40px;
+    border-radius:9px;
+    border:1px solid var(--d-line-strong);
+    background:var(--navy-800);
+    color:#fff;
+    cursor:pointer;
+    font-size:1.1rem;
+    line-height:1;
+    place-items:center;
+  }
   @media(max-width:880px){
-    .nav-links{position:fixed; inset:calc(var(--hdr) + env(safe-area-inset-top,0px)) 0 auto 0; flex-direction:column; background:var(--navy-900); border-bottom:1px solid var(--d-line); padding:8px 14px 14px; gap:2px; display:none; box-shadow:var(--shadow)}
+    .nav-links{
+      position:fixed;
+      inset:calc(var(--hdr) + env(safe-area-inset-top,0px)) 0 auto 0;
+      flex-direction:column;
+      background:var(--navy-900);
+      border-bottom:1px solid var(--d-line);
+      padding:8px 14px 14px;
+      gap:2px;
+      display:none;
+      box-shadow:var(--shadow);
+    }
     .nav-links.open{display:flex}
     .nav-links a{padding:12px; font-size:1rem}
     #navToggle{display:grid}
-    .brand-logo{width:108px; max-height:42px}
+    .brand-logo{
+      width:72px;
+      height:64px;
+      transform:scale(1.05);
+    }
     .brand .sub{display:none}
   }
 
@@ -139,7 +217,7 @@
     --line:var(--d-line); --line-2:var(--d-line-strong);
     --ink:#fff; --body:var(--d-text); --muted:var(--d-muted);
     --gold-deep:var(--gold); --e-cet:#9fb0cf; --e-cet-tint:#22345c; --e-neet:#8fabde; --e-neet-tint:#1c3358; --e-jee:var(--gold); --e-jee-tint:#3a2f12;
-    background:radial-gradient(120% 90% at 80% 0%, #12376f 0%, #0b2148 42%, #07152f 72%, #020711 100%);
+    background:radial-gradient(120% 90% at 80% 0%, #12376F 0%, #0B2148 42%, #07152F 72%, #07152F 100%);
     color:var(--d-text);
   }
   .band h1,.band h2,.band h3,.band h4{color:#fff}
@@ -265,6 +343,26 @@
   .src a{font-size:.88rem; text-decoration:none; color:var(--d-muted); border:1px solid var(--d-line-strong); padding:7px 12px; border-radius:100px}
   .src a:hover{border-color:var(--gold); color:#fff}
   .disc{font-size:.82rem; color:var(--d-muted); max-width:70ch}
+
+  .footer-bottom-line{
+    margin-top:28px;
+    padding-top:18px;
+    border-top:1px solid var(--d-line);
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .footer-bottom-line p{margin:0}
+  .footer-bottom-line a{
+    color:var(--gold);
+    text-decoration:none;
+    font-weight:700;
+  }
+  .footer-bottom-line a:hover{color:var(--gold-light)}
+  @media(max-width:640px){
+    .footer-bottom-line{flex-direction:column; gap:8px}
+  }
 </style>
 </head>
 <body>
@@ -274,24 +372,26 @@
 <header class="site-hdr">
   <div class="wrap nav">
     <!-- SWAP THIS for your logo: <a class="brand" href="#top"><img src="sir-logo.svg" alt="SIR" height="34"></a> -->
-    <a class="brand" href="#top" aria-label="SIR Student Guide">
+    <a class="brand" href="index.html" aria-label="SIR Home">
       <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers" class="brand-logo">
       <span class="sub">Student Guide</span>
     </a>
     <nav class="nav-links" id="navLinks" aria-label="Primary">
-      <a href="#compare">Compare</a>
+      <a href="index.html">HOME</a>
       <a href="#jee">JEE</a>
       <a href="#neet">NEET</a>
       <a href="#mhtcet">MHT-CET</a>
-      <a href="#weightage">Weightage</a>
+      <a href="#weightage">WEIGHTAGE</a>
       <a href="#pyqs">PYQs</a>
-      <a href="#books">Books</a>
-      <a href="#prepare">Prepare</a>
+      <a href="#books">BOOKS</a>
+      <a href="#prepare">PREPARE</a>
       <a href="#faq">FAQ</a>
     </nav>
     <button class="icon-btn" id="navToggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
   </div>
 </header>
+  
+
 
 <main>
 
@@ -301,7 +401,7 @@
     <p class="eyebrow">The Student Guide</p>
     <h1>Everything for JEE, NEET &amp; MHT-CET, <span class="g">in one clear place.</span></h1>
     <p class="lede">Patterns, weightage, past papers, books and a preparation plan that fits where you actually are. Built curiosity-first, not cram-first.</p>
-    <span class="stamp">Last verified: <b>[UPDATE YEARLY &mdash; month, year]</b> &middot; always confirm dates &amp; cutoffs on official portals</span>
+    <span class="stamp">2026 guide &middot; Always confirm dates &amp; cutoffs on official portals</span>
 
     <div class="chooser">
       <a class="pick jee-ac" href="#jee">
@@ -384,8 +484,8 @@
       </div>
     </div>
 
-    <div class="note"><span class="lbl">Syllabus &amp; dates <span class="tag md">[UPDATE YEARLY]</span></span>
-      Link the official NTA syllabus PDF and mark the <strong>deleted topics</strong> clearly so students don't waste time on them. Add the calendar: registration &rarr; both session dates &rarr; admit card &rarr; result &rarr; JoSAA counselling.</div>
+    <div class="note"><span class="lbl">Syllabus &amp; dates</span>
+      <strong>2026 update will be added here.</strong> Official syllabus, important dates and counselling timeline &mdash; kept simple and updated each year.</div>
   </div>
 </section>
 
@@ -415,8 +515,8 @@
       </div>
     </div>
 
-    <div class="note warn"><span class="lbl">&#9888; Verify before you publish</span>
-      Sources currently disagree on the NEET question structure &mdash; some show <strong>180 compulsory questions</strong> (3 hrs, no choice), others show <strong>200 questions with an optional Section B</strong> (attempt 180, 3 hr 20 min). This changed recently. Confirm the exact structure on the official NMC / NTA information brochure before going live. The marking scheme above (+4 / &minus;1, 720 marks) is stable.</div>
+    <div class="note"><span class="lbl">NEET 2026 — the pattern has changed</span>
+      The 2026 pattern has <strong>180 compulsory MCQs</strong> to be attempted in <strong>180 minutes (3 hours)</strong>: Physics 45, Chemistry 45, Biology 90, for 720 marks. Marking is +4 for a correct answer, &minus;1 for an incorrect answer and 0 for an unanswered question. There is no optional Section B in the 2026 pattern. <span class="tag md">Verified against the 2026 NTA bulletin</span></div>
   </div>
 </section>
 
@@ -431,10 +531,10 @@
       <div class="card">
         <h3><span class="b"></span>Pattern &amp; marking</h3>
         <ul class="kv">
-          <li><span class="k">Mode</span><span class="v">Online &middot; 200 marks &middot; 3 hrs total</span></li>
+          <li><span class="k">Mode</span><span class="v">Online CBT &middot; 180 minutes total</span></li>
           <li><span class="k">Negative marking</span><span class="v"><strong style="color:var(--pos)">None</strong> &mdash; attempt everything</span></li>
-          <li><span class="k">PCM</span><span class="v">Maths 50 Qs (100 marks, 2 each) + Physics &amp; Chemistry 50 Qs each (1 mark each)</span></li>
-          <li><span class="k">PCB</span><span class="v">Biology 50 Qs (100 marks, 2 each) + Physics &amp; Chemistry</span></li>
+          <li><span class="k">PCM</span><span class="v">150 questions total: Physics 50, Chemistry 50, Mathematics 50. Physics &amp; Chemistry carry 1 mark each; Mathematics carries 2 marks each.</span></li>
+          <li><span class="k">PCB</span><span class="v">150 questions total across Physics, Chemistry and Biology; Physics &amp; Chemistry carry 1 mark each and Biology carries 2 marks each.</span></li>
           <li><span class="k">Weightage</span><span class="v"><strong>20% Class 11 &middot; 80% Class 12</strong> (Maharashtra State Board)</span></li>
           <li><span class="k">Difficulty</span><span class="v">Comparable to JEE Main / NEET</span></li>
         </ul>
@@ -446,8 +546,8 @@
       </div>
     </div>
 
-    <div class="note"><span class="lbl">Dates &amp; eligibility <span class="tag md">[UPDATE YEARLY]</span></span>
-      Add both session windows (PCM and PCB run on different dates), Maharashtra domicile rules for the state quota, and the CAP counselling rounds. Link the CET Cell portal.</div>
+    <div class="note"><span class="lbl">Dates &amp; eligibility</span>
+      <strong>2026 update will be added here.</strong> Exam dates, eligibility, Maharashtra state-quota guidance and CAP counselling updates will be kept in one simple place.</div>
   </div>
 </section>
 
@@ -486,12 +586,14 @@
     <p class="eyebrow">06 &mdash; The most-wanted resource</p>
     <h2>Previous year <span class="g-deep">questions.</span></h2>
     <p class="lede">Students come for exactly this. Organise it the way they think: <strong>Exam &rarr; Subject &rarr; Chapter &rarr; Year</strong>, with full solutions, not just answer keys.</p>
-    <div class="cards3">
-      <div class="card"><h4>Chapter-wise sets</h4><p>Every chapter's past questions in one place, with detailed worked solutions. This is what students actually search for.</p></div>
-      <div class="card"><h4>Most-repeated concepts</h4><p>A short "seen almost every year" list per chapter. High demand, high trust.</p></div>
-      <div class="card"><h4>Full official papers</h4><p>Year-wise papers + official keys, linked to source. <span class="tag md">[UPDATE YEARLY]</span></p></div>
+    <div class="pyq-list">
+      <div class="pyq-row"><strong>2026</strong><a href="#" aria-label="Add 2026 question paper PDF">PDF &rarr;</a></div>
+      <div class="pyq-row"><strong>2025</strong><a href="#" aria-label="Add 2025 question paper PDF">PDF &rarr;</a></div>
+      <div class="pyq-row"><strong>2024</strong><a href="#" aria-label="Add 2024 question paper PDF">PDF &rarr;</a></div>
+      <div class="pyq-row"><strong>2023</strong><a href="#" aria-label="Add 2023 question paper PDF">PDF &rarr;</a></div>
+      <div class="pyq-row"><strong>2022</strong><a href="#" aria-label="Add 2022 question paper PDF">PDF &rarr;</a></div>
     </div>
-    <div class="note"><span class="lbl">Build order</span> Start with downloadable PDFs (fastest to ship), then grow into an on-page viewer, then a searchable question bank later. Don't wait for the perfect version.</div>
+    <div class="note"><span class="lbl">More papers</span> More years and official answer keys will be added here as the SIR resource library grows.</div>
   </div>
 </section>
 
@@ -524,10 +626,9 @@
     <p class="eyebrow">08 &mdash; Know your target</p>
     <h2>Results &amp; <span class="g-deep">cutoff trends.</span></h2>
     <p class="lede">Help students read their score correctly &mdash; this is where most confusion (and panic) happens.</p>
-    <div class="cards3">
-      <div class="card"><h4>Cutoff history</h4><p>Category-wise cutoffs, last few years, per exam. A simple chart beats a wall of numbers. <span class="tag md">[UPDATE YEARLY]</span></p></div>
-      <div class="card"><h4>Marks vs percentile vs rank</h4><p>A plain-language explainer &mdash; students constantly confuse these, especially for JEE Main.</p></div>
-      <div class="card"><h4>"What gets you where"</h4><p>Rough score bands &rarr; NITs, top IITs, govt medical, Maharashtra colleges. Label it approximate.</p></div>
+    <div class="note" style="margin-top:1.5rem">
+      <span class="lbl">Coming soon</span>
+      SIR will add simple, exam-wise score, percentile and cutoff guidance here &mdash; built to help students understand their result without the noise.
     </div>
   </div>
 </section>
@@ -636,8 +737,9 @@
       <div class="col">
         <h3 style="color:var(--navy)">Look after yourself</h3>
         <p style="max-width:none; color:var(--muted)">Pressure, comparison and expectation are part of this year &mdash; but your worth is not your rank. Build in real breaks, keep one thing outside study, and talk to someone you trust when it gets heavy.</p>
-        <!-- EDITOR NOTE: insert a current, verified mental-health helpline before publishing. Do not use an unverified number. -->
-        <p style="max-width:none; margin:0; font-size:.86rem; color:var(--faint)"><em>Add a verified helpline / support link here.</em></p>
+        <p style="max-width:none; margin:0; font-size:.92rem; color:var(--muted)">
+          If exam pressure feels too heavy, <strong>Tele-MANAS: <a href="tel:18008914416" style="color:var(--gold-deep);font-weight:900;text-decoration:none">1-800-891-4416</a></strong> — Government of India mental-health support.
+        </p>
       </div>
     </div>
   </div>
@@ -649,9 +751,9 @@
     <p class="eyebrow">10 &mdash; Extras</p>
     <h2>Tools &amp; free <span class="g-deep">downloads.</span></h2>
     <div class="cards3">
-      <div class="card"><h4>Mock tests</h4><p>Curated practice platforms + official mocks. Link the good ones, skip the noise. <span class="tag md">[UPDATE YEARLY]</span></p></div>
-      <div class="card"><h4>Free lectures &amp; notes</h4><p>A small, curated list of channels and revision notes &mdash; quality over quantity. (Your SIR resources fit here.)</p></div>
-      <div class="card"><h4>Printables</h4><p>Weekly planner &middot; weightage cheat-sheet &middot; do's &amp; don'ts one-pager &middot; syllabus checklist.</p></div>
+      <div class="card"><h4>Mock tests</h4><p><strong>Coming soon.</strong> A focused set of useful mocks will be added here as the SIR resource library grows.</p></div>
+      <div class="card"><h4>Free lectures &amp; notes</h4><p><strong>Coming soon.</strong> Curated lessons and revision resources &mdash; fewer, better, and worth your time.</p></div>
+      <div class="card"><h4>Printables</h4><p><strong>Coming soon.</strong> Planners, checklists and quick revision sheets built for everyday preparation.</p></div>
     </div>
   </div>
 </section>
@@ -668,7 +770,7 @@
       <details><summary>Is coaching necessary?</summary><div class="a"><p>No &mdash; discipline, good material and honest self-testing matter more than any institute. Structure, PYQ practice and consistent revision are what move the rank.</p></div></details>
       <details><summary>How many mock tests should I take?</summary><div class="a"><p>Build up to at least one full-length timed mock a week in your final months &mdash; and spend as long analysing each one as taking it.</p></div></details>
     </div>
-    <p style="margin-top:1.2rem; color:var(--faint); font-size:.86rem">Add more Qs on eligibility, counselling, droppers and cutoffs. <span class="tag md">[UPDATE YEARLY]</span></p>
+    <p style="margin-top:1.2rem; color:var(--faint); font-size:.86rem"></p>
   </div>
 </section>
 
@@ -677,16 +779,32 @@
 <!-- ==================== SECTION: Footer ==================== -->
 <footer class="band">
   <div class="wrap">
-    <h3 style="font-size:1.05rem; color:#fff">Sources &amp; official portals</h3>
+    <h3 style="font-size:1.05rem; color:#fff">Official sources &amp; student resources</h3>
     <div class="src">
       <a href="https://jeemain.nta.nic.in" target="_blank" rel="noopener">JEE Main &mdash; NTA</a>
       <a href="https://jeeadv.ac.in" target="_blank" rel="noopener">JEE Advanced</a>
       <a href="https://neet.nta.nic.in" target="_blank" rel="noopener">NEET UG &mdash; NTA</a>
-      <a href="https://www.nmc.org.in" target="_blank" rel="noopener">NMC (NEET syllabus)</a>
+      <a href="https://www.nmc.org.in" target="_blank" rel="noopener">NMC</a>
       <a href="https://cetcell.mahacet.org" target="_blank" rel="noopener">MHT-CET &mdash; CET Cell</a>
+      <a href="https://ncert.nic.in/textbook.php" target="_blank" rel="noopener">NCERT Textbooks</a>
     </div>
-    <p class="disc">Exam patterns verified against the 2026 cycle. Dates, cutoffs and syllabus details change every year and can be revised by the authorities at any time &mdash; always confirm on the official portal before making decisions. This page is a study companion, not an official source.</p>
-    <p class="disc" style="margin-top:.9rem; color:#c9d2e2">Made curiosity-first by <strong style="color:var(--gold)">SIR</strong>.</p>
+
+    <p class="disc">
+      This guide is a student-focused preparation companion, not an official exam authority website.
+      Dates, eligibility, cutoffs, counselling rules and future exam patterns can change. Always verify
+      the latest information on the official portal before acting on it.
+    </p>
+
+    <div class="footer-bottom-line">
+      <p class="disc">SIR &mdash; WHERE POTENTIAL FINDS DIRECTION</p>
+      <p class="disc">
+        A
+        <a href="https://brandivadigital.com/" target="_blank" rel="noopener">
+          BrandiVa Digital
+        </a>
+        Project
+      </p>
+    </div>
   </div>
 </footer>
 
