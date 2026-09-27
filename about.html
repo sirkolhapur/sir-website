@@ -67,7 +67,7 @@ img{
     position:sticky;
     top:0;
     z-index:100;
-    background:rgba(7,21,47,.96);
+    background:#07152F;
     backdrop-filter:blur(14px);
     border-bottom:1px solid rgba(255,255,255,.08);
 }
@@ -82,11 +82,31 @@ img{
     gap:28px;
 }
 
-.brand img{
-    width:52px;
-    height:52px;
-    object-fit:contain;
+
+/* LOGO — LOCKED SIR TREATMENT */
+
+.brand{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    width:86px;
+    height:76px;
+    flex-shrink:0;
+    overflow:visible;
 }
+
+.brand img{
+    display:block;
+    width:76px;
+    height:68px;
+    max-width:none;
+    object-fit:contain;
+    transform:scale(1.18);
+    transform-origin:center left;
+}
+
+
+/* NAVIGATION */
 
 .main-nav{
     display:flex;
@@ -100,6 +120,7 @@ img{
     font-weight:700;
     letter-spacing:.12em;
     transition:.25s;
+    white-space:nowrap;
 }
 
 .nav-link:hover,
@@ -114,6 +135,7 @@ img{
     font-size:10px;
     font-weight:800;
     letter-spacing:.1em;
+    white-space:nowrap;
 }
 
 .mobile-note{
@@ -151,7 +173,6 @@ img{
     border-radius:50%;
     right:-190px;
     bottom:-250px;
-
     background:
         radial-gradient(
             circle,
@@ -251,6 +272,75 @@ img{
 
 
 /* =========================
+   FOUNDER
+========================= */
+
+.founder{
+    background:var(--off-white);
+}
+
+.founder-grid{
+    display:grid;
+    grid-template-columns:.72fr 1.28fr;
+    gap:90px;
+    align-items:center;
+}
+
+.founder-photo{
+    position:relative;
+    background:var(--soft-white);
+    overflow:hidden;
+}
+
+.founder-photo img{
+    width:100%;
+    aspect-ratio:.94/1;
+    object-fit:cover;
+    object-position:center top;
+}
+
+.founder-photo:after{
+    content:"";
+    position:absolute;
+    inset:18px;
+    border:1px solid rgba(215,166,42,.55);
+    pointer-events:none;
+}
+
+.founder-copy h2{
+    color:var(--sir-blue);
+    font-size:clamp(36px,5vw,64px);
+    line-height:.98;
+    letter-spacing:-.045em;
+}
+
+.founder-role{
+    margin-top:13px;
+    color:var(--sir-gold);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+}
+
+.founder-copy p{
+    margin-top:25px;
+    color:#566174;
+    font-size:16px;
+    max-width:640px;
+}
+
+.founder-note{
+    margin-top:30px;
+    padding-left:20px;
+    border-left:2px solid var(--sir-gold);
+    color:var(--sir-blue);
+    font-weight:700;
+    font-size:18px;
+}
+
+
+/* =========================
    ORIGIN
 ========================= */
 
@@ -292,10 +382,8 @@ img{
     position:absolute;
     left:22px;
     bottom:22px;
-
     background:rgba(7,21,47,.9);
     color:var(--white);
-
     padding:13px 16px;
     font-size:10px;
     letter-spacing:.12em;
@@ -315,7 +403,6 @@ img{
 .numbers-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-
     border-top:1px solid rgba(255,255,255,.13);
     border-bottom:1px solid rgba(255,255,255,.13);
 }
@@ -382,7 +469,6 @@ img{
 
 .realisation-card{
     padding:28px;
-
     background:rgba(255,255,255,.65);
     border:1px solid rgba(7,21,47,.08);
 }
@@ -504,76 +590,6 @@ img{
 
 
 /* =========================
-   FOUNDER
-========================= */
-
-.founder{
-    background:var(--off-white);
-}
-
-.founder-grid{
-    display:grid;
-    grid-template-columns:.72fr 1.28fr;
-    gap:90px;
-    align-items:center;
-}
-
-.founder-photo{
-    position:relative;
-    background:#DFE6F1;
-    overflow:hidden;
-}
-
-.founder-photo img{
-    width:100%;
-    aspect-ratio:.94/1;
-    object-fit:cover;
-    object-position:center top;
-}
-
-.founder-photo:after{
-    content:"";
-    position:absolute;
-    inset:18px;
-    border:1px solid rgba(215,166,42,.55);
-    pointer-events:none;
-}
-
-.founder-copy h2{
-    color:var(--sir-blue);
-    font-size:clamp(36px,5vw,64px);
-    line-height:.98;
-    letter-spacing:-.045em;
-}
-
-.founder-role{
-    margin-top:13px;
-    color:var(--sir-gold);
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-}
-
-.founder-copy p{
-    margin-top:25px;
-    color:#566174;
-    font-size:16px;
-    max-width:640px;
-}
-
-.founder-note{
-    margin-top:30px;
-    padding-left:20px;
-    border-left:2px solid var(--sir-gold);
-
-    color:var(--sir-blue);
-    font-weight:700;
-    font-size:18px;
-}
-
-
-/* =========================
    CLOSING
 ========================= */
 
@@ -630,7 +646,6 @@ img{
 .footer-inner{
     width:min(90%,1180px);
     margin:auto;
-
     display:grid;
     grid-template-columns:1.3fr 1fr 1fr;
     gap:50px;
@@ -638,6 +653,8 @@ img{
 
 .footer-brand img{
     width:78px;
+    height:auto;
+    object-fit:contain;
 }
 
 .footer-brand p{
@@ -663,13 +680,10 @@ img{
     width:min(90%,1180px);
     margin:45px auto 0;
     padding-top:18px;
-
     border-top:1px solid rgba(255,255,255,.08);
-
     display:flex;
     justify-content:space-between;
     gap:20px;
-
     font-size:10px;
 }
 
@@ -692,6 +706,18 @@ img{
 
     .header-inner{
         min-height:68px;
+    }
+
+    .brand{
+        width:76px;
+        height:68px;
+    }
+
+    .brand img{
+        width:68px;
+        height:62px;
+        transform:scale(1.12);
+        transform-origin:center left;
     }
 
     .header-cta{
@@ -764,6 +790,21 @@ img{
         padding:78px 0;
     }
 
+    .header-inner{
+        min-height:64px;
+    }
+
+    .brand{
+        width:70px;
+        height:64px;
+    }
+
+    .brand img{
+        width:64px;
+        height:58px;
+        transform:scale(1.08);
+    }
+
     .hero h1{
         font-size:54px;
     }
@@ -805,7 +846,7 @@ img{
     <div class="header-inner">
 
         <a href="index.html" class="brand" aria-label="SIR Home">
-            <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
+            <img src="sir-logo.png" alt="Suryavanshi Institute for Rankers">
         </a>
 
         <nav class="main-nav" aria-label="Main Navigation">
@@ -817,9 +858,13 @@ img{
             <a href="contact.html" class="nav-link">CONTACT</a>
         </nav>
 
-        <a href="admission.html" class="header-cta">START YOUR JOURNEY</a>
+        <a href="admission.html" class="header-cta">
+            START YOUR JOURNEY
+        </a>
 
-        <span class="mobile-note">ABOUT SIR</span>
+        <span class="mobile-note">
+            ABOUT SIR
+        </span>
 
     </div>
 </header>
@@ -830,7 +875,9 @@ img{
 <section class="hero">
     <div class="hero-inner">
 
-        <div class="eyebrow">The story behind SIR</div>
+        <div class="eyebrow">
+            The story behind SIR
+        </div>
 
         <h1>
             ONE CLASSROOM.
@@ -1101,7 +1148,7 @@ img{
 
         <img
             class="closing-logo"
-            src="https://sir.net.in/sir-logo.png"
+            src="sir-logo.png"
             alt="SIR"
         >
 
@@ -1123,7 +1170,7 @@ img{
         <div class="footer-brand">
 
             <img
-                src="https://sir.net.in/sir-logo.png"
+                src="sir-logo.png"
                 alt="Suryavanshi Institute for Rankers"
             >
 
