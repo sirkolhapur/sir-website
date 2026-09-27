@@ -3,7 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  // Mobile menu
+  const menu = document.getElementById("menu");
+  const mobile = document.getElementById("mobile");
+
+  if (menu && mobile) {
+    menu.addEventListener("click", function () {
+      mobile.classList.toggle("open");
+    });
+  }
+
+  // Admission form
+  const form = document.getElementById("admissionForm");
+
+  if (!form) {
+    console.error("Admission form not found.");
+    return;
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    console.log("SUBMIT CLICKED");
+
+    const courseElement = document.querySelector(
+      'input[name="course"]:checked'
+    );
+
+    const studentName = document.getElementById("studentName").value.trim();
+    const parentName = document.getElementById("parentName").value.trim();
+    const mobileNumber = document.getElementById("mobile").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    if (!courseElement || !studentName || !parentName || !mobileNumber) {
+      alert("Please complete all required details.");
+      return;
+    }
+
+    const submitButton = form.querySelector(".submit");
+
+    submitButton.disabled = true;
+    submitButton.textContent = "SUBMITTING...";
+
+    try {
+
+      if (typeof supabaseClient === "undefined") {
+        throw new Error("Supabase client is not loaded.");
+      }
+
+      console.log("Sending admission to Supabase...");
+
+      const { error } = await supabaseClient
+        .from("admissions")
+        .insert({
+          student_name: studentName,
+          parent_name: parentName,
+          phone: mobileNumber,
+          email: email || null
+        });
+
+      if (error) {
+        console.error("SUPABASE ERROR:", error);
+
+        alert(
+          "Application could not be submitted.\n\n" +
+          error.message
+        );
+
+        submitButton.disabled = false;
+        submitButton.textContent = "SUBMIT APPLICATION →";
+        return;
+      }
+
+      console.log("Admission successfully saved.");
+
+      const params = new URLSearchParams({
+        name: studentName,
+        course: courseElement.value
+      });
+
+      window.location.href =
+        "admission-confirmation.html?" + params.toString();
+
+    } catch (error) {
+
+      console.error("SUBMIT ERROR:", error);
+
+      alert(
+        "Something went wrong.\n\n" +
+        error.message
+      );
+
+      submitButton.disabled = false;
+      submitButton.textContent = "SUBMIT APPLICATION →";
+    }
+
+  });
+
+});
+</script>
 
 <script>
   const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
