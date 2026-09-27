@@ -4,109 +4,406 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admission | Suryavanshi Institute for Rankers</title>
-<meta name="description" content="Admissions at Suryavanshi Institute for Rankers. Choose your programme and begin the admission process.">
+<meta name="description" content="Begin your admission process at Suryavanshi Institute for Rankers, Kolhapur.">
 <style>
-:root{--navy:#07152f;--gold:#d8aa3d;--gold2:#f0ce70;--paper:#fbfaf7;--cream:#eee9dd;--ink:#111a2b;--muted:#687286;--line:#d9dce2}
+:root{
+  --navy:#07152F;
+  --navy2:#0B2148;
+  --blue:#12376F;
+  --gold:#D7A62A;
+  --gold2:#F0C75E;
+  --white:#FFFFFF;
+  --off:#F5F7FA;
+  --line:#DFE6F1;
+  --ink:#101828;
+  --muted:#667085;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:Georgia,"Times New Roman",serif;background:var(--paper);color:var(--ink);line-height:1.6}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--off);color:var(--ink);line-height:1.6}
 a{text-decoration:none;color:inherit}
 button,input,select{font:inherit}
-.header{height:80px;background:var(--navy);display:flex;align-items:center}
-.header-inner{width:min(1180px,calc(100% - 42px));margin:auto;display:flex;align-items:center;justify-content:space-between}
-.logo{width:185px;display:block}
-.nav{display:flex;align-items:center;gap:24px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;color:#fff}
-.nav a:hover,.nav .active{color:var(--gold2)}
-.login{border:1px solid rgba(240,206,112,.6);padding:9px 14px;color:var(--gold2)!important}
-.menu{display:none;background:none;border:0;color:#fff;font-size:25px}
-.mobile{display:none;background:var(--navy);padding:0 21px 18px}
+
+/* MASTER SIR HEADER */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.header-inner{
+  width:min(94%,1260px);
+  min-height:76px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:28px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  width:86px;
+  height:76px;
+  min-width:86px;
+  flex-shrink:0;
+  overflow:visible;
+  position:relative;
+  z-index:2;
+}
+.brand img{
+  display:block;
+  width:76px !important;
+  height:68px !important;
+  max-width:none !important;
+  min-width:76px;
+  object-fit:contain;
+  object-position:center;
+  transform:scale(1);
+  transform-origin:center left;
+}
+
+.main-nav{
+  display:flex;
+  align-items:center;
+  gap:26px;
+  margin-left:auto;
+}
+.nav-link{
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  white-space:nowrap;
+  transition:.2s ease;
+}
+.nav-link:hover,.nav-link.active{color:var(--gold2)}
+.login-wrap{position:relative}
+.login-btn{
+  display:flex;align-items:center;gap:7px;
+  color:var(--gold2);
+  border:1px solid rgba(240,199,94,.65);
+  padding:9px 12px;
+}
+.login-arrow{font-size:9px}
+.login-menu{
+  position:absolute;
+  right:0;top:calc(100% + 12px);
+  min-width:175px;
+  padding:8px;
+  background:var(--white);
+  border:1px solid var(--line);
+  box-shadow:0 16px 40px rgba(7,21,47,.18);
+  display:none;
+}
+.login-wrap:hover .login-menu,.login-wrap:focus-within .login-menu{display:block}
+.login-menu a{
+  display:block;
+  padding:10px 12px;
+  color:var(--ink);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.login-menu a:hover{background:var(--off);color:var(--blue)}
+.menu{display:none;margin-left:auto;background:none;border:0;color:#fff;font-size:25px;cursor:pointer}
+.mobile{
+  display:none;
+  background:var(--navy);
+  padding:0 21px 18px;
+}
 .mobile.open{display:grid}
-.mobile a{color:#fff;font-family:Arial,sans-serif;font-size:11px;letter-spacing:.12em;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.mobile a{
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
 
-.hero{background:var(--navy);color:#fff;padding:105px 0 115px}
+/* HERO */
+.hero{
+  background:var(--navy);
+  color:#fff;
+  padding:92px 0 105px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  width:420px;height:420px;
+  border:1px solid rgba(215,166,42,.16);
+  border-radius:50%;
+  right:-170px;bottom:-250px;
+}
 .wrap{width:min(1060px,calc(100% - 42px));margin:auto}
-.eyebrow,.label{font-family:Arial,sans-serif;font-size:10px;letter-spacing:.2em;font-weight:700;color:var(--gold);text-transform:uppercase}
-.hero h1{font-size:clamp(50px,7vw,88px);line-height:.95;font-weight:500;letter-spacing:-.05em;margin-top:24px}
-.hero p{max-width:570px;color:#bfc8d8;font-size:18px;margin-top:25px}
+.eyebrow,.label{
+  font-size:10px;
+  letter-spacing:.2em;
+  font-weight:700;
+  color:var(--gold2);
+  text-transform:uppercase;
+}
+.hero h1{
+  font-size:clamp(48px,7vw,82px);
+  line-height:.96;
+  font-weight:700;
+  letter-spacing:-.055em;
+  margin-top:22px;
+  max-width:850px;
+}
+.hero h1 span{color:var(--gold2)}
+.hero p{
+  max-width:610px;
+  color:#C5D0E2;
+  font-size:17px;
+  margin-top:24px;
+}
+.hero-note{
+  margin-top:28px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+.hero-note i{width:7px;height:7px;border-radius:50%;background:var(--gold2);display:block}
 
-.admission{padding:80px 0 110px}
-.layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:85px;align-items:start}
-.left h2{font-size:48px;line-height:1;font-weight:500;letter-spacing:-.04em;margin-top:18px}
-.left p{color:var(--muted);font-size:16px;margin-top:22px;max-width:350px}
-.note{margin-top:45px;padding-top:18px;border-top:1px solid var(--line);font-family:Arial,sans-serif;font-size:10px;letter-spacing:.08em;color:#7a8290;max-width:330px}
-
-.form-box{background:#fff;border:1px solid var(--line);padding:38px 40px}
-.form-title{font-size:30px;font-weight:500;margin-bottom:28px}
+/* FORM */
+.admission{padding:78px 0 92px}
+.layout{
+  display:grid;
+  grid-template-columns:.72fr 1.28fr;
+  gap:72px;
+  align-items:start;
+}
+.left h2{
+  font-size:46px;
+  line-height:1.03;
+  font-weight:700;
+  letter-spacing:-.045em;
+  margin-top:16px;
+}
+.left h2 span{color:var(--blue)}
+.left p{
+  color:var(--muted);
+  font-size:15px;
+  margin-top:20px;
+  max-width:370px;
+}
+.note{
+  margin-top:38px;
+  padding:17px 0 0;
+  border-top:1px solid var(--line);
+  font-size:10px;
+  letter-spacing:.08em;
+  color:#7A8495;
+  max-width:340px;
+}
+.form-box{
+  background:var(--white);
+  border:1px solid var(--line);
+  padding:38px 40px;
+  box-shadow:0 18px 45px rgba(7,21,47,.07);
+}
+.form-title{
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-.025em;
+  margin-bottom:8px;
+}
+.form-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:27px;
+}
 .field{margin-bottom:18px}
-.field label{display:block;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.1em;font-weight:700;color:#485166;margin-bottom:7px}
-.field input,.field select{width:100%;height:48px;border:1px solid #d5d9e0;padding:0 13px;background:#fff;color:var(--ink);outline:none;border-radius:0}
+.field label{
+  display:block;
+  font-size:10px;
+  letter-spacing:.1em;
+  font-weight:700;
+  color:#475467;
+  margin-bottom:7px;
+}
+.field input,.field select{
+  width:100%;
+  height:48px;
+  border:1px solid #D5DCE7;
+  padding:0 13px;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+  border-radius:2px;
+}
 .field input:focus,.field select:focus{border-color:var(--gold)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .programmes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:25px}
 .programme{position:relative}
 .programme input{position:absolute;opacity:0}
-.programme label{height:68px;border:1px solid #d5d9e0;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer}
-.programme input:checked+label{border-color:var(--gold);background:#fbf6e9;color:var(--navy)}
-.submit{width:100%;border:0;background:var(--navy);color:#fff;height:52px;cursor:pointer;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;margin-top:8px}
-.submit:hover{background:#0d2144}
-.payment-note{text-align:center;font-family:Arial,sans-serif;font-size:10px;color:#7b8493;margin-top:12px}
+.programme label{
+  height:66px;
+  border:1px solid #D5DCE7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  cursor:pointer;
+  transition:.2s ease;
+}
+.programme label:hover{border-color:var(--gold)}
+.programme input:checked+label{
+  border-color:var(--gold);
+  background:#FFF8E8;
+  color:var(--navy);
+  box-shadow:inset 0 -3px 0 var(--gold);
+}
+.submit{
+  width:100%;
+  border:0;
+  background:var(--gold);
+  color:var(--navy);
+  height:54px;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.13em;
+  margin-top:7px;
+  transition:.2s ease;
+}
+.submit:hover{background:var(--gold2);transform:translateY(-1px)}
+.payment-note{
+  text-align:center;
+  font-size:10px;
+  color:#7B8493;
+  margin-top:12px;
+}
 
-.steps{border-top:1px solid var(--line);padding:34px 0;background:var(--cream)}
+/* STEPS */
+.steps{
+  border-top:1px solid var(--line);
+  padding:32px 0;
+  background:var(--white);
+}
 .steps-inner{display:grid;grid-template-columns:repeat(4,1fr)}
 .step{padding:5px 25px;border-right:1px solid var(--line)}
 .step:first-child{padding-left:0}
 .step:last-child{border-right:0}
-.step b{display:block;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.13em;color:var(--gold)}
-.step span{display:block;font-size:17px;margin-top:7px}
+.step b{
+  display:block;
+  font-size:10px;
+  letter-spacing:.13em;
+  color:var(--gold);
+}
+.step span{display:block;font-size:15px;font-weight:700;margin-top:6px;color:var(--navy)}
 
-.footer{background:#040d1d;color:#fff;padding:45px 0 25px}
-.footer-inner{width:min(1060px,calc(100% - 42px));margin:auto;display:flex;justify-content:space-between;gap:35px}
-.footer img{width:180px}
-.footer p{color:#8e99ad;font-size:13px;max-width:310px;margin-top:15px}
-.footer-links{display:flex;gap:20px;align-items:center;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.1em;color:#b6bfce}
-.bottom{width:min(1060px,calc(100% - 42px));margin:32px auto 0;padding-top:17px;border-top:1px solid rgba(255,255,255,.08);font-family:Arial,sans-serif;font-size:9px;letter-spacing:.1em;color:#687487;display:flex;justify-content:space-between}
+/* FOOTER */
+.footer{background:var(--navy);color:#fff;padding:48px 0 25px}
+.footer-inner{
+  width:min(1060px,calc(100% - 42px));
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  gap:35px;
+}
+.footer img{width:76px;height:68px;object-fit:contain}
+.footer p{color:#AAB7CC;font-size:13px;max-width:310px;margin-top:12px}
+.footer-links{
+  display:flex;
+  gap:20px;
+  align-items:center;
+  flex-wrap:wrap;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  color:#C5D0E2;
+}
+.footer-links a:hover{color:var(--gold2)}
+.bottom{
+  width:min(1060px,calc(100% - 42px));
+  margin:32px auto 0;
+  padding-top:17px;
+  border-top:1px solid rgba(255,255,255,.10);
+  font-size:9px;
+  letter-spacing:.08em;
+  color:#8492A8;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+}
+.brandiva-link{color:var(--gold2);font-weight:700}
+.brandiva-link:hover{color:#fff}
 
+/* RESPONSIVE */
+@media(max-width:1050px){
+  .main-nav{gap:17px}
+  .nav-link{font-size:10px}
+}
 @media(max-width:850px){
-.nav{display:none}.menu{display:block}
-.layout{grid-template-columns:1fr;gap:45px}
-.hero{padding:80px 0 90px}
-.steps-inner{grid-template-columns:1fr 1fr;gap:20px}
-.step{border-right:0}
-.step:first-child{padding-left:25px}
-.footer-inner{display:block}.footer-links{margin-top:28px;flex-wrap:wrap}
+  .main-nav{display:none}
+  .menu{display:block}
+  .layout{grid-template-columns:1fr;gap:45px}
+  .hero{padding:78px 0 88px}
+  .steps-inner{grid-template-columns:1fr 1fr;gap:20px}
+  .step{border-right:0}
+  .step:first-child{padding-left:25px}
+  .footer-inner{display:block}
+  .footer-links{margin-top:28px}
 }
 @media(max-width:600px){
-.wrap,.header-inner,.footer-inner,.bottom{width:calc(100% - 32px)}
-.header{height:70px}.logo{width:155px}
-.hero h1{font-size:53px}.hero p{font-size:16px}
-.admission{padding:60px 0 75px}
-.left h2{font-size:42px}
-.form-box{padding:27px 20px}
-.row,.programmes{grid-template-columns:1fr}
-.steps-inner{grid-template-columns:1fr}
-.step{padding:8px 0!important;border-bottom:1px solid var(--line)}
-.step:last-child{border-bottom:0}
-.bottom{display:block}.bottom span{display:block;margin-bottom:7px}
+  .header-inner{width:calc(100% - 32px);min-height:64px}
+  .brand{width:70px;min-width:70px;height:64px}
+  .brand img{width:64px !important;height:58px !important;min-width:64px;transform:scale(1)}
+  .hero{padding:68px 0 78px}
+  .hero h1{font-size:50px}
+  .hero p{font-size:15px}
+  .admission{padding:58px 0 72px}
+  .left h2{font-size:40px}
+  .form-box{padding:28px 20px}
+  .row,.programmes{grid-template-columns:1fr}
+  .steps-inner{grid-template-columns:1fr}
+  .step{padding:8px 0!important;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:0}
+  .bottom{display:block}
+  .bottom span{display:block;margin-bottom:7px}
 }
 </style>
 </head>
 <body>
 
-<header class="header">
+<header class="site-header">
   <div class="header-inner">
-    <a href="index.html"><img class="logo" src="sir-logo.png" alt="Suryavanshi Institute for Rankers"></a>
-    <nav class="nav">
-      <a href="index.html">HOME</a>
-      <a href="about.html">ABOUT US</a>
-      <a href="student-guide.html">STUDENT GUIDE</a>
-      <a href="notice-board.html">NOTICE BOARD</a>
-      <a href="admission.html" class="active">ADMISSION</a>
-      <a href="contact.html">CONTACT</a>
-      <a href="login.html" class="login">LOGIN</a>
+    <a href="index.html" class="brand">
+      <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
+    </a>
+
+    <nav class="main-nav">
+      <a class="nav-link" href="index.html">HOME</a>
+      <a class="nav-link" href="about.html">ABOUT US</a>
+      <a class="nav-link" href="student-guide.html">STUDENT GUIDE</a>
+      <a class="nav-link" href="notice-board.html">NOTICE BOARD</a>
+      <a class="nav-link active" href="admission.html">ADMISSION</a>
+      <a class="nav-link" href="contact.html">CONTACT</a>
+      <div class="login-wrap">
+        <a class="nav-link login-btn" href="login.html">LOGIN <span class="login-arrow">▾</span></a>
+        <div class="login-menu">
+          <a href="login.html?role=student">STUDENT LOGIN</a>
+          <a href="login.html?role=teacher">TEACHER LOGIN</a>
+          <a href="login.html?role=admin">ADMIN LOGIN</a>
+        </div>
+      </div>
     </nav>
-    <button class="menu" id="menu" aria-label="Menu">☰</button>
+
+    <button class="menu" id="menu" aria-label="Open menu">☰</button>
   </div>
 </header>
+
 <div class="mobile" id="mobile">
   <a href="index.html">HOME</a>
   <a href="about.html">ABOUT US</a>
@@ -121,8 +418,9 @@ button,input,select{font:inherit}
 <section class="hero">
   <div class="wrap">
     <div class="eyebrow">ADMISSIONS · SIR KOLHAPUR</div>
-    <h1>Start your journey<br>with SIR.</h1>
-    <p>Choose your programme, enter the student's details, and continue with the admission process.</p>
+    <h1>Start your journey<br><span>with SIR.</span></h1>
+    <p>Tell us about the student and the programme you are applying for. Submit the details to begin the admission process.</p>
+    <div class="hero-note"><i></i> APPLICATION → DOCUMENT VERIFICATION → CAMPUS VISIT</div>
   </div>
 </section>
 
@@ -130,15 +428,16 @@ button,input,select{font:inherit}
   <div class="wrap layout">
     <div class="left">
       <div class="label">01 — ADMISSION</div>
-      <h2>A simple<br>next step.</h2>
-      <p>We have kept the admission process straightforward. Select the programme you are applying for and provide the required student information.</p>
-      <div class="note">PLEASE ENTER THE DETAILS CAREFULLY. THEY WILL BE USED FOR THE ADMISSION RECORD.</div>
+      <h2>A clear first step.<br><span>Then, come to campus.</span></h2>
+      <p>Submit the student's basic details online. Once your application is received, the next step is to visit the SIR campus for document verification and further admission formalities.</p>
+      <div class="note">PLEASE ENTER THE DETAILS CAREFULLY. OUR TEAM WILL USE THEM TO PROCESS YOUR APPLICATION.</div>
     </div>
 
     <div class="form-box">
       <div class="form-title">Admission Details</div>
-      <form id="admissionForm">
+      <div class="form-subtitle">All fields marked * are required.</div>
 
+      <form id="admissionForm">
         <div class="field">
           <label>SELECT PROGRAMME *</label>
           <div class="programmes">
@@ -185,7 +484,7 @@ button,input,select{font:inherit}
             <select id="classLevel" required>
               <option value="">Select class</option>
               <option>8th</option><option>9th</option><option>10th</option>
-              <option>11th</option><option>12th</option><option>Dropper</option><option>Other</option>
+              <option>11th</option><option>12th</option><option>Senior</option><option>Other</option>
             </select>
           </div>
           <div class="field">
@@ -194,7 +493,8 @@ button,input,select{font:inherit}
           </div>
         </div>
 
-        <button class="submit" type="submit">CONTINUE →</button>
+        <button class="submit" type="submit">SUBMIT APPLICATION →</button>
+        <div class="payment-note">No online payment is required at this step.</div>
       </form>
     </div>
   </div>
@@ -202,10 +502,10 @@ button,input,select{font:inherit}
 
 <section class="steps">
   <div class="wrap steps-inner">
-    <div class="step"><b>01 / SELECT</b><span>Programme</span></div>
-    <div class="step"><b>02 / DETAILS</b><span>Student information</span></div>
-    <div class="step"><b>03 / REVIEW</b><span>Admission details</span></div>
-    <div class="step"><b>04 / COMPLETE</b><span>Admission confirmation</span></div>
+    <div class="step"><b>01 / APPLY</b><span>Submit your details</span></div>
+    <div class="step"><b>02 / REVIEW</b><span>Application is received</span></div>
+    <div class="step"><b>03 / CAMPUS</b><span>Visit SIR for verification</span></div>
+    <div class="step"><b>04 / ADMISSION</b><span>Complete the next formalities</span></div>
   </div>
 </section>
 </main>
@@ -213,7 +513,7 @@ button,input,select{font:inherit}
 <footer class="footer">
   <div class="footer-inner">
     <div>
-      <img src="sir-logo.png" alt="SIR">
+      <img src="https://sir.net.in/sir-logo.png" alt="SIR">
       <p>Suryavanshi Institute for Rankers — Where Potential Finds Direction.</p>
     </div>
     <div class="footer-links">
@@ -225,12 +525,14 @@ button,input,select{font:inherit}
   </div>
   <div class="bottom">
     <span>© 2026 SURYAVANSHI INSTITUTE FOR RANKERS</span>
-    <span>WHERE POTENTIAL FINDS DIRECTION</span>
+    <span><a class="brandiva-link" href="https://brandivadigital.com/" target="_blank" rel="noopener">A BrandiVa Digital Project</a></span>
   </div>
 </footer>
 
 <script>
-document.getElementById("menu").addEventListener("click",()=>document.getElementById("mobile").classList.toggle("open"));
+document.getElementById("menu").addEventListener("click",()=>{
+  document.getElementById("mobile").classList.toggle("open");
+});
 
 document.getElementById("admissionForm").addEventListener("submit",function(e){
   e.preventDefault();
@@ -249,14 +551,17 @@ document.getElementById("admissionForm").addEventListener("submit",function(e){
   }
 
   /*
-    PAYMENT INTEGRATION POINT:
-    This is where the server-side admission/order creation and
-    payment gateway checkout will be connected.
-    Final admission confirmation must happen only after
-    server-side payment verification.
+    BACKEND INTEGRATION POINT:
+    Connect the admission record/API here later.
+    The confirmation page is shown only after client-side validation.
   */
 
-  alert("Your admission details have been received. We will continue with the admission process.");
+  const params=new URLSearchParams({
+    name:studentName,
+    course:course
+  });
+
+  window.location.href="admission-confirmation.html?"+params.toString();
 });
 </script>
 </body>
