@@ -13,7 +13,7 @@
 
     --sir-blue: #07152f;
     --sir-blue-2: #0b2148;
-    --sir-blue-3: #12376f;
+    --sir-blue-3: #12376f;   
 
     --sir-gold: #d7a62a;
     --sir-gold-light: #f0c75e;
@@ -143,10 +143,7 @@ a {
 
     z-index: 1000;
 
-   background: linear-gradient(
-    to bottom,
-    rgba(3,10,24,.96),
-    rgba(3,10,24,.78)
+   background: #07152F;
 );
 border-bottom: 1px solid rgba(255,255,255,.08);
 backdrop-filter: blur(18px);
@@ -1803,8 +1800,8 @@ body.menu-open
     padding:
         100px 24px;
 
-    background:
-        #020711;
+   background:
+    #07152F;
 
     overflow: hidden;
 }
@@ -2019,9 +2016,8 @@ body.menu-open
    ========================================================= */
 
 .site-footer {
-
     background:
-        #01050d;
+        #07152F;
 
     border-top:
         1px solid
@@ -2351,7 +2347,7 @@ body.menu-open
             30px 24px 40px;
 
         background:
-            rgba(3,10,24,.98);
+    #07152F;
 
         backdrop-filter:
             blur(20px);
