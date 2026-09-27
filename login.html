@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Suryavanshi Institute for Rankers</title>
+<meta name="description" content="Choose your SIR portal — Student Login or Teacher Login.">
+<style>
+:root{
+  --navy:#07152F;
+  --navy2:#0B2148;
+  --blue:#12376F;
+  --gold:#D7A62A;
+  --gold2:#F0C75E;
+  --white:#fff;
+  --off:#F5F7FA;
+  --line:#DFE6F1;
+  --text:#101828;
+  --muted:#667085;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--off);
+  color:var(--text);
+  min-height:100vh;
+}
+a{text-decoration:none;color:inherit}
+
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  min-height:76px;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.header-inner{
+  width:min(94%,1260px);
+  min-height:76px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:28px;
+}
+.brand{
+  width:86px;
+  height:76px;
+  min-width:86px;
+  display:flex;
+  align-items:center;
+  overflow:visible;
+  flex-shrink:0;
+}
+.brand img{
+  display:block;
+  width:76px;
+  height:68px;
+  max-width:none;
+  object-fit:contain;
+  transform:scale(1.18);
+  transform-origin:center left;
+}
+.main-nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:26px;
+}
+.nav-link{
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  white-space:nowrap;
+}
+.nav-link:hover{color:var(--gold2)}
+.login-link{
+  border:1px solid var(--gold);
+  color:var(--gold2);
+  padding:11px 16px;
+}
+.login-link:hover{
+  background:var(--gold);
+  color:var(--navy);
+}
+.menu-toggle{
+  display:none;
+  margin-left:auto;
+  background:none;
+  border:0;
+  cursor:pointer;
+}
+.menu-toggle span{
+  display:block;
+  width:24px;
+  height:2px;
+  background:#fff;
+  margin:5px 0;
+}
+
+.mobile-nav{display:none}
+
+.hero{
+  background:var(--navy);
+  color:#fff;
+  padding:92px 20px 110px;
+  text-align:center;
+}
+.hero-inner{
+  width:min(92%,900px);
+  margin:auto;
+}
+.eyebrow{
+  color:var(--gold2);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.18em;
+  margin-bottom:22px;
+}
+.hero h1{
+  font-size:clamp(42px,6vw,76px);
+  line-height:1.02;
+  font-weight:700;
+  letter-spacing:-.045em;
+}
+.hero h1 span{
+  color:var(--gold2);
+}
+.hero p{
+  max-width:620px;
+  margin:25px auto 0;
+  color:rgba(255,255,255,.72);
+  font-size:16px;
+  line-height:1.75;
+}
+
+.portals{
+  width:min(94%,1000px);
+  margin:-42px auto 90px;
+  position:relative;
+  z-index:2;
+}
+.portal-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px;
+}
+.portal-card{
+  background:#fff;
+  border:1px solid var(--line);
+  padding:42px 38px 38px;
+  box-shadow:0 18px 45px rgba(7,21,47,.08);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.portal-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 24px 55px rgba(7,21,47,.13);
+  border-color:rgba(215,166,42,.55);
+}
+.portal-number{
+  color:var(--gold);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.16em;
+  margin-bottom:25px;
+}
+.portal-icon{
+  width:54px;
+  height:54px;
+  border:1px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--navy);
+  font-size:23px;
+  margin-bottom:25px;
+}
+.portal-card h2{
+  color:var(--navy);
+  font-size:30px;
+  line-height:1.1;
+  margin-bottom:12px;
+}
+.portal-card p{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.7;
+  min-height:48px;
+}
+.portal-button{
+  display:inline-block;
+  margin-top:30px;
+  padding:14px 20px;
+  background:var(--navy);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.13em;
+  border:1px solid var(--navy);
+}
+.portal-button:hover{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:var(--navy);
+}
+
+.site-footer{
+  background:var(--navy);
+  color:#fff;
+  padding:48px 20px 25px;
+}
+.footer-inner{
+  width:min(94%,1260px);
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:40px;
+}
+.footer-brand img{
+  width:76px;
+  height:68px;
+  object-fit:contain;
+}
+.footer-brand p{
+  margin-top:12px;
+  color:rgba(255,255,255,.62);
+  font-size:12px;
+}
+.footer-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+}
+.footer-links a{
+  font-size:11px;
+  color:rgba(255,255,255,.72);
+}
+.footer-links a:hover{color:var(--gold2)}
+.footer-bottom{
+  width:min(94%,1260px);
+  margin:35px auto 0;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.12);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:rgba(255,255,255,.48);
+  font-size:10px;
+  letter-spacing:.04em;
+}
+
+@media(max-width:900px){
+  .main-nav{gap:17px}
+  .nav-link{font-size:10px}
+  .header-inner{min-height:68px}
+  .site-header{min-height:68px}
+  .brand{height:68px}
+  .brand img{width:68px;height:62px;transform:scale(1.12)}
+}
+@media(max-width:760px){
+  .main-nav{display:none}
+  .menu-toggle{display:block}
+  .mobile-nav{
+    display:none;
+    background:var(--navy);
+    border-top:1px solid rgba(255,255,255,.1);
+    padding:12px 20px 22px;
+  }
+  .mobile-nav.open{display:block}
+  .mobile-nav a{
+    display:block;
+    padding:14px 0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.12em;
+  }
+  .hero{padding:72px 18px 88px}
+  .portal-grid{grid-template-columns:1fr}
+  .portals{margin:-28px auto 65px}
+  .portal-card{padding:34px 26px}
+  .footer-inner{display:block}
+  .footer-links{margin-top:28px}
+  .footer-bottom{display:block}
+  .footer-bottom p+p{margin-top:8px}
+}
+@media(max-width:560px){
+  .site-header{min-height:64px}
+  .header-inner{min-height:64px;width:calc(100% - 32px)}
+  .brand{width:70px;min-width:70px;height:64px}
+  .brand img{width:64px;height:58px;transform:scale(1.08)}
+  .hero h1{font-size:46px}
+  .hero p{font-size:14px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand" aria-label="SIR Home">
+      <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
+    </a>
+
+    <nav class="main-nav" aria-label="Main Navigation">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="about.html" class="nav-link">ABOUT US</a>
+      <a href="student-guide.html" class="nav-link">STUDENT GUIDE</a>
+      <a href="notice-board.html" class="nav-link">NOTICE BOARD</a>
+      <a href="admission.html" class="nav-link">ADMISSION</a>
+      <a href="contact.html" class="nav-link">CONTACT</a>
+      <a href="login.html" class="nav-link login-link">LOGIN</a>
+    </nav>
+
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT US</a>
+    <a href="student-guide.html">STUDENT GUIDE</a>
+    <a href="notice-board.html">NOTICE BOARD</a>
+    <a href="admission.html">ADMISSION</a>
+    <a href="contact.html">CONTACT</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">SIR PORTAL ACCESS</div>
+      <h1>Choose your<br><span>portal.</span></h1>
+      <p>Access the SIR digital system through the portal assigned to you.</p>
+    </div>
+  </section>
+
+  <section class="portals">
+    <div class="portal-grid">
+
+      <article class="portal-card">
+        <div class="portal-number">01 — STUDENT</div>
+        <div class="portal-icon" aria-hidden="true">S</div>
+        <h2>Student Login</h2>
+        <p>Access your student profile, tests, results, performance analytics and teacher review.</p>
+        <a class="portal-button" href="student-login.html">ENTER STUDENT PORTAL →</a>
+      </article>
+
+      <article class="portal-card">
+        <div class="portal-number">02 — TEACHER</div>
+        <div class="portal-icon" aria-hidden="true">T</div>
+        <h2>Teacher Login</h2>
+        <p>Access your teacher dashboard, assigned batches, students, tests, results and reviews.</p>
+        <a class="portal-button" href="teacher-login.html">ENTER TEACHER PORTAL →</a>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers">
+      <p>Where Potential Finds Direction.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="student-guide.html">Student Guide</a>
+      <a href="notice-board.html">Notice Board</a>
+      <a href="admission.html">Admission</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Suryavanshi Institute for Rankers. All rights reserved.</p>
+    <p>SIR — WHERE POTENTIAL FINDS DIRECTION</p>
+  </div>
+</footer>
+
+<script>
+const menuToggle = document.getElementById("menuToggle");
+const mobileNav = document.getElementById("mobileNav");
+
+menuToggle.addEventListener("click", function(){
+  const open = mobileNav.classList.toggle("open");
+  menuToggle.setAttribute("aria-expanded", String(open));
+});
+</script>
+
+</body>
+</html>
