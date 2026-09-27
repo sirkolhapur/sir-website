@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+</script>
 <title>Admission | Suryavanshi Institute for Rankers</title>
 <meta name="description" content="Begin your admission process at Suryavanshi Institute for Rankers, Kolhapur.">
 <style>
@@ -534,21 +545,63 @@ document.getElementById("menu").addEventListener("click",()=>{
   document.getElementById("mobile").classList.toggle("open");
 });
 
-document.getElementById("admissionForm").addEventListener("submit",function(e){
+document.getElementById("admissionForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
-  const course=document.querySelector('input[name="course"]:checked')?.value;
-  const studentName=document.getElementById("studentName").value.trim();
-  const parentName=document.getElementById("parentName").value.trim();
-  const mobile=document.getElementById("mobile").value.trim();
-  const email=document.getElementById("email").value.trim();
-  const classLevel=document.getElementById("classLevel").value;
-  const city=document.getElementById("city").value.trim();
+  const course = document.querySelector('input[name="course"]:checked')?.value;
+  const studentName = document.getElementById("studentName").value.trim();
+  const parentName = document.getElementById("parentName").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const email = document.getElementById("email").value.trim();
 
-  if(!course||!studentName||!parentName||!mobile||!classLevel){
+  if (!course || !studentName || !parentName || !mobile) {
     alert("Please complete the required details.");
     return;
   }
+
+  const submitButton = document.querySelector(".submit");
+
+  submitButton.disabled = true;
+  submitButton.textContent = "SUBMITTING...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("admissions")
+      .insert([
+        {
+          student_name: studentName,
+          parent_name: parentName,
+          phone: mobile,
+          email: email || null
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Admission submission error:", error);
+      alert("Application could not be submitted. Please try again.");
+      submitButton.disabled = false;
+      submitButton.textContent = "SUBMIT APPLICATION →";
+      return;
+    }
+
+    const params = new URLSearchParams({
+      name: studentName,
+      course: course
+    });
+
+    window.location.href =
+      "admission-confirmation.html?" + params.toString();
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong. Please try again.");
+
+    submitButton.disabled = false;
+    submitButton.textContent = "SUBMIT APPLICATION →";
+  }
+});
 
   /*
     BACKEND INTEGRATION POINT:
