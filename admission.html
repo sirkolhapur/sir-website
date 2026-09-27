@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
-
-  const supabaseClient = supabase.createClient(
+  const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
   );
 </script>
+
 <title>Admission | Suryavanshi Institute for Rankers</title>
 <meta name="description" content="Begin your admission process at Suryavanshi Institute for Rankers, Kolhapur.">
 <style>
@@ -558,50 +557,57 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-    const course = document.querySelector('input[name="course"]:checked')?.value || "";
-    const studentName = document.getElementById("studentName").value.trim();
-    const parentName = document.getElementById("parentName").value.trim();
-    const phone = document.getElementById("mobile").value.trim();
-    const email = document.getElementById("email").value.trim();
+    const courseElement = document.querySelector('input[name="course"]:checked');
+    const studentNameElement = document.getElementById("studentName");
+    const parentNameElement = document.getElementById("parentName");
+    const mobileElement = document.getElementById("mobile");
+    const emailElement = document.getElementById("email");
+
+    if (!courseElement || !studentNameElement || !parentNameElement || !mobileElement || !emailElement) {
+      console.error("One or more admission form fields are missing.");
+      alert("The admission form could not be loaded correctly. Please refresh the page.");
+      return;
+    }
+
+    const course = courseElement.value;
+    const studentName = studentNameElement.value.trim();
+    const parentName = parentNameElement.value.trim();
+    const phone = mobileElement.value.trim();
+    const email = emailElement.value.trim();
 
     if (!course || !studentName || !parentName || !phone) {
       alert("Please complete all required details.");
       return;
     }
 
-    const button = form.querySelector(".submit");
-    button.disabled = true;
-    button.textContent = "SUBMITTING...";
+    const submitButton = form.querySelector(".submit");
+
+    if (!submitButton) {
+      console.error("Submit button not found.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "SUBMITTING...";
 
     try {
-      const response = await fetch(
-        SUPABASE_URL + "/rest/v1/admissions",
-        {
-          method: "POST",
-          headers: {
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify({
-            student_name: studentName,
-            parent_name: parentName,
-            phone: phone,
-            email: email || null
-          })
-        }
-      );
+      const { error } = await supabaseClient
+        .from("admissions")
+        .insert({
+          student_name: studentName,
+          parent_name: parentName,
+          phone: phone,
+          email: email || null
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Supabase error:", errorText);
-        alert("Application could not be submitted.\n\n" + errorText);
-        button.disabled = false;
-        button.textContent = "SUBMIT APPLICATION →";
+      if (error) {
+        console.error("Supabase admission error:", error);
+        alert("Application could not be submitted.\n\n" + error.message);
+        submitButton.disabled = false;
+        submitButton.textContent = "SUBMIT APPLICATION →";
         return;
       }
 
@@ -614,12 +620,13 @@ document.addEventListener("DOMContentLoaded", function () {
         "admission-confirmation.html?" + params.toString();
 
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Connection error. Please try again.");
-      button.disabled = false;
-      button.textContent = "SUBMIT APPLICATION →";
+      console.error("Admission submission error:", error);
+      alert("Something went wrong while submitting the application.\n\n" + error.message);
+      submitButton.disabled = false;
+      submitButton.textContent = "SUBMIT APPLICATION →";
     }
   });
+
 });
 </script>
 </body>
