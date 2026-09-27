@@ -19,15 +19,15 @@
    ========================================================= */
 
 :root{
-  --navy:#07152f;
-  --navy-2:#0b2148;
-  --gold:#d7a62a;
-  --cream:#f5f7fa;
-  --paper:#fbfaf6;
-  --ink:#13202a;
-  --muted:#66717a;
-  --line:rgba(19,32,42,.16);
-  --white:#fff;
+  --navy:#07152F;
+  --navy-2:#0B2148;
+  --gold:#D7A62A;
+  --cream:#F5F7FA;
+  --paper:#FFFFFF;
+  --ink:#101828;
+  --muted:#667085;
+  --line:#DFE6F1;
+  --white:#FFFFFF;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -35,7 +35,7 @@
 html{scroll-behavior:smooth}
 
 body{
-  font-family: Georgia, "Times New Roman", serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:var(--cream);
   color:var(--ink);
   line-height:1.6;
@@ -50,14 +50,8 @@ button{font:inherit}
   position:sticky;
   top:0;
   z-index:1000;
-  background:linear-gradient(
-    to bottom,
-    rgba(3,10,24,.96),
-    rgba(3,10,24,.78)
-  );
-  border-bottom:1px solid rgba(255,255,255,.08);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
+  background:#07152F;
+  border-bottom:1px solid rgba(255,255,255,.10);
 }
 
 .header-inner{
@@ -73,12 +67,16 @@ button{font:inherit}
   display:flex;
   align-items:center;
   flex-shrink:0;
+  width:92px;
+  height:72px;
 }
 
 .brand img{
-  width:125px;
-  height:auto;
+  width:82px;
+  height:66px;
   display:block;
+  object-fit:contain;
+  transform:scale(1.08);
 }
 
 .main-nav{
@@ -90,7 +88,7 @@ button{font:inherit}
 
 .nav-link,
 .login-button{
-  color:#f7f3ea;
+  color:#FFFFFF;
   font-family:Arial,Helvetica,sans-serif;
   font-size:11px;
   letter-spacing:.13em;
@@ -100,7 +98,7 @@ button{font:inherit}
 
 .nav-link:hover,
 .nav-link.active{
-  color:var(--gold);
+  color:var(--gold-light);
 }
 
 .login-dropdown{position:relative}
@@ -175,7 +173,7 @@ button{font:inherit}
 .mobile-nav{
   display:none;
   padding:0 4% 22px;
-  background:var(--navy);
+  background:#07152F;
 }
 
 .mobile-nav a{
@@ -203,7 +201,7 @@ button{font:inherit}
 
 /* PAGE INTRO */
 .page-hero{
-  background:var(--navy);
+  background:#07152F;
   color:#fff;
   padding:100px 0 110px;
   position:relative;
@@ -277,14 +275,16 @@ button{font:inherit}
 }
 
 .section-heading{
+  font-family:Arial,Helvetica,sans-serif;
   font-size:clamp(30px,4vw,48px);
-  font-weight:400;
+  font-weight:800;
+  letter-spacing:-.03em;
   line-height:1.08;
   margin-bottom:12px;
 }
 
 .section-heading span{
-  color:#53646f;
+  color:#12376F;
   font-style:italic;
 }
 
@@ -302,7 +302,7 @@ button{font:inherit}
 }
 
 .notice-card{
-  background:var(--paper);
+  background:#FFFFFF;
   border:1px solid var(--line);
   padding:30px;
   min-height:170px;
@@ -312,7 +312,7 @@ button{font:inherit}
 
 .notice-card:hover{
   transform:translateY(-3px);
-  box-shadow:0 14px 35px rgba(19,32,42,.08);
+  box-shadow:0 14px 35px rgba(7,21,47,.08);
 }
 
 .notice-meta{
@@ -345,7 +345,7 @@ button{font:inherit}
 }
 
 .notice-card p{
-  color:#59656d;
+  color:#667085;
   font-size:15px;
   white-space:pre-line;
 }
@@ -389,7 +389,7 @@ button{font:inherit}
 
 .info-card h3{
   font-size:28px;
-  font-weight:400;
+  font-weight:700;
   line-height:1.1;
 }
 
@@ -400,7 +400,7 @@ button{font:inherit}
 
 /* FOOTER */
 .site-footer{
-  background:var(--navy);
+  background:#07152F;
   color:#eee;
   padding:65px 5% 25px;
 }
@@ -415,7 +415,7 @@ button{font:inherit}
 }
 
 .footer-brand img{
-  width:190px;
+  width:165px;
   max-width:100%;
   display:block;
   margin-bottom:15px;
@@ -467,10 +467,19 @@ button{font:inherit}
   letter-spacing:.04em;
 }
 
+
+.footer-bottom a{
+  color:#F0C75E;
+  font-weight:700;
+  text-decoration:none;
+}
+.footer-bottom a:hover{color:#FFFFFF}
+
 /* MOBILE */
 @media(max-width:850px){
   .header-inner{min-height:68px}
-  .brand img{width:102px}
+  .brand{width:82px;height:62px}
+  .brand img{width:74px;height:58px;transform:scale(1.05)}
   .main-nav{display:none}
   .menu-toggle{display:block}
   .mobile-nav.open{display:block}
@@ -684,6 +693,7 @@ button{font:inherit}
   <div class="footer-bottom">
     <p>© 2026 Suryavanshi Institute for Rankers. All rights reserved.</p>
     <p>SIR — WHERE POTENTIAL FINDS DIRECTION</p>
+    <p>A <a href="https://brandivadigital.com/" target="_blank" rel="noopener">BrandiVa Digital</a> Project</p>
   </div>
 </footer>
 
