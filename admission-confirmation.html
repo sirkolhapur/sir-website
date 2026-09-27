@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Received | Suryavanshi Institute for Rankers</title>
+<meta name="description" content="Your admission application has been received by Suryavanshi Institute for Rankers.">
+<style>
+:root{--navy:#07152F;--navy2:#0B2148;--blue:#12376F;--gold:#D7A62A;--gold2:#F0C75E;--white:#fff;--off:#F5F7FA;--line:#DFE6F1;--ink:#101828;--muted:#667085}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--off);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.site-header{position:sticky;top:0;z-index:100;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.10)}
+.header-inner{width:min(94%,1260px);min-height:76px;margin:auto;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;width:86px;height:76px;min-width:86px;flex-shrink:0;overflow:visible}
+.brand img{display:block;width:76px;height:68px;max-width:none;object-fit:contain}
+.main-nav{display:flex;align-items:center;gap:26px;margin-left:auto}
+.nav-link{color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em;white-space:nowrap}
+.nav-link:hover{color:var(--gold2)}
+.login-wrap{position:relative}.login-btn{display:flex;align-items:center;gap:7px;color:var(--gold2);border:1px solid rgba(240,199,94,.65);padding:9px 12px}
+.login-menu{position:absolute;right:0;top:calc(100% + 12px);min-width:175px;padding:8px;background:#fff;border:1px solid var(--line);box-shadow:0 16px 40px rgba(7,21,47,.18);display:none}
+.login-wrap:hover .login-menu,.login-wrap:focus-within .login-menu{display:block}
+.login-menu a{display:block;padding:10px 12px;color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.08em}
+.login-menu a:hover{background:var(--off);color:var(--blue)}
+.menu{display:none;margin-left:auto;background:none;border:0;color:#fff;font-size:25px;cursor:pointer}
+.mobile{display:none;background:var(--navy);padding:0 21px 18px}.mobile.open{display:grid}
+.mobile a{color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.hero{background:var(--navy);color:#fff;padding:90px 0 105px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:430px;height:430px;border:1px solid rgba(215,166,42,.16);border-radius:50%;right:-180px;bottom:-260px}
+.wrap{width:min(900px,calc(100% - 42px));margin:auto}
+.eyebrow{font-size:10px;letter-spacing:.2em;font-weight:700;color:var(--gold2)}
+.hero h1{font-size:clamp(48px,7vw,78px);line-height:.98;letter-spacing:-.055em;margin-top:20px;max-width:800px}
+.hero h1 span{color:var(--gold2)}
+.hero p{max-width:620px;color:#C5D0E2;font-size:17px;margin-top:24px}
+.confirmation{padding:72px 0 96px}
+.card{background:#fff;border:1px solid var(--line);box-shadow:0 18px 45px rgba(7,21,47,.07);padding:52px;max-width:760px;margin:auto}
+.number{font-size:10px;letter-spacing:.2em;font-weight:700;color:var(--gold)}
+.card h2{font-size:42px;line-height:1.08;letter-spacing:-.04em;margin-top:14px}
+.card h2 span{color:var(--blue)}
+.message{color:var(--muted);font-size:16px;margin-top:20px;max-width:620px}
+.student-box{margin-top:30px;padding:22px;background:var(--off);border-left:4px solid var(--gold)}
+.student-box small{display:block;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.12em;margin-bottom:6px}
+.student-name{font-size:23px;font-weight:700;color:var(--navy)}
+.course{margin-top:5px;color:var(--blue);font-size:13px;font-weight:700}
+.next{margin-top:38px;padding-top:28px;border-top:1px solid var(--line)}
+.next-label{color:var(--gold);font-size:10px;letter-spacing:.16em;font-weight:800}
+.next h3{margin-top:9px;font-size:30px;line-height:1.1;color:var(--navy);letter-spacing:-.025em}
+.next p{margin-top:12px;color:var(--muted);font-size:14px;max-width:600px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;font-size:11px;font-weight:800;letter-spacing:.10em}
+.primary{background:var(--gold);color:var(--navy)}.primary:hover{background:var(--gold2)}
+.secondary{border:1px solid var(--line);color:var(--navy);background:#fff}.secondary:hover{border-color:var(--gold);color:var(--blue)}
+.footer{background:var(--navy);color:#fff;padding:42px 0 24px}
+.footer-inner{width:min(1060px,calc(100% - 42px));margin:auto;display:flex;justify-content:space-between;gap:35px}
+.footer img{width:76px;height:68px;object-fit:contain}
+.footer p{color:#AAB7CC;font-size:13px;max-width:310px;margin-top:12px}
+.footer-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.1em;color:#C5D0E2}
+.footer-links a:hover{color:var(--gold2)}
+.bottom{width:min(1060px,calc(100% - 42px));margin:30px auto 0;padding-top:17px;border-top:1px solid rgba(255,255,255,.10);font-size:9px;letter-spacing:.08em;color:#8492A8;display:flex;justify-content:space-between;gap:20px}
+.brandiva-link{color:var(--gold2);font-weight:700}
+@media(max-width:850px){.main-nav{display:none}.menu{display:block}.footer-inner{display:block}.footer-links{margin-top:25px}}
+@media(max-width:600px){.header-inner{width:calc(100% - 32px);min-height:64px}.brand{width:70px;min-width:70px;height:64px}.brand img{width:64px;height:58px}.hero{padding:68px 0 78px}.hero h1{font-size:50px}.hero p{font-size:15px}.confirmation{padding:52px 0 70px}.card{padding:30px 22px}.card h2{font-size:35px}.next h3{font-size:26px}.bottom{display:block}.bottom span{display:block;margin-bottom:7px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="https://sir.net.in/sir-logo.png" alt="Suryavanshi Institute for Rankers"></a>
+    <nav class="main-nav">
+      <a class="nav-link" href="index.html">HOME</a>
+      <a class="nav-link" href="about.html">ABOUT US</a>
+      <a class="nav-link" href="student-guide.html">STUDENT GUIDE</a>
+      <a class="nav-link" href="notice-board.html">NOTICE BOARD</a>
+      <a class="nav-link active" href="admission.html">ADMISSION</a>
+      <a class="nav-link" href="contact.html">CONTACT</a>
+      <div class="login-wrap">
+        <a class="nav-link login-btn" href="login.html">LOGIN <span>▾</span></a>
+        <div class="login-menu">
+          <a href="login.html?role=student">STUDENT LOGIN</a>
+          <a href="login.html?role=teacher">TEACHER LOGIN</a>
+        </div>
+      </div>
+    </nav>
+    <button class="menu" id="menu" aria-label="Open menu">☰</button>
+  </div>
+</header>
+<div class="mobile" id="mobileMenu">
+  <a href="index.html">HOME</a><a href="about.html">ABOUT US</a><a href="student-guide.html">STUDENT GUIDE</a>
+  <a href="notice-board.html">NOTICE BOARD</a><a href="admission.html">ADMISSION</a><a href="contact.html">CONTACT</a><a href="login.html">LOGIN</a>
+</div>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">ADMISSION · SIR KOLHAPUR</div>
+    <h1>Your next step is<br><span>at the SIR campus.</span></h1>
+    <p>Your application has been received. Please complete the next step by visiting the SIR campus for document verification and further admission formalities.</p>
+  </div>
+</section>
+
+<main class="confirmation">
+  <div class="wrap">
+    <div class="card">
+      <div class="number">APPLICATION RECEIVED</div>
+      <h2>Thank you, <span id="studentName">Student</span>.</h2>
+      <p class="message">Your admission details have been received by Suryavanshi Institute for Rankers. Keep your details ready when you visit the campus.</p>
+      <div class="student-box">
+        <small>STUDENT</small>
+        <div class="student-name" id="studentNameBox">Student</div>
+        <div class="course" id="courseBox">Programme</div>
+      </div>
+      <div class="next">
+        <div class="next-label">YOUR NEXT STEP</div>
+        <h3>COME TO CAMPUS FOR DOCUMENT VERIFICATION</h3>
+        <p>Our team will guide you through the remaining admission formalities after verification of the required documents.</p>
+      </div>
+      <div class="actions">
+        <a class="primary" href="index.html">BACK TO HOME</a>
+        <a class="secondary" href="contact.html">CONTACT SIR</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div><img src="https://sir.net.in/sir-logo.png" alt="SIR"><p>Suryavanshi Institute for Rankers — Where Potential Finds Direction.</p></div>
+    <div class="footer-links"><a href="about.html">ABOUT</a><a href="student-guide.html">STUDENT GUIDE</a><a href="notice-board.html">NOTICE BOARD</a><a href="contact.html">CONTACT</a></div>
+  </div>
+  <div class="bottom"><span>© 2026 SURYAVANSHI INSTITUTE FOR RANKERS</span><span><a class="brandiva-link" href="https://brandivadigital.com/" target="_blank" rel="noopener">A BrandiVa Digital Project</a></span></div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const menu = document.getElementById("menu");
+  const mobileMenu = document.getElementById("mobileMenu");
+  if (menu && mobileMenu) {
+    menu.addEventListener("click", function () { mobileMenu.classList.toggle("open"); });
+  }
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("name");
+  const course = params.get("course");
+  if (name) {
+    document.getElementById("studentName").textContent = name;
+    document.getElementById("studentNameBox").textContent = name;
+  }
+  if (course) document.getElementById("courseBox").textContent = course;
+});
+</script>
+</body>
+</html>
