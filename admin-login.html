@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>SIR Admin Dashboard</title>
+  <title>SIR Admin</title>
 
-  <link rel="icon" href="sir-logo.png" />
+  <link rel="icon" href="https://sir.net.in/sir-logo.png">
 
   <style>
     * {
@@ -18,7 +18,190 @@
     body {
       font-family: Arial, Helvetica, sans-serif;
       background: #071426;
-      color: #ffffff;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+
+    /* SIR MASTER LOGO FIX */
+    .login-logo img {
+      width: 96px !important;
+      height: 96px !important;
+      object-fit: contain !important;
+      display: block;
+      margin: 0 auto 14px !important;
+      background: transparent !important;
+    }
+
+    .brand img {
+      width: 58px !important;
+      height: 58px !important;
+      object-fit: contain !important;
+      display: block;
+      background: transparent !important;
+    }
+
+    @media (max-width: 700px) {
+      .login-logo img {
+        width: 88px !important;
+        height: 88px !important;
+      }
+
+      .brand img {
+        width: 52px !important;
+        height: 52px !important;
+      }
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    #loginPage {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(201,168,78,.10), transparent 35%),
+        #071426;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.35);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .login-logo img {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      margin-bottom: 14px;
+    }
+
+    .login-logo h1 {
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .login-logo p {
+      color: #c9a84e;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    .login-title {
+      margin-bottom: 22px;
+    }
+
+    .login-title h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .login-title span {
+      color: #8493a8;
+      font-size: 13px;
+    }
+
+    .login-field {
+      margin-bottom: 17px;
+    }
+
+    .login-field label {
+      display: block;
+      color: #aebacc;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 13px 14px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .login-field input:focus {
+      border-color: #c9a84e;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #c9a84e;
+      color: #071426;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .login-btn:hover {
+      opacity: .92;
+    }
+
+    .login-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .login-message.show {
+      display: block;
+    }
+
+    .login-message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff9292;
+      border: 1px solid rgba(220,70,70,.15);
+    }
+
+    .login-message.success {
+      background: rgba(70,180,110,.12);
+      color: #75dda0;
+      border: 1px solid rgba(70,180,110,.15);
+    }
+
+    .security-note {
+      text-align: center;
+      margin-top: 22px;
+      color: #63738a;
+      font-size: 11px;
+    }
+
+    /* =========================
+       DASHBOARD
+    ========================= */
+
+    #dashboardPage {
+      display: none;
       min-height: 100vh;
     }
 
@@ -78,6 +261,7 @@
 
     .sidebar {
       width: 240px;
+      flex-shrink: 0;
       background: #09182c;
       border-right: 1px solid rgba(255,255,255,.07);
       padding: 24px 15px;
@@ -366,303 +550,432 @@
       color: #75dda0;
     }
 
+
     /* =========================
-       TEST MANAGEMENT
+       DSP — DOUBT SESSION PROGRAMME
     ========================= */
-    .test-list {
-      width: 100%;
+
+    .dsp-intro {
+      background: linear-gradient(135deg, rgba(201,168,78,.10), rgba(13,32,56,.96));
+      border: 1px solid rgba(201,168,78,.20);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
-    .test-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 110px;
-      gap: 18px;
-      align-items: center;
-      padding: 18px 20px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-
-    .test-row:last-child {
-      border-bottom: 0;
-    }
-
-    .test-title {
-      font-weight: 700;
+    .dsp-intro h3 {
+      font-size: 18px;
+      margin-bottom: 7px;
       color: #fff;
     }
 
-    .test-meta {
-      color: #8493a8;
-      font-size: 12px;
-      margin-top: 5px;
-      line-height: 1.5;
-    }
-
-    .test-badge {
-      display: inline-block;
-      color: #d9b75b;
-      border: 1px solid rgba(201,168,78,.28);
-      background: rgba(201,168,78,.06);
-      padding: 5px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .test-date {
-      color: #dce3ed;
+    .dsp-intro p {
+      color: #91a0b4;
       font-size: 13px;
+      line-height: 1.6;
     }
 
-    .test-actions {
+    .dsp-rules {
       display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 8px;
       flex-wrap: wrap;
-    }
-
-    .test-manage-btn {
-      background: rgba(201,168,78,.10);
-      border: 1px solid rgba(201,168,78,.45);
-      color: #e1c86b;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .test-manage-btn:hover {
-      background: rgba(201,168,78,.18);
-    }
-
-    .test-status {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .08em;
-}
-.test-status.active {
-  background: rgba(70, 190, 120, .16);
-  color: #8ff0b5;
-}
-.test-status.inactive {
-  background: rgba(220, 90, 90, .16);
-  color: #ffaaaA;
-}
-.test-toggle-btn {
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  padding: 9px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-}
-.test-toggle-btn.active {
-  color: #ffd76a;
-}
-.test-toggle-btn.inactive {
-  color: #8ff0b5;
-}
-
-.test-delete-btn {
-      background: rgba(220, 70, 70, .08);
-      border: 1px solid rgba(220, 70, 70, .38);
-      color: #ff9b9b;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .test-delete-btn:hover {
-      background: rgba(220, 70, 70, .16);
-    }
-
-    .question-list {
-      display: flex;
-      flex-direction: column;
       gap: 10px;
-      margin-bottom: 22px;
-      max-height: 330px;
-      overflow-y: auto;
+      margin-top: 15px;
     }
 
-    .question-item {
-      background: rgba(255,255,255,.035);
+    .dsp-rule {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.16);
+      color: #d9b75b;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dsp-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, .65fr);
+      gap: 18px;
+    }
+
+    .dsp-panel {
+      background: #0b1c32;
       border: 1px solid rgba(255,255,255,.07);
-      border-radius: 10px;
-      padding: 14px;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
-    .question-item-head {
+    .dsp-panel-head {
+      padding: 17px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
+      align-items: center;
       gap: 12px;
     }
 
-    .question-number {
-      color: #d9b75b;
+    .dsp-panel-head h3 {
+      font-size: 16px;
+    }
+
+    .dsp-panel-head span {
+      color: #7f8da1;
+      font-size: 11px;
+    }
+
+    .dsp-teacher-list {
+      padding: 10px;
+    }
+
+    .dsp-teacher-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 1.5fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.055);
+    }
+
+    .dsp-teacher-row:last-child {
+      border-bottom: 0;
+    }
+
+    .dsp-teacher-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .dsp-teacher-meta {
+      color: #75849a;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .dsp-subjects {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .dsp-check {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .dsp-check input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dsp-check span {
+      cursor: pointer;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: #08172a;
+      color: #8e9caf;
+      font-size: 11px;
+      transition: .15s ease;
+      user-select: none;
+    }
+
+    .dsp-check input:checked + span {
+      background: rgba(201,168,78,.14);
+      border-color: rgba(201,168,78,.45);
+      color: #e0bd61;
+    }
+
+    .dsp-check input:disabled + span {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .dsp-save {
+      white-space: nowrap;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 7px;
+      background: #c9a84e;
+      color: #071426;
       font-size: 11px;
       font-weight: 800;
-      letter-spacing: .5px;
-      margin-bottom: 6px;
-    }
-
-    .question-text {
-      color: #f3f5f8;
-      font-size: 13px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    .question-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 14px;
-      margin-top: 10px;
-      color: #9eabbd;
-      font-size: 11px;
-    }
-
-    .question-correct {
-      color: #75dda0;
-      font-weight: 700;
-    }
-
-    .question-meta {
-      color: #7f8da1;
-      font-size: 10px;
-      margin-top: 8px;
-    }
-
-    .question-actions {
-      display: flex;
-      gap: 7px;
-      flex-shrink: 0;
-    }
-
-    .question-action-btn {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,.12);
-      color: #b9c4d3;
-      padding: 6px 9px;
-      border-radius: 7px;
       cursor: pointer;
-      font-size: 10px;
-      font-weight: 700;
     }
 
-    .question-action-btn:hover {
-      border-color: rgba(201,168,78,.45);
-      color: #e1c86b;
+    .dsp-save:disabled {
+      opacity: .55;
+      cursor: not-allowed;
     }
 
-    .question-action-btn.delete:hover {
-      border-color: rgba(220,90,90,.45);
-      color: #ff9a9a;
+    .dsp-side-body {
+      padding: 16px;
     }
 
-    .question-builder-divider {
-      height: 1px;
-      background: rgba(255,255,255,.08);
-      margin: 4px 0 20px;
-    }
-
-    .question-builder-title {
-      font-size: 14px;
-      color: #eef2f7;
-      margin-bottom: 12px;
-    }
-
-    .question-builder-subtitle {
-      color: #8190a4;
-      font-size: 11px;
-      margin-top: -7px;
-      margin-bottom: 16px;
-    }
-
-    .question-empty {
-      padding: 24px 12px;
-      text-align: center;
-      color: #77869b;
-      border: 1px dashed rgba(255,255,255,.09);
-      border-radius: 10px;
-    }
-
-    .test-empty {
-      padding: 35px;
-      text-align: center;
-      color: #77869b;
-    }
-
-    .build-marker {
-      color: #6f8096;
-      font-size: 10px;
-      letter-spacing: 1px;
-      margin-top: 5px;
-    }
-
-    .reset-password-btn {
-      background: transparent;
-      border: 1px solid rgba(201,168,78,.45);
-      color: #d9b75b;
-      padding: 7px 11px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .reset-password-btn:hover {
-      background: rgba(201,168,78,.12);
-    }
-
-    .student-actions {
+    .dsp-subject-card {
       display: flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px;
+      margin-bottom: 9px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 9px;
     }
 
-    .status-action-btn {
-      background: transparent;
-      border: 1px solid rgba(220,90,90,.45);
-      color: #ff9a9a;
-      padding: 7px 11px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 11px;
+    .dsp-subject-name {
+      font-size: 13px;
       font-weight: 700;
-      white-space: nowrap;
     }
 
-    .status-action-btn:hover {
-      background: rgba(220,90,90,.10);
+    .dsp-subject-code {
+      color: #738196;
+      font-size: 10px;
+      margin-top: 3px;
     }
 
-    .status-action-btn.reactivate {
-      border-color: rgba(105,211,145,.45);
+    .dsp-active {
+      color: #69d391;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .dsp-message {
+      margin: 14px 16px 0;
+      padding: 10px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .dsp-message.show {
+      display: block;
+    }
+
+    .dsp-message.success {
+      background: rgba(70,180,110,.12);
       color: #75dda0;
     }
 
-    .status-action-btn.reactivate:hover {
-      background: rgba(70,180,110,.10);
+    .dsp-message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff9292;
     }
 
-    .status.inactive {
-      background: rgba(220,90,90,.12);
+    .dsp-empty {
+      padding: 30px 15px;
+      text-align: center;
+      color: #77869b;
+      font-size: 13px;
+    }
+
+
+    .dsp-control-panel {
+      margin-bottom: 20px;
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .dsp-schedule-controls {
+      display: grid;
+      grid-template-columns: 1.25fr .9fr .75fr 1.6fr;
+      gap: 12px;
+      padding: 18px;
+      align-items: end;
+    }
+
+    .dsp-field-label {
+      display: block;
+      color: #91a0b4;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .dsp-select,
+    .dsp-input {
+      width: 100%;
+      min-height: 39px;
+      padding: 9px 11px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: #08172a;
+      color: #fff;
+      outline: none;
+      font-size: 12px;
+    }
+
+    .dsp-select:focus,
+    .dsp-input:focus {
+      border-color: #c9a84e;
+    }
+
+    .dsp-availability-box {
+      min-height: 39px;
+    }
+
+    .dsp-toggle {
+      min-height: 39px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      color: #69d391;
+      font-size: 12px;
+    }
+
+    .dsp-toggle input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .dsp-toggle-track {
+      width: 38px;
+      height: 21px;
+      border-radius: 999px;
+      background: #435166;
+      position: relative;
+      transition: .15s ease;
+    }
+
+    .dsp-toggle-track::after {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .15s ease;
+    }
+
+    .dsp-toggle input:checked + .dsp-toggle-track {
+      background: #c9a84e;
+    }
+
+    .dsp-toggle input:checked + .dsp-toggle-track::after {
+      transform: translateX(17px);
+    }
+
+    .dsp-reason-wrap {
+      display: none;
+    }
+
+    .dsp-reason-wrap.show {
+      display: block;
+    }
+
+    .dsp-schedule-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 9px;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+
+    .dsp-schedule-note {
+      padding: 0 18px 17px;
+      color: #718097;
+      font-size: 11px;
+    }
+
+    .dsp-slot-header {
+      padding: 16px 18px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .dsp-slot-header h3 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .dsp-slot-header span {
+      color: #7f8da1;
+      font-size: 11px;
+    }
+
+    .dsp-slots-list {
+      padding: 14px 18px 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 8px;
+    }
+
+    .dsp-slot {
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 8px;
+      padding: 11px;
+      background: #08172a;
+    }
+
+    .dsp-slot-time {
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .dsp-slot-status {
+      margin-top: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .dsp-slot.available {
+      border-color: rgba(105,211,145,.20);
+    }
+
+    .dsp-slot.available .dsp-slot-status {
+      color: #69d391;
+    }
+
+    .dsp-slot.booked {
+      border-color: rgba(201,168,78,.28);
+    }
+
+    .dsp-slot.booked .dsp-slot-status {
+      color: #e0bd61;
+    }
+
+    .dsp-slot.blocked {
+      border-color: rgba(255,110,110,.18);
+    }
+
+    .dsp-slot.blocked .dsp-slot-status {
       color: #ff9292;
+    }
+
+    @media (max-width: 900px) {
+      .dsp-schedule-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dsp-reason-wrap {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .dsp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dsp-teacher-row {
+        grid-template-columns: 1fr;
+      }
+
+      .dsp-save {
+        width: 100%;
+      }
     }
 
     @media (max-width: 900px) {
@@ -735,22 +1048,6 @@
         min-width: 700px;
       }
 
-      .test-row {
-        grid-template-columns: 1fr;
-      }
-
-      .test-actions {
-        justify-content: flex-start;
-      }
-
-      .question-options {
-        grid-template-columns: 1fr;
-      }
-
-      .question-item-head {
-        flex-direction: column;
-      }
-
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -758,2526 +1055,2574 @@
       .field.full {
         grid-column: auto;
       }
+
+      .login-box {
+        padding: 27px 22px;
+      }
     }
-
-    /* =========================
-       LOGIN PAGE
-    ========================= */
-
-    #loginPage {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background:
-        radial-gradient(circle at top right, rgba(201,168,78,.10), transparent 35%),
-        #071426;
-    }
-
-    .login-box {
-      width: 100%;
-      max-width: 430px;
-      background: #0b1c32;
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 18px;
-      padding: 36px;
-      box-shadow: 0 25px 70px rgba(0,0,0,.35);
-    }
-
-    .login-logo {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .login-logo img {
-      width: 82px;
-      height: 82px;
-      object-fit: contain;
-      margin-bottom: 14px;
-    }
-
-    .login-logo h1 {
-      font-size: 25px;
-      margin-bottom: 7px;
-    }
-
-    .login-logo p {
-      color: #c9a84e;
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      font-weight: 600;
-    }
-
-    .login-title {
-      margin-bottom: 22px;
-    }
-
-    .login-title h2 {
-      font-size: 20px;
-      margin-bottom: 6px;
-    }
-
-    .login-title span {
-      color: #8493a8;
-      font-size: 13px;
-    }
-
-    .login-field {
-      margin-bottom: 17px;
-    }
-
-    .login-field label {
-      display: block;
-      color: #aebacc;
-      font-size: 12px;
-      margin-bottom: 7px;
-    }
-
-    .login-field input {
-      width: 100%;
-      padding: 13px 14px;
-      background: #08172a;
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 8px;
-      color: #fff;
-      outline: none;
-      font-size: 14px;
-    }
-
-    .login-field input:focus {
-      border-color: #c9a84e;
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 13px;
-      border: 0;
-      border-radius: 8px;
-      background: #c9a84e;
-      color: #071426;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 5px;
-    }
-
-    .login-btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .login-message {
-      display: none;
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .login-message.show {
-      display: block;
-    }
-
-    .login-message.error {
-      background: rgba(220,70,70,.12);
-      color: #ff9292;
-      border: 1px solid rgba(220,70,70,.15);
-    }
-
-    .login-message.success {
-      background: rgba(70,180,110,.12);
-      color: #75dda0;
-      border: 1px solid rgba(70,180,110,.15);
-    }
-
-    .security-note {
-      text-align: center;
-      margin-top: 22px;
-      color: #63738a;
-      font-size: 11px;
-    }
-
-    #dashboardPage {
-      display: none;
-    }
-
   </style>
 </head>
 
 <body>
 
+<!-- =========================
+     LOGIN PAGE
+========================= -->
 
 <div id="loginPage">
+
   <div class="login-box">
+
     <div class="login-logo">
-      <img src="sir-logo.png" alt="SIR">
+      <img src="https://sir.net.in/sir-logo.png" alt="SIR Logo">
+
       <h1>SIR Admin</h1>
+
       <p>WHERE POTENTIAL FINDS DIRECTION</p>
     </div>
 
     <div class="login-title">
       <h2>Administrator Login</h2>
-      <span>Access the SIR academic management system.</span>
+      <span>Secure access to the SIR academic system.</span>
     </div>
 
     <form id="loginForm">
+
       <div class="login-field">
-        <label for="adminEmail">Email</label>
-        <input type="email" id="adminEmail"
-               placeholder="Administrator email"
-               autocomplete="username" required>
+        <label for="adminEmail">Email Address</label>
+
+        <input
+          type="email"
+          id="adminEmail"
+          placeholder="Enter admin email"
+          autocomplete="username"
+          required
+        >
       </div>
 
       <div class="login-field">
         <label for="adminPassword">Password</label>
-        <input type="password" id="adminPassword"
-               placeholder="Password"
-               autocomplete="current-password" required>
+
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required
+        >
       </div>
 
-      <button type="submit" class="login-btn" id="loginBtn">
+      <button
+        type="submit"
+        class="login-btn"
+        id="loginBtn"
+      >
         Login to Admin
       </button>
 
-      <div id="loginMessage" class="login-message"></div>
     </form>
 
+    <div
+      id="loginMessage"
+      class="login-message"
+    ></div>
+
     <div class="security-note">
-      Authorized SIR administrators only.
+      Authorised SIR administrators only.
     </div>
+
   </div>
+
 </div>
+
+
+<!-- =========================
+     DASHBOARD PAGE
+========================= -->
 
 <div id="dashboardPage">
 
-<header class="topbar">
-  <div class="brand">
-    <img src="sir-logo.png" alt="SIR">
-    <div class="brand-text">
-      <strong>SIR Admin</strong>
-      <span>WHERE POTENTIAL FINDS DIRECTION</span>
+  <header class="topbar">
+
+    <div class="brand">
+
+      <img src="https://sir.net.in/sir-logo.png" alt="SIR">
+
+      <div class="brand-text">
+        <strong>SIR Admin</strong>
+        <span>WHERE POTENTIAL FINDS DIRECTION</span>
+      </div>
+
     </div>
-  </div>
 
-  <button class="logout" id="logoutBtn">Logout</button>
-</header>
-
-<div class="layout">
-
-  <aside class="sidebar">
-
-    <div class="nav-title">Management</div>
-
-    <button class="nav-btn active" data-section="overview">
-      Dashboard
+    <button
+      class="logout"
+      id="logoutBtn"
+    >
+      Logout
     </button>
 
-    <button class="nav-btn" data-section="students">
-      Students
-    </button>
-
-    <button class="nav-btn" data-section="tests">
-      Tests
-    </button>
-
-    <button class="nav-btn" data-section="results">
-      Results
-    </button>
-
-    <button class="nav-btn" data-section="reviews">
-      Teacher Reviews
-    </button>
-
-    <button class="nav-btn" data-section="notices">
-      Notices
-    </button>
-
-  </aside>
+  </header>
 
 
-  <main class="main">
+  <div class="layout">
 
-    <!-- OVERVIEW -->
+    <aside class="sidebar">
 
-    <section class="section active" id="overview">
-
-      <div class="page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage the academic system of Suryavanshi Institute for Rankers.</p>
+      <div class="nav-title">
+        Management
       </div>
 
-      <div class="stats">
+      <button
+        class="nav-btn active"
+        data-section="overview"
+      >
+        Dashboard
+      </button>
 
-        <div class="stat-card">
-          <span>Total Students</span>
-          <strong id="totalStudents">—</strong>
+      <button
+        class="nav-btn"
+        data-section="students"
+      >
+        Students
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="tests"
+      >
+        Tests
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="results"
+      >
+        Results
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="reviews"
+      >
+        Teacher Reviews
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="notices"
+      >
+        Notices
+      </button>
+
+      <button
+        class="nav-btn"
+        data-section="dsp"
+      >
+        Doubt Session Programme
+      </button>
+
+    </aside>
+
+
+    <main class="main">
+
+      <!-- OVERVIEW -->
+
+      <section
+        class="section active"
+        id="overview"
+      >
+
+        <div class="page-header">
+
+          <h1>Admin Dashboard</h1>
+
+          <p>
+            Manage the academic system of
+            Suryavanshi Institute for Rankers.
+          </p>
+
         </div>
 
-        <div class="stat-card">
-          <span>Active Students</span>
-          <strong id="activeStudents">—</strong>
+
+        <div class="stats">
+
+          <div class="stat-card">
+            <span>Total Students</span>
+            <strong id="totalStudents">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Active Students</span>
+            <strong id="activeStudents">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Total Tests</span>
+            <strong id="totalTests">—</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Notices</span>
+            <strong id="totalNotices">—</strong>
+          </div>
+
         </div>
 
-        <div class="stat-card">
-          <span>Total Tests</span>
-          <strong id="totalTests">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Notices</span>
-          <strong id="totalNotices">—</strong>
-        </div>
-
-      </div>
-
-    </section>
+      </section>
 
 
-    <!-- STUDENTS -->
+      <!-- STUDENTS -->
 
-    <section class="section" id="students">
+      <section
+        class="section"
+        id="students"
+      >
 
-      <div class="section-head">
-        <h2>Students</h2>
+        <div class="section-head">
 
-        <button class="primary-btn" id="addStudentBtn">
-          + Add Student
-        </button>
-      </div>
+          <h2>Students</h2>
 
-      <div class="table-card">
-
-        <div class="table-tools">
-          <input
-            type="text"
-            class="search"
-            id="studentSearch"
-            placeholder="Search by name, UID or email..."
+          <button
+            class="primary-btn"
+            id="addStudentBtn"
           >
+            + Add Student
+          </button>
+
         </div>
 
-        <table>
 
-          <thead>
-            <tr>
-              <th>UID</th>
-              <th>Student</th>
-              <th>Email</th>
-              <th>Course</th>
-              <th>Batch</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        <div class="table-card">
 
-          <tbody id="studentsTableBody">
-            <tr>
-              <td colspan="7" class="empty">
-                Loading students...
-              </td>
-            </tr>
-          </tbody>
+          <div class="table-tools">
 
-        </table>
+            <input
+              type="text"
+              class="search"
+              id="studentSearch"
+              placeholder="Search by name, UID or email..."
+            >
 
-      </div>
-
-    </section>
+          </div>
 
 
-    <!-- TESTS -->
+          <table>
 
-    <section class="section" id="tests">
+            <thead>
 
-      <div class="section-head">
-        <div>
+              <tr>
+                <th>UID</th>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Batch</th>
+                <th>Status</th>
+              </tr>
+
+            </thead>
+
+
+            <tbody id="studentsTableBody">
+
+              <tr>
+                <td
+                  colspan="6"
+                  class="empty"
+                >
+                  Loading students...
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <!-- TESTS -->
+
+      <section
+        class="section"
+        id="tests"
+      >
+
+        <div class="section-head">
+
           <h2>Tests</h2>
-          <div class="build-marker">TEST MANAGEMENT</div>
+
+          <button class="primary-btn">
+            + Create Test
+          </button>
+
         </div>
 
-        <button
-          type="button"
-          class="primary-btn"
-          id="createTestBtn"
-        >
-          + Create Test
-        </button>
-      </div>
 
-      <div class="table-card">
-        <div id="testList" class="test-list">
-          <div class="test-empty">
-            Loading tests...
+        <div class="table-card">
+
+          <div class="empty">
+            Test Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- RESULTS -->
+
+      <section
+        class="section"
+        id="results"
+      >
+
+        <div class="section-head">
+
+          <h2>Results</h2>
+
+          <button class="primary-btn">
+            + Add Results
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Result Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- REVIEWS -->
+
+      <section
+        class="section"
+        id="reviews"
+      >
+
+        <div class="section-head">
+
+          <h2>Teacher Reviews</h2>
+
+          <button class="primary-btn">
+            + New Review
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Teacher Review Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- NOTICES -->
+
+      <section
+        class="section"
+        id="notices"
+      >
+
+        <div class="section-head">
+
+          <h2>Notice Board</h2>
+
+          <button class="primary-btn">
+            + Publish Notice
+          </button>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <div class="empty">
+            Notice Management will be connected here.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- DSP -->
+      <section
+        class="section"
+        id="dsp"
+      >
+
+        <div class="page-header">
+          <h1>Doubt Session Programme</h1>
+          <p>Control DSP teacher assignments for student doubt sessions.</p>
+        </div>
+
+        <div class="dsp-intro">
+          <h3>DSP — Teacher Assignment</h3>
+          <p>
+            Assign the subjects each teacher can handle during the Doubt Session Programme.
+            These assignments will control which teachers students can see when they book a doubt session.
+          </p>
+
+          <div class="dsp-rules">
+            <span class="dsp-rule">2:30 PM – 5:30 PM</span>
+            <span class="dsp-rule">3 Minutes / Question</span>
+            <span class="dsp-rule">Maximum 3 Questions / Day</span>
+            <span class="dsp-rule">Maximum 10 Minutes / Day</span>
           </div>
         </div>
-      </div>
-
-    </section>
 
 
-    <!-- RESULTS -->
+        <div class="dsp-control-panel">
+          <div class="dsp-panel-head">
+            <div>
+              <h3>Teacher Availability & Slots</h3>
+              <span>Manage a teacher's DSP availability for a selected day</span>
+            </div>
+            <button type="button" class="secondary-btn" id="refreshDspScheduleBtn">Refresh</button>
+          </div>
 
-    <section class="section" id="results">
+          <div class="dsp-schedule-controls">
+            <div>
+              <label class="dsp-field-label">Teacher</label>
+              <select id="dspScheduleTeacher" class="dsp-select">
+                <option value="">Select teacher</option>
+              </select>
+            </div>
 
-      <div class="section-head">
-        <h2>Results</h2>
-        <button class="primary-btn">+ Add Results</button>
-      </div>
+            <div>
+              <label class="dsp-field-label">Date</label>
+              <input id="dspScheduleDate" class="dsp-input" type="date">
+            </div>
 
-      <div class="table-card">
-        <div class="empty">
-          Result Management will be connected here.
-        </div>
-      </div>
+            <div class="dsp-availability-box">
+              <label class="dsp-field-label">Availability</label>
+              <label class="dsp-toggle">
+                <input type="checkbox" id="dspTeacherAvailable" checked>
+                <span class="dsp-toggle-track"></span>
+                <strong id="dspAvailabilityText">Available</strong>
+              </label>
+            </div>
 
-    </section>
+            <div id="dspReasonWrap" class="dsp-reason-wrap">
+              <label class="dsp-field-label">Unavailable message</label>
+              <input id="dspUnavailableReason" class="dsp-input" type="text"
+                     placeholder="e.g. Do not accept questions on this day">
+            </div>
 
+            <div class="dsp-schedule-actions">
+              <button type="button" class="dsp-save" id="saveDspAvailabilityBtn">
+                Save Availability
+              </button>
+              <button type="button" class="secondary-btn" id="generateDspSlotsBtn">
+                Generate Slots
+              </button>
+            </div>
+          </div>
 
-    <!-- REVIEWS -->
+          <div class="dsp-schedule-note">
+            <strong>DSP window:</strong> 2:30 PM – 5:30 PM &nbsp;•&nbsp;
+            <strong>Slot:</strong> 3 minutes &nbsp;•&nbsp;
+            <strong>Maximum:</strong> 3 questions / student / day
+          </div>
 
-    <section class="section" id="reviews">
+          <div class="dsp-slot-header">
+            <div>
+              <h3>Daily Slots</h3>
+              <span id="dspSlotSummary">Select a teacher and date.</span>
+            </div>
+          </div>
 
-      <div class="section-head">
-        <h2>Teacher Reviews</h2>
-        <button class="primary-btn">+ New Review</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Teacher Review Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- NOTICES -->
-
-    <section class="section" id="notices">
-
-      <div class="section-head">
-        <h2>Notice Board</h2>
-        <button class="primary-btn">+ Publish Notice</button>
-      </div>
-
-      <div class="table-card">
-        <div class="empty">
-          Notice Management will be connected here.
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-</div>
-
-
-</div>
-
-<!-- ADD STUDENT MODAL -->
-
-<div class="modal" id="studentModal">
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-      <h2>Add Student</h2>
-      <button class="close" id="closeModal">&times;</button>
-    </div>
-
-    <form id="studentForm">
-
-      <div class="form-grid">
-
-        <div class="field full">
-          <label>Full Name</label>
-          <input
-            type="text"
-            id="studentName"
-            placeholder="Student full name"
-            required
-          >
+          <div id="dspSlotsList" class="dsp-slots-list">
+            <div class="dsp-empty">Select a teacher and date to view slots.</div>
+          </div>
         </div>
 
-        <div class="field">
-          <label>Email</label>
-          <input
-            type="email"
-            id="studentEmail"
-            placeholder="student@email.com"
-            required
-          >
-        </div>
+        <div id="dspMessage" class="dsp-message"></div>
 
-        <div class="field">
-          <label>Mobile</label>
-          <input
-            type="tel"
-            id="studentMobile"
-            placeholder="Mobile number"
-          >
-        </div>
+        <div class="dsp-grid">
 
-        <div class="field">
-          <label>Course</label>
+          <div class="dsp-panel">
+            <div class="dsp-panel-head">
+              <div>
+                <h3>Teachers</h3>
+                <span>Assign DSP subjects to active SIR teachers</span>
+              </div>
+              <button type="button" class="secondary-btn" id="refreshDspBtn">
+                Refresh
+              </button>
+            </div>
 
-          <select id="studentCourse">
-            <option value="">Select Course</option>
-          </select>
+            <div id="dspTeacherList" class="dsp-teacher-list">
+              <div class="dsp-empty">Loading teachers...</div>
+            </div>
+          </div>
+
+          <div class="dsp-panel">
+            <div class="dsp-panel-head">
+              <div>
+                <h3>DSP Subjects</h3>
+                <span>Subjects available in the programme</span>
+              </div>
+              <span id="dspSubjectCount">—</span>
+            </div>
+
+            <div id="dspSubjectList" class="dsp-side-body">
+              <div class="dsp-empty">Loading subjects...</div>
+            </div>
+          </div>
 
         </div>
 
-        <div class="field">
-          <label>Batch</label>
+      </section>
 
-          <select id="studentBatch">
-            <option value="">Select Batch</option>
-          </select>
-
-        </div>
-
-      </div>
-
-      <div id="formMessage" class="message"></div>
-
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="secondary-btn"
-          id="cancelStudent"
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          class="primary-btn"
-        >
-          Create Student
-        </button>
-
-      </div>
-
-    </form>
+    </main>
 
   </div>
 
-</div>
 
-<!-- CREATE TEST MODAL -->
+  <!-- ADD STUDENT MODAL -->
 
-<div class="modal" id="testModal">
+  <div
+    class="modal"
+    id="studentModal"
+  >
 
-  <div class="modal-box">
+    <div class="modal-box">
 
-    <div class="modal-head">
-      <h2>Create Test</h2>
-      <button class="close" id="closeTestModal">&times;</button>
+      <div class="modal-head">
+
+        <h2>Add Student</h2>
+
+        <button
+          class="close"
+          id="closeModal"
+        >
+          &times;
+        </button>
+
+      </div>
+
+
+      <form id="studentForm">
+
+        <div class="form-grid">
+
+          <div class="field full">
+
+            <label>
+              Full Name
+            </label>
+
+            <input
+              type="text"
+              id="studentName"
+              placeholder="Student full name"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Email
+            </label>
+
+            <input
+              type="email"
+              id="studentEmail"
+              placeholder="student@email.com"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Mobile
+            </label>
+
+            <input
+              type="tel"
+              id="studentMobile"
+              placeholder="Mobile number"
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Course
+            </label>
+
+            <select id="studentCourse">
+
+              <option value="">
+                Select Course
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
+            <label>
+              Batch
+            </label>
+
+            <select id="studentBatch">
+
+              <option value="">
+                Select Batch
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="formMessage"
+          class="message"
+        ></div>
+
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-btn"
+            id="cancelStudent"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-btn"
+          >
+            Create Student
+          </button>
+
+        </div>
+
+      </form>
+
     </div>
-
-    <form id="testForm">
-
-      <div class="form-grid">
-
-        <div class="field full">
-          <label>Test Title</label>
-          <input
-            type="text"
-            id="testTitle"
-            placeholder="e.g. NEET Full Syllabus Test 01"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label>Batch</label>
-          <select id="testBatch" required>
-            <option value="">Select Batch</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Subject</label>
-          <select id="testSubject" required>
-            <option value="">Select Subject</option>
-            <option value="Physics">Physics</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Biology">Biology</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Full Syllabus">Full Syllabus</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Test Date</label>
-          <input type="date" id="testDate" required>
-        </div>
-
-        <div class="field">
-          <label>Maximum Marks</label>
-          <input
-            type="number"
-            id="testMaxMarks"
-            min="1"
-            value="180"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label>Duration (minutes)</label>
-          <input
-            type="number"
-            id="testDuration"
-            min="1"
-            value="180"
-            required
-          >
-        </div>
-
-        <div class="field full">
-          <label>Description</label>
-          <input
-            type="text"
-            id="testDescription"
-            placeholder="Optional test description or instructions"
-          >
-        </div>
-
-      </div>
-
-      <div id="testMessage" class="message"></div>
-
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="secondary-btn"
-          id="cancelTest"
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          class="primary-btn"
-          id="saveTestBtn"
-        >
-          Create Test
-        </button>
-
-      </div>
-
-    </form>
 
   </div>
 
 </div>
 
 
-
-<!-- QUESTION BUILDER MODAL -->
-
-<div class="modal" id="questionModal">
-
-  <div class="modal-box" style="max-width: 900px;">
-
-    <div class="modal-head">
-      <div>
-        <h2 id="questionModalTitle">Manage Questions</h2>
-        <div class="build-marker" id="questionModalMeta"></div>
-      </div>
-      <button class="close" id="closeQuestionModal">&times;</button>
-    </div>
-
-    <div id="questionList" class="question-list">
-      <div class="question-empty">Loading questions...</div>
-    </div>
-
-    <div class="question-builder-divider"></div>
-
-    <div class="question-builder-title" id="questionFormTitle">Add Question</div>
-    <div class="question-builder-subtitle">Add the question, four options, correct answer, and marking scheme.</div>
-
-    <form id="questionForm">
-
-      <div class="form-grid">
-
-        <div class="field full">
-          <label>Question</label>
-          <textarea id="questionText" rows="4" placeholder="Enter the question text" required></textarea>
-        </div>
-
-        <div class="field">
-          <label>Option A</label>
-          <input type="text" id="optionA" required>
-        </div>
-
-        <div class="field">
-          <label>Option B</label>
-          <input type="text" id="optionB" required>
-        </div>
-
-        <div class="field">
-          <label>Option C</label>
-          <input type="text" id="optionC" required>
-        </div>
-
-        <div class="field">
-          <label>Option D</label>
-          <input type="text" id="optionD" required>
-        </div>
-
-        <div class="field">
-          <label>Correct Answer</label>
-          <select id="correctOption" required>
-            <option value="">Select Correct Option</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Marks</label>
-          <input type="number" id="questionMarks" min="0" step="0.01" value="4" required>
-        </div>
-
-        <div class="field">
-          <label>Negative Marks</label>
-          <input type="number" id="negativeMarks" min="0" step="0.01" value="0" required>
-        </div>
-
-        <div class="field">
-          <label>Question Order</label>
-          <input type="number" id="questionOrder" min="1" step="1" value="1" required>
-        </div>
-
-      </div>
-
-      <div id="questionMessage" class="message"></div>
-
-      <div class="form-actions">
-        <button type="button" class="secondary-btn" id="cancelQuestionEdit">
-          Clear
-        </button>
-        <button type="submit" class="primary-btn" id="saveQuestionBtn">
-          Add Question
-        </button>
-      </div>
-
-    </form>
-
-  </div>
-
-</div>
+<!-- =========================
+     SUPABASE
+========================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const SUPABASE_URL =
-  "https://asbyosqpupqspzvqqhfj.supabase.co";
+  /* =========================
+     SUPABASE CONFIG
+  ========================= */
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+  const SUPABASE_URL =
+    "https://asbyosqpupqspzvqqhfj.supabase.co";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-      auth: {
-        storageKey: "sir_admin_auth",
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: false
-      }
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+  /* =========================
+     ELEMENTS
+  ========================= */
+
+  const loginPage =
+    document.getElementById("loginPage");
+
+  const dashboardPage =
+    document.getElementById("dashboardPage");
+
+  const loginForm =
+    document.getElementById("loginForm");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+
+  /* =========================
+     LOGIN MESSAGE
+  ========================= */
+
+  function showLoginMessage(
+    message,
+    type = "error"
+  ) {
+
+    loginMessage.textContent = message;
+
+    loginMessage.className =
+      "login-message show " + type;
+
+  }
+
+
+  function hideLoginMessage() {
+
+    loginMessage.textContent = "";
+
+    loginMessage.className =
+      "login-message";
+
+  }
+
+
+  /* =========================
+     SHOW LOGIN
+  ========================= */
+
+  function showLogin() {
+
+    loginPage.style.display = "flex";
+
+    dashboardPage.style.display = "none";
+
+  }
+
+
+  /* =========================
+     SHOW DASHBOARD
+  ========================= */
+
+  function showDashboard() {
+
+    loginPage.style.display = "none";
+
+    dashboardPage.style.display = "block";
+
+  }
+
+
+  /* =========================
+     CHECK ADMIN
+  ========================= */
+
+  async function verifyAdmin(session) {
+
+    if (!session || !session.user) {
+      return false;
     }
-  );
 
 
-/* --------------------------------
-   AUTH
--------------------------------- */
-
-const loginPage =
-  document.getElementById("loginPage");
-
-const dashboardPage =
-  document.getElementById("dashboardPage");
-
-const loginForm =
-  document.getElementById("loginForm");
-
-const loginBtn =
-  document.getElementById("loginBtn");
-
-const loginMessage =
-  document.getElementById("loginMessage");
-
-
-function showLoginMessage(message, type = "error") {
-
-  loginMessage.textContent = message;
-
-  loginMessage.className =
-    `login-message show ${type}`;
-
-}
-
-
-function hideLoginMessage() {
-
-  loginMessage.textContent = "";
-
-  loginMessage.className =
-    "login-message";
-
-}
-
-
-function showLogin() {
-
-  loginPage.style.display = "flex";
-
-  dashboardPage.style.display = "none";
-
-}
-
-
-function showDashboard() {
-
-  loginPage.style.display = "none";
-
-  dashboardPage.style.display = "block";
-
-}
-
-
-async function verifyAdmin(session) {
-
-  if (!session || !session.user) {
-    return false;
-  }
-
-  const {
-    data: profile,
-    error
-  } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", session.user.id)
-    .maybeSingle();
-
-  if (error) {
-
-    console.error(
-      "Admin profile check error:",
+    const {
+      data: profile,
       error
-    );
-
-    return false;
-  }
-
-  return !!profile && profile.role === "admin";
-}
+    } = await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .maybeSingle();
 
 
-async function checkAdmin() {
+    if (error) {
 
-  const {
-    data,
-    error
-  } = await supabaseClient.auth.getSession();
-
-  if (error) {
-
-    console.error(
-      "Session check error:",
-      error
-    );
-
-    showLogin();
-
-    showLoginMessage(
-      "Unable to check your session. Please log in again.",
-      "error"
-    );
-
-    return null;
-  }
-
-  const session =
-    data ? data.session : null;
-
-  if (!session) {
-
-    showLogin();
-
-    return null;
-  }
-
-  const isAdmin =
-    await verifyAdmin(session);
-
-  if (!isAdmin) {
-
-    await supabaseClient.auth.signOut();
-
-    showLogin();
-
-    showLoginMessage(
-      "This account does not have administrator access.",
-      "error"
-    );
-
-    return null;
-  }
-
-  return session;
-}
-
-
-/* --------------------------------
-   ADMIN LOGIN
--------------------------------- */
-
-loginForm.addEventListener(
-  "submit",
-  async function(event) {
-
-    event.preventDefault();
-
-    hideLoginMessage();
-
-    const email =
-      document
-        .getElementById("adminEmail")
-        .value
-        .trim();
-
-    const password =
-      document
-        .getElementById("adminPassword")
-        .value;
-
-    if (!email || !password) {
-
-      showLoginMessage(
-        "Please enter your email and password.",
-        "error"
+      console.error(
+        "Profile check error:",
+        error
       );
 
-      return;
+      return false;
     }
 
-    loginBtn.disabled = true;
-    loginBtn.textContent = "Signing in...";
+
+    if (
+      !profile ||
+      profile.role !== "admin"
+    ) {
+
+      console.warn(
+        "User is not an admin."
+      );
+
+      return false;
+    }
+
+
+    return true;
+
+  }
+
+
+  /* =========================
+     INITIAL AUTH CHECK
+  ========================= */
+
+  async function initializeApp() {
 
     try {
 
       const {
         data,
         error
-      } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+      } = await supabaseClient
+        .auth
+        .getSession();
+
 
       if (error) {
 
         console.error(
-          "Admin login error:",
+          "Session error:",
+          error
+        );
+
+        showLogin();
+
+        return;
+      }
+
+
+      const session =
+        data ? data.session : null;
+
+
+      /*
+        IMPORTANT:
+        No redirect here.
+
+        If there is no session,
+        simply show the login page.
+      */
+
+      if (!session) {
+
+        showLogin();
+
+        return;
+      }
+
+
+      const isAdmin =
+        await verifyAdmin(session);
+
+
+      if (!isAdmin) {
+
+        await supabaseClient
+          .auth
+          .signOut();
+
+        showLogin();
+
+        showLoginMessage(
+          "This account does not have administrator access.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      showDashboard();
+
+
+      await loadDashboardData();
+
+
+    } catch (error) {
+
+      console.error(
+        "Initialization error:",
+        error
+      );
+
+      showLogin();
+
+      showLoginMessage(
+        "Unable to initialize admin system. Please try again.",
+        "error"
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     LOGIN
+  ========================= */
+
+  loginForm.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+      hideLoginMessage();
+
+
+      const email =
+        document
+          .getElementById("adminEmail")
+          .value
+          .trim();
+
+
+      const password =
+        document
+          .getElementById("adminPassword")
+          .value;
+
+
+      if (!email || !password) {
+
+        showLoginMessage(
+          "Please enter your email and password.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      loginBtn.disabled = true;
+
+      loginBtn.textContent =
+        "Signing in...";
+
+
+      try {
+
+        const {
+          data,
+          error
+        } = await supabaseClient
+          .auth
+          .signInWithPassword({
+            email: email,
+            password: password
+          });
+
+
+        if (error) {
+
+          console.error(
+            "Login error:",
+            error
+          );
+
+          showLoginMessage(
+            error.message ||
+            "Login failed. Please check your credentials.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (
+          !data ||
+          !data.session
+        ) {
+
+          showLoginMessage(
+            "Login did not create a valid session.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        const isAdmin =
+          await verifyAdmin(
+            data.session
+          );
+
+
+        if (!isAdmin) {
+
+          await supabaseClient
+            .auth
+            .signOut();
+
+          showLoginMessage(
+            "Login successful, but this account is not registered as an SIR administrator.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        showLoginMessage(
+          "Login successful. Opening dashboard...",
+          "success"
+        );
+
+
+        showDashboard();
+
+
+        await loadDashboardData();
+
+
+      } catch (error) {
+
+        console.error(
+          "Unexpected login error:",
           error
         );
 
         showLoginMessage(
-          error.message ||
-          "Login failed. Please check your credentials.",
+          "Something went wrong. Please try again.",
           "error"
         );
 
-        return;
+      } finally {
+
+        loginBtn.disabled = false;
+
+        loginBtn.textContent =
+          "Login to Admin";
+
       }
-
-      if (!data || !data.session) {
-
-        showLoginMessage(
-          "Login did not create a valid session.",
-          "error"
-        );
-
-        return;
-      }
-
-      const isAdmin =
-        await verifyAdmin(data.session);
-
-      if (!isAdmin) {
-
-        await supabaseClient.auth.signOut();
-
-        showLoginMessage(
-          "Login successful, but this account is not registered as an SIR administrator.",
-          "error"
-        );
-
-        return;
-      }
-
-      showDashboard();
-
-      await loadStudents();
-      await loadAdminBatches();
-      await loadAdminTests();
-      await loadCounters();
-
-    } catch (error) {
-
-      console.error(
-        "Unexpected admin login error:",
-        error
-      );
-
-      showLoginMessage(
-        "Something went wrong. Please try again.",
-        "error"
-      );
-
-    } finally {
-
-      loginBtn.disabled = false;
-      loginBtn.textContent = "Login to Admin";
 
     }
-
-  }
-);
+  );
 
 
-/* --------------------------------
-   AUTH STATE
--------------------------------- */
+  /* =========================
+     AUTH STATE
+  ========================= */
 
-supabaseClient.auth.onAuthStateChange(
-  function(event) {
+  supabaseClient
+    .auth
+    .onAuthStateChange(
+      async function(event, session) {
 
-    console.log(
-      "Auth event:",
-      event
-    );
-
-    if (event === "SIGNED_OUT") {
-      showLogin();
-    }
-
-  }
-);
-
-
-/* --------------------------------
-   NAVIGATION
--------------------------------- */
-
-document.querySelectorAll(".nav-btn")
-  .forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      document
-        .querySelectorAll(".nav-btn")
-        .forEach(btn => btn.classList.remove("active"));
-
-      document
-        .querySelectorAll(".section")
-        .forEach(section => section.classList.remove("active"));
-
-      button.classList.add("active");
-
-      const section =
-        document.getElementById(
-          button.dataset.section
+        console.log(
+          "Auth event:",
+          event
         );
 
-      section.classList.add("active");
 
-    });
+        if (
+          event === "SIGNED_OUT"
+        ) {
 
-  });
+          showLogin();
 
-
-/* --------------------------------
-   STUDENTS
--------------------------------- */
-
-let allStudents = [];
+          return;
+        }
 
 
-async function loadStudents() {
+        /*
+          Do not redirect automatically.
+          Login itself controls the dashboard.
+        */
 
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("students")
-    .select(`
-      id,
-      student_uid,
-      full_name,
-      email,
-      phone,
-      is_active,
-      course_id,
-      batch_id
-    `)
-    .order("created_at", {
-      ascending: false
-    });
-
-  if (error) {
-
-    console.error("Students error:", error);
-
-    document.getElementById(
-      "studentsTableBody"
-    ).innerHTML = `
-      <tr>
-        <td colspan="6" class="empty">
-          Unable to load students.
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-  allStudents = data || [];
-
-  renderStudents(allStudents);
-
-  document.getElementById(
-    "totalStudents"
-  ).textContent = allStudents.length;
-
-  document.getElementById(
-    "activeStudents"
-  ).textContent =
-    allStudents.filter(s => s.is_active).length;
-
-}
-
-
-function renderStudents(students) {
-
-  const tbody =
-    document.getElementById(
-      "studentsTableBody"
+      }
     );
 
-  if (!students.length) {
 
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="empty">
-          No students found.
-        </td>
-      </tr>
-    `;
+  /* =========================
+     NAVIGATION
+  ========================= */
 
-    return;
-  }
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button => {
 
-  tbody.innerHTML =
-    students.map(student => `
+      button.addEventListener(
+        "click",
+        function() {
 
-      <tr>
+          document
+            .querySelectorAll(".nav-btn")
+            .forEach(btn => {
 
-        <td>
-          <span class="uid">
-            ${escapeHtml(student.student_uid || "—")}
-          </span>
-        </td>
+              btn.classList.remove(
+                "active"
+              );
 
-        <td>
-          ${escapeHtml(student.full_name || "—")}
-        </td>
-
-        <td>
-          ${escapeHtml(student.email || "—")}
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          <span class="status ${student.is_active ? "" : "inactive"}">
-            ${student.is_active ? "Active" : "Inactive"}
-          </span>
-        </td>
-
-        <td>
-          <div class="student-actions">
-            <button
-              class="reset-password-btn"
-              onclick="resetStudentPassword(
-                '${escapeHtml(student.student_uid || "")}',
-                '${escapeHtml(student.full_name || "")}'
-              )"
-            >
-              Reset Password
-            </button>
-
-            <button
-              class="status-action-btn ${student.is_active ? "" : "reactivate"}"
-              onclick="toggleStudentStatus(
-                '${escapeHtml(student.student_uid || "")}',
-                '${escapeHtml(student.full_name || "")}',
-                ${student.is_active ? "true" : "false"}
-              )"
-            >
-              ${student.is_active ? "Deactivate" : "Reactivate"}
-            </button>
-          </div>
-        </td>
-
-      </tr>
-
-    `).join("");
-
-}
+            });
 
 
-/* --------------------------------
-   RESET STUDENT PASSWORD
--------------------------------- */
+          document
+            .querySelectorAll(".section")
+            .forEach(section => {
 
-async function resetStudentPassword(
-  studentUid,
-  studentName
-) {
+              section.classList.remove(
+                "active"
+              );
 
-  const newPassword =
-    prompt(
-      `Set new password for ${studentName} (${studentUid})`
-    );
+            });
 
-  if (newPassword === null) {
-    return;
-  }
 
-  const password =
-    newPassword.trim();
+          button.classList.add(
+            "active"
+          );
 
-  if (password.length < 8) {
 
-    alert(
-      "Password must contain at least 8 characters."
-    );
+          const section =
+            document.getElementById(
+              button.dataset.section
+            );
 
-    return;
-  }
 
-  try {
+          if (section) {
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.functions.invoke(
-        "set-student-password",
-        {
-          body: {
-            student_uid: studentUid,
-            new_password: password
+            section.classList.add(
+              "active"
+            );
+
           }
+
         }
       );
 
-    if (error) {
-
-      console.error(
-        "Password reset error:",
-        error
-      );
-
-      alert(
-        "Password reset failed. Check the set-student-password Edge Function."
-      );
-
-      return;
-    }
-
-    if (!data || !data.success) {
-
-      alert(
-        data?.error ||
-        "Unable to reset password."
-      );
-
-      return;
-    }
-
-    alert(
-      `Password updated successfully for ${studentUid}.`
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Unexpected password reset error:",
-      error
-    );
-
-    alert(
-      "Something went wrong while resetting the password."
-    );
-
-  }
-
-}
-
-
-
-/* --------------------------------
-   ACTIVATE / DEACTIVATE STUDENT
--------------------------------- */
-
-async function toggleStudentStatus(
-  studentUid,
-  studentName,
-  currentlyActive
-) {
-
-  const confirmation = currentlyActive
-    ? `Deactivate ${studentName} (${studentUid})?
-
-Student login access will be blocked.
-Academic history will be preserved.`
-    : `Reactivate ${studentName} (${studentUid})?
-
-This will restore student login access.`;
-
-  if (!confirm(confirmation)) {
-    return;
-  }
-
-  try {
-
-    const {
-      data,
-      error
-    } = await supabaseClient.functions.invoke(
-      "set-student-status",
-      {
-        body: {
-          student_uid: studentUid,
-          is_active: !currentlyActive
-        }
-      }
-    );
-
-    if (error) {
-
-      console.error(
-        "Student status update error:",
-        error
-      );
-
-      alert(
-        "Unable to update student status. Check the set-student-status Edge Function."
-      );
-
-      return;
-    }
-
-    if (!data || !data.success) {
-
-      alert(
-        data?.error ||
-        "Unable to update student status."
-      );
-
-      return;
-    }
-
-    alert(
-      currentlyActive
-        ? `${studentUid} has been deactivated.`
-        : `${studentUid} has been reactivated.`
-    );
-
-    await loadStudents();
-
-  } catch (error) {
-
-    console.error(
-      "Unexpected student status error:",
-      error
-    );
-
-    alert(
-      "Something went wrong while updating student status."
-    );
-
-  }
-
-}
-
-
-document
-  .getElementById("studentSearch")
-  .addEventListener("input", function () {
-
-    const search =
-      this.value.toLowerCase().trim();
-
-    const filtered =
-      allStudents.filter(student =>
-
-        (student.full_name || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (student.student_uid || "")
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (student.email || "")
-          .toLowerCase()
-          .includes(search)
-
-      );
-
-    renderStudents(filtered);
-
-  });
-
-
-/* --------------------------------
-   COURSES
--------------------------------- */
-
-async function loadCourses() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("courses")
-    .select("id,name,exam")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) {
-
-    console.error("Courses error:", error);
-    return;
-
-  }
-
-  const select =
-    document.getElementById(
-      "studentCourse"
-    );
-
-  select.innerHTML =
-    `<option value="">Select Course</option>`;
-
-  (data || []).forEach(course => {
-
-    const option =
-      document.createElement("option");
-
-    option.value = course.id;
-
-    option.textContent =
-      `${course.name} (${course.exam})`;
-
-    select.appendChild(option);
-
-  });
-
-}
-
-
-/* --------------------------------
-   BATCHES
--------------------------------- */
-
-async function loadBatches() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) {
-
-    console.error("Batches error:", error);
-    return;
-
-  }
-
-  const select =
-    document.getElementById(
-      "studentBatch"
-    );
-
-  select.innerHTML =
-    `<option value="">Select Batch</option>`;
-
-  (data || []).forEach(batch => {
-
-    const option =
-      document.createElement("option");
-
-    option.value = batch.id;
-
-    option.textContent =
-      `${batch.name} — ${batch.academic_year}`;
-
-    select.appendChild(option);
-
-  });
-
-}
-
-
-/* --------------------------------
-   TEST MANAGEMENT
--------------------------------- */
-
-let adminTests = [];
-let adminBatches = [];
-let currentQuestionTestId = null;
-let editingQuestionId = null;
-
-async function loadAdminBatches() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("batches")
-    .select("id,name,academic_year")
-    .eq("is_active", true)
-    .order("name");
-
-  if (error) {
-    console.error("Admin test batches error:", error);
-    return;
-  }
-
-  adminBatches = data || [];
-
-  const select =
-    document.getElementById("testBatch");
-
-  if (!select) return;
-
-  select.innerHTML =
-    `<option value="">Select Batch</option>`;
-
-  adminBatches.forEach(batch => {
-
-    const option =
-      document.createElement("option");
-
-    option.value = batch.id;
-
-    option.textContent =
-      `${batch.name} — ${batch.academic_year}`;
-
-    select.appendChild(option);
-
-  });
-
-}
-
-
-async function loadAdminTests() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("tests")
-    .select(`
-      id,
-      batch_id,
-      title,
-      subject,
-      test_date,
-      max_marks,
-      duration_minutes,
-      description,
-      is_active
-    `)
-    .order("test_date", {
-      ascending: false
     });
 
-  if (error) {
 
-    console.error("Admin tests error:", error);
+  /* =========================
+     STUDENTS
+  ========================= */
 
-    document.getElementById("testList").innerHTML = `
-      <div class="test-empty">
-        Unable to load tests. Check Admin access to the tests table.
-      </div>
-    `;
+  let allStudents = [];
 
-    return;
-  }
 
-  adminTests = data || [];
+  async function loadStudents() {
 
-  renderAdminTests(adminTests);
-
-  document.getElementById("totalTests").textContent =
-    adminTests.length;
-
-}
-
-
-function renderAdminTests(tests) {
-
-  const list =
-    document.getElementById("testList");
-
-  if (!list) return;
-
-  if (!tests.length) {
-
-    list.innerHTML = `
-      <div class="test-empty">
-        No tests created yet.
-      </div>
-    `;
-
-    return;
-  }
-
-  const batchMap =
-    Object.fromEntries(
-      adminBatches.map(batch => [
-        batch.id,
-        `${batch.name} — ${batch.academic_year}`
-      ])
-    );
-
-  list.innerHTML =
-    tests.map(test => `
-
-      <div class="test-row">
-
-        <div>
-          <div class="test-title">
-            ${escapeHtml(test.title || "Untitled Test")}
-          </div>
-
-          <div class="test-meta">
-            ${escapeHtml(test.description || "No description")}
-          </div>
-        </div>
-
-        <div>
-          <span class="test-badge">
-            ${escapeHtml(test.subject || "Test")}
-          </span>
-
-          <span class="test-status ${test.is_active ? "active" : "inactive"}">
-            ${test.is_active ? "ACTIVE" : "INACTIVE"}
-          </span>
-
-          <div class="test-meta">
-            ${escapeHtml(batchMap[test.batch_id] || "Batch")}
-          </div>
-        </div>
-
-        <div>
-          <div class="test-date">
-            ${escapeHtml(test.test_date || "—")}
-          </div>
-
-          <div class="test-meta">
-            ${escapeHtml(test.max_marks ?? "—")} marks
-            ·
-            ${escapeHtml(test.duration_minutes ?? "—")} min
-          </div>
-        </div>
-
-        <div class="test-actions">
-          <button
-            type="button"
-            class="test-manage-btn"
-            data-test-id="${escapeHtml(test.id)}"
-          >
-            Manage Questions
-          </button>
-
-          <button
-            type="button"
-            class="test-toggle-btn ${test.is_active ? "active" : "inactive"}"
-            data-test-id="${escapeHtml(test.id)}"
-          >
-            ${test.is_active ? "Deactivate" : "Activate"}
-          </button>
-
-          <button
-            type="button"
-            class="test-delete-btn"
-            data-test-id="${escapeHtml(test.id)}"
-          >
-            Delete Test
-          </button>
-        </div>
-
-      </div>
-
-    `).join("");
-
-}
-
-/* --------------------------------
-   QUESTION BUILDER
--------------------------------- */
-
-document
-  .getElementById("testList")
-  .addEventListener("click", function(event) {
-
-    const manageButton =
-      event.target.closest(".test-manage-btn");
-
-  if (manageButton) {
-    openQuestionModal(manageButton.dataset.testId);
-    return;
-  }
-
-  const toggleButton =
-      event.target.closest(".test-toggle-btn");
-
-  if (toggleButton) {
-    toggleAdminTest(toggleButton.dataset.testId);
-    return;
-  }
-
-  const deleteButton =
-      event.target.closest(".test-delete-btn");
-
-  if (deleteButton) {
-    deleteAdminTest(deleteButton.dataset.testId);
-  }
-
-});
-
-
-async function toggleAdminTest(testId) {
-
-  const test =
-    adminTests.find(item => item.id === testId);
-
-  if (!test) return;
-
-  const nextState = !Boolean(test.is_active);
-  const action = nextState ? "activate" : "deactivate";
-
-  const confirmed =
-    window.confirm(
-      `${nextState ? "Activate" : "Deactivate"} "${test.title || "this test"}"?\n\n${nextState ? "Students and teachers will be able to see this test again." : "The test will remain in Admin but will be hidden from student and teacher portals."}`
-    );
-
-  if (!confirmed) return;
-
-  try {
-
-    const { error } =
-      await supabaseClient
-        .from("tests")
-        .update({ is_active: nextState })
-        .eq("id", testId);
-
-    if (error) throw error;
-
-    await loadAdminTests();
-
-  } catch (error) {
-
-    console.error(`Test ${action} error:`, error);
-
-    alert(
-      error?.message ||
-      `Could not ${action} this test.`
-    );
-
-  }
-
-}
-
-
-async function deleteAdminTest(testId) {
-
-  const test =
-    adminTests.find(item => item.id === testId);
-
-  if (!test) return;
-
-  const confirmed =
-    window.confirm(
-      `Delete "${test.title || "this test"}"?\n\nThis will also delete its questions because they belong to this test.`
-    );
-
-  if (!confirmed) return;
-
-  try {
-
-    const { error } =
-      await supabaseClient
-        .from("tests")
-        .delete()
-        .eq("id", testId);
-
-    if (error) throw error;
-
-    await loadAdminTests();
-
-  } catch (error) {
-
-    console.error("Delete test error:", error);
-
-    alert(
-      error?.message ||
-      "Could not delete this test."
-    );
-
-  }
-
-}
-
-
-async function openQuestionModal(testId) {
-
-  const test =
-    adminTests.find(item => item.id === testId);
-
-  if (!test) {
-    alert("Test record could not be found. Refresh the Tests section and try again.");
-    return;
-  }
-
-  currentQuestionTestId = testId;
-  editingQuestionId = null;
-
-  document.getElementById("questionModalTitle").textContent =
-    test.title || "Manage Questions";
-
-  document.getElementById("questionModalMeta").textContent =
-    `${test.subject || "Test"} • ${test.test_date || "No date"} • Max ${test.max_marks ?? "—"} marks`;
-
-  clearQuestionForm();
-  hideQuestionMessage();
-
-  document.getElementById("questionModal").classList.add("show");
-
-  await loadQuestions(testId);
-
-}
-
-
-function closeQuestionModal() {
-
-  document.getElementById("questionModal").classList.remove("show");
-  currentQuestionTestId = null;
-  editingQuestionId = null;
-  clearQuestionForm();
-  hideQuestionMessage();
-
-}
-
-
-async function loadQuestions(testId) {
-
-  const list = document.getElementById("questionList");
-
-  list.innerHTML = `<div class="question-empty">Loading questions...</div>`;
-
-  const { data, error } = await supabaseClient
-    .from("test_questions")
-    .select(`
-      id,
-      test_id,
-      question_text,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      correct_option,
-      marks,
-      negative_marks,
-      question_order
-    `)
-    .eq("test_id", testId)
-    .order("question_order", { ascending: true });
-
-  if (error) {
-    console.error("Load questions error:", error);
-    list.innerHTML = `<div class="question-empty">Unable to load questions: ${escapeHtml(error.message || "Unknown error")}</div>`;
-    return;
-  }
-
-  renderQuestions(data || []);
-
-}
-
-
-function renderQuestions(questions) {
-
-  const list = document.getElementById("questionList");
-
-  if (!questions.length) {
-    list.innerHTML = `<div class="question-empty">No questions added yet. Add the first question below.</div>`;
-    return;
-  }
-
-  list.innerHTML = questions.map((question, index) => `
-    <div class="question-item">
-      <div class="question-item-head">
-        <div style="min-width:0; flex:1;">
-          <div class="question-number">QUESTION ${escapeHtml(question.question_order ?? index + 1)}</div>
-          <div class="question-text">${escapeHtml(question.question_text || "")}</div>
-          <div class="question-options">
-            <div>A. ${escapeHtml(question.option_a || "")}</div>
-            <div>B. ${escapeHtml(question.option_b || "")}</div>
-            <div>C. ${escapeHtml(question.option_c || "")}</div>
-            <div>D. ${escapeHtml(question.option_d || "")}</div>
-          </div>
-          <div class="question-meta">
-            <span class="question-correct">Correct: ${escapeHtml(question.correct_option || "—")}</span>
-            &nbsp; • &nbsp; ${escapeHtml(question.marks ?? 0)} marks
-            &nbsp; • &nbsp; Negative: ${escapeHtml(question.negative_marks ?? 0)}
-          </div>
-        </div>
-        <div class="question-actions">
-          <button type="button" class="question-action-btn" data-question-action="edit" data-question-id="${escapeHtml(question.id)}">Edit</button>
-          <button type="button" class="question-action-btn delete" data-question-action="delete" data-question-id="${escapeHtml(question.id)}">Delete</button>
-        </div>
-      </div>
-    </div>
-  `).join("");
-
-}
-
-
-document
-  .getElementById("questionList")
-  .addEventListener("click", async function(event) {
-
-    const button = event.target.closest("[data-question-action]");
-    if (!button) return;
-
-    const questionId = button.dataset.questionId;
-    const action = button.dataset.questionAction;
-
-    if (action === "edit") await editQuestion(questionId);
-    if (action === "delete") await deleteQuestion(questionId);
-
-  });
-
-
-async function editQuestion(questionId) {
-
-  const { data: question, error } = await supabaseClient
-    .from("test_questions")
-    .select(`
-      id,
-      question_text,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      correct_option,
-      marks,
-      negative_marks,
-      question_order
-    `)
-    .eq("id", questionId)
-    .maybeSingle();
-
-  if (error || !question) {
-    showQuestionMessage(error?.message || "Unable to load this question.", "error");
-    return;
-  }
-
-  editingQuestionId = question.id;
-  document.getElementById("questionFormTitle").textContent = "Edit Question";
-  document.getElementById("saveQuestionBtn").textContent = "Update Question";
-  document.getElementById("questionText").value = question.question_text || "";
-  document.getElementById("optionA").value = question.option_a || "";
-  document.getElementById("optionB").value = question.option_b || "";
-  document.getElementById("optionC").value = question.option_c || "";
-  document.getElementById("optionD").value = question.option_d || "";
-  document.getElementById("correctOption").value = question.correct_option || "";
-  document.getElementById("questionMarks").value = question.marks ?? 4;
-  document.getElementById("negativeMarks").value = question.negative_marks ?? 0;
-  document.getElementById("questionOrder").value = question.question_order ?? 1;
-  hideQuestionMessage();
-  document.getElementById("questionText").focus();
-
-}
-
-
-async function deleteQuestion(questionId) {
-
-  if (!confirm("Delete this question? This cannot be undone.")) return;
-
-  const { error } = await supabaseClient
-    .from("test_questions")
-    .delete()
-    .eq("id", questionId);
-
-  if (error) {
-    console.error("Delete question error:", error);
-    showQuestionMessage(error.message || "Unable to delete question.", "error");
-    return;
-  }
-
-  clearQuestionForm();
-  showQuestionMessage("Question deleted successfully.", "success");
-  await loadQuestions(currentQuestionTestId);
-
-}
-
-
-function clearQuestionForm() {
-
-  const form = document.getElementById("questionForm");
-  if (form) form.reset();
-
-  document.getElementById("questionMarks").value = 4;
-  document.getElementById("negativeMarks").value = 0;
-  document.getElementById("questionOrder").value = 1;
-  document.getElementById("questionFormTitle").textContent = "Add Question";
-  document.getElementById("saveQuestionBtn").textContent = "Add Question";
-  editingQuestionId = null;
-
-}
-
-
-function showQuestionMessage(text, type) {
-  const box = document.getElementById("questionMessage");
-  box.textContent = text;
-  box.className = `message show ${type}`;
-}
-
-
-function hideQuestionMessage() {
-  const box = document.getElementById("questionMessage");
-  box.textContent = "";
-  box.className = "message";
-}
-
-
-document
-  .getElementById("closeQuestionModal")
-  .addEventListener("click", closeQuestionModal);
-
-
-document
-  .getElementById("cancelQuestionEdit")
-  .addEventListener("click", function() {
-    clearQuestionForm();
-    hideQuestionMessage();
-  });
-
-
-document
-  .getElementById("questionForm")
-  .addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    if (!currentQuestionTestId) {
-      showQuestionMessage("No test is selected.", "error");
-      return;
-    }
-
-    const saveBtn = document.getElementById("saveQuestionBtn");
-    saveBtn.disabled = true;
-    saveBtn.textContent = editingQuestionId ? "Updating..." : "Saving...";
-    hideQuestionMessage();
-
-    const payload = {
-      test_id: currentQuestionTestId,
-      question_text: document.getElementById("questionText").value.trim(),
-      option_a: document.getElementById("optionA").value.trim(),
-      option_b: document.getElementById("optionB").value.trim(),
-      option_c: document.getElementById("optionC").value.trim(),
-      option_d: document.getElementById("optionD").value.trim(),
-      correct_option: document.getElementById("correctOption").value,
-      marks: Number(document.getElementById("questionMarks").value),
-      negative_marks: Number(document.getElementById("negativeMarks").value),
-      question_order: Number(document.getElementById("questionOrder").value)
-    };
-
-    try {
-      let error = null;
-
-      if (editingQuestionId) {
-        const result = await supabaseClient
-          .from("test_questions")
-          .update(payload)
-          .eq("id", editingQuestionId);
-        error = result.error;
-      } else {
-        const result = await supabaseClient
-          .from("test_questions")
-          .insert(payload);
-        error = result.error;
-      }
-
-      if (error) {
-        console.error("Save question error:", error);
-        showQuestionMessage(error.message || "Unable to save question.", "error");
-        return;
-      }
-
-      showQuestionMessage(
-        editingQuestionId ? "Question updated successfully." : "Question added successfully.",
-        "success"
+    const tbody =
+      document.getElementById(
+        "studentsTableBody"
       );
 
-      clearQuestionForm();
-      await loadQuestions(currentQuestionTestId);
-
-    } catch (error) {
-      console.error("Unexpected question save error:", error);
-      showQuestionMessage(error.message || "Something went wrong.", "error");
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Add Question";
-    }
-
-  });
-
-
-function openTestModal() {
-
-  const form =
-    document.getElementById("testForm");
-
-  if (form) {
-    form.reset();
-  }
-
-  document.getElementById("testMaxMarks").value = 180;
-  document.getElementById("testDuration").value = 180;
-
-  hideTestMessage();
-
-  document
-    .getElementById("testModal")
-    .classList.add("show");
-
-}
-
-
-function closeTestModal() {
-
-  document
-    .getElementById("testModal")
-    .classList.remove("show");
-
-}
-
-
-function showTestMessage(text, type) {
-
-  const box =
-    document.getElementById("testMessage");
-
-  box.textContent = text;
-
-  box.className =
-    `message show ${type}`;
-
-}
-
-
-function hideTestMessage() {
-
-  const box =
-    document.getElementById("testMessage");
-
-  box.className = "message";
-
-  box.textContent = "";
-
-}
-
-
-document
-  .getElementById("createTestBtn")
-  .addEventListener("click", openTestModal);
-
-
-document
-  .getElementById("closeTestModal")
-  .addEventListener("click", closeTestModal);
-
-
-document
-  .getElementById("cancelTest")
-  .addEventListener("click", closeTestModal);
-
-
-document
-  .getElementById("testForm")
-  .addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    const saveBtn =
-      document.getElementById("saveTestBtn");
-
-    saveBtn.disabled = true;
-    saveBtn.textContent = "Creating...";
-
-    hideTestMessage();
 
     try {
 
       const {
         data,
         error
-      } =
-        await supabaseClient.auth.getSession();
-
-      if (error || !data || !data.session) {
-
-        showTestMessage(
-          "Admin session expired. Please log in again.",
-          "error"
+      } = await supabaseClient
+        .from("students")
+        .select(`
+          id,
+          student_uid,
+          full_name,
+          email,
+          phone,
+          is_active,
+          course_id,
+          batch_id
+        `)
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
         );
 
-        return;
-      }
 
-      const payload = {
-        batch_id:
-          document.getElementById("testBatch").value,
-
-        title:
-          document.getElementById("testTitle").value.trim(),
-
-        subject:
-          document.getElementById("testSubject").value,
-
-        test_date:
-          document.getElementById("testDate").value,
-
-        max_marks:
-          Number(
-            document.getElementById("testMaxMarks").value
-          ),
-
-        duration_minutes:
-          Number(
-            document.getElementById("testDuration").value
-          ),
-
-        description:
-          document.getElementById("testDescription").value.trim()
-          || null
-      };
-
-      const {
-        data: createdTest,
-        error: insertError
-      } =
-        await supabaseClient
-          .from("tests")
-          .insert(payload)
-          .select(`
-            id,
-            batch_id,
-            title,
-            subject,
-            test_date,
-            max_marks,
-            duration_minutes,
-            description
-          `)
-          .single();
-
-      if (insertError) {
+      if (error) {
 
         console.error(
-          "Create test error:",
-          insertError
+          "Students error:",
+          error
         );
 
-        showTestMessage(
-          insertError.message ||
-          "Unable to create test.",
-          "error"
-        );
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty">
+              Unable to load students.
+            </td>
+          </tr>
+        `;
 
         return;
       }
 
-      showTestMessage(
-        "Test created successfully.",
-        "success"
+
+      allStudents =
+        data || [];
+
+
+      renderStudents(
+        allStudents
       );
 
-      await loadAdminTests();
-      await loadCounters();
 
-      setTimeout(async () => {
-        closeTestModal();
-        await loadAdminTests();
+      document.getElementById(
+        "totalStudents"
+      ).textContent =
+        allStudents.length;
 
-        if (createdTest && createdTest.id) {
-          await openQuestionModal(createdTest.id);
-        }
-      }, 700);
+
+      document.getElementById(
+        "activeStudents"
+      ).textContent =
+        allStudents.filter(
+          student =>
+            student.is_active
+        ).length;
+
 
     } catch (error) {
 
       console.error(
-        "Unexpected create test error:",
+        "Students exception:",
         error
       );
 
-      showTestMessage(
-        error.message ||
-        "Something went wrong.",
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            Unable to load students.
+          </td>
+        </tr>
+      `;
+
+    }
+
+  }
+
+
+  function renderStudents(
+    students
+  ) {
+
+    const tbody =
+      document.getElementById(
+        "studentsTableBody"
+      );
+
+
+    if (!students.length) {
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            No students found.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    tbody.innerHTML =
+      students
+        .map(student => {
+
+          return `
+
+            <tr>
+
+              <td>
+                <span class="uid">
+                  ${escapeHtml(
+                    student.student_uid || "—"
+                  )}
+                </span>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  student.full_name || "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  student.email || "—"
+                )}
+              </td>
+
+              <td>
+                —
+              </td>
+
+              <td>
+                —
+              </td>
+
+              <td>
+
+                <span class="status">
+                  ${
+                    student.is_active
+                      ? "Active"
+                      : "Inactive"
+                  }
+                </span>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+        .join("");
+
+  }
+
+
+  /* =========================
+     STUDENT SEARCH
+  ========================= */
+
+  document
+    .getElementById("studentSearch")
+    .addEventListener(
+      "input",
+      function() {
+
+        const search =
+          this.value
+            .toLowerCase()
+            .trim();
+
+
+        const filtered =
+          allStudents.filter(
+            student =>
+
+              (
+                student.full_name ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+              ||
+
+              (
+                student.student_uid ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+              ||
+
+              (
+                student.email ||
+                ""
+              )
+                .toLowerCase()
+                .includes(search)
+
+          );
+
+
+        renderStudents(
+          filtered
+        );
+
+      }
+    );
+
+
+  /* =========================
+     COURSES
+  ========================= */
+
+  async function loadCourses() {
+
+    const select =
+      document.getElementById(
+        "studentCourse"
+      );
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("courses")
+        .select(
+          "id,name,exam"
+        )
+        .eq(
+          "is_active",
+          true
+        )
+        .order("name");
+
+
+      if (error) {
+
+        console.error(
+          "Courses error:",
+          error
+        );
+
+        return;
+      }
+
+
+      select.innerHTML =
+        `
+          <option value="">
+            Select Course
+          </option>
+        `;
+
+
+      (data || [])
+        .forEach(course => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            course.id;
+
+
+          option.textContent =
+            `${course.name} (${course.exam})`;
+
+
+          select.appendChild(
+            option
+          );
+
+        });
+
+
+    } catch (error) {
+
+      console.error(
+        "Courses exception:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     BATCHES
+  ========================= */
+
+  async function loadBatches() {
+
+    const select =
+      document.getElementById(
+        "studentBatch"
+      );
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("batches")
+        .select(
+          "id,name,academic_year"
+        )
+        .eq(
+          "is_active",
+          true
+        )
+        .order("name");
+
+
+      if (error) {
+
+        console.error(
+          "Batches error:",
+          error
+        );
+
+        return;
+      }
+
+
+      select.innerHTML =
+        `
+          <option value="">
+            Select Batch
+          </option>
+        `;
+
+
+      (data || [])
+        .forEach(batch => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            batch.id;
+
+
+          option.textContent =
+            `${batch.name} — ${batch.academic_year}`;
+
+
+          select.appendChild(
+            option
+          );
+
+        });
+
+
+    } catch (error) {
+
+      console.error(
+        "Batches exception:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     MODAL
+  ========================= */
+
+  const modal =
+    document.getElementById(
+      "studentModal"
+    );
+
+
+  document
+    .getElementById("addStudentBtn")
+    .addEventListener(
+      "click",
+      async function() {
+
+        modal.classList.add(
+          "show"
+        );
+
+
+        await loadCourses();
+
+        await loadBatches();
+
+      }
+    );
+
+
+  document
+    .getElementById("closeModal")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  document
+    .getElementById("cancelStudent")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  function closeModal() {
+
+    modal.classList.remove(
+      "show"
+    );
+
+
+    document
+      .getElementById(
+        "studentForm"
+      )
+      .reset();
+
+
+    hideFormMessage();
+
+  }
+
+
+  /* =========================
+     STUDENT CREATE
+  ========================= */
+
+  document
+    .getElementById("studentForm")
+    .addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+
+        showFormMessage(
+          "Student creation will be connected securely in the backend step.",
+          "success"
+        );
+
+      }
+    );
+
+
+  /* =========================
+     FORM MESSAGE
+  ========================= */
+
+  function showFormMessage(
+    text,
+    type
+  ) {
+
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
+
+
+    box.textContent =
+      text;
+
+
+    box.className =
+      `message show ${type}`;
+
+  }
+
+
+  function hideFormMessage() {
+
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
+
+
+    box.className =
+      "message";
+
+
+    box.textContent =
+      "";
+
+  }
+
+
+  /* =========================
+     COUNTERS
+  ========================= */
+
+  async function loadCounters() {
+
+    try {
+
+      const {
+        count: testCount
+      } = await supabaseClient
+        .from("tests")
+        .select(
+          "*",
+          {
+            count: "exact",
+            head: true
+          }
+        );
+
+
+      const {
+        count: noticeCount
+      } = await supabaseClient
+        .from("notices")
+        .select(
+          "*",
+          {
+            count: "exact",
+            head: true
+          }
+        );
+
+
+      document.getElementById(
+        "totalTests"
+      ).textContent =
+        testCount ?? 0;
+
+
+      document.getElementById(
+        "totalNotices"
+      ).textContent =
+        noticeCount ?? 0;
+
+
+    } catch (error) {
+
+      console.error(
+        "Counter error:",
+        error
+      );
+
+
+      document.getElementById(
+        "totalTests"
+      ).textContent =
+        "—";
+
+
+      document.getElementById(
+        "totalNotices"
+      ).textContent =
+        "—";
+
+    }
+
+  }
+
+
+  /* =========================
+     DASHBOARD DATA
+  ========================= */
+
+  async function loadDashboardData() {
+
+    await Promise.allSettled([
+      loadStudents(),
+      loadCounters()
+    ]);
+
+  }
+
+
+  /* =========================
+     SECURITY HELPER
+  ========================= */
+
+  function escapeHtml(value) {
+
+    return String(value)
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+
+
+  /* =========================
+     DSP — AVAILABILITY & SLOTS
+  ========================= */
+
+  let dspScheduleTeachers = [];
+
+  function getTodayIso() {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function formatDspTime(value) {
+    if (!value) return "—";
+    const parts = String(value).split(":");
+    let hour = Number(parts[0]);
+    const minute = parts[1] || "00";
+    const suffix = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${suffix}`;
+  }
+
+  function populateDspScheduleTeachers() {
+    const select = document.getElementById("dspScheduleTeacher");
+    if (!select) return;
+
+    const current = select.value;
+
+    select.innerHTML = `
+      <option value="">Select teacher</option>
+      ${dspTeachers.map(teacher => `
+        <option value="${escapeHtml(teacher.id)}">
+          ${escapeHtml(teacher.full_name || "Unnamed Teacher")}
+        </option>
+      `).join("")}
+    `;
+
+    if (current && dspTeachers.some(t => String(t.id) === String(current))) {
+      select.value = current;
+    }
+  }
+
+  function updateDspAvailabilityUI() {
+    const available = document.getElementById("dspTeacherAvailable")?.checked;
+    const reasonWrap = document.getElementById("dspReasonWrap");
+    const text = document.getElementById("dspAvailabilityText");
+
+    if (!reasonWrap || !text) return;
+
+    reasonWrap.classList.toggle("show", !available);
+    text.textContent = available ? "Available" : "Unavailable";
+    text.style.color = available ? "#69d391" : "#ff9292";
+  }
+
+  async function loadDspAvailability() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+
+    if (!teacherId || !date) return;
+
+    const { data, error } = await supabaseClient
+      .from("dsp_teacher_availability")
+      .select("id,teacher_id,date,is_available,reason")
+      .eq("teacher_id", teacherId)
+      .eq("date", date)
+      .maybeSingle();
+
+    if (error) {
+      console.error("DSP availability error:", error);
+      showDspMessage(error.message || "Unable to load teacher availability.", "error");
+      return;
+    }
+
+    const availableInput = document.getElementById("dspTeacherAvailable");
+    const reasonInput = document.getElementById("dspUnavailableReason");
+
+    if (data) {
+      availableInput.checked = data.is_available !== false;
+      reasonInput.value = data.reason || "";
+    } else {
+      availableInput.checked = true;
+      reasonInput.value = "";
+    }
+
+    updateDspAvailabilityUI();
+  }
+
+  async function saveDspAvailability() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const isAvailable = document.getElementById("dspTeacherAvailable")?.checked;
+    const reason = document.getElementById("dspUnavailableReason")?.value.trim() || null;
+    const button = document.getElementById("saveDspAvailabilityBtn");
+
+    if (!teacherId || !date) {
+      showDspMessage("Select a teacher and date first.", "error");
+      return;
+    }
+
+    if (!isAvailable && !reason) {
+      showDspMessage("Add a message/reason when marking a teacher unavailable.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+      const payload = {
+        teacher_id: teacherId,
+        date,
+        is_available: isAvailable,
+        reason: isAvailable ? null : reason
+      };
+
+      const { data: existing, error: findError } = await supabaseClient
+        .from("dsp_teacher_availability")
+        .select("id")
+        .eq("teacher_id", teacherId)
+        .eq("date", date)
+        .maybeSingle();
+
+      if (findError) throw findError;
+
+      let error;
+
+      if (existing?.id) {
+        ({ error } = await supabaseClient
+          .from("dsp_teacher_availability")
+          .update(payload)
+          .eq("id", existing.id));
+      } else {
+        ({ error } = await supabaseClient
+          .from("dsp_teacher_availability")
+          .insert(payload));
+      }
+
+      if (error) throw error;
+
+      showDspMessage(
+        `Availability saved for ${formatDspDate(date)}.`,
+        "success"
+      );
+
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("Save DSP availability error:", error);
+      showDspMessage(error.message || "Unable to save availability.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save Availability";
+    }
+  }
+
+  function formatDspDate(date) {
+    if (!date) return "selected date";
+    const d = new Date(`${date}T00:00:00`);
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function generateDspSlotRows() {
+    const slots = [];
+    let current = 14 * 60 + 30;
+    const end = 17 * 60 + 30;
+
+    while (current < end) {
+      const next = current + 3;
+
+      const startHour = Math.floor(current / 60);
+      const startMinute = current % 60;
+      const endHour = Math.floor(next / 60);
+      const endMinute = next % 60;
+
+      const pad = value => String(value).padStart(2, "0");
+
+      slots.push({
+        start_time: `${pad(startHour)}:${pad(startMinute)}:00`,
+        end_time: `${pad(endHour)}:${pad(endMinute)}:00`
+      });
+
+      current = next;
+    }
+
+    return slots;
+  }
+
+  async function generateDspSlots() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const button = document.getElementById("generateDspSlotsBtn");
+
+    if (!teacherId || !date) {
+      showDspMessage("Select a teacher and date first.", "error");
+      return;
+    }
+
+    const availableInput = document.getElementById("dspTeacherAvailable");
+
+    if (!availableInput.checked) {
+      showDspMessage("Teacher is unavailable for this date. Slots will not be generated.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    try {
+      const { data: existingSlots, error: existingError } = await supabaseClient
+        .from("dsp_slots")
+        .select("id,start_time,end_time,status")
+        .eq("teacher_id", teacherId)
+        .eq("date", date)
+        .order("start_time", { ascending: true });
+
+      if (existingError) throw existingError;
+
+      if (existingSlots?.length) {
+        showDspMessage("Slots already exist for this teacher and date.", "success");
+        await loadDspSlots();
+        return;
+      }
+
+      const rows = generateDspSlotRows().map(slot => ({
+        teacher_id: teacherId,
+        date,
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+        status: "available",
+        booking_id: null
+      }));
+
+      const { error } = await supabaseClient
+        .from("dsp_slots")
+        .insert(rows);
+
+      if (error) throw error;
+
+      showDspMessage(
+        `${rows.length} DSP slots generated for ${formatDspDate(date)}.`,
+        "success"
+      );
+
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("Generate DSP slots error:", error);
+      showDspMessage(error.message || "Unable to generate DSP slots.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Generate Slots";
+    }
+  }
+
+  async function loadDspSlots() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const list = document.getElementById("dspSlotsList");
+    const summary = document.getElementById("dspSlotSummary");
+
+    if (!list || !summary) return;
+
+    if (!teacherId || !date) {
+      list.innerHTML = `<div class="dsp-empty">Select a teacher and date to view slots.</div>`;
+      summary.textContent = "Select a teacher and date.";
+      return;
+    }
+
+    list.innerHTML = `<div class="dsp-empty">Loading slots...</div>`;
+
+    const { data, error } = await supabaseClient
+      .from("dsp_slots")
+      .select("id,start_time,end_time,status,booking_id")
+      .eq("teacher_id", teacherId)
+      .eq("date", date)
+      .order("start_time", { ascending: true });
+
+    if (error) {
+      console.error("DSP slots error:", error);
+      list.innerHTML = `<div class="dsp-empty">Unable to load slots.</div>`;
+      summary.textContent = "Unable to load slots.";
+      return;
+    }
+
+    const slots = data || [];
+    const booked = slots.filter(s => String(s.status).toLowerCase() === "booked").length;
+    const available = slots.filter(s => String(s.status).toLowerCase() === "available").length;
+    const blocked = slots.length - booked - available;
+
+    summary.textContent =
+      `${slots.length} slots · ${available} available · ${booked} booked · ${blocked} blocked`;
+
+    if (!slots.length) {
+      list.innerHTML = `
+        <div class="dsp-empty">
+          No slots generated for this date. Click “Generate Slots”.
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = slots.map(slot => {
+      const status = String(slot.status || "available").toLowerCase();
+      const safeStatus = ["available", "booked", "blocked"].includes(status)
+        ? status
+        : "blocked";
+
+      return `
+        <div class="dsp-slot ${safeStatus}">
+          <div class="dsp-slot-time">
+            ${formatDspTime(slot.start_time)} – ${formatDspTime(slot.end_time)}
+          </div>
+          <div class="dsp-slot-status">
+            ${escapeHtml(safeStatus)}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document
+    .getElementById("dspTeacherAvailable")
+    ?.addEventListener("change", updateDspAvailabilityUI);
+
+  document
+    .getElementById("dspScheduleTeacher")
+    ?.addEventListener("change", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+  document
+    .getElementById("dspScheduleDate")
+    ?.addEventListener("change", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+  document
+    .getElementById("saveDspAvailabilityBtn")
+    ?.addEventListener("click", saveDspAvailability);
+
+  document
+    .getElementById("generateDspSlotsBtn")
+    ?.addEventListener("click", generateDspSlots);
+
+  document
+    .getElementById("refreshDspScheduleBtn")
+    ?.addEventListener("click", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+
+  /* =========================
+     DSP — TEACHER ASSIGNMENT
+  ========================= */
+
+  const DSP_DEFAULT_SUBJECTS = [
+    { name: "Physics", code: "PHY" },
+    { name: "Chemistry", code: "CHEM" },
+    { name: "Zoology", code: "ZOO" },
+    { name: "Botany", code: "BOT" },
+    { name: "Maths", code: "MATH" }
+  ];
+
+  let dspTeachers = [];
+  let dspSubjects = [];
+  let dspTeacherAssignments = [];
+
+  function showDspMessage(text, type = "success") {
+    const box = document.getElementById("dspMessage");
+    if (!box) return;
+    box.textContent = text;
+    box.className = `dsp-message show ${type}`;
+  }
+
+  function hideDspMessage() {
+    const box = document.getElementById("dspMessage");
+    if (!box) return;
+    box.textContent = "";
+    box.className = "dsp-message";
+  }
+
+  async function ensureDspSubjects() {
+    const { data, error } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active")
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+
+    const existing = data || [];
+    const existingNames = new Set(
+      existing.map(subject => String(subject.name || "").trim().toLowerCase())
+    );
+
+    const missing = DSP_DEFAULT_SUBJECTS.filter(
+      subject => !existingNames.has(subject.name.toLowerCase())
+    );
+
+    if (missing.length) {
+      const { error: insertError } = await supabaseClient
+        .from("dsp_subjects")
+        .insert(
+          missing.map(subject => ({
+            name: subject.name,
+            code: subject.code,
+            is_active: true
+          }))
+        );
+
+      if (insertError) throw insertError;
+    }
+
+    const { data: finalData, error: finalError } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active")
+      .eq("is_active", true)
+      .order("name", { ascending: true });
+
+    if (finalError) throw finalError;
+
+    dspSubjects = finalData || [];
+  }
+
+  async function loadDspTeachers() {
+    const { data, error } = await supabaseClient
+      .from("teachers")
+      .select("id,user_id,teacher_id,full_name,email,phone,subject,is_active")
+      .eq("is_active", true)
+      .order("full_name", { ascending: true });
+
+    if (error) throw error;
+
+    dspTeachers = data || [];
+  }
+
+  async function loadDspAssignments() {
+    const { data, error } = await supabaseClient
+      .from("dsp_teacher_subjects")
+      .select("id,teacher_id,subject_id");
+
+    if (error) throw error;
+
+    dspTeacherAssignments = data || [];
+  }
+
+  function renderDspSubjects() {
+    const box = document.getElementById("dspSubjectList");
+    const count = document.getElementById("dspSubjectCount");
+
+    if (!box) return;
+
+    count.textContent = `${dspSubjects.length} active`;
+
+    if (!dspSubjects.length) {
+      box.innerHTML = `<div class="dsp-empty">No DSP subjects found.</div>`;
+      return;
+    }
+
+    box.innerHTML = dspSubjects.map(subject => `
+      <div class="dsp-subject-card">
+        <div>
+          <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
+          <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+        </div>
+        <span class="dsp-active">ACTIVE</span>
+      </div>
+    `).join("");
+  }
+
+  function teacherHasSubject(teacherId, subjectId) {
+    return dspTeacherAssignments.some(
+      row =>
+        String(row.teacher_id) === String(teacherId) &&
+        String(row.subject_id) === String(subjectId)
+    );
+  }
+
+  function renderDspTeachers() {
+    const box = document.getElementById("dspTeacherList");
+    if (!box) return;
+
+    if (!dspTeachers.length) {
+      box.innerHTML = `
+        <div class="dsp-empty">
+          No active teachers found in the SIR teacher database.
+        </div>
+      `;
+      return;
+    }
+
+    box.innerHTML = dspTeachers.map(teacher => {
+      const name = teacher.full_name || "Unnamed Teacher";
+      const teacherCode = teacher.teacher_id || "No Teacher ID";
+      const subject = teacher.subject || "Subject not set";
+
+      const subjectControls = dspSubjects.map(dspSubject => {
+        const checked = teacherHasSubject(teacher.id, dspSubject.id);
+
+        return `
+          <label class="dsp-check">
+            <input
+              type="checkbox"
+              data-teacher-id="${escapeHtml(teacher.id)}"
+              data-subject-id="${escapeHtml(dspSubject.id)}"
+              ${checked ? "checked" : ""}
+            >
+            <span>${escapeHtml(dspSubject.name)}</span>
+          </label>
+        `;
+      }).join("");
+
+      return `
+        <div class="dsp-teacher-row" data-dsp-teacher="${escapeHtml(teacher.id)}">
+          <div>
+            <div class="dsp-teacher-name">${escapeHtml(name)}</div>
+            <div class="dsp-teacher-meta">
+              ${escapeHtml(teacherCode)} · ${escapeHtml(subject)}
+            </div>
+          </div>
+
+          <div class="dsp-subjects">
+            ${subjectControls}
+          </div>
+
+          <button
+            type="button"
+            class="dsp-save"
+            data-save-dsp-teacher="${escapeHtml(teacher.id)}"
+          >
+            Save
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    document
+      .querySelectorAll("[data-save-dsp-teacher]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          saveDspTeacherAssignments(button.dataset.saveDspTeacher, button);
+        });
+      });
+  }
+
+  async function saveDspTeacherAssignments(teacherId, button) {
+    hideDspMessage();
+
+    const row = document.querySelector(
+      `[data-dsp-teacher="${CSS.escape(teacherId)}"]`
+    );
+
+    if (!row) return;
+
+    const selectedSubjectIds = Array.from(
+      row.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(input => input.dataset.subjectId);
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+      /*
+        We replace this teacher's DSP assignments as one operation:
+        delete current assignments, then insert the selected subjects.
+      */
+
+      const { error: deleteError } = await supabaseClient
+        .from("dsp_teacher_subjects")
+        .delete()
+        .eq("teacher_id", teacherId);
+
+      if (deleteError) throw deleteError;
+
+      if (selectedSubjectIds.length) {
+        const rowsToInsert = selectedSubjectIds.map(subjectId => ({
+          teacher_id: teacherId,
+          subject_id: subjectId
+        }));
+
+        const { error: insertError } = await supabaseClient
+          .from("dsp_teacher_subjects")
+          .insert(rowsToInsert);
+
+        if (insertError) throw insertError;
+      }
+
+      await loadDspAssignments();
+      renderDspTeachers();
+
+      showDspMessage(
+        `${dspTeachers.find(t => String(t.id) === String(teacherId))?.full_name || "Teacher"}'s DSP subjects have been saved.`,
+        "success"
+      );
+
+    } catch (error) {
+      console.error("DSP assignment error:", error);
+
+      showDspMessage(
+        error?.message || "Unable to save DSP teacher assignment.",
         "error"
       );
 
     } finally {
-
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Create Test";
-
+      button.disabled = false;
+      button.textContent = "Save";
     }
-
-  });
-
-
-/* --------------------------------
-   MODAL
--------------------------------- */
-
-const modal =
-  document.getElementById(
-    "studentModal"
-  );
-
-
-document
-  .getElementById("addStudentBtn")
-  .addEventListener("click", async () => {
-
-    modal.classList.add("show");
-
-    await loadCourses();
-    await loadBatches();
-
-  });
-
-
-document
-  .getElementById("closeModal")
-  .addEventListener("click", closeModal);
-
-
-document
-  .getElementById("cancelStudent")
-  .addEventListener("click", closeModal);
-
-
-function closeModal() {
-
-  modal.classList.remove("show");
-
-  document
-    .getElementById("studentForm")
-    .reset();
-
-  hideMessage();
-
-}
-
-
-/* --------------------------------
-   STUDENT CREATE
--------------------------------- */
-
-document
-  .getElementById("studentForm")
-  .addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    showMessage(
-      "Student creation will be connected securely in the next backend step.",
-      "success"
-    );
-
-  });
-
-
-/* --------------------------------
-   COUNTERS
--------------------------------- */
-
-async function loadCounters() {
-
-  const {
-    count: testCount
-  } = await supabaseClient
-    .from("tests")
-    .select("*", {
-      count: "exact",
-      head: true
-    });
-
-  const {
-    count: noticeCount
-  } = await supabaseClient
-    .from("notices")
-    .select("*", {
-      count: "exact",
-      head: true
-    });
-
-  document.getElementById(
-    "totalTests"
-  ).textContent =
-    testCount ?? 0;
-
-  document.getElementById(
-    "totalNotices"
-  ).textContent =
-    noticeCount ?? 0;
-
-}
-
-
-/* --------------------------------
-   MESSAGES
--------------------------------- */
-
-function showMessage(text, type) {
-
-  const box =
-    document.getElementById(
-      "formMessage"
-    );
-
-  box.textContent = text;
-
-  box.className =
-    `message show ${type}`;
-
-}
-
-
-function hideMessage() {
-
-  const box =
-    document.getElementById(
-      "formMessage"
-    );
-
-  box.className = "message";
-
-  box.textContent = "";
-
-}
-
-
-/* --------------------------------
-   SECURITY HELPER
--------------------------------- */
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-/* --------------------------------
-   LOGOUT
--------------------------------- */
-
-document
-  .getElementById("logoutBtn")
-  .addEventListener("click", async () => {
-
-    await supabaseClient.auth.signOut();
-
-    showLogin();
-
-  });
-
-
-/* --------------------------------
-   INIT
--------------------------------- */
-
-(async function init() {
-
-  showLogin();
-
-  const session =
-    await checkAdmin();
-
-  if (!session) {
-    return;
   }
 
-  showDashboard();
+  async function loadDspData() {
+    const teacherBox = document.getElementById("dspTeacherList");
+    const subjectBox = document.getElementById("dspSubjectList");
 
-  await loadStudents();
+    if (!teacherBox || !subjectBox) return;
 
-  await loadBatches();
+    hideDspMessage();
 
-  await loadAdminBatches();
+    teacherBox.innerHTML = `<div class="dsp-empty">Loading teachers...</div>`;
+    subjectBox.innerHTML = `<div class="dsp-empty">Loading subjects...</div>`;
 
-  await loadAdminTests();
+    try {
+      await ensureDspSubjects();
+      await Promise.all([
+        loadDspTeachers(),
+        loadDspAssignments()
+      ]);
 
-  await loadCounters();
+      renderDspSubjects();
+      renderDspTeachers();
 
-})();
+      populateDspScheduleTeachers();
+
+      const dateInput = document.getElementById("dspScheduleDate");
+      if (dateInput && !dateInput.value) {
+        dateInput.value = getTodayIso();
+      }
+
+      updateDspAvailabilityUI();
+      await loadDspAvailability();
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("DSP load error:", error);
+
+      teacherBox.innerHTML = `
+        <div class="dsp-empty">
+          Unable to load DSP data.
+        </div>
+      `;
+
+      subjectBox.innerHTML = `
+        <div class="dsp-empty">
+          Unable to load DSP subjects.
+        </div>
+      `;
+
+      showDspMessage(
+        error?.message || "Unable to load DSP data. Check Supabase permissions.",
+        "error"
+      );
+    }
+  }
+
+  document
+    .querySelector('[data-section="dsp"]')
+    ?.addEventListener("click", loadDspData);
+
+  document
+    .getElementById("refreshDspBtn")
+    ?.addEventListener("click", loadDspData);
+
+
+  /* =========================
+     LOGOUT
+  ========================= */
+
+  document
+    .getElementById("logoutBtn")
+    .addEventListener(
+      "click",
+      async function() {
+
+        const button =
+          document.getElementById(
+            "logoutBtn"
+          );
+
+
+        button.disabled = true;
+
+        button.textContent =
+          "Logging out...";
+
+
+        try {
+
+          await supabaseClient
+            .auth
+            .signOut();
+
+
+        } catch (error) {
+
+          console.error(
+            "Logout error:",
+            error
+          );
+
+        } finally {
+
+          button.disabled = false;
+
+          button.textContent =
+            "Logout";
+
+
+          showLogin();
+
+          document
+            .getElementById(
+              "adminPassword"
+            )
+            .value = "";
+
+        }
+
+      }
+    );
+
+
+  /* =========================
+     START
+  ========================= */
+
+  initializeApp();
 
 </script>
 
