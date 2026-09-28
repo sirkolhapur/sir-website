@@ -41,24 +41,42 @@
     .brand {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 14px;
+      width: auto;
+      flex: 0 0 auto;
+      min-width: 0;
+      overflow: visible;
     }
 
     .brand img {
-      width: 48px;
-      height: 48px;
+      display: block;
+      width: 68px;
+      height: 62px;
+      max-width: none;
       object-fit: contain;
+      object-position: center;
+      flex: 0 0 68px;
+    }
+
+    .brand-text {
+      min-width: max-content;
+      white-space: nowrap;
     }
 
     .brand-text strong {
       display: block;
       font-size: 18px;
+      line-height: 1.2;
     }
 
     .brand-text span {
-      color: #c9a84e;
-      font-size: 12px;
-      letter-spacing: 1px;
+      display: block;
+      color: #F0C75E;
+      font-size: 11px;
+      line-height: 1.25;
+      letter-spacing: .8px;
+      white-space: nowrap;
     }
 
     .logout {
@@ -1029,7 +1047,7 @@
        DSP — ADDED TO WORKING ADMIN BASE
        ========================= */
 /* =========================
-       DSP — DOUBT SESSION PROGRAMME
+       DSP — DOUBT SOLVING PROGRAMME
     ========================= */
 
     .dsp-intro {
@@ -1135,16 +1153,29 @@
       gap: 7px;
     }
 
-    .dsp-check {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
+    .dsp-subject-toggle {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.10);
+      background: #07152F;
+      color: #8e9caf;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .15s ease;
+      user-select: none;
     }
 
-    .dsp-check input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
+    .dsp-subject-toggle:hover {
+      border-color: rgba(240,199,94,.45);
+      color: #F0C75E;
+    }
+
+    .dsp-subject-toggle.selected {
+      background: rgba(201,168,78,.14);
+      border-color: rgba(201,168,78,.55);
+      color: #F0C75E;
     }
 
     .dsp-no-eligible {
@@ -1159,30 +1190,7 @@
   white-space: nowrap;
 }
 
-.dsp-check span {
-      cursor: pointer;
-      padding: 7px 10px;
-      border-radius: 7px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: #07152F;
-      color: #8e9caf;
-      font-size: 11px;
-      transition: .15s ease;
-      user-select: none;
-    }
-
-    .dsp-check input:checked + span {
-      background: rgba(201,168,78,.14);
-      border-color: rgba(201,168,78,.45);
-      color: #F0C75E;
-    }
-
-    .dsp-check input:disabled + span {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    .dsp-save {
+.dsp-save {
       white-space: nowrap;
       padding: 9px 12px;
       border: 0;
@@ -1496,18 +1504,7 @@
 
 
     /* SIR LOGO — original asset, unchanged */
-    .brand {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 76px;
-      height: 68px;
-      flex: 0 0 76px;
-      overflow: visible;
-    }
-
     .brand img {
-      display: block;
       width: 68px;
       height: 62px;
       max-width: none;
@@ -1619,7 +1616,7 @@
     </button>
 
     <button class="nav-btn" data-section="dsp">
-      Doubt Session Programme
+      Doubt Solving Programme
     </button>
 
   </aside>
@@ -1934,15 +1931,15 @@
       >
 
         <div class="page-header">
-          <h1>Doubt Session Programme</h1>
-          <p>Control DSP teacher assignments for student doubt sessions.</p>
+          <h1>Doubt Solving Programme</h1>
+          <p>Control DSP teacher assignments for the Doubt Solving Programme.</p>
         </div>
 
         <div class="dsp-intro">
           <h3>DSP — Teacher Assignment</h3>
           <p>
-            Assign the subjects each teacher can handle during the Doubt Session Programme.
-            These assignments will control which teachers students can see when they book a doubt session.
+            Assign the subjects each teacher can handle during the Doubt Solving Programme.
+            These assignments control which teachers students can see for the Doubt Solving Programme.
           </p>
 
           <div class="dsp-rules">
@@ -6243,15 +6240,15 @@ document
         const checked = teacherHasSubject(teacher.id, dspSubject.id);
 
         return `
-          <label class="dsp-check">
-            <input
-              type="checkbox"
-              data-teacher-id="${escapeHtml(teacher.id)}"
-              data-subject-id="${escapeHtml(dspSubject.id)}"
-              ${checked ? "checked" : ""}
-            >
-            <span>${escapeHtml(dspSubject.name)}</span>
-          </label>
+          <button
+            type="button"
+            class="dsp-subject-toggle ${checked ? "selected" : ""}"
+            data-dsp-teacher-id="${escapeHtml(teacher.id)}"
+            data-dsp-subject-id="${escapeHtml(dspSubject.id)}"
+            aria-pressed="${checked ? "true" : "false"}"
+          >
+            ${escapeHtml(dspSubject.name)}
+          </button>
         `;
       }).join("");
 
@@ -6284,6 +6281,15 @@ document
     }).join("");
 
     document
+      .querySelectorAll("[data-dsp-subject-id]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          const selected = button.classList.toggle("selected");
+          button.setAttribute("aria-pressed", String(selected));
+        });
+      });
+
+    document
       .querySelectorAll("[data-save-dsp-teacher]")
       .forEach(button => {
         button.addEventListener("click", () => {
@@ -6302,8 +6308,8 @@ document
     if (!row) return;
 
     const selectedSubjectIds = Array.from(
-      row.querySelectorAll('input[type="checkbox"]:checked')
-    ).map(input => input.dataset.subjectId);
+      row.querySelectorAll('.dsp-subject-toggle.selected')
+    ).map(button => button.dataset.dspSubjectId);
 
     button.disabled = true;
     button.textContent = "Saving...";
