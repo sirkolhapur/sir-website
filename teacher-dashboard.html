@@ -21,7 +21,7 @@
 
     <link
         rel="icon"
-        href=sir-logo.png
+        href="https://sir.net.in/sir-logo.png"
     >
 
     <!-- Supabase -->
@@ -1557,7 +1557,122 @@
 
         }
 
-    </style>
+    
+        /* =====================================================
+           DSP — DOUBT SOLVING PROGRAMME
+        ===================================================== */
+
+        .dsp-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .dsp-card {
+            background: #fff;
+            border: 1px solid #dfe6f1;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .dsp-card-label {
+            font-size: 10px;
+            letter-spacing: .14em;
+            font-weight: 800;
+            color: #667085;
+            margin-bottom: 10px;
+        }
+
+        .dsp-card > strong {
+            display: block;
+            font-size: 32px;
+            color: #07152f;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .dsp-card p {
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .dsp-subject-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .dsp-subject-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #f5f7fa;
+            border: 1px solid #dfe6f1;
+            color: #07152f;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .dsp-table-card {
+            overflow: hidden;
+        }
+
+        .table-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .table-card-head h3 {
+            color: #07152f;
+            margin-bottom: 4px;
+        }
+
+        .table-card-head p {
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .secondary-btn {
+            border: 1px solid #d7a62a;
+            background: #fff;
+            color: #07152f;
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .secondary-btn:hover {
+            background: #f5f7fa;
+        }
+
+        .dsp-question-link {
+            color: #12376f;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .dsp-question-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 760px) {
+            .dsp-grid {
+                grid-template-columns: 1fr;
+            }
+            .table-card-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+</style>
 
 </head>
 
@@ -1604,7 +1719,7 @@
             <div class="sidebar-logo">
 
                 <img
-                    src=sir-logo.png
+                    src="https://sir.net.in/sir-logo.png"
                     alt="SIR"
                 >
 
@@ -1659,6 +1774,12 @@
                     data-section="results"
                 >
                     RESULTS
+                </button>
+
+                <button
+                    data-section="dsp"
+                >
+                    DOUBT SOLVING PROGRAMME
                 </button>
 
                 <button
@@ -2173,6 +2294,64 @@
 
                 <section
                     class="page-section"
+                    id="section-dsp"
+                >
+
+                    <div class="section-header">
+                        <div>
+                            <h2>Doubt Solving Programme</h2>
+                            <p>Questions assigned to you through the SIR DSP system.</p>
+                        </div>
+                    </div>
+
+                    <div class="dsp-grid">
+                        <div class="dsp-card">
+                            <div class="dsp-card-label">ASSIGNED SUBJECTS</div>
+                            <div id="dspAssignedSubjects" class="dsp-subject-list">
+                                Loading...
+                            </div>
+                        </div>
+                        <div class="dsp-card">
+                            <div class="dsp-card-label">TODAY'S BOOKINGS</div>
+                            <strong id="dspTodayCount">0</strong>
+                            <p>2:30 PM – 5:30 PM · 3 minutes per question</p>
+                        </div>
+                    </div>
+
+                    <div class="table-card dsp-table-card">
+                        <div class="table-card-head">
+                            <div>
+                                <h3>DSP Bookings</h3>
+                                <p>Students who have booked a doubt-solving slot with you.</p>
+                            </div>
+                            <button type="button" class="secondary-btn" id="dspRefreshBtn">REFRESH</button>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>DATE</th>
+                                        <th>TIME</th>
+                                        <th>STUDENT</th>
+                                        <th>SUBJECT</th>
+                                        <th>TOPIC</th>
+                                        <th>QUESTION</th>
+                                        <th>STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dspBookingsBody">
+                                    <tr><td colspan="7">Loading DSP bookings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                <section
+                    class="page-section"
                     id="section-profile"
                 >
 
@@ -2369,6 +2548,10 @@
         let teacherScores = [];
 
         let selectedStudentForReview = null;
+
+        let dspAssignments = [];
+
+        let dspBookings = [];
 
 
 
@@ -3891,6 +4074,195 @@
 
 
         /* =====================================================
+           DOUBT SOLVING PROGRAMME
+        ===================================================== */
+
+        function normalizeSubjectName(value) {
+            return String(value || "")
+                .trim()
+                .toLowerCase();
+        }
+
+        function renderDspAssignments() {
+            const el = document.getElementById("dspAssignedSubjects");
+            if (!el) return;
+
+            if (!dspAssignments.length) {
+                el.innerHTML = `<span style="color:#667085;font-size:13px;">No DSP subject has been assigned to you yet.</span>`;
+                return;
+            }
+
+            el.innerHTML = dspAssignments
+                .map(row => `<span class="dsp-subject-pill">${escapeHtml(row.subject_name)}</span>`)
+                .join("");
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        async function loadDspAssignments() {
+            const { data, error } = await supabaseClient
+                .from("dsp_teacher_subjects")
+                .select("subject_id")
+                .eq("teacher_id", currentTeacher.id);
+
+            if (error) {
+                console.error("DSP assignment error:", error);
+                throw new Error("Unable to load DSP subject assignments.");
+            }
+
+            const subjectIds = (data || []).map(row => row.subject_id).filter(Boolean);
+
+            if (!subjectIds.length) {
+                dspAssignments = [];
+                renderDspAssignments();
+                return;
+            }
+
+            const { data: subjects, error: subjectError } = await supabaseClient
+                .from("dsp_subjects")
+                .select("id,name,code")
+                .in("id", subjectIds)
+                .order("name", { ascending: true });
+
+            if (subjectError) {
+                console.error("DSP subjects error:", subjectError);
+                throw new Error("Unable to load DSP subjects.");
+            }
+
+            dspAssignments = (subjects || []).map(subject => ({
+                subject_id: subject.id,
+                subject_name: subject.name,
+                code: subject.code
+            }));
+
+            renderDspAssignments();
+        }
+
+        async function loadDspBookings() {
+            const { data, error } = await supabaseClient
+                .from("dsp_bookings")
+                .select("id,student_id,teacher_id,question_id,date,start_time,end_time,status")
+                .eq("teacher_id", currentTeacher.id)
+                .order("date", { ascending: false })
+                .order("start_time", { ascending: true });
+
+            if (error) {
+                console.error("DSP bookings error:", error);
+                throw new Error("Unable to load DSP bookings.");
+            }
+
+            dspBookings = data || [];
+
+            const studentIds = [...new Set(dspBookings.map(row => row.student_id).filter(Boolean))];
+            const questionIds = [...new Set(dspBookings.map(row => row.question_id).filter(Boolean))];
+
+            let students = [];
+            let questions = [];
+
+            if (studentIds.length) {
+                const result = await supabaseClient
+                    .from("students")
+                    .select("id,student_uid,full_name")
+                    .in("id", studentIds);
+                if (result.error) throw new Error("Unable to load DSP students.");
+                students = result.data || [];
+            }
+
+            if (questionIds.length) {
+                const result = await supabaseClient
+                    .from("dsp_questions")
+                    .select("id,subject_id,topic_id,question_text,photo_url")
+                    .in("id", questionIds);
+                if (result.error) throw new Error("Unable to load DSP questions.");
+                questions = result.data || [];
+            }
+
+            const subjectIds = [...new Set(questions.map(row => row.subject_id).filter(Boolean))];
+            const topicIds = [...new Set(questions.map(row => row.topic_id).filter(Boolean))];
+
+            let subjects = [];
+            let topics = [];
+
+            if (subjectIds.length) {
+                const result = await supabaseClient
+                    .from("dsp_subjects")
+                    .select("id,name")
+                    .in("id", subjectIds);
+                if (result.error) throw new Error("Unable to load DSP subject names.");
+                subjects = result.data || [];
+            }
+
+            if (topicIds.length) {
+                const result = await supabaseClient
+                    .from("dsp_topics")
+                    .select("id,name")
+                    .in("id", topicIds);
+                if (result.error) throw new Error("Unable to load DSP topic names.");
+                topics = result.data || [];
+            }
+
+            const studentMap = Object.fromEntries(students.map(row => [row.id, row]));
+            const questionMap = Object.fromEntries(questions.map(row => [row.id, row]));
+            const subjectMap = Object.fromEntries(subjects.map(row => [row.id, row]));
+            const topicMap = Object.fromEntries(topics.map(row => [row.id, row]));
+
+            const today = new Date().toISOString().slice(0, 10);
+            const todayCount = dspBookings.filter(row => row.date === today).length;
+            const countEl = document.getElementById("dspTodayCount");
+            if (countEl) countEl.textContent = String(todayCount);
+
+            const tbody = document.getElementById("dspBookingsBody");
+            if (!tbody) return;
+
+            if (!dspBookings.length) {
+                tbody.innerHTML = `<tr><td colspan="7">No DSP bookings yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = dspBookings.map(booking => {
+                const student = studentMap[booking.student_id] || {};
+                const question = questionMap[booking.question_id] || {};
+                const subject = subjectMap[question.subject_id] || {};
+                const topic = topicMap[question.topic_id] || {};
+                const questionText = question.question_text || (question.photo_url ? "Photo question" : "—");
+                const questionCell = question.photo_url
+                    ? `<a class="dsp-question-link" href="${escapeHtml(question.photo_url)}" target="_blank" rel="noopener">${escapeHtml(questionText)}</a>`
+                    : escapeHtml(questionText);
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(booking.date || "—")}</td>
+                        <td>${escapeHtml(booking.start_time || "—")} – ${escapeHtml(booking.end_time || "—")}</td>
+                        <td>${escapeHtml(student.full_name || student.student_uid || "—")}</td>
+                        <td>${escapeHtml(subject.name || "—")}</td>
+                        <td>${escapeHtml(topic.name || "—")}</td>
+                        <td>${questionCell}</td>
+                        <td>${escapeHtml(booking.status || "—")}</td>
+                    </tr>`;
+            }).join("");
+        }
+
+        async function loadDspData() {
+            await loadDspAssignments();
+            await loadDspBookings();
+        }
+
+        document.getElementById("dspRefreshBtn")?.addEventListener("click", async () => {
+            try {
+                await loadDspData();
+            } catch (error) {
+                showError(error.message || "Unable to refresh DSP data.");
+            }
+        });
+
+        /* =====================================================
            NAVIGATION
         ===================================================== */
 
@@ -3930,6 +4302,11 @@
             profile: [
                 "My Profile",
                 "Your SIR teacher account"
+            ],
+
+            dsp: [
+                "Doubt Solving Programme",
+                "Your assigned DSP subjects and student bookings"
             ]
 
         };
@@ -4121,6 +4498,8 @@
                 await loadTests();
 
                 await loadScores();
+
+                await loadDspData();
 
 
                 loading.style.display =
