@@ -1023,7 +1023,487 @@
       display: none;
     }
 
-  </style>
+  
+
+    /* =========================
+       DSP — ADDED TO WORKING ADMIN BASE
+       ========================= */
+/* =========================
+       DSP — DOUBT SESSION PROGRAMME
+    ========================= */
+
+    .dsp-intro {
+      background: linear-gradient(135deg, rgba(201,168,78,.10), rgba(13,32,56,.96));
+      border: 1px solid rgba(201,168,78,.20);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .dsp-intro h3 {
+      font-size: 18px;
+      margin-bottom: 7px;
+      color: #fff;
+    }
+
+    .dsp-intro p {
+      color: #91a0b4;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .dsp-rules {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .dsp-rule {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.16);
+      color: #F0C75E;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dsp-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, .65fr);
+      gap: 18px;
+    }
+
+    .dsp-panel {
+      background: #0B2148;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .dsp-panel-head {
+      padding: 17px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dsp-panel-head h3 {
+      font-size: 16px;
+    }
+
+    .dsp-panel-head span {
+      color: #7f8da1;
+      font-size: 11px;
+    }
+
+    .dsp-teacher-list {
+      padding: 10px;
+    }
+
+    .dsp-teacher-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 1.5fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.055);
+    }
+
+    .dsp-teacher-row:last-child {
+      border-bottom: 0;
+    }
+
+    .dsp-teacher-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .dsp-teacher-meta {
+      color: #75849a;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .dsp-subjects {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .dsp-check {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .dsp-check input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dsp-check span {
+      cursor: pointer;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: #07152F;
+      color: #8e9caf;
+      font-size: 11px;
+      transition: .15s ease;
+      user-select: none;
+    }
+
+    .dsp-check input:checked + span {
+      background: rgba(201,168,78,.14);
+      border-color: rgba(201,168,78,.45);
+      color: #F0C75E;
+    }
+
+    .dsp-check input:disabled + span {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .dsp-save {
+      white-space: nowrap;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 7px;
+      background: #D7A62A;
+      color: #07152F;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .dsp-save:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .dsp-side-body {
+      padding: 16px;
+    }
+
+    .dsp-subject-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px;
+      margin-bottom: 9px;
+      background: #07152F;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 9px;
+    }
+
+    .dsp-subject-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dsp-subject-code {
+      color: #738196;
+      font-size: 10px;
+      margin-top: 3px;
+    }
+
+    .dsp-active {
+      color: #69d391;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .dsp-message {
+      margin: 14px 16px 0;
+      padding: 10px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .dsp-message.show {
+      display: block;
+    }
+
+    .dsp-message.success {
+      background: rgba(70,180,110,.12);
+      color: #75dda0;
+    }
+
+    .dsp-message.error {
+      background: rgba(220,70,70,.12);
+      color: #ff9292;
+    }
+
+    .dsp-empty {
+      padding: 30px 15px;
+      text-align: center;
+      color: #77869b;
+      font-size: 13px;
+    }
+
+
+    .dsp-control-panel {
+      margin-bottom: 20px;
+      background: #0B2148;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .dsp-schedule-controls {
+      display: grid;
+      grid-template-columns: 1.25fr .9fr .75fr 1.6fr;
+      gap: 12px;
+      padding: 18px;
+      align-items: end;
+    }
+
+    .dsp-field-label {
+      display: block;
+      color: #91a0b4;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .dsp-select,
+    .dsp-input {
+      width: 100%;
+      min-height: 39px;
+      padding: 9px 11px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: #07152F;
+      color: #fff;
+      outline: none;
+      font-size: 12px;
+    }
+
+    .dsp-select:focus,
+    .dsp-input:focus {
+      border-color: #D7A62A;
+    }
+
+    .dsp-availability-box {
+      min-height: 39px;
+    }
+
+    .dsp-toggle {
+      min-height: 39px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      color: #69d391;
+      font-size: 12px;
+    }
+
+    .dsp-toggle input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .dsp-toggle-track {
+      width: 38px;
+      height: 21px;
+      border-radius: 999px;
+      background: #435166;
+      position: relative;
+      transition: .15s ease;
+    }
+
+    .dsp-toggle-track::after {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .15s ease;
+    }
+
+    .dsp-toggle input:checked + .dsp-toggle-track {
+      background: #D7A62A;
+    }
+
+    .dsp-toggle input:checked + .dsp-toggle-track::after {
+      transform: translateX(17px);
+    }
+
+    .dsp-reason-wrap {
+      display: none;
+    }
+
+    .dsp-reason-wrap.show {
+      display: block;
+    }
+
+    .dsp-schedule-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 9px;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+
+    .dsp-schedule-note {
+      padding: 0 18px 17px;
+      color: #718097;
+      font-size: 11px;
+    }
+
+    .dsp-slot-header {
+      padding: 16px 18px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .dsp-slot-header h3 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .dsp-slot-header span {
+      color: #7f8da1;
+      font-size: 11px;
+    }
+
+    .dsp-slots-list {
+      padding: 14px 18px 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 8px;
+    }
+
+    .dsp-slot {
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 8px;
+      padding: 11px;
+      background: #07152F;
+    }
+
+    .dsp-slot-time {
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .dsp-slot-status {
+      margin-top: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .dsp-slot.available {
+      border-color: rgba(105,211,145,.20);
+    }
+
+    .dsp-slot.available .dsp-slot-status {
+      color: #69d391;
+    }
+
+    .dsp-slot.booked {
+      border-color: rgba(201,168,78,.28);
+    }
+
+    .dsp-slot.booked .dsp-slot-status {
+      color: #F0C75E;
+    }
+
+    .dsp-slot.blocked {
+      border-color: rgba(255,110,110,.18);
+    }
+
+    .dsp-slot.blocked .dsp-slot-status {
+      color: #ff9292;
+    }
+
+    @media (max-width: 900px) {
+      .dsp-schedule-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dsp-reason-wrap {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .dsp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dsp-teacher-row {
+        grid-template-columns: 1fr;
+      }
+
+      .dsp-save {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .dsp-schedule-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dsp-reason-wrap {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .dsp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dsp-teacher-row {
+        grid-template-columns: 1fr;
+      }
+
+      .dsp-save {
+        width: 100%;
+      }
+    }
+
+
+
+    /* SIR LOGO — original asset, unchanged */
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 68px;
+      flex: 0 0 76px;
+      overflow: visible;
+    }
+
+    .brand img {
+      display: block;
+      width: 68px;
+      height: 62px;
+      max-width: none;
+      object-fit: contain;
+      object-position: center;
+    }
+
+</style>
 </head>
 
 <body>
@@ -1032,7 +1512,7 @@
 <div id="loginPage">
   <div class="login-box">
     <div class="login-logo">
-      <img src="sir-logo.png" alt="SIR">
+      <img src="https://sir.net.in/sir-logo.png" alt="SIR">
       <h1>SIR Admin</h1>
       <p>WHERE POTENTIAL FINDS DIRECTION</p>
     </div>
@@ -1124,6 +1604,10 @@
 
     <button class="nav-btn" data-section="notices">
       Notices
+    </button>
+
+    <button class="nav-btn" data-section="dsp">
+      Doubt Session Programme
     </button>
 
   </aside>
@@ -1429,6 +1913,137 @@
       </div>
 
     </section>
+
+  
+
+    <section
+        class="section"
+        id="dsp"
+      >
+
+        <div class="page-header">
+          <h1>Doubt Session Programme</h1>
+          <p>Control DSP teacher assignments for student doubt sessions.</p>
+        </div>
+
+        <div class="dsp-intro">
+          <h3>DSP — Teacher Assignment</h3>
+          <p>
+            Assign the subjects each teacher can handle during the Doubt Session Programme.
+            These assignments will control which teachers students can see when they book a doubt session.
+          </p>
+
+          <div class="dsp-rules">
+            <span class="dsp-rule">2:30 PM – 5:30 PM</span>
+            <span class="dsp-rule">3 Minutes / Question</span>
+            <span class="dsp-rule">Maximum 3 Questions / Day</span>
+            <span class="dsp-rule">Maximum 10 Minutes / Day</span>
+          </div>
+        </div>
+
+
+        <div class="dsp-control-panel">
+          <div class="dsp-panel-head">
+            <div>
+              <h3>Teacher Availability & Slots</h3>
+              <span>Manage a teacher's DSP availability for a selected day</span>
+            </div>
+            <button type="button" class="secondary-btn" id="refreshDspScheduleBtn">Refresh</button>
+          </div>
+
+          <div class="dsp-schedule-controls">
+            <div>
+              <label class="dsp-field-label">Teacher</label>
+              <select id="dspScheduleTeacher" class="dsp-select">
+                <option value="">Select teacher</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="dsp-field-label">Date</label>
+              <input id="dspScheduleDate" class="dsp-input" type="date">
+            </div>
+
+            <div class="dsp-availability-box">
+              <label class="dsp-field-label">Availability</label>
+              <label class="dsp-toggle">
+                <input type="checkbox" id="dspTeacherAvailable" checked>
+                <span class="dsp-toggle-track"></span>
+                <strong id="dspAvailabilityText">Available</strong>
+              </label>
+            </div>
+
+            <div id="dspReasonWrap" class="dsp-reason-wrap">
+              <label class="dsp-field-label">Unavailable message</label>
+              <input id="dspUnavailableReason" class="dsp-input" type="text"
+                     placeholder="e.g. Do not accept questions on this day">
+            </div>
+
+            <div class="dsp-schedule-actions">
+              <button type="button" class="dsp-save" id="saveDspAvailabilityBtn">
+                Save Availability
+              </button>
+              <button type="button" class="secondary-btn" id="generateDspSlotsBtn">
+                Generate Slots
+              </button>
+            </div>
+          </div>
+
+          <div class="dsp-schedule-note">
+            <strong>DSP window:</strong> 2:30 PM – 5:30 PM &nbsp;•&nbsp;
+            <strong>Slot:</strong> 3 minutes &nbsp;•&nbsp;
+            <strong>Maximum:</strong> 3 questions / student / day
+          </div>
+
+          <div class="dsp-slot-header">
+            <div>
+              <h3>Daily Slots</h3>
+              <span id="dspSlotSummary">Select a teacher and date.</span>
+            </div>
+          </div>
+
+          <div id="dspSlotsList" class="dsp-slots-list">
+            <div class="dsp-empty">Select a teacher and date to view slots.</div>
+          </div>
+        </div>
+
+        <div id="dspMessage" class="dsp-message"></div>
+
+        <div class="dsp-grid">
+
+          <div class="dsp-panel">
+            <div class="dsp-panel-head">
+              <div>
+                <h3>Teachers</h3>
+                <span>Assign DSP subjects to active SIR teachers</span>
+              </div>
+              <button type="button" class="secondary-btn" id="refreshDspBtn">
+                Refresh
+              </button>
+            </div>
+
+            <div id="dspTeacherList" class="dsp-teacher-list">
+              <div class="dsp-empty">Loading teachers...</div>
+            </div>
+          </div>
+
+          <div class="dsp-panel">
+            <div class="dsp-panel-head">
+              <div>
+                <h3>DSP Subjects</h3>
+                <span>Subjects available in the programme</span>
+              </div>
+              <span id="dspSubjectCount">—</span>
+            </div>
+
+            <div id="dspSubjectList" class="dsp-side-body">
+              <div class="dsp-empty">Loading subjects...</div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
 
   </main>
 
@@ -5067,6 +5682,686 @@ document
     showLogin();
 
   });
+
+
+
+
+/* =========================
+     DSP — AVAILABILITY & SLOTS
+  ========================= */
+
+  let dspScheduleTeachers = [];
+
+  function getTodayIso() {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function formatDspTime(value) {
+    if (!value) return "—";
+    const parts = String(value).split(":");
+    let hour = Number(parts[0]);
+    const minute = parts[1] || "00";
+    const suffix = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${suffix}`;
+  }
+
+  function populateDspScheduleTeachers() {
+    const select = document.getElementById("dspScheduleTeacher");
+    if (!select) return;
+
+    const current = select.value;
+
+    select.innerHTML = `
+      <option value="">Select teacher</option>
+      ${dspTeachers.map(teacher => `
+        <option value="${escapeHtml(teacher.id)}">
+          ${escapeHtml(teacher.full_name || "Unnamed Teacher")}
+        </option>
+      `).join("")}
+    `;
+
+    if (current && dspTeachers.some(t => String(t.id) === String(current))) {
+      select.value = current;
+    }
+  }
+
+  function updateDspAvailabilityUI() {
+    const available = document.getElementById("dspTeacherAvailable")?.checked;
+    const reasonWrap = document.getElementById("dspReasonWrap");
+    const text = document.getElementById("dspAvailabilityText");
+
+    if (!reasonWrap || !text) return;
+
+    reasonWrap.classList.toggle("show", !available);
+    text.textContent = available ? "Available" : "Unavailable";
+    text.style.color = available ? "#69d391" : "#ff9292";
+  }
+
+  async function loadDspAvailability() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+
+    if (!teacherId || !date) return;
+
+    const { data, error } = await supabaseClient
+      .from("dsp_teacher_availability")
+      .select("id,teacher_id,date,is_available,reason")
+      .eq("teacher_id", teacherId)
+      .eq("date", date)
+      .maybeSingle();
+
+    if (error) {
+      console.error("DSP availability error:", error);
+      showDspMessage(error.message || "Unable to load teacher availability.", "error");
+      return;
+    }
+
+    const availableInput = document.getElementById("dspTeacherAvailable");
+    const reasonInput = document.getElementById("dspUnavailableReason");
+
+    if (data) {
+      availableInput.checked = data.is_available !== false;
+      reasonInput.value = data.reason || "";
+    } else {
+      availableInput.checked = true;
+      reasonInput.value = "";
+    }
+
+    updateDspAvailabilityUI();
+  }
+
+  async function saveDspAvailability() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const isAvailable = document.getElementById("dspTeacherAvailable")?.checked;
+    const reason = document.getElementById("dspUnavailableReason")?.value.trim() || null;
+    const button = document.getElementById("saveDspAvailabilityBtn");
+
+    if (!teacherId || !date) {
+      showDspMessage("Select a teacher and date first.", "error");
+      return;
+    }
+
+    if (!isAvailable && !reason) {
+      showDspMessage("Add a message/reason when marking a teacher unavailable.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+      const payload = {
+        teacher_id: teacherId,
+        date,
+        is_available: isAvailable,
+        reason: isAvailable ? null : reason
+      };
+
+      const { data: existing, error: findError } = await supabaseClient
+        .from("dsp_teacher_availability")
+        .select("id")
+        .eq("teacher_id", teacherId)
+        .eq("date", date)
+        .maybeSingle();
+
+      if (findError) throw findError;
+
+      let error;
+
+      if (existing?.id) {
+        ({ error } = await supabaseClient
+          .from("dsp_teacher_availability")
+          .update(payload)
+          .eq("id", existing.id));
+      } else {
+        ({ error } = await supabaseClient
+          .from("dsp_teacher_availability")
+          .insert(payload));
+      }
+
+      if (error) throw error;
+
+      showDspMessage(
+        `Availability saved for ${formatDspDate(date)}.`,
+        "success"
+      );
+
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("Save DSP availability error:", error);
+      showDspMessage(error.message || "Unable to save availability.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save Availability";
+    }
+  }
+
+  function formatDspDate(date) {
+    if (!date) return "selected date";
+    const d = new Date(`${date}T00:00:00`);
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function generateDspSlotRows() {
+    const slots = [];
+    let current = 14 * 60 + 30;
+    const end = 17 * 60 + 30;
+
+    while (current < end) {
+      const next = current + 3;
+
+      const startHour = Math.floor(current / 60);
+      const startMinute = current % 60;
+      const endHour = Math.floor(next / 60);
+      const endMinute = next % 60;
+
+      const pad = value => String(value).padStart(2, "0");
+
+      slots.push({
+        start_time: `${pad(startHour)}:${pad(startMinute)}:00`,
+        end_time: `${pad(endHour)}:${pad(endMinute)}:00`
+      });
+
+      current = next;
+    }
+
+    return slots;
+  }
+
+  async function generateDspSlots() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const button = document.getElementById("generateDspSlotsBtn");
+
+    if (!teacherId || !date) {
+      showDspMessage("Select a teacher and date first.", "error");
+      return;
+    }
+
+    const availableInput = document.getElementById("dspTeacherAvailable");
+
+    if (!availableInput.checked) {
+      showDspMessage("Teacher is unavailable for this date. Slots will not be generated.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    try {
+      const { data: existingSlots, error: existingError } = await supabaseClient
+        .from("dsp_slots")
+        .select("id,start_time,end_time,status")
+        .eq("teacher_id", teacherId)
+        .eq("date", date)
+        .order("start_time", { ascending: true });
+
+      if (existingError) throw existingError;
+
+      if (existingSlots?.length) {
+        showDspMessage("Slots already exist for this teacher and date.", "success");
+        await loadDspSlots();
+        return;
+      }
+
+      const rows = generateDspSlotRows().map(slot => ({
+        teacher_id: teacherId,
+        date,
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+        status: "available",
+        booking_id: null
+      }));
+
+      const { error } = await supabaseClient
+        .from("dsp_slots")
+        .insert(rows);
+
+      if (error) throw error;
+
+      showDspMessage(
+        `${rows.length} DSP slots generated for ${formatDspDate(date)}.`,
+        "success"
+      );
+
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("Generate DSP slots error:", error);
+      showDspMessage(error.message || "Unable to generate DSP slots.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Generate Slots";
+    }
+  }
+
+  async function loadDspSlots() {
+    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
+    const date = document.getElementById("dspScheduleDate")?.value;
+    const list = document.getElementById("dspSlotsList");
+    const summary = document.getElementById("dspSlotSummary");
+
+    if (!list || !summary) return;
+
+    if (!teacherId || !date) {
+      list.innerHTML = `<div class="dsp-empty">Select a teacher and date to view slots.</div>`;
+      summary.textContent = "Select a teacher and date.";
+      return;
+    }
+
+    list.innerHTML = `<div class="dsp-empty">Loading slots...</div>`;
+
+    const { data, error } = await supabaseClient
+      .from("dsp_slots")
+      .select("id,start_time,end_time,status,booking_id")
+      .eq("teacher_id", teacherId)
+      .eq("date", date)
+      .order("start_time", { ascending: true });
+
+    if (error) {
+      console.error("DSP slots error:", error);
+      list.innerHTML = `<div class="dsp-empty">Unable to load slots.</div>`;
+      summary.textContent = "Unable to load slots.";
+      return;
+    }
+
+    const slots = data || [];
+    const booked = slots.filter(s => String(s.status).toLowerCase() === "booked").length;
+    const available = slots.filter(s => String(s.status).toLowerCase() === "available").length;
+    const blocked = slots.length - booked - available;
+
+    summary.textContent =
+      `${slots.length} slots · ${available} available · ${booked} booked · ${blocked} blocked`;
+
+    if (!slots.length) {
+      list.innerHTML = `
+        <div class="dsp-empty">
+          No slots generated for this date. Click “Generate Slots”.
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = slots.map(slot => {
+      const status = String(slot.status || "available").toLowerCase();
+      const safeStatus = ["available", "booked", "blocked"].includes(status)
+        ? status
+        : "blocked";
+
+      return `
+        <div class="dsp-slot ${safeStatus}">
+          <div class="dsp-slot-time">
+            ${formatDspTime(slot.start_time)} – ${formatDspTime(slot.end_time)}
+          </div>
+          <div class="dsp-slot-status">
+            ${escapeHtml(safeStatus)}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document
+    .getElementById("dspTeacherAvailable")
+    ?.addEventListener("change", updateDspAvailabilityUI);
+
+  document
+    .getElementById("dspScheduleTeacher")
+    ?.addEventListener("change", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+  document
+    .getElementById("dspScheduleDate")
+    ?.addEventListener("change", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+  document
+    .getElementById("saveDspAvailabilityBtn")
+    ?.addEventListener("click", saveDspAvailability);
+
+  document
+    .getElementById("generateDspSlotsBtn")
+    ?.addEventListener("click", generateDspSlots);
+
+  document
+    .getElementById("refreshDspScheduleBtn")
+    ?.addEventListener("click", async () => {
+      await loadDspAvailability();
+      await loadDspSlots();
+    });
+
+
+  /* =========================
+     DSP — TEACHER ASSIGNMENT
+  ========================= */
+
+  const DSP_DEFAULT_SUBJECTS = [
+    { name: "Physics", code: "PHY" },
+    { name: "Chemistry", code: "CHEM" },
+    { name: "Zoology", code: "ZOO" },
+    { name: "Botany", code: "BOT" },
+    { name: "Maths", code: "MATH" }
+  ];
+
+  let dspTeachers = [];
+  let dspSubjects = [];
+  let dspTeacherAssignments = [];
+
+  function showDspMessage(text, type = "success") {
+    const box = document.getElementById("dspMessage");
+    if (!box) return;
+    box.textContent = text;
+    box.className = `dsp-message show ${type}`;
+  }
+
+  function hideDspMessage() {
+    const box = document.getElementById("dspMessage");
+    if (!box) return;
+    box.textContent = "";
+    box.className = "dsp-message";
+  }
+
+  async function ensureDspSubjects() {
+    const { data, error } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active")
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+
+    const existing = data || [];
+    const existingNames = new Set(
+      existing.map(subject => String(subject.name || "").trim().toLowerCase())
+    );
+
+    const missing = DSP_DEFAULT_SUBJECTS.filter(
+      subject => !existingNames.has(subject.name.toLowerCase())
+    );
+
+    if (missing.length) {
+      const { error: insertError } = await supabaseClient
+        .from("dsp_subjects")
+        .insert(
+          missing.map(subject => ({
+            name: subject.name,
+            code: subject.code,
+            is_active: true
+          }))
+        );
+
+      if (insertError) throw insertError;
+    }
+
+    const { data: finalData, error: finalError } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active")
+      .eq("is_active", true)
+      .order("name", { ascending: true });
+
+    if (finalError) throw finalError;
+
+    dspSubjects = finalData || [];
+  }
+
+  async function loadDspTeachers() {
+    const { data, error } = await supabaseClient
+      .from("teachers")
+      .select("id,user_id,teacher_id,full_name,email,phone,subject,is_active")
+      .eq("is_active", true)
+      .order("full_name", { ascending: true });
+
+    if (error) throw error;
+
+    dspTeachers = data || [];
+  }
+
+  async function loadDspAssignments() {
+    const { data, error } = await supabaseClient
+      .from("dsp_teacher_subjects")
+      .select("id,teacher_id,subject_id");
+
+    if (error) throw error;
+
+    dspTeacherAssignments = data || [];
+  }
+
+  function renderDspSubjects() {
+    const box = document.getElementById("dspSubjectList");
+    const count = document.getElementById("dspSubjectCount");
+
+    if (!box) return;
+
+    count.textContent = `${dspSubjects.length} active`;
+
+    if (!dspSubjects.length) {
+      box.innerHTML = `<div class="dsp-empty">No DSP subjects found.</div>`;
+      return;
+    }
+
+    box.innerHTML = dspSubjects.map(subject => `
+      <div class="dsp-subject-card">
+        <div>
+          <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
+          <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+        </div>
+        <span class="dsp-active">ACTIVE</span>
+      </div>
+    `).join("");
+  }
+
+  function teacherHasSubject(teacherId, subjectId) {
+    return dspTeacherAssignments.some(
+      row =>
+        String(row.teacher_id) === String(teacherId) &&
+        String(row.subject_id) === String(subjectId)
+    );
+  }
+
+  function renderDspTeachers() {
+    const box = document.getElementById("dspTeacherList");
+    if (!box) return;
+
+    if (!dspTeachers.length) {
+      box.innerHTML = `
+        <div class="dsp-empty">
+          No active teachers found in the SIR teacher database.
+        </div>
+      `;
+      return;
+    }
+
+    box.innerHTML = dspTeachers.map(teacher => {
+      const name = teacher.full_name || "Unnamed Teacher";
+      const teacherCode = teacher.teacher_id || "No Teacher ID";
+      const subject = teacher.subject || "Subject not set";
+
+      const subjectControls = dspSubjects.map(dspSubject => {
+        const checked = teacherHasSubject(teacher.id, dspSubject.id);
+
+        return `
+          <label class="dsp-check">
+            <input
+              type="checkbox"
+              data-teacher-id="${escapeHtml(teacher.id)}"
+              data-subject-id="${escapeHtml(dspSubject.id)}"
+              ${checked ? "checked" : ""}
+            >
+            <span>${escapeHtml(dspSubject.name)}</span>
+          </label>
+        `;
+      }).join("");
+
+      return `
+        <div class="dsp-teacher-row" data-dsp-teacher="${escapeHtml(teacher.id)}">
+          <div>
+            <div class="dsp-teacher-name">${escapeHtml(name)}</div>
+            <div class="dsp-teacher-meta">
+              ${escapeHtml(teacherCode)} · ${escapeHtml(subject)}
+            </div>
+          </div>
+
+          <div class="dsp-subjects">
+            ${subjectControls}
+          </div>
+
+          <button
+            type="button"
+            class="dsp-save"
+            data-save-dsp-teacher="${escapeHtml(teacher.id)}"
+          >
+            Save
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    document
+      .querySelectorAll("[data-save-dsp-teacher]")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          saveDspTeacherAssignments(button.dataset.saveDspTeacher, button);
+        });
+      });
+  }
+
+  async function saveDspTeacherAssignments(teacherId, button) {
+    hideDspMessage();
+
+    const row = document.querySelector(
+      `[data-dsp-teacher="${CSS.escape(teacherId)}"]`
+    );
+
+    if (!row) return;
+
+    const selectedSubjectIds = Array.from(
+      row.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(input => input.dataset.subjectId);
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+      /*
+        We replace this teacher's DSP assignments as one operation:
+        delete current assignments, then insert the selected subjects.
+      */
+
+      const { error: deleteError } = await supabaseClient
+        .from("dsp_teacher_subjects")
+        .delete()
+        .eq("teacher_id", teacherId);
+
+      if (deleteError) throw deleteError;
+
+      if (selectedSubjectIds.length) {
+        const rowsToInsert = selectedSubjectIds.map(subjectId => ({
+          teacher_id: teacherId,
+          subject_id: subjectId
+        }));
+
+        const { error: insertError } = await supabaseClient
+          .from("dsp_teacher_subjects")
+          .insert(rowsToInsert);
+
+        if (insertError) throw insertError;
+      }
+
+      await loadDspAssignments();
+      renderDspTeachers();
+
+      showDspMessage(
+        `${dspTeachers.find(t => String(t.id) === String(teacherId))?.full_name || "Teacher"}'s DSP subjects have been saved.`,
+        "success"
+      );
+
+    } catch (error) {
+      console.error("DSP assignment error:", error);
+
+      showDspMessage(
+        error?.message || "Unable to save DSP teacher assignment.",
+        "error"
+      );
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save";
+    }
+  }
+
+  async function loadDspData() {
+    const teacherBox = document.getElementById("dspTeacherList");
+    const subjectBox = document.getElementById("dspSubjectList");
+
+    if (!teacherBox || !subjectBox) return;
+
+    hideDspMessage();
+
+    teacherBox.innerHTML = `<div class="dsp-empty">Loading teachers...</div>`;
+    subjectBox.innerHTML = `<div class="dsp-empty">Loading subjects...</div>`;
+
+    try {
+      await ensureDspSubjects();
+      await Promise.all([
+        loadDspTeachers(),
+        loadDspAssignments()
+      ]);
+
+      renderDspSubjects();
+      renderDspTeachers();
+
+      populateDspScheduleTeachers();
+
+      const dateInput = document.getElementById("dspScheduleDate");
+      if (dateInput && !dateInput.value) {
+        dateInput.value = getTodayIso();
+      }
+
+      updateDspAvailabilityUI();
+      await loadDspAvailability();
+      await loadDspSlots();
+
+    } catch (error) {
+      console.error("DSP load error:", error);
+
+      teacherBox.innerHTML = `
+        <div class="dsp-empty">
+          Unable to load DSP data.
+        </div>
+      `;
+
+      subjectBox.innerHTML = `
+        <div class="dsp-empty">
+          Unable to load DSP subjects.
+        </div>
+      `;
+
+      showDspMessage(
+        error?.message || "Unable to load DSP data. Check Supabase permissions.",
+        "error"
+      );
+    }
+  }
+
+  document
+    .querySelector('[data-section="dsp"]')
+    ?.addEventListener("click", loadDspData);
+
+  document
+    .getElementById("refreshDspBtn")
+    ?.addEventListener("click", loadDspData);
 
 
 /* --------------------------------
