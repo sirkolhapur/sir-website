@@ -1147,7 +1147,19 @@
       pointer-events: none;
     }
 
-    .dsp-check span {
+    .dsp-no-eligible {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px dashed rgba(255,255,255,.18);
+  border-radius: 8px;
+  color: #98A2B3;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dsp-check span {
       cursor: pointer;
       padding: 7px 10px;
       border-radius: 7px;
@@ -6170,6 +6182,43 @@ document
     );
   }
 
+  /*
+    DSP eligibility is based on the teacher's primary subject already stored
+    in the SIR teachers table. We do not show unrelated DSP subjects.
+
+    Biology is intentionally split into Zoology + Botany because the DSP
+    programme exposes those as separate subjects.
+  */
+  function getEligibleDspSubjects(teacher) {
+    const raw = String(teacher?.subject || "")
+      .trim()
+      .toLowerCase();
+
+    if (!raw) return [];
+
+    let allowedNames = [];
+
+    if (raw.includes("biology") || raw.includes("bio")) {
+      allowedNames = ["Zoology", "Botany"];
+    } else if (raw.includes("physics")) {
+      allowedNames = ["Physics"];
+    } else if (raw.includes("chemistry")) {
+      allowedNames = ["Chemistry"];
+    } else if (raw.includes("math")) {
+      allowedNames = ["Maths"];
+    } else if (raw.includes("zoology")) {
+      allowedNames = ["Zoology"];
+    } else if (raw.includes("botany")) {
+      allowedNames = ["Botany"];
+    }
+
+    return dspSubjects.filter(subject =>
+      allowedNames.some(
+        name => String(subject.name || "").toLowerCase() === name.toLowerCase()
+      )
+    );
+  }
+
   function renderDspTeachers() {
     const box = document.getElementById("dspTeacherList");
     if (!box) return;
@@ -6188,7 +6237,9 @@ document
       const teacherCode = teacher.teacher_id || "No Teacher ID";
       const subject = teacher.subject || "Subject not set";
 
-      const subjectControls = dspSubjects.map(dspSubject => {
+      const eligibleSubjects = getEligibleDspSubjects(teacher);
+
+      const subjectControls = eligibleSubjects.map(dspSubject => {
         const checked = teacherHasSubject(teacher.id, dspSubject.id);
 
         return `
@@ -6204,6 +6255,10 @@ document
         `;
       }).join("");
 
+      const subjectControlsHtml = eligibleSubjects.length
+        ? subjectControls
+        : `<span class="dsp-no-eligible">No DSP subject mapped to ${escapeHtml(subject)}.</span>`;
+
       return `
         <div class="dsp-teacher-row" data-dsp-teacher="${escapeHtml(teacher.id)}">
           <div>
@@ -6214,7 +6269,7 @@ document
           </div>
 
           <div class="dsp-subjects">
-            ${subjectControls}
+            ${subjectControlsHtml}
           </div>
 
           <button
