@@ -177,6 +177,60 @@
       color: var(--gold);
     }
 
+    .curiosity-hook {
+      margin-top: 22px;
+    }
+
+    .curiosity-lead {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: #b18a15;
+      margin-bottom: 14px;
+    }
+
+    .curiosity-questions {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 18px;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .curiosity-questions div::before {
+      content: "→";
+      margin-right: 9px;
+      color: #b18a15;
+      font-weight: 800;
+    }
+
+    .curiosity-copy,
+    .science-begins,
+    .hook-close {
+      margin: 13px 0;
+    }
+
+    .science-begins {
+      font-size: 18px;
+    }
+
+    .bhabha-quote {
+      margin: 20px 0 5px;
+      font-size: 19px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .bhabha-attribution {
+      font-size: 13px;
+      font-weight: 700;
+      color: #b18a15;
+    }
+
+    .hook-close {
+      margin-top: 20px;
+    }
+
     .hero-copy {
       max-width: 600px;
       color: var(--muted);
@@ -694,50 +748,219 @@
     }
 
     /* =========================
-       DAILY QUESTION
+       DAILY CURIOSITY — 5 QUESTIONS
        ========================= */
 
-    .question-card {
-      max-width: 820px;
-      margin: auto;
-      padding: 35px;
-      border-radius: 23px;
-      border: 1px solid var(--border);
-      background: var(--card);
+    .personal-greeting {
+      display: inline-block;
+      margin-bottom: 13px;
+      padding: 9px 13px;
+      border: 1px solid rgba(245,197,66,.22);
+      border-radius: 999px;
+      background: rgba(245,197,66,.07);
+      color: #dce5ee;
+      font-size: 11px;
+      letter-spacing: .4px;
+    }
+
+    .personal-greeting strong {
+      color: var(--gold);
+    }
+
+    .student-welcome-nav {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      border: 1px solid rgba(245,197,66,.22);
+      border-radius: 10px;
+      background: rgba(245,197,66,.06);
+      white-space: nowrap;
+    }
+
+    .student-welcome-label {
+      color: var(--gold);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+    }
+
+    .student-welcome-nav strong {
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .question-intro {
+      max-width: 760px;
+      margin: 0 auto 28px;
       text-align: center;
     }
 
-    .question-card h3 {
-      font-size: 27px;
-      margin-bottom: 14px;
-    }
-
-    .question-card p {
+    .question-intro p {
       color: var(--muted);
       line-height: 1.7;
       font-size: 14px;
     }
 
+    .question-slider {
+      max-width: 900px;
+      margin: auto;
+      overflow: hidden;
+      border-radius: 19px;
+    }
+
+    .question-track {
+      display: flex;
+      transition: transform .45s ease;
+      will-change: transform;
+    }
+
+    .question-card {
+      flex: 0 0 100%;
+      box-sizing: border-box;
+      padding: 25px;
+      border-radius: 19px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      transition: .2s;
+    }
+
+    .question-card.answered {
+      border-color: rgba(86,211,155,.40);
+      background: rgba(86,211,155,.045);
+    }
+
+    .question-slider-controls {
+      max-width: 900px;
+      margin: 16px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .slider-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(245,197,66,.35);
+      background: rgba(255,255,255,.04);
+      color: var(--gold);
+      font-size: 20px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .slider-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(245,197,66,.08);
+    }
+
+    .question-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .question-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: rgba(255,255,255,.25);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .question-dot.active {
+      width: 20px;
+      border-radius: 10px;
+      background: var(--gold);
+    }
+
+    .question-counter {
+      margin-top: 9px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+
+    .question-subject {
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .question-card h3 {
+      font-size: 18px;
+      line-height: 1.45;
+      margin-bottom: 9px;
+    }
+
+    .question-card p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 12px;
+    }
+
     .question-options {
-      margin-top: 23px;
+      margin-top: 17px;
       display: grid;
-      grid-template-columns: repeat(4,1fr);
+      grid-template-columns: repeat(2,1fr);
       gap: 9px;
     }
 
     .option {
-      padding: 13px 8px;
+      width: 100%;
+      padding: 13px 14px;
       border-radius: 9px;
       border: 1px solid rgba(255,255,255,.09);
       background: rgba(255,255,255,.035);
       color: #d6e0ea;
       font-size: 11px;
+      line-height: 1.45;
+      text-align: left;
       transition: .2s;
     }
 
     .option:hover {
-      border-color: rgba(245,197,66,.35);
+      border-color: rgba(245,197,66,.45);
       color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .option.correct {
+      border-color: rgba(86,211,155,.70);
+      background: rgba(86,211,155,.13);
+      color: #7be8b6;
+      font-weight: 800;
+    }
+
+    .answer-feedback {
+      display: none;
+      margin-top: 13px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(86,211,155,.10);
+      border: 1px solid rgba(86,211,155,.25);
+      color: #8aefc1;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .answer-feedback.show {
+      display: block;
+    }
+
+    .answer-feedback strong {
+      color: #b2f8d4;
     }
 
     /* =========================
@@ -905,7 +1128,19 @@
       }
 
       .question-options {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+      }
+
+      .student-welcome-nav {
+        padding: 8px 10px;
+      }
+
+      .student-welcome-label {
+        display: none;
+      }
+
+      .personal-greeting {
+        font-size: 10px;
       }
     }
   </style>
@@ -943,9 +1178,10 @@
         <a href="#scholarship">Scholarship</a>
       </nav>
 
-      <a href="#login" class="login-btn">
-        LOGIN / CONTINUE
-      </a>
+      <div class="student-welcome-nav" id="studentWelcomeNav">
+        <span class="student-welcome-label">WELCOME</span>
+        <strong id="navStudentName">Student</strong>
+      </div>
 
     </div>
   </header>
@@ -961,6 +1197,10 @@
 
       <div>
 
+        <div class="personal-greeting" id="personalGreeting">
+          Welcome back, <strong id="heroStudentName">Student</strong>.
+        </div>
+
         <div class="eyebrow">
           SIR Talent Hunt • SAGE
         </div>
@@ -971,21 +1211,37 @@
           begins with you?
         </h1>
 
-        <p class="hero-copy">
+        <div class="hero-copy curiosity-hook">
 
-          Every breakthrough starts with curiosity.
+          <div class="curiosity-lead">EVER WONDER WHY?</div>
 
-          <strong>
-            Before he became one of India's most important
-            scientific institution-builders, Homi Jehangir Bhabha
-            was already thinking far beyond the obvious.
-          </strong>
+          <div class="curiosity-questions">
+            <div>Why does a pressure cooker cook food faster?</div>
+            <div>Why does a wet road become slippery?</div>
+            <div>Why does your heart beat faster when you run?</div>
+            <div>Why does lemon remove some stains?</div>
+          </div>
 
-          Your journey starts with the same thing:
+          <p class="curiosity-copy">
+            You see these things every day.
+            But a curious mind asks: <strong>“Why?”</strong>
+          </p>
 
-          <strong>one question.</strong>
+          <p class="science-begins">
+            And that is where <strong>science begins.</strong>
+          </p>
 
-        </p>
+          <p class="bhabha-quote">
+            “The important thing is to never stop questioning.”
+          </p>
+          <div class="bhabha-attribution">— Dr. Homi J. Bhabha</div>
+
+          <p class="hook-close">
+            Every scientist once started with a question.
+            <strong>Maybe yours is waiting to be asked.</strong>
+          </p>
+
+        </div>
 
         <div class="hero-actions">
 
@@ -1625,43 +1881,254 @@
 
     <div class="container">
 
-      <div class="question-card">
+      <div class="question-intro">
 
         <div class="eyebrow">
-          Question of the Day
+          5 Questions To Make You Think
         </div>
 
-        <h3>
-          If the Earth suddenly stopped rotating,
-          what would happen first?
-        </h3>
-
         <p>
-          Don't search the answer.
-          Think first. Your curiosity is part of the journey.
+          No marks. No pressure. Just curiosity.
+          Every option below is scientifically correct —
+          pick any one and see what happens.
         </p>
 
-        <div class="question-options">
+      </div>
 
-          <div class="option">
-            A • Oceans change instantly
+      <div class="question-slider">
+
+        <div class="question-track" id="questionTrack">
+
+        <div class="question-card" data-question="1">
+
+          <div class="question-subject">
+            PHYSICS • EVERYDAY LIFE
           </div>
 
-          <div class="option">
-            B • Everything keeps moving
+          <h3>
+            Why does a wet floor feel more slippery than a dry floor?
+          </h3>
+
+          <p>
+            Think about what water does between your foot and the floor.
+            Which of these ideas can help explain or reduce slipping?
+          </p>
+
+          <div class="question-options">
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 1)">
+              A • A dry, rough surface gives your shoe more grip.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 1)">
+              B • Shoes with suitable textured soles can increase friction.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 1)">
+              C • A clean, dry surface generally provides better traction.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 1)">
+              D • Removing excess water can reduce the slippery effect.
+            </button>
+
           </div>
 
-          <div class="option">
-            C • Gravity disappears
+          <div class="answer-feedback">
+            <strong>✓ You are correct!</strong>
+            All four choices describe real ways friction and surface
+            conditions affect slipping.
           </div>
 
-          <div class="option">
-            D • The Sun stops
+        </div>
+
+
+        <div class="question-card" data-question="2">
+
+          <div class="question-subject">
+            CHEMISTRY • YOUR KITCHEN
           </div>
+
+          <h3>
+            Why can lemon juice help remove white scale from a kettle or tap?
+          </h3>
+
+          <p>
+            The answer is hiding in a familiar kitchen ingredient.
+            Which statements are scientifically correct?
+          </p>
+
+          <div class="question-options">
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 2)">
+              A • Lemon juice contains citric acid.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 2)">
+              B • Acids can react with carbonate-based mineral deposits.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 2)">
+              C • The reaction can help break down some limescale deposits.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 2)">
+              D • Acid–carbonate reactions can release carbon dioxide.
+            </button>
+
+          </div>
+
+          <div class="answer-feedback">
+            <strong>✓ You are correct!</strong>
+            Every option is a real piece of the chemistry behind using
+            acidic ingredients against carbonate-based scale.
+          </div>
+
+        </div>
+
+
+        <div class="question-card" data-question="3">
+
+          <div class="question-subject">
+            BIOLOGY • YOUR BODY
+          </div>
+
+          <h3>
+            Why does your heart beat faster when you run?
+          </h3>
+
+          <p>
+            Your body is solving a supply-and-demand problem.
+            Which of these changes happen during exercise?
+          </p>
+
+          <div class="question-options">
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 3)">
+              A • Working muscles need more oxygen and nutrients.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 3)">
+              B • The body needs faster removal of carbon dioxide and other wastes.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 3)">
+              C • Blood flow to active muscles increases.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 3)">
+              D • Exercise increases the body's energy demand.
+            </button>
+
+          </div>
+
+          <div class="answer-feedback">
+            <strong>✓ You are correct!</strong>
+            All four are connected to why your cardiovascular system
+            works harder during exercise.
+          </div>
+
+        </div>
+
+
+        <div class="question-card" data-question="4">
+
+          <div class="question-subject">
+            PHYSICS • YOUR MORNING
+          </div>
+
+          <h3>
+            Why does a hot cup of tea cool faster when you blow on it?
+          </h3>
+
+          <p>
+            Think about the air touching the surface of the tea.
+            Which effects can help cooling?
+          </p>
+
+          <div class="question-options">
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 4)">
+              A • Moving air carries heat away from the tea's surface.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 4)">
+              B • Blowing can disturb the warm layer of air above the liquid.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 4)">
+              C • Faster evaporation can remove energy from the tea.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 4)">
+              D • Air movement can increase the rate of heat transfer.
+            </button>
+
+          </div>
+
+          <div class="answer-feedback">
+            <strong>✓ You are correct!</strong>
+            All four choices describe real heat-transfer or evaporation
+            effects involved in cooling the tea.
+          </div>
+
+        </div>
+
+
+        <div class="question-card" data-question="5">
+
+          <div class="question-subject">
+            BIOLOGY • YOUR SENSES
+          </div>
+
+          <h3>
+            Why can the same smell feel much weaker after you notice it for a while?
+          </h3>
+
+          <p>
+            Your nose and brain are constantly filtering information.
+            Which statements are true?
+          </p>
+
+          <div class="question-options">
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 5)">
+              A • Sensory receptors can become less responsive to a constant stimulus.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 5)">
+              B • The nervous system can reduce attention to an unchanging smell.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 5)">
+              C • This is commonly called sensory adaptation.
+            </button>
+
+            <button class="option" type="button" onclick="answerCuriosity(this, 5)">
+              D • A constant smell can become less noticeable even though it is still present.
+            </button>
+
+          </div>
+
+          <div class="answer-feedback">
+            <strong>✓ You are correct!</strong>
+            All four choices describe parts of sensory adaptation —
+            your brain learns to stop treating a constant signal as new.
+          </div>
+
+        </div>
 
         </div>
 
       </div>
+
+      <div class="question-slider-controls">
+        <button class="slider-btn" type="button" onclick="changeCuriosityQuestion(-1)" aria-label="Previous question">←</button>
+        <div class="question-dots" id="questionDots" aria-label="Question navigation"></div>
+        <button class="slider-btn" type="button" onclick="changeCuriosityQuestion(1)" aria-label="Next question">→</button>
+      </div>
+
+      <div class="question-counter" id="questionCounter">1 / 5</div>
 
     </div>
 
@@ -1741,7 +2208,8 @@
 
     CURRENT BUILD:
     - Story / UI
-    - Homi Bhabha curiosity hook
+    - Daily-life curiosity hook connected to Homi Bhabha
+    - Sliding daily-life curiosity questions
     - SAGE explanation
     - Reference material sections
     - 10 mock test slots
@@ -1765,92 +2233,186 @@
 
   /*
     =========================
-    SUPABASE CONFIG
+    PERSONALIZED STUDENT EXPERIENCE
     =========================
 
-    IMPORTANT:
-    Replace these placeholders with the
-    Supabase Project URL and Publishable/Anon Key.
+    The working student-login.html stores the verified student's
+    non-sensitive context in sessionStorage:
 
-    DO NOT PUT SERVICE ROLE / SECRET KEY HERE.
+      sage_student_id
+      sage_student_name
+      sage_student_school
+      sage_student_class
+      sage_student_whatsapp
+
+    The dashboard reads that context only to personalize the
+    experience. Authentication remains handled by the login page.
   */
 
-  const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+  function getStoredStudentName() {
+
+    const name =
+      sessionStorage.getItem("sage_student_name") || "";
+
+    return name.trim() || "Student";
+  }
+
+
+  function personalizeDashboard() {
+
+    const studentName = getStoredStudentName();
+
+    const navName =
+      document.getElementById("navStudentName");
+
+    const heroName =
+      document.getElementById("heroStudentName");
+
+    if (navName) {
+      navName.textContent = studentName;
+    }
+
+    if (heroName) {
+      heroName.textContent = studentName;
+    }
+
+    document.title =
+      "SAGE | " + studentName + " | SIR Talent Hunt";
+  }
 
 
   /*
     =========================
-    LOGIN
+    CURIOSITY QUESTIONS
     =========================
+
+    These are not scored mock-test questions.
+    Every option in each question is intentionally correct.
+    The purpose is to create curiosity and give the student
+    an immediate positive "You are correct!" moment.
   */
 
-  document
-    .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
+  function answerCuriosity(button, questionNumber) {
 
-      event.preventDefault();
+    const card =
+      document.querySelector(
+        '.question-card[data-question="' +
+        questionNumber +
+        '"]'
+      );
 
-      const email =
-        document
-          .getElementById("email")
-          .value
-          .trim();
+    if (!card) {
+      return;
+    }
 
-      const password =
-        document
-          .getElementById("password")
-          .value;
+    const options =
+      card.querySelectorAll(".option");
 
-      const message =
-        document.getElementById("loginMessage");
-
-
-      if (
-        SUPABASE_URL.includes("YOUR_") ||
-        SUPABASE_ANON_KEY.includes("YOUR_")
-      ) {
-
-        message.style.display = "block";
-
-        message.style.background = "#fff3f3";
-        message.style.color = "#b22d2d";
-
-        message.textContent =
-          "Supabase connection will be connected in the next step.";
-
-        return;
-      }
-
-
-      try {
-
-        /*
-          Supabase browser authentication
-          will be connected in the next backend step.
-        */
-
-        message.style.display = "block";
-
-        message.style.background = "#eef9f3";
-        message.style.color = "#26754f";
-
-        message.textContent =
-          "Login connection is ready for Supabase.";
-
-      } catch (error) {
-
-        message.style.display = "block";
-
-        message.style.background = "#fff3f3";
-        message.style.color = "#b22d2d";
-
-        message.textContent =
-          error.message || "Login failed.";
-
-      }
-
+    options.forEach(function(option) {
+      option.classList.remove("correct");
+      option.disabled = false;
     });
+
+    button.classList.add("correct");
+
+    const feedback =
+      card.querySelector(".answer-feedback");
+
+    if (feedback) {
+      feedback.classList.add("show");
+    }
+
+    card.classList.add("answered");
+
+    /*
+      Once the student has selected an option,
+      keep all options available because all four
+      options are scientifically correct.
+    */
+  }
+
+
+  personalizeDashboard();
+
+
+  /*
+    =========================
+    CURIOSITY QUESTION SLIDER
+    =========================
+
+    Only one curiosity question is visible at a time so the
+    dashboard stays compact. The five questions remain available
+    through the arrows and dots.
+  */
+
+  let currentCuriosityQuestion = 0;
+
+  function setupCuriositySlider() {
+
+    const track = document.getElementById("questionTrack");
+    const cards = document.querySelectorAll(".question-card[data-question]");
+    const dots = document.getElementById("questionDots");
+
+    if (!track || !cards.length || !dots) {
+      return;
+    }
+
+    dots.innerHTML = "";
+
+    cards.forEach(function(card, index) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "question-dot";
+      dot.setAttribute("aria-label", "Go to question " + (index + 1));
+      dot.addEventListener("click", function() {
+        showCuriosityQuestion(index);
+      });
+      dots.appendChild(dot);
+    });
+
+    showCuriosityQuestion(0);
+  }
+
+
+  function showCuriosityQuestion(index) {
+
+    const track = document.getElementById("questionTrack");
+    const cards = document.querySelectorAll(".question-card[data-question]");
+    const dots = document.querySelectorAll(".question-dot");
+    const counter = document.getElementById("questionCounter");
+
+    if (!track || !cards.length) {
+      return;
+    }
+
+    currentCuriosityQuestion =
+      (index + cards.length) % cards.length;
+
+    track.style.transform =
+      "translateX(-" + (currentCuriosityQuestion * 100) + "%)";
+
+    dots.forEach(function(dot, dotIndex) {
+      dot.classList.toggle(
+        "active",
+        dotIndex === currentCuriosityQuestion
+      );
+    });
+
+    if (counter) {
+      counter.textContent =
+        (currentCuriosityQuestion + 1) + " / " + cards.length;
+    }
+  }
+
+
+  function changeCuriosityQuestion(direction) {
+    showCuriosityQuestion(
+      currentCuriosityQuestion + direction
+    );
+  }
+
+
+  setupCuriositySlider();
 
 
   /*
