@@ -2553,7 +2553,7 @@ showPassword.addEventListener("click", function () {
    ========================================================= */
 
 const SUPABASE_URL =
-  "https://asbyosqpuqpspzvqqhfj.supabase.co";
+  "https://asbyosqpupqspzvqqhfj.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
@@ -2596,7 +2596,7 @@ function showMessage(message, type = "info") {
 }
 
 /* =========================================================
-   REAL STUDENT LOGIN — DIAGNOSTIC BUILD
+   REAL STUDENT LOGIN
    ========================================================= */
 
 loginForm.addEventListener("submit", async function (event) {
@@ -2613,95 +2613,51 @@ loginForm.addEventListener("submit", async function (event) {
     .value;
 
   if (!email || !password) {
-    showMessage("Please enter your login details.", "error");
+    showMessage(
+      "Please enter your login details.",
+      "error"
+    );
     return;
   }
 
   loginSubmit.disabled = true;
   loginSubmit.textContent = "CHECKING ACCESS...";
-  showMessage("Checking SAGE connection...", "info");
+
+  showMessage(
+    "Verifying your SAGE student access...",
+    "info"
+  );
 
   try {
-    /* =======================================================
-       STEP 0 — VERIFY SUPABASE CONNECTION
-       ======================================================= */
-
-    if (!window.supabase) {
-      throw new Error(
-        "STEP 0 FAILED: Supabase JavaScript library did not load."
-      );
-    }
-
-    if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-      throw new Error(
-        "STEP 0 FAILED: Supabase configuration is missing."
-      );
-    }
 
     /* =======================================================
        STEP 1 — SUPABASE AUTH
        ======================================================= */
 
-    showMessage("STEP 1/3 — Connecting to SIR student authentication...", "info");
-
-    let authData;
-    let authError;
-
-    try {
-      const result = await supabaseClient.auth.signInWithPassword({
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password
       });
 
-      authData = result.data;
-      authError = result.error;
-    } catch (networkError) {
-      console.error("SAGE AUTH NETWORK ERROR:", networkError);
-
-      throw new Error(
-        "STEP 1 FAILED: Browser could not reach Supabase Auth. " +
-        "This is a connection/URL/key/network problem, not a student-record problem."
-      );
-    }
-
     if (authError) {
-      console.error("SAGE AUTH ERROR:", authError);
-
-      let authMessage = authError.message || "Unknown authentication error.";
-
-      if (authMessage.toLowerCase().includes("invalid login credentials")) {
-        authMessage = "Login details are incorrect. Please check email and password.";
-      } else if (authMessage.toLowerCase().includes("email not confirmed")) {
-        authMessage = "Student account email is not confirmed in Supabase Auth.";
-      } else if (authMessage.toLowerCase().includes("too many requests")) {
-        authMessage = "Too many login attempts. Please wait and try again.";
-      }
-
-      throw new Error("STEP 1 FAILED: " + authMessage);
+      throw authError;
     }
 
     if (!authData || !authData.user) {
-      throw new Error("STEP 1 FAILED: Supabase did not return a student user session.");
+      throw new Error(
+        "Unable to create a student session."
+      );
     }
 
     const authenticatedUser = authData.user;
-
-    console.log("SAGE AUTH SUCCESS:", {
-      userId: authenticatedUser.id,
-      email: authenticatedUser.email
-    });
 
     /* =======================================================
        STEP 2 — FIND TALENT HUNT STUDENT
        ======================================================= */
 
-    showMessage("STEP 2/3 — Finding your SIR Talent Hunt student record...", "info");
-
-    let student;
-    let studentError;
-
-    try {
-      const result = await supabaseClient
+    const { data: student, error: studentError } =
+      await supabaseClient
         .from("talent_hunt_registrations")
         .select(`
           id,
@@ -2716,90 +2672,133 @@ loginForm.addEventListener("submit", async function (event) {
         .eq("auth_user_id", authenticatedUser.id)
         .maybeSingle();
 
-      student = result.data;
-      studentError = result.error;
-    } catch (databaseNetworkError) {
-      console.error("SAGE DATABASE NETWORK ERROR:", databaseNetworkError);
-
-      await supabaseClient.auth.signOut({ scope: "local" });
-
-      throw new Error(
-        "STEP 2 FAILED: Browser could not reach the Talent Hunt database. " +
-        "Authentication succeeded, but the student table request failed."
-      );
-    }
-
     if (studentError) {
-      console.error("SAGE STUDENT LOOKUP ERROR:", studentError);
+      console.error(
+        "Talent Hunt student lookup error:",
+        studentError
+      );
 
-      await supabaseClient.auth.signOut({ scope: "local" });
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
 
       throw new Error(
-        "STEP 2 FAILED: Talent Hunt database rejected the student lookup. " +
-        "Code: " + (studentError.code || "unknown") +
-        " | " + (studentError.message || "Unknown database error.")
+        "Student account verification could not be completed. Please try again."
       );
     }
 
     if (!student) {
-      await supabaseClient.auth.signOut({ scope: "local" });
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
 
       throw new Error(
-        "STEP 2 FAILED: Login succeeded, but this Auth user is not linked to a Talent Hunt student record."
+        "This login is not linked to an SIR Talent Hunt student account."
       );
     }
-
-    console.log("SAGE STUDENT RECORD FOUND:", student);
 
     /* =======================================================
        STEP 3 — VERIFY TALENT HUNT ACCOUNT
        ======================================================= */
 
-    showMessage("STEP 3/3 — Verifying your SAGE student access...", "info");
-
-    const whatsappVerified = student.whatsapp_verified === true;
+    const whatsappVerified =
+      student.whatsapp_verified === true;
 
     const statusVerified =
       !student.status ||
       student.status.toLowerCase() === "verified";
 
     if (!whatsappVerified || !statusVerified) {
-      await supabaseClient.auth.signOut({ scope: "local" });
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
 
       throw new Error(
-        "STEP 3 FAILED: Your Talent Hunt account is not verified yet."
+        "Your Talent Hunt account is not verified yet."
       );
     }
 
     /* =======================================================
-       STORE STUDENT CONTEXT
+       STEP 4 — STORE NON-SENSITIVE STUDENT CONTEXT
        ======================================================= */
 
-    sessionStorage.setItem("sage_student_id", student.id);
-    sessionStorage.setItem("sage_student_name", student.student_name || "");
-    sessionStorage.setItem("sage_student_school", student.school_name || "");
-    sessionStorage.setItem("sage_student_class", student.student_class || "");
-    sessionStorage.setItem("sage_student_whatsapp", student.whatsapp_number || "");
+    sessionStorage.setItem(
+      "sage_student_id",
+      student.id
+    );
 
-    showMessage("ACCESS VERIFIED — Opening your SAGE journey...", "success");
+    sessionStorage.setItem(
+      "sage_student_name",
+      student.student_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_school",
+      student.school_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_class",
+      student.student_class || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_whatsapp",
+      student.whatsapp_number || ""
+    );
+
+    /* =======================================================
+       STEP 5 — ACCESS GRANTED
+       ======================================================= */
+
+    showMessage(
+      "Access verified. Opening your SAGE journey...",
+      "success"
+    );
+
     loginSubmit.textContent = "ACCESS GRANTED ✓";
+
+    /* =======================================================
+       STEP 6 — STUDENT DASHBOARD
+       ======================================================= */
 
     setTimeout(function () {
       window.location.href = "student-dashboard.html";
     }, 600);
 
   } catch (error) {
-    console.error("SAGE LOGIN FINAL ERROR:", error);
+
+    console.error("SAGE Login Error:", error);
 
     loginSubmit.disabled = false;
-    loginSubmit.textContent = "ENTER THE SAGE JOURNEY →";
+    loginSubmit.textContent =
+      "ENTER THE SAGE JOURNEY →";
 
-    showMessage(
+    let message =
       error && error.message
         ? error.message
-        : "Login failed. Please check your details and try again.",
-      "error"
-    );
+        : "Login failed. Please check your details and try again.";
+
+    const lowerMessage = message.toLowerCase();
+
+    if (
+      lowerMessage.includes("invalid login credentials")
+    ) {
+      message =
+        "Login details are incorrect. Please check your email and password.";
+    } else if (
+      lowerMessage.includes("email not confirmed")
+    ) {
+      message =
+        "Your student account has not been confirmed yet.";
+    } else if (
+      lowerMessage.includes("too many requests")
+    ) {
+      message =
+        "Too many login attempts. Please wait a moment and try again.";
+    }
+
+    showMessage(message, "error");
   }
 });
 
@@ -2809,6 +2808,7 @@ loginForm.addEventListener("submit", async function (event) {
 
 async function checkExistingSession() {
   try {
+
     const {
       data: { session }
     } = await supabaseClient.auth.getSession();
@@ -2834,7 +2834,6 @@ async function checkExistingSession() {
         .maybeSingle();
 
     if (error || !student) {
-      console.warn("Existing SAGE session could not be linked to a student record.", error);
       return;
     }
 
@@ -2849,14 +2848,36 @@ async function checkExistingSession() {
       return;
     }
 
-    sessionStorage.setItem("sage_student_id", student.id);
-    sessionStorage.setItem("sage_student_name", student.student_name || "");
-    sessionStorage.setItem("sage_student_school", student.school_name || "");
-    sessionStorage.setItem("sage_student_class", student.student_class || "");
-    sessionStorage.setItem("sage_student_whatsapp", student.whatsapp_number || "");
+    sessionStorage.setItem(
+      "sage_student_id",
+      student.id
+    );
+
+    sessionStorage.setItem(
+      "sage_student_name",
+      student.student_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_school",
+      student.school_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_class",
+      student.student_class || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_whatsapp",
+      student.whatsapp_number || ""
+    );
 
   } catch (error) {
-    console.warn("Existing session check skipped:", error);
+    console.warn(
+      "Existing session check skipped:",
+      error
+    );
   }
 }
 
