@@ -59,6 +59,21 @@
       flex: 0 0 68px;
     }
 
+
+    .sir-inline-logo {
+      display: block;
+      width: 82px;
+      height: 62px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .login-logo .sir-inline-logo {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 14px;
+    }
+
     .brand-text {
       min-width: max-content;
       white-space: nowrap;
@@ -1512,6 +1527,175 @@
       object-position: center;
     }
 
+
+
+    /* =========================
+       RESULTS MANAGEMENT — MANUAL ENTRY
+       Added without changing existing sections
+    ========================= */
+    .results-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .results-summary-card {
+      background: #0d2038;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 15px;
+    }
+    .results-summary-card span {
+      display: block;
+      color: #8190a5;
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+    .results-summary-card strong {
+      font-size: 22px;
+      color: #fff;
+    }
+    .results-filters {
+      display: grid;
+      grid-template-columns: 1.4fr 1.2fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .results-filter {
+      width: 100%;
+      padding: 10px 12px;
+      background: #08172a;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 7px;
+      color: #fff;
+      outline: none;
+    }
+    .results-table-wrap {
+      overflow-x: auto;
+    }
+    .results-table-wrap table {
+      min-width: 900px;
+    }
+    .result-student {
+      font-weight: 700;
+      color: #fff;
+    }
+    .result-uid {
+      color: #d9b75b;
+      font-size: 11px;
+      margin-top: 3px;
+    }
+    .result-score {
+      font-weight: 800;
+      color: #fff;
+    }
+    .result-percentage {
+      color: #69d391;
+      font-weight: 800;
+    }
+    .result-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .result-action-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.14);
+      color: #cbd5e1;
+      padding: 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .result-action-btn:hover {
+      border-color: rgba(201,168,78,.45);
+      color: #e1c86b;
+    }
+    .result-action-btn.delete:hover {
+      border-color: rgba(220,90,90,.45);
+      color: #ff9a9a;
+    }
+    .result-modal-note {
+      color: #718097;
+      font-size: 11px;
+      line-height: 1.5;
+      margin-top: -5px;
+      margin-bottom: 14px;
+    }
+    .result-calculated {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 7px;
+      background: #071426;
+      border: 1px solid rgba(255,255,255,.08);
+      color: #dce3ed;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .result-calculated strong {
+      color: #F0C75E;
+      margin-left: 5px;
+    }
+    @media (max-width: 900px) {
+      .results-summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .results-filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    /* =========================
+       RESULT EXCEL IMPORT
+    ========================= */
+    .results-head-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .excel-btn {
+      background: rgba(105,211,145,.10);
+      border: 1px solid rgba(105,211,145,.35);
+      color: #8ff0b5;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .excel-btn:hover { background: rgba(105,211,145,.16); }
+    .excel-import-note {
+      padding: 13px 15px;
+      border-radius: 9px;
+      background: rgba(201,168,78,.07);
+      border: 1px solid rgba(201,168,78,.16);
+      color: #aebacc;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .excel-drop {
+      border: 1px dashed rgba(201,168,78,.38);
+      border-radius: 11px;
+      padding: 24px;
+      text-align: center;
+      background: rgba(255,255,255,.02);
+      cursor: pointer;
+    }
+    .excel-drop:hover { background: rgba(255,255,255,.04); }
+    .excel-drop strong { display:block; margin-bottom:6px; }
+    .excel-drop span { color:#8190a5; font-size:12px; }
+    .excel-file-name { margin-top:10px; color:#d9b75b; font-size:12px; }
+    .excel-preview-wrap { margin-top:18px; overflow:auto; border:1px solid rgba(255,255,255,.07); border-radius:9px; }
+    .excel-preview-wrap table { min-width:900px; }
+    .excel-preview-wrap td, .excel-preview-wrap th { padding:9px 10px; font-size:11px; white-space:nowrap; }
+    .excel-valid { color:#75dda0; font-weight:700; }
+    .excel-invalid { color:#ff9292; font-weight:700; }
+    .excel-warning { color:#f0c75e; font-weight:700; }
+    .excel-summary { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .excel-chip { padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#aebacc; font-size:11px; }
+    .excel-chip strong { color:#fff; }
+    @media (max-width:650px) { .results-head-actions { width:100%; } .results-head-actions button { flex:1; } }
 </style>
 </head>
 
@@ -1521,7 +1705,7 @@
 <div id="loginPage">
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://sir.net.in/sir-logo.png" alt="SIR">
+      <img class="sir-inline-logo" src="sir-logo.png" alt="SIR">
       <h1>SIR Admin</h1>
       <p>WHERE POTENTIAL FINDS DIRECTION</p>
     </div>
@@ -1563,7 +1747,7 @@
 
 <header class="topbar">
   <div class="brand">
-    <img src="sir-logo.png" alt="SIR">
+    <img class="sir-inline-logo" src="sir-logo.png" alt="SIR">
     <div class="brand-text">
       <strong>SIR Admin</strong>
       <span>WHERE POTENTIAL FINDS DIRECTION</span>
@@ -1875,13 +2059,72 @@
     <section class="section" id="results">
 
       <div class="section-head">
-        <h2>Results</h2>
-        <button class="primary-btn">+ Add Results</button>
+        <div>
+          <h2>Results</h2>
+          <div class="build-marker">EXCEL RESULT MANAGEMENT</div>
+        </div>
+        <div class="results-head-actions">
+          <button class="excel-btn" id="openExcelImportBtn">↑ Excel Import</button>
+        </div>
+      </div>
+
+      <div class="results-summary">
+        <div class="results-summary-card">
+          <span>Total Results</span>
+          <strong id="totalResults">0</strong>
+        </div>
+        <div class="results-summary-card">
+          <span>Students Appeared</span>
+          <strong id="resultStudents">0</strong>
+        </div>
+        <div class="results-summary-card">
+          <span>Average Percentage</span>
+          <strong id="resultAverage">0%</strong>
+        </div>
+        <div class="results-summary-card">
+          <span>Highest Percentage</span>
+          <strong id="resultHighest">0%</strong>
+        </div>
       </div>
 
       <div class="table-card">
-        <div class="empty">
-          Result Management will be connected here.
+        <div class="table-tools">
+          <div class="results-filters">
+            <input type="text" class="results-filter" id="resultSearch" placeholder="Search student UID or name...">
+            <select class="results-filter" id="resultTestFilter">
+              <option value="">All Tests</option>
+            </select>
+            <select class="results-filter" id="resultSubjectFilter">
+              <option value="">All Subjects</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Biology">Biology</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Full Syllabus">Full Syllabus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="results-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Correct</th>
+                <th>Incorrect</th>
+                <th>Unanswered</th>
+                <th>Percentage</th>
+                <th>Rank</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+              <tr><td colspan="10" class="empty">Loading results...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -2711,6 +2954,49 @@
 
 </div>
 
+
+
+
+<!-- EXCEL RESULT IMPORT MODAL -->
+<div class="modal" id="excelResultModal">
+  <div class="modal-box" style="max-width:1100px;">
+    <div class="modal-head">
+      <div>
+        <h2>Import Results from Excel</h2>
+        <small style="color:#8fa0b5;">Upload one row per student + test + subject. Review before saving.</small>
+      </div>
+      <button class="close" id="closeExcelResultModal">&times;</button>
+    </div>
+
+    <div class="excel-import-note">
+      <strong>Recommended columns:</strong>
+      Student UID, Test Name, Subject, Marks Obtained, Max Marks (optional), Rank (optional),
+      Correct Answers, Incorrect Answers, Unanswered.
+      The system matches students by <strong>Student UID</strong> and tests by <strong>Test Name</strong>.
+      It does not write anything to Supabase until you press <strong>Import Valid Rows</strong>.
+    </div>
+
+    <div class="form-actions" style="justify-content:flex-start;margin-top:0;margin-bottom:14px;">
+      <label class="excel-drop" for="resultExcelFile" style="flex:1;min-width:260px;">
+        <strong>Select .xlsx, .xls or .csv file</strong>
+        <span>Click here to choose the result sheet</span>
+        <input type="file" id="resultExcelFile" accept=".xlsx,.xls,.csv" style="display:none;">
+        <div class="excel-file-name" id="excelFileName">No file selected</div>
+      </label>
+    </div>
+
+    <div id="excelImportMessage" class="message"></div>
+    <div id="excelImportSummary" class="excel-summary"></div>
+    <div id="excelPreviewWrap" class="excel-preview-wrap" style="display:none;"></div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" id="cancelExcelImport">Cancel</button>
+      <button type="button" class="primary-btn" id="importExcelRowsBtn" disabled>Import Valid Rows</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -6459,6 +6745,364 @@ document
   await loadCounters();
 
 })();
+
+
+
+
+
+/* --------------------------------
+   RESULTS — EXCEL VIEW
+-------------------------------- */
+
+let adminResults = [];
+let editingResultId = null;
+
+function getResultTestMap() {
+  return Object.fromEntries((adminTests || []).map(test => [test.id, test]));
+}
+
+function getResultStudentMap() {
+  return Object.fromEntries((allStudents || []).map(student => [student.id, student]));
+}
+
+async function loadResults() {
+  const tbody = document.getElementById("resultsTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="10" class="empty">Loading results...</td></tr>`;
+
+  const { data, error } = await supabaseClient
+    .from("test_scores")
+    .select(`
+      id,
+      test_id,
+      student_id,
+      subject,
+      marks_obtained,
+      max_marks,
+      rank,
+      correct_answers,
+      incorrect_answers,
+      unanswered,
+      percentage,
+      created_at
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Results load error:", error);
+    tbody.innerHTML = `<tr><td colspan="10" class="empty">Unable to load results: ${escapeHtml(error.message || "Unknown error")}</td></tr>`;
+    return;
+  }
+
+  adminResults = data || [];
+  populateResultTestSelect();
+  renderResults();
+}
+
+function renderResults() {
+  const tbody = document.getElementById("resultsTableBody");
+  if (!tbody) return;
+
+  const testMap = getResultTestMap();
+  const studentMap = getResultStudentMap();
+  const search = (document.getElementById("resultSearch")?.value || "").trim().toLowerCase();
+  const testFilter = document.getElementById("resultTestFilter")?.value || "";
+  const subjectFilter = document.getElementById("resultSubjectFilter")?.value || "";
+
+  const filtered = adminResults.filter(result => {
+    const student = studentMap[result.student_id];
+    const test = testMap[result.test_id];
+    const studentText = `${student?.full_name || ""} ${student?.student_uid || ""}`.toLowerCase();
+    const testText = `${test?.title || ""} ${result.subject || ""}`.toLowerCase();
+
+    if (search && !`${studentText} ${testText}`.includes(search)) return false;
+    if (testFilter && result.test_id !== testFilter) return false;
+    if (subjectFilter && result.subject !== subjectFilter) return false;
+    return true;
+  });
+
+  const percentages = adminResults.map(item => Number(item.percentage)).filter(Number.isFinite);
+  const average = percentages.length ? percentages.reduce((sum, value) => sum + value, 0) / percentages.length : 0;
+  const highest = percentages.length ? Math.max(...percentages) : 0;
+  const uniqueStudents = new Set(adminResults.map(item => item.student_id).filter(Boolean)).size;
+
+  document.getElementById("totalResults").textContent = adminResults.length;
+  document.getElementById("resultStudents").textContent = uniqueStudents;
+  document.getElementById("resultAverage").textContent = `${average.toFixed(2)}%`;
+  document.getElementById("resultHighest").textContent = `${highest.toFixed(2)}%`;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty">No results found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(result => {
+    const student = studentMap[result.student_id];
+    const test = testMap[result.test_id];
+    const percentage = Number(result.percentage || 0);
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:700;color:#fff;">${escapeHtml(test?.title || "Unknown Test")}</div>
+          <div class="result-uid">${escapeHtml(test?.test_date || "No date")}</div>
+        </td>
+        <td>
+          <div class="result-student">${escapeHtml(student?.full_name || "Unknown Student")}</div>
+          <div class="result-uid">${escapeHtml(student?.student_uid || "No UID")}</div>
+        </td>
+        <td>${escapeHtml(result.subject || "—")}</td>
+        <td class="result-score">${escapeHtml(result.marks_obtained ?? 0)} / ${escapeHtml(result.max_marks ?? 0)}</td>
+        <td>${escapeHtml(result.correct_answers ?? 0)}</td>
+        <td>${escapeHtml(result.incorrect_answers ?? 0)}</td>
+        <td>${escapeHtml(result.unanswered ?? 0)}</td>
+        <td class="result-percentage">${percentage.toFixed(2)}%</td>
+        <td>${escapeHtml(result.rank ?? "—")}</td>
+        <td>
+          <div class="result-actions">
+            <button type="button" class="result-action-btn" data-result-edit="${escapeHtml(result.id)}">Edit</button>
+            <button type="button" class="result-action-btn delete" data-result-delete="${escapeHtml(result.id)}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+
+
+document.getElementById("resultSearch").addEventListener("input", renderResults);
+document.getElementById("resultTestFilter").addEventListener("change", renderResults);
+document.getElementById("resultSubjectFilter").addEventListener("change", renderResults);
+
+/* --------------------------------
+   RESULTS — EXCEL IMPORT
+-------------------------------- */
+
+let excelImportRows = [];
+let excelValidRows = [];
+
+function normalizeExcelHeader(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_\-]+/g, " ");
+}
+
+function excelValue(row, names) {
+  const keys = Object.keys(row);
+  for (const wanted of names) {
+    const normalizedWanted = normalizeExcelHeader(wanted);
+    const key = keys.find(k => normalizeExcelHeader(k) === normalizedWanted);
+    if (key !== undefined && row[key] !== undefined && row[key] !== null && row[key] !== "") {
+      return row[key];
+    }
+  }
+  return "";
+}
+
+function openExcelImportModal() {
+  excelImportRows = [];
+  excelValidRows = [];
+  document.getElementById("resultExcelFile").value = "";
+  document.getElementById("excelFileName").textContent = "No file selected";
+  document.getElementById("excelPreviewWrap").style.display = "none";
+  document.getElementById("excelPreviewWrap").innerHTML = "";
+  document.getElementById("excelImportSummary").innerHTML = "";
+  document.getElementById("importExcelRowsBtn").disabled = true;
+  hideExcelImportMessage();
+  document.getElementById("excelResultModal").classList.add("show");
+}
+
+function closeExcelImportModal() {
+  document.getElementById("excelResultModal").classList.remove("show");
+}
+
+function showExcelImportMessage(text, type) {
+  const box = document.getElementById("excelImportMessage");
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+function hideExcelImportMessage() {
+  const box = document.getElementById("excelImportMessage");
+  box.textContent = "";
+  box.className = "message";
+}
+
+async function handleResultExcelFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  document.getElementById("excelFileName").textContent = file.name;
+  hideExcelImportMessage();
+  document.getElementById("importExcelRowsBtn").disabled = true;
+  excelImportRows = [];
+  excelValidRows = [];
+
+  try {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+    if (!rows.length) throw new Error("The selected sheet is empty.");
+
+    excelImportRows = rows;
+    await validateExcelResultRows();
+  } catch (error) {
+    console.error("Excel parse error:", error);
+    showExcelImportMessage(error.message || "Unable to read the Excel file.", "error");
+  }
+}
+
+async function validateExcelResultRows() {
+  const studentMap = getResultStudentMap();
+  const testMap = getResultTestMap();
+  const studentsByUid = Object.fromEntries((allStudents || []).map(s => [String(s.student_uid || "").trim().toLowerCase(), s]));
+  const testsByTitle = Object.fromEntries((adminTests || []).map(t => [String(t.title || "").trim().toLowerCase(), t]));
+
+  excelValidRows = [];
+  const previewRows = [];
+
+  excelImportRows.forEach((row, index) => {
+    const studentUid = String(excelValue(row, ["Student UID", "Student ID", "UID"])).trim();
+    const testName = String(excelValue(row, ["Test Name", "Test", "Exam Name"])).trim();
+    const subject = String(excelValue(row, ["Subject"])).trim();
+    const marks = Number(excelValue(row, ["Marks Obtained", "Marks", "Score"]));
+    const maxProvided = excelValue(row, ["Max Marks", "Maximum Marks"]);
+    const rankRaw = excelValue(row, ["Rank", "Batch Rank"]);
+    const correct = Number(excelValue(row, ["Correct Answers", "Correct"]));
+    const incorrect = Number(excelValue(row, ["Incorrect Answers", "Incorrect", "Wrong"]));
+    const unanswered = Number(excelValue(row, ["Unanswered", "Unattempted", "Skipped", "Skip"]));
+
+    const student = studentsByUid[studentUid.toLowerCase()] || studentMap[studentUid];
+    const test = testsByTitle[testName.toLowerCase()] || testMap[testName];
+    const maxMarks = Number(maxProvided || test?.max_marks || 0);
+
+    let error = "";
+    if (!student) error = "Student UID not found";
+    else if (!test) error = "Test Name not found";
+    else if (!subject) error = "Subject missing";
+    else if (!Number.isFinite(marks) || marks < 0 || maxMarks <= 0 || marks > maxMarks) error = "Invalid marks/max marks";
+    else if (![correct, incorrect, unanswered].every(Number.isFinite) || correct < 0 || incorrect < 0 || unanswered < 0) error = "Invalid answer counts";
+
+    const parsed = {
+      rowNumber: index + 2,
+      student_uid: studentUid,
+      test_id: test?.id || null,
+      test_name: testName,
+      student_id: student?.id || null,
+      student_name: student?.full_name || "",
+      subject,
+      marks_obtained: marks,
+      max_marks: maxMarks,
+      rank: rankRaw === "" ? null : Number(rankRaw),
+      correct_answers: correct,
+      incorrect_answers: incorrect,
+      unanswered,
+      percentage: maxMarks > 0 ? Number(((marks / maxMarks) * 100).toFixed(2)) : 0,
+      error
+    };
+
+    if (!error) excelValidRows.push(parsed);
+    previewRows.push(parsed);
+  });
+
+  renderExcelPreview(previewRows);
+  const invalid = previewRows.length - excelValidRows.length;
+  document.getElementById("excelImportSummary").innerHTML = `
+    <div class="excel-chip">Rows: <strong>${previewRows.length}</strong></div>
+    <div class="excel-chip excel-valid">Valid: <strong>${excelValidRows.length}</strong></div>
+    <div class="excel-chip ${invalid ? "excel-invalid" : "excel-valid"}">Invalid: <strong>${invalid}</strong></div>
+  `;
+  document.getElementById("importExcelRowsBtn").disabled = excelValidRows.length === 0;
+
+  if (invalid) showExcelImportMessage("Some rows need correction. Only valid rows will be imported.", "error");
+  else showExcelImportMessage("All rows are valid and ready to import.", "success");
+}
+
+function renderExcelPreview(rows) {
+  const wrap = document.getElementById("excelPreviewWrap");
+  if (!rows.length) {
+    wrap.style.display = "none";
+    return;
+  }
+
+  wrap.style.display = "block";
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Row</th><th>Status</th><th>Student</th><th>Test</th><th>Subject</th>
+          <th>Marks</th><th>Max</th><th>Correct</th><th>Wrong</th><th>Skip</th><th>Rank</th><th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            <td>${row.rowNumber}</td>
+            <td class="${row.error ? "excel-invalid" : "excel-valid"}">${row.error ? escapeHtml(row.error) : "Ready"}</td>
+            <td>${escapeHtml(row.student_name || row.student_uid)}</td>
+            <td>${escapeHtml(row.test_name)}</td>
+            <td>${escapeHtml(row.subject)}</td>
+            <td>${escapeHtml(row.marks_obtained)}</td>
+            <td>${escapeHtml(row.max_marks)}</td>
+            <td>${escapeHtml(row.correct_answers)}</td>
+            <td>${escapeHtml(row.incorrect_answers)}</td>
+            <td>${escapeHtml(row.unanswered)}</td>
+            <td>${escapeHtml(row.rank ?? "—")}</td>
+            <td>${escapeHtml(row.percentage)}%</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+async function importValidExcelRows() {
+  if (!excelValidRows.length) return;
+
+  const button = document.getElementById("importExcelRowsBtn");
+  button.disabled = true;
+  button.textContent = "Importing...";
+
+  try {
+    const payload = excelValidRows.map(row => ({
+      test_id: row.test_id,
+      student_id: row.student_id,
+      subject: row.subject,
+      marks_obtained: row.marks_obtained,
+      max_marks: row.max_marks,
+      rank: row.rank,
+      correct_answers: row.correct_answers,
+      incorrect_answers: row.incorrect_answers,
+      unanswered: row.unanswered,
+      percentage: row.percentage
+    }));
+
+    const { error } = await supabaseClient.from("test_scores").insert(payload);
+    if (error) throw error;
+
+    showExcelImportMessage(`${payload.length} result row(s) imported successfully.`, "success");
+    await loadResults();
+    setTimeout(closeExcelImportModal, 900);
+  } catch (error) {
+    console.error("Excel import error:", error);
+    showExcelImportMessage(error.message || "Unable to import results.", "error");
+  } finally {
+    button.disabled = excelValidRows.length === 0;
+    button.textContent = "Import Valid Rows";
+  }
+}
+
+document.getElementById("openExcelImportBtn").addEventListener("click", openExcelImportModal);
+document.getElementById("closeExcelResultModal").addEventListener("click", closeExcelImportModal);
+document.getElementById("cancelExcelImport").addEventListener("click", closeExcelImportModal);
+document.getElementById("resultExcelFile").addEventListener("change", handleResultExcelFile);
+document.getElementById("importExcelRowsBtn").addEventListener("click", importValidExcelRows);
+
 
 </script>
 
