@@ -1929,6 +1929,14 @@
         </button>
       </div>
 
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="secondary-btn teacher-view-btn active" id="activeTeachersBtn">Active Teachers</button>
+          <button type="button" class="secondary-btn teacher-view-btn" id="archivedTeachersBtn">Archived Teachers <span id="archivedTeacherCount" style="opacity:.75;"></span></button>
+        </div>
+        <small id="teacherArchiveNote" style="color:#7f90a6;">Deactivated teachers are kept here and can be reactivated.</small>
+      </div>
+
       <div class="table-card">
         <div class="table-tools">
           <input type="text" class="search" id="teacherSearch" placeholder="Search by name, email or subject...">
@@ -2496,7 +2504,7 @@
 
         <div class="field">
           <label>Email / Login</label>
-          <input type="email" id="editTeacherEmail" readonly>
+          <input type="email" id="editTeacherEmail" required> 
         </div>
 
         <div class="field">
@@ -5453,14 +5461,31 @@ async function loadTeachers() {
   renderTeachers(allTeachers);
 }
 
+let teacherView = "active";
+
+function updateTeacherViewButtons() {
+  const activeBtn = document.getElementById("activeTeachersBtn");
+  const archivedBtn = document.getElementById("archivedTeachersBtn");
+  if (activeBtn) activeBtn.classList.toggle("active", teacherView === "active");
+  if (archivedBtn) archivedBtn.classList.toggle("active", teacherView === "archived");
+  const count = document.getElementById("archivedTeacherCount");
+  if (count) count.textContent = `(${allTeachers.filter(t => !t.is_active).length})`;
+}
+
 function renderTeachers(teachers) {
   const tbody = document.getElementById("teachersTableBody");
-  if (!teachers.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">No teachers found.</td></tr>`;
+  updateTeacherViewButtons();
+
+  const visibleTeachers = (teachers || []).filter(t =>
+    teacherView === "archived" ? !t.is_active : t.is_active
+  );
+
+  if (!visibleTeachers.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">${teacherView === "archived" ? "No archived teachers." : "No active teachers found."}</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = teachers.map(t => `
+  tbody.innerHTML = visibleTeachers.map(t => `
     <tr>
       <td><span class="uid">${escapeHtml(t.teacher_id || "—")}</span></td>
       <td><strong>${escapeHtml(t.full_name || "—")}</strong></td>
@@ -5706,12 +5731,28 @@ document.getElementById("editTeacherForm").addEventListener("submit", async func
     if (duplicate.error) throw duplicate.error;
     if (duplicate.data) throw new Error(`Teacher ID ${teacherIdValue} is already in use.`);
 
+    const newEmail = document.getElementById("editTeacherEmail").value.trim().toLowerCase();
+    if (!newEmail) throw new Error("Login email is required.");
+
+    const currentTeacher = allTeachers.find(t => t.id === id);
+    const oldEmail = String(currentTeacher?.email || "").trim().toLowerCase();
+
+    if (newEmail !== oldEmail) {
+      const emailResult = await supabaseClient.functions.invoke("admin-update-teacher-email", {
+        body: { teacher_id: id, new_email: newEmail }
+      });
+      if (emailResult.error || !emailResult.data?.success) {
+        throw new Error(emailResult.data?.error || emailResult.error?.message || "Unable to update teacher login email.");
+      }
+    }
+
     const { error } = await supabaseClient.from("teachers").update({
       teacher_id: teacherIdValue,
       full_name: document.getElementById("editTeacherName").value.trim(),
       phone: document.getElementById("editTeacherMobile").value.trim(),
       subject: document.getElementById("editTeacherSubject").value,
-      is_active: document.getElementById("editTeacherActive").value === "true"
+      is_active: document.getElementById("editTeacherActive").value === "true",
+      email: newEmail
     }).eq("id", id);
 
     if (error) throw error;
@@ -5856,26 +5897,42 @@ async function resetTeacherPassword(teacherId, teacherName) {
 
 async function toggleTeacherStatus(teacherId, teacherName, currentlyActive) {
   const action = currentlyActive ? "deactivate" : "reactivate";
-  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${teacherName}?\n\n${currentlyActive ? "Login access will be blocked." : "Login access will be restored."}`)) return;
+  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${teacherName}?\n\n${currentlyActive ? "The teacher will move to Archived Teachers and future login attempts will be blocked." : "The teacher will return to Active Teachers and login access will be restored."}`)) return;
 
-  const { data, error } = await supabaseClient.functions.invoke("admin-set-teacher-status", {
-    body: { teacher_id: teacherId, is_active: !currentlyActive }
-  });
-  if (error || !data?.success) {
-    alert(data?.error || error?.message || "Unable to update teacher status.");
-    return;
+  try {
+    const { error } = await supabaseClient
+      .from("teachers")
+      .update({ is_active: !currentlyActive })
+      .eq("id", teacherId);
+
+    if (error) throw error;
+
+    await loadTeachers();
+  } catch (error) {
+    console.error("Teacher status update error:", error);
+    alert(error.message || "Unable to update teacher status.");
   }
-  await loadTeachers();
 }
-
-document.getElementById("teacherSearch").addEventListener("input", (e) => {
-  const q = e.target.value.toLowerCase().trim();
+function renderTeacherSearch() {
+  const q = document.getElementById("teacherSearch").value.toLowerCase().trim();
   renderTeachers(allTeachers.filter(t =>
     (t.full_name || "").toLowerCase().includes(q) ||
     (t.email || "").toLowerCase().includes(q) ||
     (t.subject || "").toLowerCase().includes(q) ||
     (t.teacher_id || "").toLowerCase().includes(q)
   ));
+}
+
+document.getElementById("teacherSearch").addEventListener("input", renderTeacherSearch);
+
+document.getElementById("activeTeachersBtn").addEventListener("click", () => {
+  teacherView = "active";
+  renderTeacherSearch();
+});
+
+document.getElementById("archivedTeachersBtn").addEventListener("click", () => {
+  teacherView = "archived";
+  renderTeacherSearch();
 });
 
 /* --------------------------------
