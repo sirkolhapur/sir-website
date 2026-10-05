@@ -2519,197 +2519,379 @@
 
 
 <!-- =========================================================
+     SUPABASE
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- =========================================================
      JAVASCRIPT
      ========================================================= -->
 
 <script>
 
+/* =========================================================
+   SIR SAGE — STUDENT LOGIN
+   REAL SUPABASE AUTHENTICATION
+   ========================================================= */
 
-  /* =========================================================
-     PASSWORD SHOW / HIDE
-     ========================================================= */
+const passwordInput = document.getElementById("password");
+const showPassword = document.getElementById("showPassword");
 
-  const passwordInput =
-    document.getElementById("password");
+showPassword.addEventListener("click", function () {
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    showPassword.textContent = "Hide";
+  } else {
+    passwordInput.type = "password";
+    showPassword.textContent = "Show";
+  }
+});
 
+/* =========================================================
+   SUPABASE CONFIG
+   ========================================================= */
 
-  const showPassword =
-    document.getElementById("showPassword");
+const SUPABASE_URL =
+  "https://asbyosqpupqpspzvqqhfj.supabase.co";
 
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
 
-  showPassword.addEventListener(
-    "click",
-    function () {
-
-
-      if (
-        passwordInput.type === "password"
-      ) {
-
-        passwordInput.type =
-          "text";
-
-        showPassword.textContent =
-          "Hide";
-
-      } else {
-
-        passwordInput.type =
-          "password";
-
-        showPassword.textContent =
-          "Show";
-
-      }
-
-    }
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
   );
 
+/* =========================================================
+   LOGIN ELEMENTS
+   ========================================================= */
 
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
+const loginSubmit = document.getElementById("loginSubmit");
 
-  /* =========================================================
-     LOGIN
-     ========================================================= */
+/* =========================================================
+   MESSAGE HANDLER
+   ========================================================= */
 
-  const loginForm =
-    document.getElementById("loginForm");
+function showMessage(message, type = "info") {
+  loginMessage.style.display = "block";
+  loginMessage.textContent = message;
 
+  if (type === "error") {
+    loginMessage.style.background = "#fff3f3";
+    loginMessage.style.color = "#b22d2d";
+    loginMessage.style.border = "1px solid #f2d2d2";
+  } else if (type === "success") {
+    loginMessage.style.background = "#eef9f3";
+    loginMessage.style.color = "#26754f";
+    loginMessage.style.border = "1px solid #c9ead8";
+  } else {
+    loginMessage.style.background = "#fff9e5";
+    loginMessage.style.color = "#8d6d0c";
+    loginMessage.style.border = "1px solid #f1df9e";
+  }
+}
 
-  const loginMessage =
-    document.getElementById("loginMessage");
+/* =========================================================
+   REAL STUDENT LOGIN
+   ========================================================= */
 
+loginForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
 
-  const loginSubmit =
-    document.getElementById("loginSubmit");
+  const email = document
+    .getElementById("email")
+    .value
+    .trim()
+    .toLowerCase();
 
+  const password = document
+    .getElementById("password")
+    .value;
 
-  loginForm.addEventListener(
-    "submit",
-    async function (event) {
-
-      event.preventDefault();
-
-
-      const email =
-        document
-          .getElementById("email")
-          .value
-          .trim()
-          .toLowerCase();
-
-
-      const password =
-        document
-          .getElementById("password")
-          .value;
-
-
-      if (
-        !email ||
-        !password
-      ) {
-
-        showMessage(
-          "Please enter your login details.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      /*
-        ========================================================
-        SUPABASE AUTH WILL BE CONNECTED HERE.
-
-        SUCCESSFUL FLOW:
-
-        student-login.html
-                ↓
-        Supabase Auth
-                ↓
-        Verify student
-                ↓
-        student-dashboard.html
-        ========================================================
-      */
-
-
-      loginSubmit.disabled =
-        true;
-
-
-      loginSubmit.textContent =
-        "CHECKING ACCESS...";
-
-
-      showMessage(
-        "Student login will be connected to the SIR backend in the next step.",
-        "info"
-      );
-
-
-      setTimeout(
-        function () {
-
-          loginSubmit.disabled =
-            false;
-
-          loginSubmit.textContent =
-            "ENTER THE SAGE JOURNEY →";
-
-        },
-        900
-      );
-
-    }
-  );
-
-
-
-  /* =========================================================
-     MESSAGE
-     ========================================================= */
-
-  function showMessage(
-    message,
-    type
-  ) {
-
-
-    loginMessage.style.display =
-      "block";
-
-
-    loginMessage.textContent =
-      message;
-
-
-    if (
-      type === "error"
-    ) {
-
-      loginMessage.style.background =
-        "#fff3f3";
-
-      loginMessage.style.color =
-        "#b22d2d";
-
-    } else {
-
-      loginMessage.style.background =
-        "#fff9e5";
-
-      loginMessage.style.color =
-        "#8d6d0c";
-
-    }
-
+  if (!email || !password) {
+    showMessage(
+      "Please enter your login details.",
+      "error"
+    );
+    return;
   }
 
+  loginSubmit.disabled = true;
+  loginSubmit.textContent = "CHECKING ACCESS...";
+
+  showMessage(
+    "Verifying your SAGE student access...",
+    "info"
+  );
+
+  try {
+
+    /* =======================================================
+       STEP 1 — SUPABASE AUTH
+       ======================================================= */
+
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    if (authError) {
+      throw authError;
+    }
+
+    if (!authData || !authData.user) {
+      throw new Error(
+        "Unable to create a student session."
+      );
+    }
+
+    const authenticatedUser = authData.user;
+
+    /* =======================================================
+       STEP 2 — FIND TALENT HUNT STUDENT
+       ======================================================= */
+
+    const { data: student, error: studentError } =
+      await supabaseClient
+        .from("talent_hunt_registrations")
+        .select(`
+          id,
+          student_name,
+          school_name,
+          student_class,
+          whatsapp_number,
+          whatsapp_verified,
+          status,
+          auth_user_id
+        `)
+        .eq("auth_user_id", authenticatedUser.id)
+        .maybeSingle();
+
+    if (studentError) {
+      console.error(
+        "Talent Hunt student lookup error:",
+        studentError
+      );
+
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
+
+      throw new Error(
+        "Student account verification could not be completed. Please try again."
+      );
+    }
+
+    if (!student) {
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
+
+      throw new Error(
+        "This login is not linked to an SIR Talent Hunt student account."
+      );
+    }
+
+    /* =======================================================
+       STEP 3 — VERIFY TALENT HUNT ACCOUNT
+       ======================================================= */
+
+    const whatsappVerified =
+      student.whatsapp_verified === true;
+
+    const statusVerified =
+      !student.status ||
+      student.status.toLowerCase() === "verified";
+
+    if (!whatsappVerified || !statusVerified) {
+      await supabaseClient.auth.signOut({
+        scope: "local"
+      });
+
+      throw new Error(
+        "Your Talent Hunt account is not verified yet."
+      );
+    }
+
+    /* =======================================================
+       STEP 4 — STORE NON-SENSITIVE STUDENT CONTEXT
+       ======================================================= */
+
+    sessionStorage.setItem(
+      "sage_student_id",
+      student.id
+    );
+
+    sessionStorage.setItem(
+      "sage_student_name",
+      student.student_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_school",
+      student.school_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_class",
+      student.student_class || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_whatsapp",
+      student.whatsapp_number || ""
+    );
+
+    /* =======================================================
+       STEP 5 — ACCESS GRANTED
+       ======================================================= */
+
+    showMessage(
+      "Access verified. Opening your SAGE journey...",
+      "success"
+    );
+
+    loginSubmit.textContent = "ACCESS GRANTED ✓";
+
+    /* =======================================================
+       STEP 6 — STUDENT DASHBOARD
+       ======================================================= */
+
+    setTimeout(function () {
+      window.location.href = "student-dashboard.html";
+    }, 600);
+
+  } catch (error) {
+
+    console.error("SAGE Login Error:", error);
+
+    loginSubmit.disabled = false;
+    loginSubmit.textContent =
+      "ENTER THE SAGE JOURNEY →";
+
+    let message =
+      error && error.message
+        ? error.message
+        : "Login failed. Please check your details and try again.";
+
+    const lowerMessage = message.toLowerCase();
+
+    if (
+      lowerMessage.includes("invalid login credentials")
+    ) {
+      message =
+        "Login details are incorrect. Please check your email and password.";
+    } else if (
+      lowerMessage.includes("email not confirmed")
+    ) {
+      message =
+        "Your student account has not been confirmed yet.";
+    } else if (
+      lowerMessage.includes("too many requests")
+    ) {
+      message =
+        "Too many login attempts. Please wait a moment and try again.";
+    }
+
+    showMessage(message, "error");
+  }
+});
+
+/* =========================================================
+   CHECK EXISTING SESSION
+   ========================================================= */
+
+async function checkExistingSession() {
+  try {
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      return;
+    }
+
+    const { data: student, error } =
+      await supabaseClient
+        .from("talent_hunt_registrations")
+        .select(`
+          id,
+          student_name,
+          school_name,
+          student_class,
+          whatsapp_number,
+          whatsapp_verified,
+          status,
+          auth_user_id
+        `)
+        .eq("auth_user_id", session.user.id)
+        .maybeSingle();
+
+    if (error || !student) {
+      return;
+    }
+
+    if (student.whatsapp_verified !== true) {
+      return;
+    }
+
+    if (
+      student.status &&
+      student.status.toLowerCase() !== "verified"
+    ) {
+      return;
+    }
+
+    sessionStorage.setItem(
+      "sage_student_id",
+      student.id
+    );
+
+    sessionStorage.setItem(
+      "sage_student_name",
+      student.student_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_school",
+      student.school_name || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_class",
+      student.student_class || ""
+    );
+
+    sessionStorage.setItem(
+      "sage_student_whatsapp",
+      student.whatsapp_number || ""
+    );
+
+  } catch (error) {
+    console.warn(
+      "Existing session check skipped:",
+      error
+    );
+  }
+}
+
+checkExistingSession();
+
+/* =========================================================
+   AUTH STATE LISTENER
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange(function (event) {
+  console.log("SAGE Auth Event:", event);
+});
 
 </script>
-
 
 </body>
 </html>
