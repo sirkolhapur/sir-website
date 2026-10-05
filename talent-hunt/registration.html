@@ -212,8 +212,9 @@
       margin-bottom: 17px;
     }
 
+
     /* =========================================
-       SCENE 1
+       SCENE 1 — HOOK
        ========================================= */
 
     .hook {
@@ -291,7 +292,10 @@
       font-size: 11px;
     }
 
-    /* SCIENTIST */
+
+    /* =========================================
+       SCIENTIST CARD
+       ========================================= */
 
     .scientist-card {
       position: relative;
@@ -322,11 +326,11 @@
 
       display: block;
 
-      opacity: .86;
+      opacity: .90;
 
       filter:
-        grayscale(18%)
-        contrast(1.03);
+        grayscale(12%)
+        contrast(1.05);
     }
 
     .scientist-overlay {
@@ -337,9 +341,9 @@
       background:
         linear-gradient(
           180deg,
-          transparent 20%,
-          rgba(5,14,27,.12) 42%,
-          rgba(5,14,27,.96) 100%
+          rgba(5,14,27,.02) 20%,
+          rgba(5,14,27,.15) 42%,
+          rgba(5,14,27,.97) 100%
         );
 
       display: flex;
@@ -394,8 +398,9 @@
       font-family: Georgia, serif;
     }
 
+
     /* =========================================
-       SCENE 2
+       SCENE 2 — CHALLENGE
        ========================================= */
 
     .challenge {
@@ -481,8 +486,9 @@
       line-height: 1.6;
     }
 
+
     /* =========================================
-       SCENE 3
+       SCENE 3 — YOUR TURN
        ========================================= */
 
     .your-turn {
@@ -520,6 +526,7 @@
 
       line-height: 1.7;
     }
+
 
     /* =========================================
        SCENE 4 — REGISTRATION
@@ -689,6 +696,7 @@
       margin-top: 13px;
     }
 
+
     /* =========================================
        SCENE 5 — OTP
        ========================================= */
@@ -744,6 +752,7 @@
     .otp-input:focus {
       border-color: var(--gold);
     }
+
 
     /* =========================================
        SCENE 6 — SUCCESS
@@ -805,6 +814,7 @@
       line-height: 1.7;
     }
 
+
     /* =========================================
        MOBILE
        ========================================= */
@@ -838,6 +848,7 @@
         padding-top: 20px;
       }
     }
+
 
     @media (max-width: 560px) {
 
@@ -900,6 +911,7 @@
       .your-turn {
         min-height: 520px;
       }
+
     }
 
   </style>
@@ -922,8 +934,10 @@
 
     <div class="brand">
 
+      <!-- OFFICIAL SIR LOGO -->
+
       <img
-        src="sir-logo.png"
+        src="https://sir.net.in/sir-logo.png"
         alt="SIR Logo"
       >
 
@@ -969,6 +983,7 @@
   >
 
     <div class="scene-inner hook">
+
 
       <div>
 
@@ -1024,14 +1039,15 @@
       </div>
 
 
-      <!-- SCIENTIST CARD -->
+      <!-- =====================================
+           THOMAS EDISON
+           ===================================== -->
 
       <div class="scientist-card">
 
         <img
-          src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Thomas_Edison2.jpg"
+          src="https://commons.wikimedia.org/wiki/Special:FilePath/Thomas%20Edison2.jpg"
           alt="Thomas Edison portrait"
-          onerror="this.style.opacity='0'"
         >
 
 
@@ -1347,8 +1363,6 @@
         <form id="registrationForm">
 
 
-          <!-- STUDENT NAME -->
-
           <div class="field">
 
             <label for="studentName">
@@ -1368,8 +1382,6 @@
           </div>
 
 
-          <!-- SCHOOL NAME -->
-
           <div class="field">
 
             <label for="schoolName">
@@ -1387,8 +1399,6 @@
 
           </div>
 
-
-          <!-- CLASS -->
 
           <div class="field">
 
@@ -1408,8 +1418,6 @@
 
           </div>
 
-
-          <!-- WHATSAPP -->
 
           <div class="field">
 
