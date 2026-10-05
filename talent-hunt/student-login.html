@@ -204,6 +204,7 @@
       font-weight: 900;
       font-size: 13px;
       box-shadow: 0 12px 35px rgba(245,197,66,.13);
+      transition: .2s;
     }
 
     .primary-btn:hover {
@@ -219,6 +220,12 @@
       color: #fff;
       font-weight: 800;
       font-size: 13px;
+      transition: .2s;
+    }
+
+    .secondary-btn:hover {
+      border-color: rgba(245,197,66,.35);
+      color: var(--gold);
     }
 
     .scientist-card {
@@ -303,92 +310,7 @@
     }
 
     /* =========================
-       LOGIN
-       ========================= */
-
-    .login-section {
-      padding: 25px 0 80px;
-    }
-
-    .login-card {
-      max-width: 520px;
-      margin: auto;
-      padding: 34px;
-      border-radius: 24px;
-      background: #fff;
-      color: var(--dark);
-      box-shadow: 0 30px 90px rgba(0,0,0,.25);
-    }
-
-    .login-card h2 {
-      font-size: 29px;
-      margin-bottom: 8px;
-    }
-
-    .login-card p {
-      color: #6c7887;
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 25px;
-    }
-
-    .field {
-      margin-bottom: 15px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 11px;
-      font-weight: 900;
-      margin-bottom: 7px;
-      letter-spacing: .5px;
-    }
-
-    .field input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid #d8dee6;
-      border-radius: 9px;
-      padding: 0 13px;
-      outline: none;
-      color: var(--dark);
-    }
-
-    .field input:focus {
-      border-color: #234f80;
-      box-shadow: 0 0 0 3px rgba(35,79,128,.10);
-    }
-
-    .login-submit {
-      width: 100%;
-      margin-top: 4px;
-      border: 0;
-      border-radius: 10px;
-      height: 50px;
-      background: var(--gold);
-      color: #091727;
-      font-weight: 900;
-    }
-
-    .login-note {
-      text-align: center;
-      color: #8a95a3;
-      font-size: 10px;
-      margin-top: 12px;
-    }
-
-    #loginMessage {
-      display: none;
-      margin-top: 13px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #fff3f3;
-      color: #b22d2d;
-      font-size: 12px;
-    }
-
-    /* =========================
-       SAGE
+       GENERAL SECTIONS
        ========================= */
 
     .section {
@@ -416,6 +338,10 @@
       font-size: 16px;
       line-height: 1.75;
     }
+
+    /* =========================
+       SAGE
+       ========================= */
 
     .sage-story {
       display: grid;
@@ -546,10 +472,12 @@
       border: 1px solid var(--border);
       background: rgba(255,255,255,.045);
       overflow: hidden;
+      transition: .2s;
     }
 
-    .mock-card.locked {
-      opacity: .52;
+    .mock-card:hover {
+      border-color: rgba(245,197,66,.25);
+      transform: translateY(-2px);
     }
 
     .mock-number {
@@ -579,6 +507,10 @@
       padding: 9px 12px;
       font-size: 11px;
       font-weight: 900;
+    }
+
+    .mock-action:hover {
+      background: rgba(245,197,66,.16);
     }
 
     /* =========================
@@ -719,11 +651,27 @@
     }
 
     .scholarship .big {
-      font-size: clamp(55px, 11vw, 125px);
-      line-height: .85;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: .82;
       font-weight: 900;
       color: var(--gold);
-      letter-spacing: -5px;
+      letter-spacing: -4px;
+    }
+
+    .scholarship .big .up-to {
+      display: block;
+      margin-bottom: 10px;
+      font-size: clamp(18px, 3vw, 30px);
+      letter-spacing: 4px;
+      color: var(--gold-2);
+    }
+
+    .scholarship .big .hundred {
+      display: block;
+      font-size: clamp(58px, 11vw, 125px);
     }
 
     .scholarship h2 {
@@ -784,11 +732,120 @@
       background: rgba(255,255,255,.035);
       color: #d6e0ea;
       font-size: 11px;
+      transition: .2s;
     }
 
     .option:hover {
       border-color: rgba(245,197,66,.35);
       color: var(--gold);
+    }
+
+    /* =========================
+       LOGIN / CONTINUE
+       ========================= */
+
+    .login-section {
+      padding: 90px 0 100px;
+    }
+
+    .login-card {
+      max-width: 520px;
+      margin: auto;
+      padding: 34px;
+      border-radius: 24px;
+      background: #fff;
+      color: var(--dark);
+      box-shadow: 0 30px 90px rgba(0,0,0,.25);
+    }
+
+    .login-journey-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      color: #9a7a18;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .login-journey-note span:nth-child(even) {
+      color: #c8cdd5;
+    }
+
+    .login-card h2 {
+      font-size: 29px;
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      color: #6c7887;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 7px;
+      letter-spacing: .5px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid #d8dee6;
+      border-radius: 9px;
+      padding: 0 13px;
+      outline: none;
+      color: var(--dark);
+    }
+
+    .field input:focus {
+      border-color: #234f80;
+      box-shadow: 0 0 0 3px rgba(35,79,128,.10);
+    }
+
+    .login-submit {
+      width: 100%;
+      margin-top: 4px;
+      border: 0;
+      border-radius: 10px;
+      height: 50px;
+      background: var(--gold);
+      color: #091727;
+      font-weight: 900;
+      transition: .2s;
+    }
+
+    .login-submit:hover {
+      background: #eab934;
+    }
+
+    .login-note {
+      text-align: center;
+      color: #8a95a3;
+      font-size: 10px;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    #loginMessage {
+      display: none;
+      margin-top: 13px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff3f3;
+      color: #b22d2d;
+      font-size: 12px;
     }
 
     /* =========================
@@ -828,6 +885,7 @@
       border-radius: 22px;
       background: #fff;
       color: var(--dark);
+      box-shadow: 0 30px 90px rgba(0,0,0,.35);
     }
 
     .modal-card h3 {
@@ -889,12 +947,34 @@
         width: 92%;
       }
 
+      .nav {
+        min-height: 70px;
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .brand-text strong {
+        font-size: 13px;
+      }
+
+      .login-btn {
+        padding: 9px 11px;
+        font-size: 10px;
+      }
+
       .hero {
         padding-top: 40px;
       }
 
       .hero h1 {
         font-size: 48px;
+      }
+
+      .hero-copy {
+        font-size: 15px;
       }
 
       .scientist-card,
@@ -923,8 +1003,13 @@
         padding: 27px 21px;
       }
 
-      .scholarship .big {
+      .scholarship .big .hundred {
         font-size: 70px;
+      }
+
+      .scholarship .big .up-to {
+        font-size: 16px;
+        letter-spacing: 3px;
       }
 
       .question-options {
@@ -939,13 +1024,14 @@
 <div class="page">
 
   <!-- =========================
-       NAVIGATION
+       TOP NAV
        ========================= -->
 
   <header class="topbar">
     <div class="container nav">
 
       <a href="#" class="brand">
+
         <img
           src="https://sir.net.in/sir-logo.png"
           alt="SIR Logo"
@@ -955,6 +1041,7 @@
           <strong>SIR</strong>
           <span>SAGE • Talent Hunt</span>
         </div>
+
       </a>
 
       <nav class="nav-links">
@@ -965,7 +1052,7 @@
       </nav>
 
       <a href="#login" class="login-btn">
-        STUDENT LOGIN
+        LOGIN / CONTINUE
       </a>
 
     </div>
@@ -997,8 +1084,9 @@
           Every breakthrough starts with curiosity.
 
           <strong>
-            Before he became one of India's most important scientific institution-builders,
-            Homi Jehangir Bhabha was already thinking far beyond the obvious.
+            Before he became one of India's most important
+            scientific institution-builders, Homi Jehangir Bhabha
+            was already thinking far beyond the obvious.
           </strong>
 
           Your journey starts with the same thing:
@@ -1073,80 +1161,6 @@
         </div>
 
       </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       LOGIN
-       ========================= -->
-
-  <section class="login-section" id="login">
-
-    <div class="login-card">
-
-      <div class="eyebrow" style="color:#b18a15;">
-        Your journey continues
-      </div>
-
-      <h2>
-        Welcome back, Explorer.
-      </h2>
-
-      <p>
-        Your challenges, performance and SAGE journey are waiting.
-      </p>
-
-      <form id="loginForm">
-
-        <div class="field">
-
-          <label for="email">
-            STUDENT EMAIL / LOGIN ID
-          </label>
-
-          <input
-            id="email"
-            type="email"
-            placeholder="Enter your login email"
-            autocomplete="email"
-            required
-          >
-
-        </div>
-
-        <div class="field">
-
-          <label for="password">
-            PASSWORD
-          </label>
-
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
-
-        <button
-          class="login-submit"
-          type="submit"
-        >
-          ENTER THE SAGE JOURNEY →
-        </button>
-
-        <div id="loginMessage"></div>
-
-        <div class="login-note">
-          Your Talent Hunt account is protected by SIR.
-        </div>
-
-      </form>
 
     </div>
 
@@ -1688,7 +1702,8 @@
       </div>
 
       <div class="big">
-        100%
+        <span class="up-to">UP TO</span>
+        <span class="hundred">100%</span>
       </div>
 
       <h2>
@@ -1736,10 +1751,21 @@
 
         <div class="question-options">
 
-          <div class="option">A • Oceans change instantly</div>
-          <div class="option">B • Everything keeps moving</div>
-          <div class="option">C • Gravity disappears</div>
-          <div class="option">D • The Sun stops</div>
+          <div class="option">
+            A • Oceans change instantly
+          </div>
+
+          <div class="option">
+            B • Everything keeps moving
+          </div>
+
+          <div class="option">
+            C • Gravity disappears
+          </div>
+
+          <div class="option">
+            D • The Sun stops
+          </div>
 
         </div>
 
@@ -1750,12 +1776,105 @@
   </section>
 
 
+  <!-- =========================
+       LOGIN / CONTINUE
+       ========================= -->
+
+  <section class="login-section" id="login">
+
+    <div class="login-card">
+
+      <div class="login-journey-note">
+        <span>DISCOVER</span>
+        <span>→</span>
+        <span>PREPARE</span>
+        <span>→</span>
+        <span>CHALLENGE</span>
+        <span>→</span>
+        <span>SAGE</span>
+      </div>
+
+      <div class="eyebrow" style="color:#b18a15;">
+        Continue your journey
+      </div>
+
+      <h2>
+        Welcome back, Explorer.
+      </h2>
+
+      <p>
+        Log in to access your challenges, mock tests,
+        performance analysis and your complete SAGE journey.
+      </p>
+
+      <form id="loginForm">
+
+        <div class="field">
+
+          <label for="email">
+            STUDENT EMAIL / LOGIN ID
+          </label>
+
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter your login email"
+            autocomplete="email"
+            required
+          >
+
+        </div>
+
+        <div class="field">
+
+          <label for="password">
+            PASSWORD
+          </label>
+
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+
+        </div>
+
+        <button
+          class="login-submit"
+          type="submit"
+        >
+          ENTER THE SAGE JOURNEY →
+        </button>
+
+        <div id="loginMessage"></div>
+
+        <div class="login-note">
+          Your Talent Hunt account is protected by SIR.
+          <br>
+          Your real account access will be connected to Supabase.
+        </div>
+
+      </form>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       FOOTER
+       ========================= -->
+
   <footer>
 
     <div class="container">
 
       SIR • Suryawanshi Institute for Rankers
+
       <br>
+
       Where Potential Finds Direction
 
     </div>
@@ -1789,9 +1908,9 @@
     </h3>
 
     <p>
-      Your actual question bank, timer, submission,
-      scoring and detailed analysis will be connected
-      to the SIR backend here.
+      This challenge will open with your real SAGE question
+      set, timer, submission, scoring and detailed performance
+      analysis once the SIR backend is connected.
     </p>
 
     <br>
@@ -1889,6 +2008,9 @@
 
         message.style.display = "block";
 
+        message.style.background = "#fff3f3";
+        message.style.color = "#b22d2d";
+
         message.textContent =
           "Supabase connection will be connected in the next step.";
 
@@ -1899,8 +2021,8 @@
       try {
 
         /*
-          Supabase browser client will be added
-          when the project credentials are inserted.
+          Supabase browser authentication
+          will be connected in the next backend step.
         */
 
         message.style.display = "block";
@@ -1971,7 +2093,6 @@
       }
 
     });
-
 
 </script>
 
