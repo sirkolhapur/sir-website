@@ -1,1 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>SIR Talent Hunt | Discover Your Potential</title>
+
+  <meta
+    name="description"
+    content="SIR Talent Hunt — discover your potential and begin your journey."
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy: #071426;
+      --navy-2: #0b203b;
+      --gold: #f5c542;
+      --gold-2: #e9b52d;
+      --white: #ffffff;
+      --muted: #b8c5d5;
+      --dark: #122033;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 15% 20%,
+          rgba(245,197,66,.13),
+          transparent 26%
+        ),
+        radial-gradient(
+          circle at 90% 80%,
+          rgba(44,101,170,.18),
+          transparent 30%
+        ),
+        var(--navy);
+    }
+
+    .glow {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: rgba(245,197,66,.07);
+      filter: blur(70px);
+      pointer-events: none;
+    }
+
+    .glow.one {
+      top: -160px;
+      right: -100px;
+    }
+
+    .glow.two {
+      bottom: -180px;
+      left: -130px;
+      background: rgba(39,104,178,.10);
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 10;
+
+      width: 100%;
+      padding: 22px 5vw;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      line-height: 1.1;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 15px;
+      letter-spacing: 1.4px;
+    }
+
+    .brand-text span {
+      display: block;
+      margin-top: 4px;
+
+      color: var(--gold);
+
+      font-size: 10px;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    .progress {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.22);
+
+      transition: .3s;
+    }
+
+    .progress-dot.active {
+      width: 24px;
+
+      border-radius: 20px;
+
+      background: var(--gold);
+    }
+
+    .scene {
+      min-height: calc(100vh - 98px);
+
+      padding: 30px 5vw 55px;
+
+      display: none;
+
+      position: relative;
+      z-index: 2;
+    }
+
+    .scene.active {
+      display: flex;
+
+      animation: sceneIn .55s ease both;
+    }
+
+    @keyframes sceneIn {
+
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+    .scene-inner {
+      width: 100%;
+      max-width: 1180px;
+
+      margin: auto;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+
+      text-transform: uppercase;
+
+      letter-spacing: 3px;
+
+      font-weight: 800;
+
+      font-size: 12px;
+
+      margin-bottom: 17px;
+    }
+
+    /* =========================================
+       SCENE 1
+       ========================================= */
+
+    .hook {
+      display: grid;
+
+      grid-template-columns: 1fr .85fr;
+
+      gap: 60px;
+
+      align-items: center;
+    }
+
+    .hook h1 {
+      font-size: clamp(45px, 7vw, 88px);
+
+      line-height: .94;
+
+      letter-spacing: -2px;
+
+      margin-bottom: 25px;
+    }
+
+    .hook h1 span {
+      color: var(--gold);
+    }
+
+    .hook-copy {
+      max-width: 590px;
+
+      color: var(--muted);
+
+      font-size: 18px;
+
+      line-height: 1.7;
+    }
+
+    .cta {
+      margin-top: 34px;
+
+      border: 0;
+
+      border-radius: 12px;
+
+      padding: 16px 25px;
+
+      background: var(--gold);
+
+      color: #081728;
+
+      font-weight: 900;
+
+      font-size: 14px;
+
+      letter-spacing: .2px;
+
+      box-shadow:
+        0 12px 35px rgba(245,197,66,.16);
+
+      transition:
+        transform .2s,
+        background .2s;
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+
+      background: #ffd45b;
+    }
+
+    .hint {
+      margin-top: 14px;
+
+      color: rgba(255,255,255,.42);
+
+      font-size: 11px;
+    }
+
+    /* SCIENTIST */
+
+    .scientist-card {
+      position: relative;
+
+      min-height: 510px;
+
+      border-radius: 28px;
+
+      overflow: hidden;
+
+      border: 1px solid rgba(255,255,255,.12);
+
+      background: #0a1d34;
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.30);
+    }
+
+    .scientist-card img {
+      width: 100%;
+      height: 100%;
+
+      min-height: 510px;
+
+      object-fit: cover;
+
+      object-position: center;
+
+      display: block;
+
+      opacity: .86;
+
+      filter:
+        grayscale(18%)
+        contrast(1.03);
+    }
+
+    .scientist-overlay {
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        linear-gradient(
+          180deg,
+          transparent 20%,
+          rgba(5,14,27,.12) 42%,
+          rgba(5,14,27,.96) 100%
+        );
+
+      display: flex;
+
+      align-items: flex-end;
+
+      padding: 30px;
+    }
+
+    .scientist-tag {
+      color: var(--gold);
+
+      text-transform: uppercase;
+
+      letter-spacing: 2px;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      margin-bottom: 8px;
+    }
+
+    .scientist-name {
+      font-size: 28px;
+
+      font-weight: 900;
+    }
+
+    .scientist-fact {
+      margin-top: 8px;
+
+      color: #d4deea;
+
+      font-size: 14px;
+
+      line-height: 1.5;
+    }
+
+    .quote-mark {
+      position: absolute;
+
+      top: 18px;
+      right: 24px;
+
+      font-size: 90px;
+
+      line-height: 1;
+
+      color: rgba(245,197,66,.16);
+
+      font-family: Georgia, serif;
+    }
+
+    /* =========================================
+       SCENE 2
+       ========================================= */
+
+    .challenge {
+      max-width: 1050px;
+
+      margin: auto;
+
+      text-align: center;
+    }
+
+    .challenge h2 {
+      font-size: clamp(38px, 5vw, 65px);
+
+      line-height: 1;
+
+      margin-bottom: 20px;
+    }
+
+    .challenge > p {
+      max-width: 650px;
+
+      margin: 0 auto;
+
+      color: var(--muted);
+
+      font-size: 17px;
+
+      line-height: 1.7;
+    }
+
+    .challenge-grid {
+      margin-top: 45px;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 17px;
+    }
+
+    .challenge-card {
+      padding: 30px 24px;
+
+      border-radius: 20px;
+
+      border: 1px solid rgba(255,255,255,.11);
+
+      background: rgba(255,255,255,.045);
+
+      text-align: left;
+
+      transition: .25s;
+    }
+
+    .challenge-card:hover {
+      transform: translateY(-5px);
+
+      border-color:
+        rgba(245,197,66,.35);
+
+      background:
+        rgba(255,255,255,.07);
+    }
+
+    .challenge-icon {
+      font-size: 28px;
+
+      margin-bottom: 20px;
+    }
+
+    .challenge-card h3 {
+      font-size: 18px;
+
+      margin-bottom: 9px;
+    }
+
+    .challenge-card p {
+      color: var(--muted);
+
+      font-size: 13px;
+
+      line-height: 1.6;
+    }
+
+    /* =========================================
+       SCENE 3
+       ========================================= */
+
+    .your-turn {
+      min-height: 620px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-align: center;
+    }
+
+    .your-turn h2 {
+      font-size: clamp(55px, 9vw, 105px);
+
+      line-height: .9;
+
+      letter-spacing: -3px;
+    }
+
+    .your-turn h2 span {
+      color: var(--gold);
+    }
+
+    .your-turn p {
+      max-width: 620px;
+
+      margin: 28px auto 0;
+
+      color: var(--muted);
+
+      font-size: 18px;
+
+      line-height: 1.7;
+    }
+
+    /* =========================================
+       SCENE 4 — REGISTRATION
+       ========================================= */
+
+    .register-layout {
+      display: grid;
+
+      grid-template-columns:
+        .85fr 1.15fr;
+
+      gap: 65px;
+
+      align-items: center;
+
+      max-width: 1050px;
+
+      margin: auto;
+    }
+
+    .register-copy h2 {
+      font-size: clamp(40px, 5vw, 64px);
+
+      line-height: .98;
+
+      margin-bottom: 20px;
+    }
+
+    .register-copy h2 span {
+      color: var(--gold);
+    }
+
+    .register-copy p {
+      color: var(--muted);
+
+      line-height: 1.7;
+
+      font-size: 16px;
+    }
+
+    .journey-mini {
+      margin-top: 28px;
+
+      display: grid;
+
+      gap: 10px;
+    }
+
+    .journey-mini div {
+      padding: 12px 15px;
+
+      border-radius: 10px;
+
+      border: 1px solid rgba(255,255,255,.08);
+
+      background:
+        rgba(255,255,255,.035);
+
+      color: #dce5ef;
+
+      font-size: 12px;
+    }
+
+    .journey-mini strong {
+      color: var(--gold);
+
+      margin-right: 8px;
+    }
+
+    .form-card {
+      background: #fff;
+
+      color: var(--dark);
+
+      border-radius: 24px;
+
+      padding: 38px;
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.28);
+    }
+
+    .form-card h3 {
+      font-size: 28px;
+
+      margin-bottom: 7px;
+    }
+
+    .form-card .form-sub {
+      color: #687587;
+
+      font-size: 13px;
+
+      line-height: 1.55;
+
+      margin-bottom: 25px;
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .field label {
+      display: block;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+
+      height: 49px;
+
+      border: 1px solid #d7dde5;
+
+      border-radius: 10px;
+
+      padding: 0 14px;
+
+      color: var(--dark);
+
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #173f73;
+
+      box-shadow:
+        0 0 0 3px rgba(23,63,115,.10);
+    }
+
+    .field input.fixed {
+      background: #f3f6f9;
+
+      color: #657184;
+    }
+
+    .wa-note {
+      color: #7a8593;
+
+      font-size: 11px;
+
+      line-height: 1.45;
+
+      margin-top: 6px;
+    }
+
+    .form-card .cta {
+      width: 100%;
+
+      margin-top: 3px;
+    }
+
+    .privacy {
+      text-align: center;
+
+      color: #8a95a4;
+
+      font-size: 10px;
+
+      line-height: 1.5;
+
+      margin-top: 13px;
+    }
+
+    /* =========================================
+       SCENE 5 — OTP
+       ========================================= */
+
+    .otp-box {
+      max-width: 520px;
+
+      margin: auto;
+
+      text-align: center;
+    }
+
+    .otp-box h2 {
+      font-size: clamp(40px, 6vw, 68px);
+
+      margin-bottom: 15px;
+    }
+
+    .otp-box p {
+      color: var(--muted);
+
+      line-height: 1.7;
+
+      margin-bottom: 28px;
+    }
+
+    .otp-input {
+      width: 100%;
+
+      max-width: 360px;
+
+      height: 58px;
+
+      border-radius: 12px;
+
+      border:
+        1px solid rgba(255,255,255,.18);
+
+      background:
+        rgba(255,255,255,.07);
+
+      color: #fff;
+
+      text-align: center;
+
+      font-size: 25px;
+
+      letter-spacing: 9px;
+
+      outline: none;
+    }
+
+    .otp-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* =========================================
+       SCENE 6 — SUCCESS
+       ========================================= */
+
+    .success {
+      min-height: 600px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-align: center;
+    }
+
+    .success-symbol {
+      width: 82px;
+      height: 82px;
+
+      border-radius: 50%;
+
+      margin: 0 auto 24px;
+
+      display: grid;
+
+      place-items: center;
+
+      border: 2px solid var(--gold);
+
+      color: var(--gold);
+
+      font-size: 35px;
+
+      box-shadow:
+        0 0 45px rgba(245,197,66,.12);
+    }
+
+    .success h2 {
+      font-size: clamp(42px, 6vw, 72px);
+
+      line-height: .95;
+
+      margin-bottom: 18px;
+    }
+
+    .success h2 span {
+      color: var(--gold);
+    }
+
+    .success p {
+      max-width: 600px;
+
+      margin: auto;
+
+      color: var(--muted);
+
+      line-height: 1.7;
+    }
+
+    /* =========================================
+       MOBILE
+       ========================================= */
+
+    @media (max-width: 900px) {
+
+      .hook,
+      .register-layout {
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+      }
+
+      .scientist-card {
+        min-height: 430px;
+      }
+
+      .scientist-card img {
+        min-height: 430px;
+      }
+
+      .challenge-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .challenge-card {
+        text-align: center;
+      }
+
+      .scene {
+        padding-top: 20px;
+      }
+    }
+
+    @media (max-width: 560px) {
+
+      .topbar {
+        padding: 16px 18px;
+      }
+
+      .brand img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .brand-text strong {
+        font-size: 12px;
+      }
+
+      .brand-text span {
+        font-size: 8px;
+      }
+
+      .progress {
+        gap: 5px;
+      }
+
+      .progress-dot {
+        width: 6px;
+        height: 6px;
+      }
+
+      .progress-dot.active {
+        width: 18px;
+      }
+
+      .scene {
+        padding:
+          22px
+          18px
+          40px;
+      }
+
+      .hook h1 {
+        font-size: 48px;
+      }
+
+      .hook-copy {
+        font-size: 15px;
+      }
+
+      .scientist-card,
+      .scientist-card img {
+        min-height: 390px;
+      }
+
+      .form-card {
+        padding: 25px 20px;
+
+        border-radius: 20px;
+      }
+
+      .your-turn {
+        min-height: 520px;
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+
+  <!-- =========================================
+       TOP BAR
+       ========================================= -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <img
+        src="sir-logo.png"
+        alt="SIR Logo"
+      >
+
+      <div class="brand-text">
+
+        <strong>
+          SIR
+        </strong>
+
+        <span>
+          Talent Hunt
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="progress">
+
+      <div class="progress-dot active"></div>
+
+      <div class="progress-dot"></div>
+
+      <div class="progress-dot"></div>
+
+      <div class="progress-dot"></div>
+
+      <div class="progress-dot"></div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================================
+       SCENE 1 — HOOK
+       ========================================= -->
+
+  <section
+    class="scene active"
+    id="scene1"
+  >
+
+    <div class="scene-inner hook">
+
+      <div>
+
+        <div class="eyebrow">
+          SIR Scholarship Program
+        </div>
+
+
+        <h1>
+
+          Ever wondered<br>
+
+          <span>
+            how far
+          </span>
+
+          you can go?
+
+        </h1>
+
+
+        <p class="hook-copy">
+
+          The biggest discoveries often begin
+          with one simple question:
+
+          <strong>
+            “What if I can?”
+          </strong>
+
+        </p>
+
+
+        <button
+          class="cta"
+          type="button"
+          onclick="goToScene(2)"
+        >
+
+          ✨ DISCOVER YOUR POTENTIAL
+
+        </button>
+
+
+        <div class="hint">
+
+          A short journey.
+          One interesting question.
+          Your potential.
+
+        </div>
+
+      </div>
+
+
+      <!-- SCIENTIST CARD -->
+
+      <div class="scientist-card">
+
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Thomas_Edison2.jpg"
+          alt="Thomas Edison portrait"
+          onerror="this.style.opacity='0'"
+        >
+
+
+        <div class="quote-mark">
+          “
+        </div>
+
+
+        <div class="scientist-overlay">
+
+          <div>
+
+            <div class="scientist-tag">
+              A curious mind
+            </div>
+
+
+            <div class="scientist-name">
+              Thomas Edison
+            </div>
+
+
+            <div class="scientist-fact">
+
+              His story is a reminder that curiosity
+              and persistence can turn an idea
+              into something real.
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       SCENE 2 — CHALLENGE
+       ========================================= -->
+
+  <section
+    class="scene"
+    id="scene2"
+  >
+
+    <div class="scene-inner challenge">
+
+      <div class="eyebrow">
+        Think beyond the classroom
+      </div>
+
+
+      <h2>
+
+        Potential is not a mark.<br>
+
+        <span style="color:var(--gold);">
+          It's a possibility.
+        </span>
+
+      </h2>
+
+
+      <p>
+
+        Your school marks tell part of your story.
+
+        A challenge can reveal another part —
+        how you think, how you respond and
+        how far you can push yourself.
+
+      </p>
+
+
+      <div class="challenge-grid">
+
+
+        <div class="challenge-card">
+
+          <div class="challenge-icon">
+            🧠
+          </div>
+
+          <h3>
+            THINK
+          </h3>
+
+          <p>
+            Can you solve something you haven't
+            seen before?
+          </p>
+
+        </div>
+
+
+        <div class="challenge-card">
+
+          <div class="challenge-icon">
+            ⚡
+          </div>
+
+          <h3>
+            CHALLENGE
+          </h3>
+
+          <p>
+            Can you stay sharp when the clock
+            is running?
+          </p>
+
+        </div>
+
+
+        <div class="challenge-card">
+
+          <div class="challenge-icon">
+            🎯
+          </div>
+
+          <h3>
+            DISCOVER
+          </h3>
+
+          <p>
+            What does your performance say
+            about your potential?
+          </p>
+
+        </div>
+
+
+      </div>
+
+
+      <button
+        class="cta"
+        type="button"
+        onclick="goToScene(3)"
+      >
+
+        I'M READY →
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       SCENE 3 — YOUR TURN
+       ========================================= -->
+
+  <section
+    class="scene"
+    id="scene3"
+  >
+
+    <div class="scene-inner your-turn">
+
+      <div>
+
+        <div class="eyebrow">
+          Your turn
+        </div>
+
+
+        <h2>
+
+          Great minds<br>
+
+          <span>
+            start curious.
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          Scientists asked questions nobody had
+          answered.
+
+          You don't need to know everything.
+
+          You just need the courage to discover
+          what you can do.
+
+        </p>
+
+
+        <button
+          class="cta"
+          type="button"
+          onclick="goToScene(4)"
+        >
+
+          START MY TALENT HUNT →
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       SCENE 4 — REGISTRATION
+       ========================================= -->
+
+  <section
+    class="scene"
+    id="scene4"
+  >
+
+    <div class="scene-inner register-layout">
+
+
+      <div class="register-copy">
+
+        <div class="eyebrow">
+          Step 01 · Registration
+        </div>
+
+
+        <h2>
+
+          Let's get to<br>
+
+          <span>
+            know you.
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          Your Talent Hunt journey starts
+          with four simple details.
+
+          Use one WhatsApp number that you
+          can access — yours or your parent's.
+
+        </p>
+
+
+        <div class="journey-mini">
+
+
+          <div>
+
+            <strong>
+              01
+            </strong>
+
+            Register
+
+          </div>
+
+
+          <div>
+
+            <strong>
+              02
+            </strong>
+
+            Verify WhatsApp
+
+          </div>
+
+
+          <div>
+
+            <strong>
+              03
+            </strong>
+
+            Enter the Talent Hunt
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+
+      <div class="form-card">
+
+        <h3>
+          Start Your Journey
+        </h3>
+
+
+        <p class="form-sub">
+
+          Enter your details below.
+
+          Class 10 is currently eligible
+          for this Talent Hunt.
+
+        </p>
+
+
+        <form id="registrationForm">
+
+
+          <!-- STUDENT NAME -->
+
+          <div class="field">
+
+            <label for="studentName">
+              STUDENT NAME
+            </label>
+
+
+            <input
+              id="studentName"
+              name="studentName"
+              type="text"
+              placeholder="Enter full name"
+              autocomplete="name"
+              required
+            >
+
+          </div>
+
+
+          <!-- SCHOOL NAME -->
+
+          <div class="field">
+
+            <label for="schoolName">
+              SCHOOL NAME
+            </label>
+
+
+            <input
+              id="schoolName"
+              name="schoolName"
+              type="text"
+              placeholder="Enter your school name"
+              required
+            >
+
+          </div>
+
+
+          <!-- CLASS -->
+
+          <div class="field">
+
+            <label for="studentClass">
+              CLASS
+            </label>
+
+
+            <input
+              id="studentClass"
+              name="studentClass"
+              type="text"
+              value="10th"
+              readonly
+              class="fixed"
+            >
+
+          </div>
+
+
+          <!-- WHATSAPP -->
+
+          <div class="field">
+
+            <label for="whatsappNumber">
+              WHATSAPP NUMBER
+            </label>
+
+
+            <input
+              id="whatsappNumber"
+              name="whatsappNumber"
+              type="tel"
+              inputmode="numeric"
+              maxlength="10"
+              pattern="[0-9]{10}"
+              placeholder="Enter WhatsApp number"
+              autocomplete="tel"
+              required
+            >
+
+
+            <div class="wa-note">
+
+              Student or parent — either one WhatsApp
+              number can be used.
+
+              We will verify it with OTP.
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="cta"
+            type="submit"
+          >
+
+            VERIFY & ENTER THE HUNT →
+
+          </button>
+
+
+          <div class="privacy">
+
+            Your number will be used for
+            Talent Hunt verification and
+            program-related communication.
+
+          </div>
+
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       SCENE 5 — OTP
+       ========================================= -->
+
+  <section
+    class="scene"
+    id="scene5"
+  >
+
+    <div class="scene-inner">
+
+      <div class="otp-box">
+
+        <div class="eyebrow">
+          Step 02 · Verification
+        </div>
+
+
+        <h2>
+
+          One last
+
+          <span style="color:var(--gold);">
+            step.
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          We've sent a verification code
+          to your WhatsApp number.
+
+          Enter it below to continue
+          your Talent Hunt journey.
+
+        </p>
+
+
+        <input
+          id="otpInput"
+          class="otp-input"
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="••••••"
+          aria-label="WhatsApp OTP"
+        >
+
+
+        <br>
+
+
+        <button
+          class="cta"
+          type="button"
+          onclick="verifyOtpDemo()"
+        >
+
+          VERIFY & CONTINUE →
+
+        </button>
+
+
+        <div class="hint">
+
+          OTP functionality will be connected
+          to WhatsApp in the next step.
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       SCENE 6 — SUCCESS
+       ========================================= -->
+
+  <section
+    class="scene"
+    id="scene6"
+  >
+
+    <div class="scene-inner success">
+
+      <div>
+
+        <div class="success-symbol">
+          ✓
+        </div>
+
+
+        <div class="eyebrow">
+          You're in
+        </div>
+
+
+        <h2>
+
+          Welcome to<br>
+
+          <span>
+            the Hunt.
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          Your registration is complete.
+
+          Your Talent Hunt journey is about
+          to begin.
+
+          The next stage will unlock your
+          challenges, results and scholarship journey.
+
+        </p>
+
+
+        <button
+          class="cta"
+          type="button"
+          onclick="location.reload()"
+        >
+
+          BACK TO START
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+</div>
+
+
+<script>
+
+  /*
+    ============================================================
+    SIR TALENT HUNT — STEP 1 FRONTEND EXPERIENCE
+
+    CURRENT VERSION:
+    UI / FRONTEND ONLY
+
+    FLOW:
+
+    HOOK
+      ↓
+    CHALLENGE
+      ↓
+    YOUR TURN
+      ↓
+    REGISTRATION
+      ↓
+    OTP DEMO
+      ↓
+    SUCCESS
+
+    NEXT BACKEND STEP:
+
+    1. Save registration in Supabase
+    2. Send WhatsApp OTP
+    3. Verify OTP
+    4. Create student account
+    5. Send confirmation + founder video on WhatsApp
+    ============================================================
+  */
+
+
+  let currentScene = 1;
+
+
+  function updateProgress(sceneNumber) {
+
+    const dots =
+      document.querySelectorAll(".progress-dot");
+
+
+    dots.forEach((dot, index) => {
+
+      dot.classList.toggle(
+        "active",
+        index === Math.min(
+          sceneNumber - 1,
+          dots.length - 1
+        )
+      );
+
+    });
+
+  }
+
+
+  function goToScene(sceneNumber) {
+
+    document
+      .querySelectorAll(".scene")
+      .forEach(scene => {
+
+        scene.classList.remove("active");
+
+      });
+
+
+    const nextScene =
+      document.getElementById(
+        "scene" + sceneNumber
+      );
+
+
+    if (!nextScene) {
+      return;
+    }
+
+
+    nextScene.classList.add("active");
+
+
+    currentScene = sceneNumber;
+
+
+    updateProgress(sceneNumber);
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  /*
+    REGISTRATION FORM
+  */
+
+  document
+    .getElementById("registrationForm")
+    .addEventListener(
+      "submit",
+      function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+          document
+            .getElementById("studentName")
+            .value
+            .trim();
+
+
+        const school =
+          document
+            .getElementById("schoolName")
+            .value
+            .trim();
+
+
+        const whatsapp =
+          document
+            .getElementById("whatsappNumber")
+            .value
+            .trim();
+
+
+        if (!name || !school) {
+
+          alert(
+            "Please enter your name and school."
+          );
+
+          return;
+
+        }
+
+
+        if (
+          !/^[0-9]{10}$/.test(
+            whatsapp
+          )
+        ) {
+
+          alert(
+            "Please enter a valid 10-digit WhatsApp number."
+          );
+
+          return;
+
+        }
+
+
+        /*
+          DEMO TRANSITION
+
+          Real backend will be connected
+          in the next step.
+        */
+
+        goToScene(5);
+
+      }
+    );
+
+
+  /*
+    OTP DEMO
+  */
+
+  function verifyOtpDemo() {
+
+    const otp =
+      document
+        .getElementById("otpInput")
+        .value
+        .trim();
+
+
+    if (
+      !/^[0-9]{6}$/.test(otp)
+    ) {
+
+      alert(
+        "Please enter the 6-digit OTP."
+      );
+
+      return;
+
+    }
+
+
+    /*
+      DEMO ONLY.
+
+      Real OTP verification will be
+      connected later.
+    */
+
+    goToScene(6);
+
+  }
+
+
+  /*
+    INITIAL STATE
+  */
+
+  updateProgress(1);
+
+</script>
+
+
+</body>
+</html>
