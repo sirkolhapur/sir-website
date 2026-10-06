@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="SAGE — SIR Academic & Growth Evaluation. Discover. Prepare. Challenge. Earn."
+    content="SAGE — Scholarship For Academic Growth and Excellence. Discover. Prepare. Challenge. Earn."
   >
 
   <style>
@@ -451,6 +451,143 @@
       color: var(--gold);
       font-size: 27px;
       margin-bottom: 10px;
+    }
+
+    /* =========================
+       SAGE EXAM DOMAIN
+       ========================= */
+
+    .sage-exam-overview {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+
+    .sage-overview-card,
+    .sage-domain-card,
+    .sage-philosophy {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      padding: 25px;
+    }
+
+    .sage-overview-card h3,
+    .sage-philosophy h3 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .sage-overview-card p,
+    .sage-philosophy p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .sage-overview-points {
+      margin-top: 18px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .sage-overview-points div {
+      padding: 11px 13px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      color: #d9e3ed;
+      font-size: 12px;
+    }
+
+    .sage-overview-points strong {
+      color: var(--gold);
+    }
+
+    .sage-domain-heading {
+      margin-top: 48px;
+      margin-bottom: 22px;
+    }
+
+    .sage-domain-heading h3 {
+      font-size: 28px;
+      margin-bottom: 9px;
+    }
+
+    .sage-domain-heading p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 760px;
+    }
+
+    .sage-domain-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .sage-domain-card {
+      min-height: 100%;
+    }
+
+    .sage-domain-number {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .sage-domain-card h4 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .sage-domain-card h5 {
+      color: #d7e2ec;
+      font-size: 11px;
+      margin-bottom: 13px;
+      font-weight: 700;
+    }
+
+    .sage-domain-card ul {
+      margin: 0;
+      padding-left: 17px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.75;
+    }
+
+    .sage-domain-card li::marker {
+      color: var(--gold);
+    }
+
+    .sage-exam-philosophy {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .sage-thinking-strip {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .sage-thinking-strip div {
+      padding: 14px 10px;
+      text-align: center;
+      border-radius: 10px;
+      border: 1px solid rgba(245,197,66,.20);
+      background: rgba(245,197,66,.055);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
     }
 
     /* =========================
@@ -1043,6 +1180,19 @@
         min-height: 430px;
       }
 
+      .sage-exam-overview,
+      .sage-exam-philosophy {
+        grid-template-columns: 1fr;
+      }
+
+      .sage-domain-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sage-thinking-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
       .material-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -1127,6 +1277,10 @@
         letter-spacing: 3px;
       }
 
+      .sage-thinking-strip {
+        grid-template-columns: 1fr;
+      }
+
       .question-options {
         grid-template-columns: 1fr;
       }
@@ -1189,56 +1343,358 @@
 
   <!-- =========================
        HERO / SCIENTIST HOOK
+       =====================  <!-- =========================
+       ABOUT SAGE
        ========================= -->
 
-  <section class="hero">
+  <section class="section" id="about">
 
-    <div class="container hero-grid">
+    <div class="container">
 
-      <div>
-
-        <div class="personal-greeting" id="personalGreeting">
-          Welcome back, <strong id="heroStudentName">Student</strong>.
-        </div>
+      <div class="section-heading">
 
         <div class="eyebrow">
-          SIR Talent Hunt • SAGE
+          About SAGE
         </div>
 
-        <h1>
-          What if the next
-          <span>big discovery</span>
-          begins with you?
-        </h1>
+        <h2>
+          This isn't just a test.
+          <span>It's a discovery.</span>
+        </h2>
 
-        <div class="hero-copy curiosity-hook">
+        <p>
+          <strong>SAGE — Scholarship For Academic Growth and Excellence.</strong>
+          It is designed for Class X students as a one-hour multidisciplinary
+          aptitude examination built around concepts generally encountered
+          from Classes VI–X.
+        </p>
 
-          <div class="curiosity-lead">EVER WONDER WHY?</div>
+      </div>
 
-          <div class="curiosity-questions">
-            <div>Why does a pressure cooker cook food faster?</div>
-            <div>Why does a wet road become slippery?</div>
-            <div>Why does your heart beat faster when you run?</div>
-            <div>Why does lemon remove some stains?</div>
+
+      <div class="sage-story">
+
+        <div class="story-main">
+
+          <h3>
+            Your potential deserves more than a guess.
+          </h3>
+
+          <p>
+            SAGE is not built around memorisation alone. The emphasis is on
+            conceptual understanding, application, reasoning and problem-solving.
+            The aim is to understand how you think, how you use what you know,
+            and how you approach unfamiliar situations.
+          </p>
+
+          <div class="journey">
+            <div>DISCOVER</div>
+            <div>PREPARE</div>
+            <div>CHALLENGE</div>
+            <div>PERFORM</div>
+            <div>EARN</div>
           </div>
 
-          <p class="curiosity-copy">
-            You see these things every day.
-            But a curious mind asks: <strong>“Why?”</strong>
+        </div>
+
+
+        <div class="story-side">
+
+          <strong>
+            SAGE
+          </strong>
+
+          <p>
+            Scholarship For Academic Growth and Excellence —
+            a journey from curiosity to challenge, and from
+            challenge to opportunity.
           </p>
 
-          <p class="science-begins">
-            And that is where <strong>science begins.</strong>
+        </div>
+
+      </div>
+
+
+      <div class="sage-exam-overview">
+
+        <div class="sage-overview-card">
+
+          <div class="eyebrow">SAGE EXAM</div>
+
+          <h3>
+            Understand. Apply. Reason. Solve.
+          </h3>
+
+          <p>
+            For Class X, SAGE is a <strong>1-hour multidisciplinary aptitude
+            examination</strong>. Questions are based on concepts generally
+            encountered from Classes VI–X, with greater emphasis on using
+            knowledge rather than simply recalling it.
           </p>
 
-          <p class="bhabha-quote">
-            “The important thing is to never stop questioning.”
-          </p>
-          <div class="bhabha-attribution">— Dr. Homi J. Bhabha</div>
+          <div class="sage-overview-points">
+            <div><strong>Target:</strong> Class X</div>
+            <div><strong>Duration:</strong> 1 hour</div>
+            <div><strong>Nature:</strong> Multidisciplinary aptitude examination</div>
+            <div><strong>Concept boundary:</strong> Classes VI–X</div>
+            <div><strong>Core emphasis:</strong> Conceptual understanding, application, reasoning and problem-solving</div>
+          </div>
 
-          <p class="hook-close">
-            Every scientist once started with a question.
-            <strong>Maybe yours is waiting to be asked.</strong>
+        </div>
+
+
+        <div class="sage-overview-card">
+
+          <div class="eyebrow">QUESTION PHILOSOPHY</div>
+
+          <h3>
+            Not just “What do you know?”
+          </h3>
+
+          <p>
+            SAGE can use questions that ask you to understand a concept,
+            apply it to a situation, reason through information, solve a
+            problem, interpret data or visuals, and think through unfamiliar
+            situations where the underlying concept remains within the declared domain.
+          </p>
+
+          <div class="sage-thinking-strip">
+            <div>UNDERSTAND</div>
+            <div>APPLY</div>
+            <div>REASON</div>
+            <div>SOLVE</div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="sage-domain-heading">
+
+        <div class="eyebrow">
+          SAGE EXAM DOMAIN
+        </div>
+
+        <h3>
+          What can SAGE ask you?
+        </h3>
+
+        <p>
+          The examination covers five broad domains. The focus is on
+          understanding the underlying concepts and using them intelligently,
+          not on memorising isolated facts.
+        </p>
+
+      </div>
+
+
+      <div class="sage-domain-grid">
+
+        <div class="sage-domain-card">
+          <div class="sage-domain-number">01 • PHYSICS</div>
+          <h4>Understanding the Physical World</h4>
+          <h5>Concepts and areas</h5>
+          <ul>
+            <li>Measurement, units and estimation</li>
+            <li>Motion, speed, velocity and acceleration</li>
+            <li>Force, friction and Newton's laws</li>
+            <li>Gravitation, pressure and buoyancy</li>
+            <li>Work, energy and power</li>
+            <li>Heat, temperature and heat transfer</li>
+            <li>Sound and waves</li>
+            <li>Reflection, refraction, mirrors and lenses</li>
+            <li>Electricity and simple circuits</li>
+            <li>Magnetism and electromagnetic effects</li>
+            <li>Earth, space and basic astronomy</li>
+            <li>Physical situations, graphs and data</li>
+          </ul>
+          <p style="margin-top:13px;">
+            Expect to predict, compare, estimate, interpret and explain.
+          </p>
+        </div>
+
+
+        <div class="sage-domain-card">
+          <div class="sage-domain-number">02 • CHEMISTRY</div>
+          <h4>Understanding Matter &amp; Its Transformation</h4>
+          <h5>Concepts and areas</h5>
+          <ul>
+            <li>Matter and its properties</li>
+            <li>States of matter and changes of state</li>
+            <li>Elements, compounds and mixtures</li>
+            <li>Atoms, molecules and atomic structure</li>
+            <li>Valency and chemical formulae</li>
+            <li>Periodic table and basic trends</li>
+            <li>Chemical reactions and equations</li>
+            <li>Acids, bases and salts</li>
+            <li>Metals and non-metals</li>
+            <li>Carbon compounds</li>
+            <li>Solutions and separation methods</li>
+            <li>Combustion and fuels</li>
+            <li>Everyday chemistry</li>
+            <li>Environment and basic chemical processes</li>
+          </ul>
+          <p style="margin-top:13px;">
+            Identify patterns, interpret observations, predict outcomes and apply concepts.
+          </p>
+        </div>
+
+
+        <div class="sage-domain-card">
+          <div class="sage-domain-number">03 • MATHEMATICS</div>
+          <h4>Numbers, Patterns &amp; Problem-Solving</h4>
+          <h5>Concepts and areas</h5>
+          <ul>
+            <li>Number systems, factors and divisibility</li>
+            <li>Fractions, decimals, ratios and percentages</li>
+            <li>Average, profit/loss and interest</li>
+            <li>Speed, distance and time</li>
+            <li>Algebraic expressions and equations</li>
+            <li>Polynomials and factorisation</li>
+            <li>Patterns and sequences</li>
+            <li>Lines, angles and triangles</li>
+            <li>Geometry and geometrical reasoning</li>
+            <li>Circles and quadrilaterals</li>
+            <li>Perimeter, area, surface area and volume</li>
+            <li>Coordinate geometry</li>
+            <li>Graphs and data interpretation</li>
+            <li>Basic probability</li>
+            <li>Mathematical puzzles and non-routine problems</li>
+          </ul>
+        </div>
+
+
+        <div class="sage-domain-card">
+          <div class="sage-domain-number">04 • BIOLOGY</div>
+          <h4>Understanding Life</h4>
+          <h5>Concepts and areas</h5>
+          <ul>
+            <li>Diversity and classification</li>
+            <li>Cells and organelles</li>
+            <li>Plant and animal tissues</li>
+            <li>Plant structure and functions</li>
+            <li>Photosynthesis and respiration</li>
+            <li>Nutrition and digestion</li>
+            <li>Human respiratory, circulatory and excretory systems</li>
+            <li>Nervous system, sense organs and coordination</li>
+            <li>Reproduction</li>
+            <li>Microorganisms and diseases</li>
+            <li>Heredity, variation and basic genetics</li>
+            <li>Adaptation and evolution</li>
+            <li>Ecosystems, food chains and food webs</li>
+            <li>Environment and biodiversity</li>
+          </ul>
+        </div>
+
+
+        <div class="sage-domain-card">
+          <div class="sage-domain-number">05 • REASONING &amp; APTITUDE</div>
+          <h4>How Do You Think?</h4>
+          <h5>Concepts and areas</h5>
+          <ul>
+            <li>Number and figure series</li>
+            <li>Analogies and classification</li>
+            <li>Pattern recognition</li>
+            <li>Coding and decoding</li>
+            <li>Logical sequences</li>
+            <li>Direction and spatial reasoning</li>
+            <li>Ranking and arrangements</li>
+            <li>Blood relations</li>
+            <li>Venn diagrams</li>
+            <li>Data interpretation</li>
+            <li>Visual reasoning</li>
+            <li>Mathematical puzzles</li>
+            <li>Analytical and critical thinking</li>
+            <li>Unfamiliar problem situations</li>
+          </ul>
+        </div>
+
+      </div>
+
+
+      <div class="sage-exam-philosophy">
+
+        <div class="sage-philosophy">
+
+          <div class="eyebrow">QUESTION TYPES</div>
+
+          <h3>
+            Think beyond recall.
+          </h3>
+
+          <p>
+            SAGE questions may be conceptual, application-based,
+            reasoning-based, problem-solving, data &amp; visual, or based
+            on unfamiliar situations.
+          </p>
+
+          <div class="sage-thinking-strip">
+            <div>CONCEPTUAL</div>
+            <div>APPLICATION</div>
+            <div>REASONING</div>
+            <div>PROBLEM-SOLVING</div>
+          </div>
+
+        </div>
+
+
+        <div class="sage-philosophy">
+
+          <div class="eyebrow">PREPARE TO</div>
+
+          <h3>
+            Use what you know.
+          </h3>
+
+          <p>
+            Understanding the underlying concept is more important than
+            memorising an isolated answer. SAGE is designed to see how you
+            approach a question when the situation changes.
+          </p>
+
+          <div class="sage-thinking-strip">
+            <div>DATA &amp; VISUAL</div>
+            <div>UNFAMILIAR</div>
+            <div>THINK</div>
+            <div>SOLVE</div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="sage-story" style="margin-top:18px;">
+
+        <div class="story-main">
+          <h3>
+            SAGE is not just asking what you know.
+          </h3>
+
+          <p>
+            It is asking <strong>what you can do with what you know.</strong>
+            Prepare to understand. Apply. Reason. Solve.
+          </p>
+        </div>
+
+        <div class="story-side">
+          <strong>UNDERSTAND • APPLY • REASON • SOLVE</strong>
+          <p>
+            Your preparation is not only about remembering answers.
+            It is about becoming better at thinking.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+</strong>
           </p>
 
         </div>
@@ -1305,82 +1761,6 @@
             </div>
 
           </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       ABOUT SAGE
-       ========================= -->
-
-  <section class="section" id="about">
-
-    <div class="container">
-
-      <div class="section-heading">
-
-        <div class="eyebrow">
-          About SAGE
-        </div>
-
-        <h2>
-          This isn't just a test.
-          <span>It's a discovery.</span>
-        </h2>
-
-        <p>
-          SAGE — SIR Academic & Growth Evaluation — is designed
-          to help you discover how you think, how you perform,
-          where you are strong and where you can grow.
-        </p>
-
-      </div>
-
-
-      <div class="sage-story">
-
-        <div class="story-main">
-
-          <h3>
-            Your potential deserves more than a guess.
-          </h3>
-
-          <p>
-            Before you walk into the SAGE campus test,
-            you will have opportunities to explore,
-            learn, challenge yourself and understand
-            your own performance.
-          </p>
-
-          <div class="journey">
-
-            <div>DISCOVER</div>
-            <div>PREPARE</div>
-            <div>CHALLENGE</div>
-            <div>PERFORM</div>
-            <div>EARN</div>
-
-          </div>
-
-        </div>
-
-
-        <div class="story-side">
-
-          <strong>
-            SAGE
-          </strong>
-
-          <p>
-            A journey from curiosity to challenge —
-            and from challenge to opportunity.
-          </p>
 
         </div>
 
