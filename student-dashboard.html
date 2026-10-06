@@ -1494,33 +1494,23 @@
           session
         },
         error: sessionError
-      } =
-        await supabaseClient.auth.getSession();
+      } = await supabaseClient.auth.getSession();
 
 
       if (sessionError) {
-
-        throw new Error(
-          "Unable to verify your login session."
-        );
-
+        throw new Error("Unable to verify your login session.");
       }
 
 
       /* NOT LOGGED IN */
 
       if (!session) {
-
-        window.location.href =
-          "student-login.html";
-
+        window.location.href = "student-login.html";
         return;
-
       }
 
 
-      const user =
-        session.user;
+      const user = session.user;
 
 
       /* =================================================
@@ -1530,80 +1520,51 @@
       const {
         data: student,
         error: studentError
-      } =
-        await supabaseClient
-          .from("students")
-          .select("*")
-          .eq(
-            "user_id",
-            user.id
-          )
-          .maybeSingle();
+      } = await supabaseClient
+        .from("students")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
 
       if (studentError) {
-
-        console.error(
-          "Student profile error:",
-          studentError
-        );
-
-        throw new Error(
-          "Unable to load your student profile."
-        );
-
+        console.error("Student profile error:", studentError);
+        throw new Error("Unable to load your student profile.");
       }
 
 
       if (!student) {
-
-        throw new Error(
-          "Student profile not found."
-        );
-
+        throw new Error("Student profile not found.");
       }
 
 
       /* DISPLAY STUDENT */
 
-      renderProfile(
-        student,
-        user
-      );
+      renderProfile(student, user);
+
 
       /* DOUBT SOLVING PROGRAMME */
       initDSP(student);
 
 
       /* =================================================
-         LOAD SCORES
-         ================================================= */
+         LOAD ACADEMIC DATA
 
-      const scores =
-        await loadScores(
-          student.id
-        );
+         NEW SOURCE (PRIMARY):
+         student_test_results
+         student_test_subject_results
+         student_question_results
 
+         LEGACY SOURCE (FALLBACK):
+         test_scores -> tests
 
-      /* =================================================
-         LOAD ACTUAL TEST DETAILS
-         ================================================= */
-
-      const tests =
-        await loadTests(
-          scores
-        );
-
-
-      /* =================================================
-         COMBINE SCORE + TEST
+         The new result-import system and the old online-test
+         system therefore both remain supported without copying
+         data from one database model into another.
          ================================================= */
 
       const academicRecords =
-        combineAcademicData(
-          scores,
-          tests
-        );
+        await loadAcademicRecords(student.id);
 
 
       /* =================================================
@@ -1611,56 +1572,31 @@
          ================================================= */
 
       const reviews =
-        await loadReviews(
-          student.id
-        );
+        await loadReviews(student.id);
 
 
       /* =================================================
          RENDER EVERYTHING
          ================================================= */
 
-      renderAnalytics(
-        academicRecords
-      );
-
-
-      renderTests(
-        academicRecords
-      );
-
-
-      renderReviews(
-        reviews
-      );
+      renderAnalytics(academicRecords);
+      renderTests(academicRecords);
+      renderReviews(reviews);
 
 
       /* SHOW DASHBOARD */
 
-      loading.style.display =
-        "none";
+      loading.style.display = "none";
+      dashboard.style.display = "block";
 
-      dashboard.style.display =
-        "block";
+    } catch (error) {
 
-    }
+      console.error("Dashboard error:", error);
 
-    catch (error) {
-
-      console.error(
-        "Dashboard error:",
-        error
-      );
-
-      loading.style.display =
-        "none";
-
+      loading.style.display = "none";
       errorBox.textContent =
-        error.message ||
-        "Unable to load dashboard.";
-
-      errorBox.style.display =
-        "block";
+        error.message || "Unable to load dashboard.";
+      errorBox.style.display = "block";
 
     }
 
@@ -1720,88 +1656,315 @@
 
 
   /* =====================================================
-     LOAD SCORES
+     ACADEMIC DATA LAYER
      ===================================================== */
 
-  async function loadScores(
-    studentId
-  ) {
+  /*
+    IMPORTANT ARCHITECTURE:
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("test_scores")
-        .select(`
-          id,
-          test_id,
-          student_id,
-          subject,
-          marks_obtained,
-          max_marks,
-          rank,
-          correct_answers,
-          incorrect_answers,
-          unanswered
-        `)
-        .eq(
-          "student_id",
-          studentId
-        );
+    1. student_test_results is the authoritative source for
+       imported/institute results.
+    2. student_test_subject_results contains subject-wise data.
+    3. student_question_results contains question-level data.
+    4. test_scores remains supported for tests taken through the
+       older online-test system.
+    5. If the same test exists in both systems, the new
+       student_test_results record wins. This prevents duplicate
+       cards and prevents an older score from hiding a newly
+       imported institute result.
+  */
 
 
-    if (error) {
+  async function loadAcademicRecords(studentId) {
 
-      console.error(
-        "Score query error:",
-        error
-      );
+    const [newResultsResponse, legacyScoresResponse] =
+      await Promise.all([
 
-      throw new Error(
-        "Unable to load your test performance."
-      );
+        loadImportedResults(studentId),
+        loadLegacyScores(studentId)
 
+      ]);
+
+
+    const importedResults =
+      newResultsResponse.records || [];
+
+
+    const legacyScores =
+      legacyScoresResponse || [];
+
+
+    let tests = [];
+
+    try {
+      tests = await loadTestsForScores(legacyScores);
+    } catch (error) {
+      console.warn("Legacy test details unavailable:", error);
+      tests = [];
     }
 
 
-    return data || [];
+    const legacyRecords =
+      combineAcademicData(
+        legacyScores,
+        tests
+      );
+
+
+    /*
+      New result data is authoritative.
+      Legacy records are retained only when there is no matching
+      imported result for the same student/test/exam/date.
+    */
+
+    const importedKeys =
+      new Set(
+        importedResults.map(
+          buildAcademicRecordKey
+        )
+      );
+
+
+    const filteredLegacyRecords =
+      legacyRecords.filter(
+        record =>
+          !importedKeys.has(
+            buildAcademicRecordKey(record)
+          )
+      );
+
+
+    const records = [
+      ...importedResults,
+      ...filteredLegacyRecords
+    ];
+
+
+    records.sort(
+      (a, b) => {
+
+        const dateA =
+          getAcademicDate(a);
+
+        const dateB =
+          getAcademicDate(b);
+
+        return dateB - dateA;
+
+      }
+    );
+
+
+    console.info(
+      "SIR Student Dashboard academic data:",
+      {
+        importedResults: importedResults.length,
+        legacyResults: legacyRecords.length,
+        displayedResults: records.length,
+        importedResultError:
+          newResultsResponse.error || null
+      }
+    );
+
+
+    return records;
 
   }
 
 
   /* =====================================================
-     LOAD ACTUAL TEST RECORDS
+     NEW / AUTHORITATIVE RESULT SYSTEM
      ===================================================== */
 
-  async function loadTests(
-    scores
-  ) {
+  async function loadImportedResults(studentId) {
+
+    const {
+      data: results,
+      error: resultError
+    } = await supabaseClient
+      .from("student_test_results")
+      .select(`
+        id,
+        student_id,
+        test_id,
+        exam_name,
+        test_date,
+        mode,
+        test_type,
+        stream,
+        max_marks,
+        marks_obtained,
+        percentage,
+        percentile,
+        batch_rank,
+        overall_rank,
+        status,
+        created_at,
+        updated_at
+      `)
+      .eq("student_id", studentId)
+      .order("test_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+
+    if (resultError) {
+
+      console.error(
+        "Imported result query error:",
+        resultError
+      );
+
+      /*
+        Do not break the dashboard if the optional/new result
+        system is not yet readable for this student. The legacy
+        online-test system can still render normally.
+      */
+
+      return {
+        records: [],
+        error: resultError.message || "Imported results unavailable."
+      };
+
+    }
+
+
+    const safeResults = results || [];
+
+
+    if (!safeResults.length) {
+
+      return {
+        records: [],
+        error: null
+      };
+
+    }
+
+
+    const resultIds =
+      safeResults
+        .map(row => row.id)
+        .filter(Boolean);
+
+
+    /* SUBJECT-WISE RESULT */
+
+    let subjectRows = [];
+
+    if (resultIds.length) {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("student_test_subject_results")
+        .select(`
+          id,
+          result_id,
+          subject,
+          marks_obtained,
+          max_marks,
+          percentage,
+          attempted,
+          correct,
+          wrong,
+          skipped,
+          raw_data,
+          created_at
+        `)
+        .in("result_id", resultIds)
+        .order("subject");
+
+
+      if (error) {
+
+        /*
+          Subject detail is useful but not required for the main
+          result card. Keep the main result usable if this table
+          has not yet been granted to the student role.
+        */
+
+        console.warn(
+          "Subject result query unavailable:",
+          error
+        );
+
+      } else {
+
+        subjectRows = data || [];
+
+      }
+
+    }
+
+
+    /* QUESTION-LEVEL RESULT */
+
+    let questionRows = [];
+
+    if (resultIds.length) {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("student_question_results")
+        .select(`
+          id,
+          result_id,
+          student_id,
+          subject,
+          question_number,
+          student_answer,
+          correct_answer,
+          result,
+          is_correct,
+          is_skipped,
+          marks_obtained,
+          raw_data
+        `)
+        .eq("student_id", studentId)
+        .in("result_id", resultIds)
+        .order("subject")
+        .order("question_number");
+
+
+      if (error) {
+
+        console.warn(
+          "Question result query unavailable:",
+          error
+        );
+
+      } else {
+
+        questionRows = data || [];
+
+      }
+
+    }
+
+
+    /* TEST METADATA, WHEN AN IMPORTED RESULT IS LINKED TO tests */
 
     const testIds =
       [
         ...new Set(
-          scores
-            .map(
-              row => row.test_id
-            )
+          safeResults
+            .map(row => row.test_id)
             .filter(Boolean)
         )
       ];
 
 
-    if (!testIds.length) {
+    let tests = [];
 
-      return [];
+    if (testIds.length) {
 
-    }
-
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
+      const {
+        data,
+        error
+      } = await supabaseClient
         .from("tests")
         .select(`
           id,
@@ -1814,22 +1977,248 @@
           description,
           created_at
         `)
-        .in(
-          "id",
-          testIds
+        .in("id", testIds);
+
+
+      if (error) {
+
+        console.warn(
+          "Imported result test metadata unavailable:",
+          error
         );
+
+      } else {
+
+        tests = data || [];
+
+      }
+
+    }
+
+
+    const testMap =
+      new Map(
+        tests.map(test => [test.id, test])
+      );
+
+
+    const subjectsByResult =
+      new Map();
+
+
+    subjectRows.forEach(
+      row => {
+
+        if (!subjectsByResult.has(row.result_id)) {
+          subjectsByResult.set(row.result_id, []);
+        }
+
+        subjectsByResult
+          .get(row.result_id)
+          .push(row);
+
+      }
+    );
+
+
+    const questionsByResult =
+      new Map();
+
+
+    questionRows.forEach(
+      row => {
+
+        if (!questionsByResult.has(row.result_id)) {
+          questionsByResult.set(row.result_id, []);
+        }
+
+        questionsByResult
+          .get(row.result_id)
+          .push(row);
+
+      }
+    );
+
+
+    const records =
+      safeResults.map(
+        result => {
+
+          const linkedTest =
+            result.test_id
+              ? testMap.get(result.test_id) || null
+              : null;
+
+
+          const subjects =
+            subjectsByResult.get(result.id) || [];
+
+
+          const questions =
+            questionsByResult.get(result.id) || [];
+
+
+          const subjectStats =
+            summariseSubjectStats(subjects);
+
+
+          const inferredCorrect =
+            subjectStats.correct;
+
+
+          const inferredWrong =
+            subjectStats.wrong;
+
+
+          const inferredSkipped =
+            subjectStats.skipped;
+
+
+          const questionStats =
+            summariseQuestionStats(questions);
+
+
+          const rank =
+            result.overall_rank ??
+            result.batch_rank ??
+            null;
+
+
+          /*
+            If a linked tests row exists, preserve it.
+            Otherwise create a local display-only test object so
+            the existing dashboard UI can show imported results
+            without needing a tests row.
+          */
+
+          const displayTest =
+            linkedTest || {
+              id: result.test_id || null,
+              title: result.exam_name || "Assessment",
+              subject:
+                result.stream ||
+                subjects.map(s => s.subject).join(" + ") ||
+                "Academic Test",
+              test_date: result.test_date,
+              max_marks: result.max_marks,
+              created_at: result.created_at,
+              description: result.test_type || ""
+            };
+
+
+          return {
+
+            /* Keep the original result id identifiable. */
+            id: result.id,
+            result_id: result.id,
+
+            student_id: result.student_id,
+            test_id: result.test_id || null,
+
+            exam_name: result.exam_name,
+            subject:
+              displayTest.subject ||
+              result.stream ||
+              "Academic Test",
+
+            marks_obtained:
+              result.marks_obtained,
+
+            max_marks:
+              result.max_marks ??
+              displayTest.max_marks ??
+              null,
+
+            percentage:
+              result.percentage,
+
+            percentile:
+              result.percentile,
+
+            rank: rank,
+            batch_rank: result.batch_rank,
+            overall_rank: result.overall_rank,
+
+            correct_answers:
+              inferredCorrect !== null
+                ? inferredCorrect
+                : questionStats.correct,
+
+            incorrect_answers:
+              inferredWrong !== null
+                ? inferredWrong
+                : questionStats.wrong,
+
+            unanswered:
+              inferredSkipped !== null
+                ? inferredSkipped
+                : questionStats.skipped,
+
+            status: result.status,
+            mode: result.mode,
+            test_type: result.test_type,
+            stream: result.stream,
+
+            test_date: result.test_date,
+            created_at: result.created_at,
+            updated_at: result.updated_at,
+
+            subjects: subjects,
+            question_results: questions,
+
+            /* Existing renderer continues to work through row.test. */
+            test: displayTest
+
+          };
+
+        }
+      );
+
+
+    return {
+      records,
+      error: null
+    };
+
+  }
+
+
+  /* =====================================================
+     LEGACY ONLINE-TEST RESULT SYSTEM
+     ===================================================== */
+
+  async function loadLegacyScores(studentId) {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("test_scores")
+      .select(`
+        id,
+        test_id,
+        student_id,
+        subject,
+        marks_obtained,
+        max_marks,
+        rank,
+        correct_answers,
+        incorrect_answers,
+        unanswered
+      `)
+      .eq("student_id", studentId);
 
 
     if (error) {
 
-      console.warn(
-        "Test details query:",
+      console.error(
+        "Legacy score query error:",
         error
       );
 
       /*
-        Score data should still remain usable
-        even if test details are unavailable.
+        The imported-result system is now primary. If the legacy
+        table is unavailable, do not hide valid imported results.
       */
 
       return [];
@@ -1843,7 +2232,231 @@
 
 
   /* =====================================================
-     COMBINE TEST + SCORE
+     LEGACY TEST METADATA
+     ===================================================== */
+
+  async function loadTestsForScores(scores) {
+
+    const testIds =
+      [
+        ...new Set(
+          scores
+            .map(row => row.test_id)
+            .filter(Boolean)
+        )
+      ];
+
+
+    if (!testIds.length) {
+      return [];
+    }
+
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("tests")
+      .select(`
+        id,
+        batch_id,
+        title,
+        subject,
+        test_date,
+        max_marks,
+        duration_minutes,
+        description,
+        created_at
+      `)
+      .in("id", testIds);
+
+
+    if (error) {
+
+      console.warn(
+        "Test details query:",
+        error
+      );
+
+      return [];
+
+    }
+
+
+    return data || [];
+
+  }
+
+
+  /* Backward-compatible aliases kept intentionally. */
+
+  async function loadScores(studentId) {
+    return loadLegacyScores(studentId);
+  }
+
+
+  async function loadTests(scores) {
+    return loadTestsForScores(scores);
+  }
+
+
+  /* =====================================================
+     SUBJECT / QUESTION SUMMARY HELPERS
+     ===================================================== */
+
+  function summariseSubjectStats(subjects) {
+
+    if (!Array.isArray(subjects) || !subjects.length) {
+      return {
+        correct: null,
+        wrong: null,
+        skipped: null
+      };
+    }
+
+
+    let hasCorrect = false;
+    let hasWrong = false;
+    let hasSkipped = false;
+
+    let correct = 0;
+    let wrong = 0;
+    let skipped = 0;
+
+
+    subjects.forEach(subject => {
+
+      if (subject.correct !== null && subject.correct !== undefined) {
+        hasCorrect = true;
+        correct += Number(subject.correct) || 0;
+      }
+
+      if (subject.wrong !== null && subject.wrong !== undefined) {
+        hasWrong = true;
+        wrong += Number(subject.wrong) || 0;
+      }
+
+      if (subject.skipped !== null && subject.skipped !== undefined) {
+        hasSkipped = true;
+        skipped += Number(subject.skipped) || 0;
+      }
+
+    });
+
+
+    return {
+      correct: hasCorrect ? correct : null,
+      wrong: hasWrong ? wrong : null,
+      skipped: hasSkipped ? skipped : null
+    };
+
+  }
+
+
+  function summariseQuestionStats(questions) {
+
+    if (!Array.isArray(questions) || !questions.length) {
+      return {
+        correct: null,
+        wrong: null,
+        skipped: null
+      };
+    }
+
+
+    let correct = 0;
+    let wrong = 0;
+    let skipped = 0;
+
+
+    questions.forEach(question => {
+
+      const result =
+        String(question.result || "").trim().toLowerCase();
+
+
+      if (question.is_skipped || result === "skipped") {
+        skipped++;
+        return;
+      }
+
+
+      if (question.is_correct || result === "correct") {
+        correct++;
+        return;
+      }
+
+
+      wrong++;
+
+    });
+
+
+    return {
+      correct,
+      wrong,
+      skipped
+    };
+
+  }
+
+
+  function buildAcademicRecordKey(row) {
+
+    if (row.result_id) {
+      return "result:" + row.result_id;
+    }
+
+
+    const testId =
+      row.test_id ||
+      row.test?.id ||
+      "";
+
+
+    if (testId) {
+      return "test:" + testId;
+    }
+
+
+    const exam =
+      String(
+        row.exam_name ||
+        row.test?.title ||
+        ""
+      )
+        .trim()
+        .toLowerCase();
+
+
+    const date =
+      String(
+        row.test_date ||
+        row.test?.test_date ||
+        ""
+      );
+
+
+    return "exam:" + exam + "|date:" + date;
+
+  }
+
+
+  function getAcademicDate(row) {
+
+    return new Date(
+      row.test_date ||
+      row.test?.test_date ||
+      row.test?.created_at ||
+      row.created_at ||
+      0
+    ).getTime();
+
+  }
+
+
+  /* =====================================================
+     COMBINE LEGACY TEST + SCORE
      ===================================================== */
 
   function combineAcademicData(
@@ -1857,12 +2470,7 @@
 
     tests.forEach(
       test => {
-
-        testMap.set(
-          test.id,
-          test
-        );
-
+        testMap.set(test.id, test);
       }
     );
 
@@ -1872,58 +2480,27 @@
         score => {
 
           const test =
-            testMap.get(
-              score.test_id
-            ) || null;
+            testMap.get(score.test_id) || null;
 
 
           return {
-
             ...score,
-
             test: test
-
           };
 
         }
       );
 
 
-    /*
-      Latest test first based on test date.
-      If date is unavailable, created_at is used.
-    */
-
     records.sort(
-      (a, b) => {
-
-        const dateA =
-          new Date(
-            a.test?.test_date ||
-            a.test?.created_at ||
-            0
-          ).getTime();
-
-
-        const dateB =
-          new Date(
-            b.test?.test_date ||
-            b.test?.created_at ||
-            0
-          ).getTime();
-
-
-        return dateB - dateA;
-
-      }
+      (a, b) =>
+        getAcademicDate(b) - getAcademicDate(a)
     );
 
 
     return records;
 
   }
-
-
 
 
   /* =====================================================
@@ -2482,6 +3059,23 @@
     row
   ) {
 
+    /*
+      Imported institute results already contain the official
+      percentage. Prefer it so the dashboard does not recalculate
+      or subtly change an imported value.
+    */
+
+    if (
+      row.percentage !== null &&
+      row.percentage !== undefined &&
+      !isNaN(Number(row.percentage))
+    ) {
+
+      return Number(row.percentage);
+
+    }
+
+
     const score =
       getScore(row);
 
@@ -3035,7 +3629,9 @@
 
 
         const rank =
-          row.rank;
+          row.rank ??
+          row.overall_rank ??
+          row.batch_rank;
 
 
         const correct =
