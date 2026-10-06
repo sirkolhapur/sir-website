@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>SAGE | SIR Talent Hunt</title>
+  <title>SAGE | Scholarship For Academic Growth and Excellence</title>
 
   <meta
     name="description"
@@ -451,143 +451,6 @@
       color: var(--gold);
       font-size: 27px;
       margin-bottom: 10px;
-    }
-
-    /* =========================
-       SAGE EXAM DOMAIN
-       ========================= */
-
-    .sage-exam-overview {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
-    }
-
-    .sage-overview-card,
-    .sage-domain-card,
-    .sage-philosophy {
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: var(--card);
-      padding: 25px;
-    }
-
-    .sage-overview-card h3,
-    .sage-philosophy h3 {
-      font-size: 22px;
-      margin-bottom: 12px;
-    }
-
-    .sage-overview-card p,
-    .sage-philosophy p {
-      color: var(--muted);
-      line-height: 1.7;
-      font-size: 13px;
-    }
-
-    .sage-overview-points {
-      margin-top: 18px;
-      display: grid;
-      gap: 9px;
-    }
-
-    .sage-overview-points div {
-      padding: 11px 13px;
-      border-radius: 10px;
-      background: rgba(255,255,255,.04);
-      color: #d9e3ed;
-      font-size: 12px;
-    }
-
-    .sage-overview-points strong {
-      color: var(--gold);
-    }
-
-    .sage-domain-heading {
-      margin-top: 48px;
-      margin-bottom: 22px;
-    }
-
-    .sage-domain-heading h3 {
-      font-size: 28px;
-      margin-bottom: 9px;
-    }
-
-    .sage-domain-heading p {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-      max-width: 760px;
-    }
-
-    .sage-domain-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
-
-    .sage-domain-card {
-      min-height: 100%;
-    }
-
-    .sage-domain-number {
-      color: var(--gold);
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .sage-domain-card h4 {
-      font-size: 20px;
-      margin-bottom: 6px;
-    }
-
-    .sage-domain-card h5 {
-      color: #d7e2ec;
-      font-size: 11px;
-      margin-bottom: 13px;
-      font-weight: 700;
-    }
-
-    .sage-domain-card ul {
-      margin: 0;
-      padding-left: 17px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.75;
-    }
-
-    .sage-domain-card li::marker {
-      color: var(--gold);
-    }
-
-    .sage-exam-philosophy {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .sage-thinking-strip {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 9px;
-    }
-
-    .sage-thinking-strip div {
-      padding: 14px 10px;
-      text-align: center;
-      border-radius: 10px;
-      border: 1px solid rgba(245,197,66,.20);
-      background: rgba(245,197,66,.055);
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 1px;
     }
 
     /* =========================
@@ -1180,19 +1043,6 @@
         min-height: 430px;
       }
 
-      .sage-exam-overview,
-      .sage-exam-philosophy {
-        grid-template-columns: 1fr;
-      }
-
-      .sage-domain-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .sage-thinking-strip {
-        grid-template-columns: 1fr 1fr;
-      }
-
       .material-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -1277,10 +1127,6 @@
         letter-spacing: 3px;
       }
 
-      .sage-thinking-strip {
-        grid-template-columns: 1fr;
-      }
-
       .question-options {
         grid-template-columns: 1fr;
       }
@@ -1297,6 +1143,861 @@
         font-size: 10px;
       }
     }
+  
+    /* ============================================================
+       SAGE 2.0 FRIENDLY DISCOVERY UI
+       ============================================================ */
+
+    .hero {
+      padding: 48px 0 42px;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1.08fr .72fr;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(44px, 6.2vw, 74px);
+      margin-bottom: 18px;
+    }
+
+    .curiosity-hook {
+      margin-top: 18px;
+      max-width: 660px;
+    }
+
+    .curiosity-lead {
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.4px;
+      margin-bottom: 11px;
+    }
+
+    .hook-question {
+      font-size: clamp(20px, 2.5vw, 29px);
+      line-height: 1.22;
+      color: #fff;
+      font-weight: 800;
+      max-width: 610px;
+    }
+
+    .hook-question span {
+      color: var(--gold);
+    }
+
+    .hook-subline {
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 590px;
+    }
+
+    .hook-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .hook-flow span {
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 999px;
+      background: rgba(255,255,255,.035);
+      color: #dbe5ef;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .hook-flow span:nth-child(2) {
+      border-color: rgba(245,197,66,.24);
+      color: var(--gold);
+    }
+
+    .hook-card {
+      position: relative;
+      min-height: 390px;
+      padding: 30px;
+      border-radius: 28px;
+      border: 1px solid rgba(245,197,66,.17);
+      background:
+        radial-gradient(circle at 78% 20%, rgba(245,197,66,.12), transparent 28%),
+        linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.025));
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.22);
+    }
+
+    .hook-card::before {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: -70px;
+      top: -70px;
+      border: 1px solid rgba(245,197,66,.14);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(245,197,66,.025),
+                  0 0 0 56px rgba(245,197,66,.018);
+    }
+
+    .hook-card-kicker {
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 2px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .hook-card h3 {
+      margin-top: 12px;
+      font-size: 30px;
+      line-height: 1.05;
+      max-width: 300px;
+    }
+
+    .hook-card p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 330px;
+    }
+
+    .hook-mini-questions {
+      margin-top: 25px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .hook-mini-questions div {
+      padding: 11px 12px;
+      border-radius: 10px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.06);
+      color: #dce6ef;
+      font-size: 11px;
+    }
+
+    .hook-mini-questions div::before {
+      content: "?";
+      display: inline-grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: rgba(245,197,66,.12);
+      color: var(--gold);
+      font-weight: 900;
+    }
+
+    .hook-scientist {
+      position: absolute;
+      right: 20px;
+      bottom: 17px;
+      color: rgba(255,255,255,.35);
+      font-size: 9px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .sage-full-form {
+      margin-top: 12px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .7px;
+    }
+
+    .exam-snapshot {
+      margin-top: 25px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .snapshot-card {
+      padding: 15px;
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.035);
+    }
+
+    .snapshot-card strong {
+      display: block;
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    .snapshot-card span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted-2);
+      font-size: 9px;
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    /* =========================
+       EXAM MAP / SYLLABUS
+       ========================= */
+
+    .exam-map {
+      margin-top: 38px;
+      display: grid;
+      gap: 11px;
+    }
+
+    .domain-card {
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+      overflow: hidden;
+      transition: border-color .25s, background .25s, transform .25s;
+    }
+
+    .domain-card:hover {
+      border-color: rgba(245,197,66,.22);
+    }
+
+    .domain-card.open {
+      border-color: rgba(245,197,66,.38);
+      background: rgba(255,255,255,.05);
+    }
+
+    .domain-trigger {
+      width: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 15px;
+      padding: 19px 21px;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      text-align: left;
+    }
+
+    .domain-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: rgba(245,197,66,.08);
+      border: 1px solid rgba(245,197,66,.17);
+      font-size: 21px;
+    }
+
+    .domain-number {
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+
+    .domain-title {
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .domain-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .domain-arrow {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--gold);
+      transition: transform .25s;
+    }
+
+    .domain-card.open .domain-arrow {
+      transform: rotate(180deg);
+    }
+
+    .domain-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .35s ease;
+    }
+
+    .domain-card.open .domain-content {
+      grid-template-rows: 1fr;
+    }
+
+    .domain-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .domain-body {
+      padding: 0 21px 22px 80px;
+    }
+
+    .domain-thinking {
+      display: inline-flex;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(245,197,66,.19);
+      background: rgba(245,197,66,.055);
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .7px;
+      margin-bottom: 15px;
+    }
+
+    .domain-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 22px;
+      list-style: none;
+    }
+
+    .domain-list li {
+      position: relative;
+      padding-left: 14px;
+      color: #c8d5e2;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .domain-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .65em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .domain-note {
+      margin-top: 15px;
+      padding: 13px 15px;
+      border-left: 2px solid var(--gold);
+      background: rgba(245,197,66,.035);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       FLOATING CURIOSITY
+       ========================= */
+
+    .curiosity-zone {
+      position: relative;
+      min-height: 510px;
+      margin-top: 25px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(245,197,66,.075), transparent 30%),
+        radial-gradient(circle at 20% 80%, rgba(43,103,170,.11), transparent 30%),
+        rgba(255,255,255,.025);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .curiosity-zone::before,
+    .curiosity-zone::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(245,197,66,.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .curiosity-zone::before {
+      width: 370px;
+      height: 370px;
+    }
+
+    .curiosity-zone::after {
+      width: 560px;
+      height: 560px;
+    }
+
+    .curiosity-center {
+      position: relative;
+      z-index: 4;
+      width: 150px;
+      height: 150px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: 50%;
+      border: 1px solid rgba(245,197,66,.35);
+      background: radial-gradient(circle, rgba(245,197,66,.14), rgba(6,20,38,.94) 68%);
+      box-shadow: 0 0 60px rgba(245,197,66,.08);
+    }
+
+    .curiosity-center strong {
+      display: block;
+      color: var(--gold);
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+
+    .curiosity-center span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .curiosity-orbit {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+    .curiosity-topic {
+      position: absolute;
+      width: 178px;
+      min-height: 94px;
+      padding: 15px;
+      border-radius: 17px;
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(6,20,38,.86);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      text-align: left;
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      animation: curiosityFloat 5.8s ease-in-out infinite;
+      transition: transform .25s, border-color .25s, background .25s, box-shadow .25s;
+    }
+
+    .curiosity-topic:hover {
+      animation-play-state: paused;
+      transform: translateY(-6px) scale(1.025);
+      border-color: rgba(245,197,66,.48);
+      background: rgba(12,30,51,.97);
+      box-shadow: 0 22px 55px rgba(0,0,0,.30);
+    }
+
+    .curiosity-topic:nth-child(2) { animation-delay: -1.1s; }
+    .curiosity-topic:nth-child(3) { animation-delay: -2.2s; }
+    .curiosity-topic:nth-child(4) { animation-delay: -3.4s; }
+    .curiosity-topic:nth-child(5) { animation-delay: -4.3s; }
+    .curiosity-topic:nth-child(6) { animation-delay: -5s; }
+
+    .curiosity-topic:nth-child(1) { left: 8%; top: 14%; }
+    .curiosity-topic:nth-child(2) { right: 8%; top: 13%; }
+    .curiosity-topic:nth-child(3) { left: 4%; bottom: 14%; }
+    .curiosity-topic:nth-child(4) { right: 4%; bottom: 14%; }
+    .curiosity-topic:nth-child(5) { left: 31%; top: 6%; }
+    .curiosity-topic:nth-child(6) { right: 31%; bottom: 6%; }
+
+    .curiosity-topic-icon {
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .curiosity-topic strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .curiosity-topic small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    @keyframes curiosityFloat {
+      0%, 100% { transform: translate3d(0,0,0); }
+      50% { transform: translate3d(0,-9px,0); }
+    }
+
+    .discovery-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(2,8,16,.78);
+      backdrop-filter: blur(10px);
+    }
+
+    .discovery-panel.active {
+      display: flex;
+    }
+
+    .discovery-card {
+      width: min(680px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      padding: 30px;
+      border-radius: 24px;
+      border: 1px solid rgba(245,197,66,.22);
+      background: #0b1c31;
+      box-shadow: 0 35px 100px rgba(0,0,0,.4);
+    }
+
+    .discovery-card .discovery-icon {
+      font-size: 34px;
+    }
+
+    .discovery-card h3 {
+      margin-top: 10px;
+      font-size: 30px;
+    }
+
+    .discovery-kicker {
+      margin-top: 5px;
+      color: var(--gold);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+    }
+
+    .discovery-fact {
+      margin-top: 22px;
+      padding: 19px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.07);
+      color: #dbe5ef;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .discovery-think {
+      margin-top: 15px;
+      padding: 17px;
+      border-radius: 15px;
+      background: rgba(245,197,66,.055);
+      border: 1px solid rgba(245,197,66,.15);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .discovery-think strong {
+      color: var(--gold);
+    }
+
+    .discovery-close {
+      float: right;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 20px;
+    }
+
+    /* =========================
+       CHALLENGE DECK
+       ========================= */
+
+    .featured-challenge {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 20px;
+      padding: 27px;
+      border-radius: 23px;
+      border: 1px solid rgba(245,197,66,.24);
+      background:
+        radial-gradient(circle at 90% 20%, rgba(245,197,66,.11), transparent 30%),
+        rgba(255,255,255,.045);
+    }
+
+    .featured-label {
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 2px;
+      font-weight: 900;
+    }
+
+    .featured-challenge h3 {
+      margin-top: 9px;
+      font-size: 30px;
+    }
+
+    .featured-challenge p {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+      max-width: 580px;
+    }
+
+    .challenge-meta {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .challenge-meta span {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+      color: #cbd7e3;
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .challenge-scoreboard {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 9px;
+      align-content: center;
+    }
+
+    .challenge-score {
+      padding: 16px;
+      border-radius: 13px;
+      background: rgba(0,0,0,.15);
+      border: 1px solid rgba(255,255,255,.07);
+    }
+
+    .challenge-score strong {
+      display: block;
+      color: var(--gold);
+      font-size: 17px;
+    }
+
+    .challenge-score span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted-2);
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .challenge-deck {
+      margin-top: 17px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 13px;
+      scrollbar-width: thin;
+    }
+
+    .challenge-card {
+      flex: 0 0 158px;
+      padding: 16px;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.035);
+      transition: .2s;
+    }
+
+    .challenge-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,197,66,.28);
+    }
+
+    .challenge-card strong {
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 1.2px;
+    }
+
+    .challenge-card h4 {
+      margin-top: 7px;
+      font-size: 13px;
+    }
+
+    .challenge-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted-2);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    /* =========================
+       SCHOLARSHIP 100%
+       ========================= */
+
+    .scholarship .big .up-to {
+      display: none;
+    }
+
+    .scholarship .big .hundred {
+      font-size: clamp(70px, 13vw, 145px);
+    }
+
+    .scholarship p {
+      max-width: 620px;
+    }
+
+    .scholarship-note {
+      display: none;
+    }
+
+    /* =========================
+       RESPONSIVE OVERRIDES
+       ========================= */
+
+    @media (max-width: 900px) {
+      .hero {
+        padding-top: 35px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hook-card {
+        min-height: 330px;
+      }
+
+      .exam-snapshot {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .domain-body {
+        padding-left: 21px;
+      }
+
+      .curiosity-zone {
+        min-height: 680px;
+      }
+
+      .curiosity-topic:nth-child(1) { left: 5%; top: 12%; }
+      .curiosity-topic:nth-child(2) { right: 5%; top: 12%; }
+      .curiosity-topic:nth-child(3) { left: 5%; bottom: 15%; }
+      .curiosity-topic:nth-child(4) { right: 5%; bottom: 15%; }
+      .curiosity-topic:nth-child(5) { left: 27%; top: 5%; }
+      .curiosity-topic:nth-child(6) { right: 27%; bottom: 5%; }
+
+      .featured-challenge {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero {
+        padding: 30px 0 25px;
+      }
+
+      .hero h1 {
+        font-size: 45px;
+      }
+
+      .hook-question {
+        font-size: 22px;
+      }
+
+      .hook-card {
+        min-height: 310px;
+        padding: 24px;
+      }
+
+      .exam-snapshot {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .domain-trigger {
+        grid-template-columns: auto 1fr auto;
+        padding: 15px;
+      }
+
+      .domain-icon {
+        width: 39px;
+        height: 39px;
+      }
+
+      .domain-title {
+        font-size: 14px;
+      }
+
+      .domain-subtitle {
+        font-size: 9px;
+      }
+
+      .domain-list {
+        grid-template-columns: 1fr;
+      }
+
+      .curiosity-zone {
+        min-height: 760px;
+      }
+
+      .curiosity-zone::before {
+        width: 270px;
+        height: 270px;
+      }
+
+      .curiosity-zone::after {
+        width: 390px;
+        height: 390px;
+      }
+
+      .curiosity-center {
+        width: 125px;
+        height: 125px;
+      }
+
+      .curiosity-topic {
+        width: 145px;
+        min-height: 84px;
+        padding: 12px;
+      }
+
+      .curiosity-topic strong {
+        font-size: 11px;
+      }
+
+      .curiosity-topic small {
+        font-size: 8px;
+      }
+
+      .curiosity-topic:nth-child(1) { left: 3%; top: 12%; }
+      .curiosity-topic:nth-child(2) { right: 3%; top: 12%; }
+      .curiosity-topic:nth-child(3) { left: 3%; bottom: 15%; }
+      .curiosity-topic:nth-child(4) { right: 3%; bottom: 15%; }
+      .curiosity-topic:nth-child(5) { left: 25%; top: 4%; }
+      .curiosity-topic:nth-child(6) { right: 25%; bottom: 4%; }
+
+      .discovery-card {
+        padding: 22px;
+      }
+
+      .discovery-card h3 {
+        font-size: 25px;
+      }
+
+      .featured-challenge {
+        padding: 21px;
+      }
+
+      .featured-challenge h3 {
+        font-size: 25px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1342,360 +2043,50 @@
 
 
   <!-- =========================
-       HERO / SCIENTIST HOOK
-       =====================  <!-- =========================
-       ABOUT SAGE
+       HERO / COMPACT CURIOSITY HOOK
        ========================= -->
 
-  <section class="section" id="about">
+  <section class="hero">
 
-    <div class="container">
+    <div class="container hero-grid">
 
-      <div class="section-heading">
+      <div>
+
+        <div class="personal-greeting" id="personalGreeting">
+          Welcome back, <strong id="heroStudentName">Student</strong>.
+        </div>
 
         <div class="eyebrow">
-          About SAGE
+          SIR Talent Hunt • SAGE
         </div>
 
-        <h2>
-          This isn't just a test.
-          <span>It's a discovery.</span>
-        </h2>
+        <h1>
+          What if your next
+          <span>big question</span>
+          starts here?
+        </h1>
 
-        <p>
-          <strong>SAGE — Scholarship For Academic Growth and Excellence.</strong>
-          It is designed for Class X students as a one-hour multidisciplinary
-          aptitude examination built around concepts generally encountered
-          from Classes VI–X.
-        </p>
+        <div class="hero-copy curiosity-hook">
 
-      </div>
+          <div class="curiosity-lead">A CURIOUS MIND DOES SOMETHING DIFFERENT</div>
 
-
-      <div class="sage-story">
-
-        <div class="story-main">
-
-          <h3>
-            Your potential deserves more than a guess.
-          </h3>
-
-          <p>
-            SAGE is not built around memorisation alone. The emphasis is on
-            conceptual understanding, application, reasoning and problem-solving.
-            The aim is to understand how you think, how you use what you know,
-            and how you approach unfamiliar situations.
-          </p>
-
-          <div class="journey">
-            <div>DISCOVER</div>
-            <div>PREPARE</div>
-            <div>CHALLENGE</div>
-            <div>PERFORM</div>
-            <div>EARN</div>
+          <div class="hook-question">
+            It doesn't just ask <span>“What?”</span><br>
+            It asks <span>“Why?”</span>
           </div>
 
-        </div>
-
-
-        <div class="story-side">
-
-          <strong>
-            SAGE
-          </strong>
-
-          <p>
-            Scholarship For Academic Growth and Excellence —
-            a journey from curiosity to challenge, and from
-            challenge to opportunity.
+          <p class="hook-subline">
+            SAGE is designed to discover how you think — not simply how much
+            you can remember. Explore, question, challenge yourself and see
+            what your thinking can do.
           </p>
 
-        </div>
-
-      </div>
-
-
-      <div class="sage-exam-overview">
-
-        <div class="sage-overview-card">
-
-          <div class="eyebrow">SAGE EXAM</div>
-
-          <h3>
-            Understand. Apply. Reason. Solve.
-          </h3>
-
-          <p>
-            For Class X, SAGE is a <strong>1-hour multidisciplinary aptitude
-            examination</strong>. Questions are based on concepts generally
-            encountered from Classes VI–X, with greater emphasis on using
-            knowledge rather than simply recalling it.
-          </p>
-
-          <div class="sage-overview-points">
-            <div><strong>Target:</strong> Class X</div>
-            <div><strong>Duration:</strong> 1 hour</div>
-            <div><strong>Nature:</strong> Multidisciplinary aptitude examination</div>
-            <div><strong>Concept boundary:</strong> Classes VI–X</div>
-            <div><strong>Core emphasis:</strong> Conceptual understanding, application, reasoning and problem-solving</div>
+          <div class="hook-flow">
+            <span>QUESTION</span>
+            <span>THINK</span>
+            <span>EXPLORE</span>
+            <span>DISCOVER</span>
           </div>
-
-        </div>
-
-
-        <div class="sage-overview-card">
-
-          <div class="eyebrow">QUESTION PHILOSOPHY</div>
-
-          <h3>
-            Not just “What do you know?”
-          </h3>
-
-          <p>
-            SAGE can use questions that ask you to understand a concept,
-            apply it to a situation, reason through information, solve a
-            problem, interpret data or visuals, and think through unfamiliar
-            situations where the underlying concept remains within the declared domain.
-          </p>
-
-          <div class="sage-thinking-strip">
-            <div>UNDERSTAND</div>
-            <div>APPLY</div>
-            <div>REASON</div>
-            <div>SOLVE</div>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="sage-domain-heading">
-
-        <div class="eyebrow">
-          SAGE EXAM DOMAIN
-        </div>
-
-        <h3>
-          What can SAGE ask you?
-        </h3>
-
-        <p>
-          The examination covers five broad domains. The focus is on
-          understanding the underlying concepts and using them intelligently,
-          not on memorising isolated facts.
-        </p>
-
-      </div>
-
-
-      <div class="sage-domain-grid">
-
-        <div class="sage-domain-card">
-          <div class="sage-domain-number">01 • PHYSICS</div>
-          <h4>Understanding the Physical World</h4>
-          <h5>Concepts and areas</h5>
-          <ul>
-            <li>Measurement, units and estimation</li>
-            <li>Motion, speed, velocity and acceleration</li>
-            <li>Force, friction and Newton's laws</li>
-            <li>Gravitation, pressure and buoyancy</li>
-            <li>Work, energy and power</li>
-            <li>Heat, temperature and heat transfer</li>
-            <li>Sound and waves</li>
-            <li>Reflection, refraction, mirrors and lenses</li>
-            <li>Electricity and simple circuits</li>
-            <li>Magnetism and electromagnetic effects</li>
-            <li>Earth, space and basic astronomy</li>
-            <li>Physical situations, graphs and data</li>
-          </ul>
-          <p style="margin-top:13px;">
-            Expect to predict, compare, estimate, interpret and explain.
-          </p>
-        </div>
-
-
-        <div class="sage-domain-card">
-          <div class="sage-domain-number">02 • CHEMISTRY</div>
-          <h4>Understanding Matter &amp; Its Transformation</h4>
-          <h5>Concepts and areas</h5>
-          <ul>
-            <li>Matter and its properties</li>
-            <li>States of matter and changes of state</li>
-            <li>Elements, compounds and mixtures</li>
-            <li>Atoms, molecules and atomic structure</li>
-            <li>Valency and chemical formulae</li>
-            <li>Periodic table and basic trends</li>
-            <li>Chemical reactions and equations</li>
-            <li>Acids, bases and salts</li>
-            <li>Metals and non-metals</li>
-            <li>Carbon compounds</li>
-            <li>Solutions and separation methods</li>
-            <li>Combustion and fuels</li>
-            <li>Everyday chemistry</li>
-            <li>Environment and basic chemical processes</li>
-          </ul>
-          <p style="margin-top:13px;">
-            Identify patterns, interpret observations, predict outcomes and apply concepts.
-          </p>
-        </div>
-
-
-        <div class="sage-domain-card">
-          <div class="sage-domain-number">03 • MATHEMATICS</div>
-          <h4>Numbers, Patterns &amp; Problem-Solving</h4>
-          <h5>Concepts and areas</h5>
-          <ul>
-            <li>Number systems, factors and divisibility</li>
-            <li>Fractions, decimals, ratios and percentages</li>
-            <li>Average, profit/loss and interest</li>
-            <li>Speed, distance and time</li>
-            <li>Algebraic expressions and equations</li>
-            <li>Polynomials and factorisation</li>
-            <li>Patterns and sequences</li>
-            <li>Lines, angles and triangles</li>
-            <li>Geometry and geometrical reasoning</li>
-            <li>Circles and quadrilaterals</li>
-            <li>Perimeter, area, surface area and volume</li>
-            <li>Coordinate geometry</li>
-            <li>Graphs and data interpretation</li>
-            <li>Basic probability</li>
-            <li>Mathematical puzzles and non-routine problems</li>
-          </ul>
-        </div>
-
-
-        <div class="sage-domain-card">
-          <div class="sage-domain-number">04 • BIOLOGY</div>
-          <h4>Understanding Life</h4>
-          <h5>Concepts and areas</h5>
-          <ul>
-            <li>Diversity and classification</li>
-            <li>Cells and organelles</li>
-            <li>Plant and animal tissues</li>
-            <li>Plant structure and functions</li>
-            <li>Photosynthesis and respiration</li>
-            <li>Nutrition and digestion</li>
-            <li>Human respiratory, circulatory and excretory systems</li>
-            <li>Nervous system, sense organs and coordination</li>
-            <li>Reproduction</li>
-            <li>Microorganisms and diseases</li>
-            <li>Heredity, variation and basic genetics</li>
-            <li>Adaptation and evolution</li>
-            <li>Ecosystems, food chains and food webs</li>
-            <li>Environment and biodiversity</li>
-          </ul>
-        </div>
-
-
-        <div class="sage-domain-card">
-          <div class="sage-domain-number">05 • REASONING &amp; APTITUDE</div>
-          <h4>How Do You Think?</h4>
-          <h5>Concepts and areas</h5>
-          <ul>
-            <li>Number and figure series</li>
-            <li>Analogies and classification</li>
-            <li>Pattern recognition</li>
-            <li>Coding and decoding</li>
-            <li>Logical sequences</li>
-            <li>Direction and spatial reasoning</li>
-            <li>Ranking and arrangements</li>
-            <li>Blood relations</li>
-            <li>Venn diagrams</li>
-            <li>Data interpretation</li>
-            <li>Visual reasoning</li>
-            <li>Mathematical puzzles</li>
-            <li>Analytical and critical thinking</li>
-            <li>Unfamiliar problem situations</li>
-          </ul>
-        </div>
-
-      </div>
-
-
-      <div class="sage-exam-philosophy">
-
-        <div class="sage-philosophy">
-
-          <div class="eyebrow">QUESTION TYPES</div>
-
-          <h3>
-            Think beyond recall.
-          </h3>
-
-          <p>
-            SAGE questions may be conceptual, application-based,
-            reasoning-based, problem-solving, data &amp; visual, or based
-            on unfamiliar situations.
-          </p>
-
-          <div class="sage-thinking-strip">
-            <div>CONCEPTUAL</div>
-            <div>APPLICATION</div>
-            <div>REASONING</div>
-            <div>PROBLEM-SOLVING</div>
-          </div>
-
-        </div>
-
-
-        <div class="sage-philosophy">
-
-          <div class="eyebrow">PREPARE TO</div>
-
-          <h3>
-            Use what you know.
-          </h3>
-
-          <p>
-            Understanding the underlying concept is more important than
-            memorising an isolated answer. SAGE is designed to see how you
-            approach a question when the situation changes.
-          </p>
-
-          <div class="sage-thinking-strip">
-            <div>DATA &amp; VISUAL</div>
-            <div>UNFAMILIAR</div>
-            <div>THINK</div>
-            <div>SOLVE</div>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="sage-story" style="margin-top:18px;">
-
-        <div class="story-main">
-          <h3>
-            SAGE is not just asking what you know.
-          </h3>
-
-          <p>
-            It is asking <strong>what you can do with what you know.</strong>
-            Prepare to understand. Apply. Reason. Solve.
-          </p>
-        </div>
-
-        <div class="story-side">
-          <strong>UNDERSTAND • APPLY • REASON • SOLVE</strong>
-          <p>
-            Your preparation is not only about remembering answers.
-            It is about becoming better at thinking.
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-
-</strong>
-          </p>
 
         </div>
 
@@ -1714,50 +2105,430 @@
       </div>
 
 
-      <div class="scientist-card">
+      <div class="hook-card">
 
-        <img
-          src="https://commons.wikimedia.org/wiki/Special:FilePath/Homi%20Jehangir%20Bhabha.jpg"
-          alt="Dr. Homi Jehangir Bhabha"
-          onerror="this.style.opacity='.15'"
-        >
-
-        <div class="quote-mark">
-          “
+        <div class="hook-card-kicker">
+          THE SCIENTIST'S HABIT
         </div>
 
-        <div class="scientist-overlay">
+        <h3>
+          Great discoveries often begin with an ordinary question.
+        </h3>
 
-          <div>
+        <p>
+          Before the formula, before the experiment, before the answer —
+          there is curiosity.
+        </p>
 
-            <div class="scientist-tag">
-              A mind that thought ahead
+        <div class="hook-mini-questions">
+          <div>Why does a pressure cooker cook faster?</div>
+          <div>Why does a shadow change during the day?</div>
+          <div>Why does your body feel different after a run?</div>
+        </div>
+
+        <div class="hook-scientist">
+          Inspired by minds like Dr. Homi J. Bhabha
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       ABOUT SAGE + EXAM SNAPSHOT
+       ========================= -->
+
+  <section class="section" id="about">
+
+    <div class="container">
+
+      <div class="section-heading">
+
+        <div class="eyebrow">
+          About SAGE
+        </div>
+
+        <h2>
+          Scholarship for Academic
+          <span>Growth & Excellence.</span>
+        </h2>
+
+        <p>
+          <strong>SAGE — Scholarship For Academic Growth and Excellence</strong>
+          is a multidisciplinary aptitude examination for Class X students.
+          It is built around concepts generally encountered from Classes VI–X,
+          with emphasis on conceptual understanding, application, reasoning and
+          problem-solving rather than memorisation.
+        </p>
+
+        <div class="sage-full-form">
+          SAGE • Understand. Apply. Reason. Solve.
+        </div>
+
+      </div>
+
+
+      <div class="sage-story">
+
+        <div class="story-main">
+
+          <h3>
+            Your potential deserves more than a score.
+          </h3>
+
+          <p>
+            SAGE gives you a chance to explore different ways of thinking,
+            challenge yourself with unfamiliar situations and understand
+            what you can do with what you know.
+          </p>
+
+          <div class="journey">
+            <div>UNDERSTAND</div>
+            <div>APPLY</div>
+            <div>REASON</div>
+            <div>SOLVE</div>
+            <div>DISCOVER</div>
+          </div>
+
+        </div>
+
+
+        <div class="story-side">
+
+          <strong>
+            SAGE
+          </strong>
+
+          <p>
+            A 1-hour multidisciplinary aptitude examination designed
+            to test what you can do with concepts — not just what you
+            can recall.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="exam-snapshot">
+
+        <div class="snapshot-card">
+          <strong>Class X</strong>
+          <span>Target Students</span>
+        </div>
+
+        <div class="snapshot-card">
+          <strong>1 Hour</strong>
+          <span>Examination Duration</span>
+        </div>
+
+        <div class="snapshot-card">
+          <strong>VI–X</strong>
+          <span>Concept Boundary</span>
+        </div>
+
+        <div class="snapshot-card">
+          <strong>5 Domains</strong>
+          <span>Multidisciplinary Aptitude</span>
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+           INTERACTIVE EXAM MAP
+           ========================= -->
+
+      <div style="margin-top:55px;">
+
+        <div class="eyebrow">
+          SAGE Exam Map
+        </div>
+
+        <div class="section-heading" style="margin-bottom:0;">
+
+          <h2 style="font-size:clamp(30px,4.5vw,48px);">
+            What could your
+            <span>thinking</span> unlock?
+          </h2>
+
+          <p>
+            Tap a domain to explore what SAGE may ask you to understand,
+            apply, reason through and solve.
+          </p>
+
+        </div>
+
+
+        <div class="exam-map">
+
+          <!-- PHYSICS -->
+          <div class="domain-card">
+
+            <button class="domain-trigger" type="button" onclick="toggleDomain(this)">
+
+              <div class="domain-icon">⚛️</div>
+
+              <div>
+                <div class="domain-number">01 • PHYSICS</div>
+                <div class="domain-title">Understanding the Physical World</div>
+                <div class="domain-subtitle">Predict • Compare • Estimate • Interpret • Explain</div>
+              </div>
+
+              <div class="domain-arrow">⌄</div>
+
+            </button>
+
+            <div class="domain-content">
+              <div class="domain-inner">
+                <div class="domain-body">
+
+                  <div class="domain-thinking">
+                    THINK LIKE A PHYSICIST • PREDICT • COMPARE • ESTIMATE • INTERPRET • EXPLAIN
+                  </div>
+
+                  <ul class="domain-list">
+                    <li>Measurement, units & estimation</li>
+                    <li>Motion, speed, velocity & acceleration</li>
+                    <li>Force, friction & Newton's laws</li>
+                    <li>Gravitation, pressure & buoyancy</li>
+                    <li>Work, energy & power</li>
+                    <li>Heat, temperature & heat transfer</li>
+                    <li>Sound and waves</li>
+                    <li>Reflection, refraction, mirrors & lenses</li>
+                    <li>Electricity and simple circuits</li>
+                    <li>Magnetism & electromagnetic effects</li>
+                    <li>Earth, space & basic astronomy</li>
+                    <li>Physical situations, graphs & data</li>
+                  </ul>
+
+                  <div class="domain-note">
+                    Expect questions that ask you to predict, compare, estimate,
+                    interpret and explain physical situations.
+                  </div>
+
+                </div>
+              </div>
             </div>
 
-            <div class="scientist-name">
-              Dr. Homi J. Bhabha
+          </div>
+
+
+          <!-- CHEMISTRY -->
+          <div class="domain-card">
+
+            <button class="domain-trigger" type="button" onclick="toggleDomain(this)">
+
+              <div class="domain-icon">🧪</div>
+
+              <div>
+                <div class="domain-number">02 • CHEMISTRY</div>
+                <div class="domain-title">Understanding Matter & Its Transformation</div>
+                <div class="domain-subtitle">Observe • Identify • Predict • Apply</div>
+              </div>
+
+              <div class="domain-arrow">⌄</div>
+
+            </button>
+
+            <div class="domain-content">
+              <div class="domain-inner">
+                <div class="domain-body">
+
+                  <div class="domain-thinking">
+                    THINK LIKE A CHEMIST • IDENTIFY PATTERNS • INTERPRET OBSERVATIONS • PREDICT OUTCOMES • APPLY CONCEPTS
+                  </div>
+
+                  <ul class="domain-list">
+                    <li>Matter and its properties</li>
+                    <li>States of matter and changes</li>
+                    <li>Elements, compounds & mixtures</li>
+                    <li>Atoms, molecules & atomic structure</li>
+                    <li>Valency and chemical formulae</li>
+                    <li>Periodic table and basic trends</li>
+                    <li>Chemical reactions & equations</li>
+                    <li>Acids, bases & salts</li>
+                    <li>Metals & non-metals</li>
+                    <li>Carbon compounds</li>
+                    <li>Solutions & separation techniques</li>
+                    <li>Combustion and fuels</li>
+                    <li>Everyday chemistry</li>
+                    <li>Environment & basic chemical processes</li>
+                  </ul>
+
+                  <div class="domain-note">
+                    Expect questions that make you identify patterns,
+                    interpret observations, predict outcomes and apply concepts.
+                  </div>
+
+                </div>
+              </div>
             </div>
 
-            <div class="scientist-location">
-              Mumbai • Maharashtra
+          </div>
+
+
+          <!-- MATHEMATICS -->
+          <div class="domain-card">
+
+            <button class="domain-trigger" type="button" onclick="toggleDomain(this)">
+
+              <div class="domain-icon">∑</div>
+
+              <div>
+                <div class="domain-number">03 • MATHEMATICS</div>
+                <div class="domain-title">Numbers, Patterns & Problem-Solving</div>
+                <div class="domain-subtitle">Find Patterns • Reason • Estimate • Solve</div>
+              </div>
+
+              <div class="domain-arrow">⌄</div>
+
+            </button>
+
+            <div class="domain-content">
+              <div class="domain-inner">
+                <div class="domain-body">
+
+                  <div class="domain-thinking">
+                    THINK LIKE A PROBLEM-SOLVER • FIND PATTERNS • CHOOSE A STRATEGY • ESTIMATE • REASON • SOLVE
+                  </div>
+
+                  <ul class="domain-list">
+                    <li>Number systems, factors & divisibility</li>
+                    <li>Fractions, decimals, ratios & percentages</li>
+                    <li>Average, profit/loss & interest</li>
+                    <li>Speed, distance & time</li>
+                    <li>Algebraic expressions & equations</li>
+                    <li>Polynomials & factorisation</li>
+                    <li>Patterns & sequences</li>
+                    <li>Lines, angles & triangles</li>
+                    <li>Geometry and geometrical reasoning</li>
+                    <li>Circles & quadrilaterals</li>
+                    <li>Perimeter, area, surface area & volume</li>
+                    <li>Coordinate geometry</li>
+                    <li>Graphs & data interpretation</li>
+                    <li>Basic probability</li>
+                    <li>Mathematical puzzles & non-routine problems</li>
+                  </ul>
+
+                  <div class="domain-note">
+                    Expect problems where the method is not always obvious —
+                    patterns, estimation, strategy and reasoning matter.
+                  </div>
+
+                </div>
+              </div>
             </div>
 
-            <div class="scientist-fact">
+          </div>
 
-              <span class="fact-label">
-                Did you know?
-              </span>
 
-              Bhabha was the founding director of TIFR,
-              established in 1945, and later became the founding
-              director of the Atomic Energy Establishment at Trombay,
-              now known as BARC.
+          <!-- BIOLOGY -->
+          <div class="domain-card">
 
-              <br><br>
+            <button class="domain-trigger" type="button" onclick="toggleDomain(this)">
 
-              He wasn't only a scientist — he was also deeply interested
-              in art, music and architecture.
+              <div class="domain-icon">🧬</div>
 
+              <div>
+                <div class="domain-number">04 • BIOLOGY</div>
+                <div class="domain-title">Understanding Life</div>
+                <div class="domain-subtitle">Observe • Connect • Explain • Infer • Apply</div>
+              </div>
+
+              <div class="domain-arrow">⌄</div>
+
+            </button>
+
+            <div class="domain-content">
+              <div class="domain-inner">
+                <div class="domain-body">
+
+                  <div class="domain-thinking">
+                    THINK LIKE A LIFE SCIENTIST • OBSERVE • CONNECT • EXPLAIN • INFER • APPLY
+                  </div>
+
+                  <ul class="domain-list">
+                    <li>Diversity and classification</li>
+                    <li>Cells and organelles</li>
+                    <li>Plant and animal tissues</li>
+                    <li>Plant structure and functions</li>
+                    <li>Photosynthesis and respiration</li>
+                    <li>Nutrition and digestion</li>
+                    <li>Human respiratory, circulatory & excretory systems</li>
+                    <li>Nervous system, sense organs & coordination</li>
+                    <li>Reproduction</li>
+                    <li>Microorganisms and diseases</li>
+                    <li>Heredity, variation & basic genetics</li>
+                    <li>Adaptation and evolution</li>
+                    <li>Ecosystems, food chains & food webs</li>
+                    <li>Environment and biodiversity</li>
+                  </ul>
+
+                  <div class="domain-note">
+                    Expect questions that connect structures, processes and
+                    real-life observations to explain how living systems work.
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- REASONING -->
+          <div class="domain-card">
+
+            <button class="domain-trigger" type="button" onclick="toggleDomain(this)">
+
+              <div class="domain-icon">🧠</div>
+
+              <div>
+                <div class="domain-number">05 • REASONING & APTITUDE</div>
+                <div class="domain-title">How Do You Think?</div>
+                <div class="domain-subtitle">Detect • Analyse • Connect • Eliminate • Decide</div>
+              </div>
+
+              <div class="domain-arrow">⌄</div>
+
+            </button>
+
+            <div class="domain-content">
+              <div class="domain-inner">
+                <div class="domain-body">
+
+                  <div class="domain-thinking">
+                    THINK BEYOND THE OBVIOUS • DETECT PATTERNS • ANALYSE • ELIMINATE • DECIDE
+                  </div>
+
+                  <ul class="domain-list">
+                    <li>Number and figure series</li>
+                    <li>Analogies and classification</li>
+                    <li>Pattern recognition</li>
+                    <li>Coding and decoding</li>
+                    <li>Logical sequences</li>
+                    <li>Direction and spatial reasoning</li>
+                    <li>Ranking and arrangements</li>
+                    <li>Blood relations</li>
+                    <li>Venn diagrams</li>
+                    <li>Data interpretation</li>
+                    <li>Visual reasoning</li>
+                    <li>Mathematical puzzles</li>
+                    <li>Analytical and critical thinking</li>
+                    <li>Unfamiliar problem situations</li>
+                  </ul>
+
+                  <div class="domain-note">
+                    SAGE can place you in an unfamiliar situation and ask
+                    you to build the answer from relationships, patterns and logic.
+                  </div>
+
+                </div>
+              </div>
             </div>
 
           </div>
@@ -1772,7 +2543,7 @@
 
 
   <!-- =========================
-       REFERENCE MATERIALS
+       FOR YOUR CURIOSITY
        ========================= -->
 
   <section class="section" id="materials">
@@ -1782,117 +2553,99 @@
       <div class="section-heading">
 
         <div class="eyebrow">
-          Reference Materials
+          For Your Curiosity
         </div>
 
         <h2>
-          For your
-          <span>curiosity.</span>
+          Don't just prepare.
+          <span>Explore.</span>
         </h2>
 
         <p>
-          Don't just prepare for a test.
-          Explore the ideas behind the questions.
-          The more curious you become, the better you prepare.
+          Six doors. Six different ways to discover something new.
+          Tap any topic and explore a fact, story or idea designed
+          to make you look at ordinary things differently.
         </p>
 
       </div>
 
 
-      <div class="material-grid">
+      <div class="curiosity-zone">
 
-        <div class="material-card">
-
-          <div class="material-icon">⚛️</div>
-
-          <h3>
-            Physics Explorers
-          </h3>
-
-          <p>
-            Concepts, real-world phenomena and questions
-            that make you look at ordinary things differently.
-          </p>
-
+        <div class="curiosity-center">
+          <div>
+            <strong>SAGE</strong>
+            <span>Curiosity Hub</span>
+          </div>
         </div>
 
 
-        <div class="material-card">
+        <div class="curiosity-orbit">
 
-          <div class="material-icon">🧪</div>
-
-          <h3>
-            Chemistry Curiosity
-          </h3>
-
-          <p>
-            Reactions, patterns, everyday chemistry and
-            the science behind what you see around you.
-          </p>
-
-        </div>
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('physics')"
+          >
+            <div class="curiosity-topic-icon">⚛️</div>
+            <strong>Physics Explorers</strong>
+            <small>See the physics hiding in everyday life.</small>
+          </button>
 
 
-        <div class="material-card">
-
-          <div class="material-icon">🧬</div>
-
-          <h3>
-            Biology Discoveries
-          </h3>
-
-          <p>
-            Life, the human body, cells and discoveries
-            that changed how we understand ourselves.
-          </p>
-
-        </div>
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('chemistry')"
+          >
+            <div class="curiosity-topic-icon">🧪</div>
+            <strong>Chemistry Curiosity</strong>
+            <small>Discover reactions happening around you.</small>
+          </button>
 
 
-        <div class="material-card">
-
-          <div class="material-icon">🧠</div>
-
-          <h3>
-            Brain Challenges
-          </h3>
-
-          <p>
-            Logic, reasoning and problems designed to
-            make you stop, think and try again.
-          </p>
-
-        </div>
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('biology')"
+          >
+            <div class="curiosity-topic-icon">🧬</div>
+            <strong>Biology Discoveries</strong>
+            <small>Your body and nature have surprising stories.</small>
+          </button>
 
 
-        <div class="material-card">
-
-          <div class="material-icon">🔭</div>
-
-          <h3>
-            Minds That Changed Science
-          </h3>
-
-          <p>
-            Stories of scientists whose questions became
-            discoveries, institutions and ideas.
-          </p>
-
-        </div>
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('brain')"
+          >
+            <div class="curiosity-topic-icon">🧠</div>
+            <strong>Brain Challenges</strong>
+            <small>Try ideas that make your brain pause.</small>
+          </button>
 
 
-        <div class="material-card">
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('minds')"
+          >
+            <div class="curiosity-topic-icon">🔭</div>
+            <strong>Minds That Changed Science</strong>
+            <small>Meet people whose questions became discoveries.</small>
+          </button>
 
-          <div class="material-icon">💡</div>
 
-          <h3>
-            Did You Know?
-          </h3>
-
-          <p>
-            Short scientific facts that might make you
-            ask your next question.
-          </p>
+          <button
+            class="curiosity-topic"
+            type="button"
+            onclick="openDiscovery('didyouknow')"
+          >
+            <div class="curiosity-topic-icon">💡</div>
+            <strong>Did You Know?</strong>
+            <small>Small facts. Big “wait, really?” moments.</small>
+          </button>
 
         </div>
 
@@ -1904,7 +2657,7 @@
 
 
   <!-- =========================
-       MOCK TESTS
+       MOCK TESTS / CHALLENGE DECK
        ========================= -->
 
   <section class="section" id="mocks">
@@ -1920,12 +2673,13 @@
           </div>
 
           <h2>
-            <span>10</span> Mock Tests.
+            Don't just take a test.
+            <span>Take the challenge.</span>
           </h2>
 
           <p>
-            Don't prepare just to score.
-            Prepare to discover how you think.
+            Ten online challenges are planned for your SAGE journey.
+            Start with Mock 01 and build your thinking step by step.
           </p>
 
         </div>
@@ -1937,126 +2691,129 @@
       </div>
 
 
-      <div class="mock-grid">
+      <!-- FEATURED MOCK 01 -->
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 01</div>
-          <h3>First Challenge</h3>
-          <div class="mock-meta">
-            Foundation • Mixed Concepts
+      <div class="featured-challenge">
+
+        <div>
+
+          <div class="featured-label">
+            SAGE PHYSICS • MOCK 01
           </div>
-          <button class="mock-action" onclick="openMock(1)">
-            START MOCK →
+
+          <h3>
+            Your First Challenge.
+          </h3>
+
+          <p>
+            Thirty single-correct Physics questions designed around
+            Classes VI–X concepts, with emphasis on understanding,
+            application, reasoning and problem-solving.
+          </p>
+
+          <div class="challenge-meta">
+            <span>30 QUESTIONS</span>
+            <span>45 MINUTES</span>
+            <span>30 MARKS</span>
+            <span>NO NEGATIVE MARKING</span>
+          </div>
+
+          <button
+            class="primary-btn"
+            style="margin-top:20px;"
+            type="button"
+            onclick="openMock(1)"
+          >
+            START MOCK 01 →
           </button>
+
         </div>
 
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 02</div>
-          <h3>Think Faster</h3>
-          <div class="mock-meta">
-            Reasoning • Conceptual
+        <div class="challenge-scoreboard">
+
+          <div class="challenge-score">
+            <strong>01</strong>
+            <span>First Challenge</span>
           </div>
-          <button class="mock-action" onclick="openMock(2)">
-            START MOCK →
-          </button>
+
+          <div class="challenge-score">
+            <strong>Physics</strong>
+            <span>Subject</span>
+          </div>
+
+          <div class="challenge-score">
+            <strong>1 Mark</strong>
+            <span>Per Question</span>
+          </div>
+
+          <div class="challenge-score">
+            <strong>Single</strong>
+            <span>Correct MCQ</span>
+          </div>
+
         </div>
 
-
-        <div class="mock-card">
-          <div class="mock-number">MOCK 03</div>
-          <h3>Concept Hunter</h3>
-          <div class="mock-meta">
-            Science • Application
-          </div>
-          <button class="mock-action" onclick="openMock(3)">
-            START MOCK →
-          </button>
-        </div>
+      </div>
 
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 04</div>
-          <h3>Beyond The Obvious</h3>
-          <div class="mock-meta">
-            Mixed • Challenge
-          </div>
-          <button class="mock-action" onclick="openMock(4)">
-            START MOCK →
-          </button>
-        </div>
+      <!-- COMPACT 02–10 DECK -->
 
+      <div class="challenge-deck">
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 05</div>
-          <h3>Pressure Test</h3>
-          <div class="mock-meta">
-            Speed • Accuracy
-          </div>
-          <button class="mock-action" onclick="openMock(5)">
-            START MOCK →
-          </button>
-        </div>
+        <button class="challenge-card" type="button" onclick="openMock(2)">
+          <strong>MOCK 02</strong>
+          <h4>Think Faster</h4>
+          <span>Reasoning • Conceptual</span>
+        </button>
 
+        <button class="challenge-card" type="button" onclick="openMock(3)">
+          <strong>MOCK 03</strong>
+          <h4>Concept Hunter</h4>
+          <span>Science • Application</span>
+        </button>
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 06</div>
-          <h3>Deep Thinker</h3>
-          <div class="mock-meta">
-            Concepts • Analysis
-          </div>
-          <button class="mock-action" onclick="openMock(6)">
-            START MOCK →
-          </button>
-        </div>
+        <button class="challenge-card" type="button" onclick="openMock(4)">
+          <strong>MOCK 04</strong>
+          <h4>Beyond The Obvious</h4>
+          <span>Mixed • Challenge</span>
+        </button>
 
+        <button class="challenge-card" type="button" onclick="openMock(5)">
+          <strong>MOCK 05</strong>
+          <h4>Pressure Test</h4>
+          <span>Speed • Accuracy</span>
+        </button>
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 07</div>
-          <h3>Science Sprint</h3>
-          <div class="mock-meta">
-            Mixed • Timed
-          </div>
-          <button class="mock-action" onclick="openMock(7)">
-            START MOCK →
-          </button>
-        </div>
+        <button class="challenge-card" type="button" onclick="openMock(6)">
+          <strong>MOCK 06</strong>
+          <h4>Deep Thinker</h4>
+          <span>Concepts • Analysis</span>
+        </button>
 
+        <button class="challenge-card" type="button" onclick="openMock(7)">
+          <strong>MOCK 07</strong>
+          <h4>Science Sprint</h4>
+          <span>Mixed • Timed</span>
+        </button>
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 08</div>
-          <h3>Challenge Mode</h3>
-          <div class="mock-meta">
-            Advanced Thinking
-          </div>
-          <button class="mock-action" onclick="openMock(8)">
-            START MOCK →
-          </button>
-        </div>
+        <button class="challenge-card" type="button" onclick="openMock(8)">
+          <strong>MOCK 08</strong>
+          <h4>Challenge Mode</h4>
+          <span>Advanced Thinking</span>
+        </button>
 
+        <button class="challenge-card" type="button" onclick="openMock(9)">
+          <strong>MOCK 09</strong>
+          <h4>Final Stretch</h4>
+          <span>Mixed • Performance</span>
+        </button>
 
-        <div class="mock-card">
-          <div class="mock-number">MOCK 09</div>
-          <h3>Final Stretch</h3>
-          <div class="mock-meta">
-            Mixed • Performance
-          </div>
-          <button class="mock-action" onclick="openMock(9)">
-            START MOCK →
-          </button>
-        </div>
-
-
-        <div class="mock-card">
-          <div class="mock-number">MOCK 10</div>
-          <h3>The SAGE Challenge</h3>
-          <div class="mock-meta">
-            Final Preparation
-          </div>
-          <button class="mock-action" onclick="openMock(10)">
-            START MOCK →
-          </button>
-        </div>
+        <button class="challenge-card" type="button" onclick="openMock(10)">
+          <strong>MOCK 10</strong>
+          <h4>The SAGE Challenge</h4>
+          <span>Final Preparation</span>
+        </button>
 
       </div>
 
@@ -2230,7 +2987,6 @@
       </div>
 
       <div class="big">
-        <span class="up-to">UP TO</span>
         <span class="hundred">100%</span>
       </div>
 
@@ -2239,14 +2995,10 @@
       </h2>
 
       <p>
-        Perform strongly in SAGE and you can become eligible
-        for scholarship opportunities of up to 100%.
+        Your SAGE journey can lead to a
+        <strong>100% scholarship opportunity</strong>.
+        Prepare seriously, challenge yourself and let your performance speak.
       </p>
-
-      <div class="scholarship-note">
-        Scholarship eligibility and percentage will be determined
-        according to the official SAGE scholarship criteria.
-      </div>
 
     </div>
 
@@ -2286,38 +3038,38 @@
           </div>
 
           <h3>
-            Why does a wet floor feel more slippery than a dry floor?
+            Why does a steel spoon feel colder than a wooden spoon in the same room?
           </h3>
 
           <p>
-            Think about what water does between your foot and the floor.
-            Which of these ideas can help explain or reduce slipping?
+            Both spoons have been sitting in the same room.
+            So why can one feel much colder when you touch it?
           </p>
 
           <div class="question-options">
 
             <button class="option" type="button" onclick="answerCuriosity(this, 1)">
-              A • A dry, rough surface gives your shoe more grip.
+              A • Steel conducts heat away from your hand faster than wood.
             </button>
 
             <button class="option" type="button" onclick="answerCuriosity(this, 1)">
-              B • Shoes with suitable textured soles can increase friction.
+              B • Wood is a poorer conductor of heat than steel.
             </button>
 
             <button class="option" type="button" onclick="answerCuriosity(this, 1)">
-              C • A clean, dry surface generally provides better traction.
+              C • Your hand loses heat faster to the steel spoon.
             </button>
 
             <button class="option" type="button" onclick="answerCuriosity(this, 1)">
-              D • Removing excess water can reduce the slippery effect.
+              D • The spoons can be at the same room temperature but feel different.
             </button>
 
           </div>
 
           <div class="answer-feedback">
             <strong>✓ You are correct!</strong>
-            All four choices describe real ways friction and surface
-            conditions affect slipping.
+            All four choices describe the same everyday heat-transfer idea:
+            steel conducts heat away from your hand much more readily than wood.
           </div>
 
         </div>
@@ -2536,6 +3288,43 @@
 </div>
 
 
+
+<!-- =========================
+     CURIOSITY DISCOVERY PANEL
+     ========================= -->
+
+<div class="discovery-panel" id="discoveryPanel" aria-hidden="true">
+
+  <div class="discovery-card">
+
+    <button
+      class="discovery-close"
+      type="button"
+      onclick="closeDiscovery()"
+      aria-label="Close discovery"
+    >
+      ×
+    </button>
+
+    <div class="discovery-icon" id="discoveryIcon">💡</div>
+
+    <div class="discovery-kicker" id="discoveryKicker">
+      FOR YOUR CURIOSITY
+    </div>
+
+    <h3 id="discoveryTitle">
+      Did You Know?
+    </h3>
+
+    <div class="discovery-fact" id="discoveryFact"></div>
+
+    <div class="discovery-think" id="discoveryThink"></div>
+
+  </div>
+
+</div>
+
+
 <!-- =========================
      MOCK MODAL
      ========================= -->
@@ -2710,6 +3499,197 @@
       options are scientifically correct.
     */
   }
+
+
+
+  /* ============================================================
+     INTERACTIVE SAGE EXAM MAP
+     Only one syllabus domain stays open at a time.
+     ============================================================ */
+
+  function toggleDomain(button) {
+
+    const card = button.closest(".domain-card");
+
+    if (!card) {
+      return;
+    }
+
+    const allCards =
+      document.querySelectorAll(".domain-card");
+
+    allCards.forEach(function(item) {
+
+      if (item !== card) {
+        item.classList.remove("open");
+      }
+
+    });
+
+    card.classList.toggle("open");
+
+  }
+
+
+  /* ============================================================
+     FLOATING CURIOSITY DISCOVERY
+     Six student-friendly facts / stories.
+     ============================================================ */
+
+  const discoveryContent = {
+
+    physics: {
+      icon: "⚛️",
+      kicker: "PHYSICS • EVERYDAY LIFE",
+      title: "Why can a stone cave stay surprisingly cool?",
+      fact:
+        "Thick rock changes temperature much more slowly than the air outside. " +
+        "That is one reason enclosed stone spaces can stay relatively stable in temperature " +
+        "even when the outside becomes very hot or cold. The idea is connected to thermal inertia — " +
+        "the same basic reason a thick wall does not heat up instantly.",
+      think:
+        "<strong>Think:</strong> If a thin metal sheet and a thick stone wall are both left in the " +
+        "same sunlight, which one would you expect to change temperature faster — and why?"
+    },
+
+    chemistry: {
+      icon: "🧪",
+      kicker: "CHEMISTRY • MAHARASHTRA / HOME",
+      title: "Why can lemon or tamarind help clean copper utensils?",
+      fact:
+        "Copper utensils can develop a dull layer of compounds on their surface. " +
+        "Acids found in ingredients such as lemon and tamarind can react with some of these deposits, " +
+        "helping loosen or remove them. A simple kitchen cleaning trick is therefore connected to acid–base " +
+        "and chemical-reaction ideas you meet in school.",
+      think:
+        "<strong>Think:</strong> If an acidic ingredient can react with a mineral deposit, " +
+        "what might happen when the same idea is used on a different metal surface?"
+    },
+
+    biology: {
+      icon: "🧬",
+      kicker: "BIOLOGY • YOUR BODY",
+      title: "Why can you feel hungry after playing even if you ate earlier?",
+      fact:
+        "Your muscles need energy when you run, cycle or play. The body increases its demand for fuel, " +
+        "and signals involved in hunger and energy balance can change. That hungry feeling is not simply " +
+        "your stomach being 'empty' — it is part of a larger system that helps your body manage energy.",
+      think:
+        "<strong>Think:</strong> Two students eat the same meal, but one plays football for an hour. " +
+        "Why might their energy needs be different afterward?"
+    },
+
+    brain: {
+      icon: "🧠",
+      kicker: "BRAIN • THINK ABOUT YOURSELF",
+      title: "Why can you reach home without consciously thinking about every turn?",
+      fact:
+        "With practice, your brain can build strong spatial and procedural memories. " +
+        "You may recognise landmarks, directions and sequences without consciously describing every step. " +
+        "Your brain is continuously processing information even when the task feels automatic.",
+      think:
+        "<strong>Try it:</strong> Imagine your route to school and list the turns backward. " +
+        "Did your brain find the forward route easier? That difference is worth noticing."
+    },
+
+    minds: {
+      icon: "🔭",
+      kicker: "A MIND FROM MAHARASHTRA",
+      title: "Did you know about Anandibai Joshi?",
+      fact:
+        "Anandibai Joshi, from Maharashtra, became one of the earliest Indian women to study Western medicine abroad. " +
+        "She earned a medical degree in the United States in 1886. Her journey was remarkable not only for medicine, " +
+        "but also because she opened a path for women to enter professional education at a time when that was extremely difficult.",
+      think:
+        "<strong>Think:</strong> A scientific journey can change more than a textbook. " +
+        "Sometimes one person's pursuit of education changes what others believe is possible."
+    },
+
+    didyouknow: {
+      icon: "💡",
+      kicker: "DID YOU KNOW? • MAHARASHTRA",
+      title: "A meteorite made a giant lake in Maharashtra.",
+      fact:
+        "Lonar Lake in Maharashtra sits inside a crater formed by a meteorite impact. " +
+        "The crater formed in basaltic rock, and the lake is known for unusual water chemistry. " +
+        "So a place you can visit in Maharashtra is also a real-world example of planetary science, geology and chemistry.",
+      think:
+        "<strong>Think:</strong> What evidence would you look for if someone asked you to prove that a crater " +
+        "was created by an impact rather than by ordinary erosion?"
+    }
+
+  };
+
+
+  function openDiscovery(key) {
+
+    const item = discoveryContent[key];
+
+    const panel =
+      document.getElementById("discoveryPanel");
+
+    if (!item || !panel) {
+      return;
+    }
+
+    document.getElementById("discoveryIcon").textContent =
+      item.icon;
+
+    document.getElementById("discoveryKicker").textContent =
+      item.kicker;
+
+    document.getElementById("discoveryTitle").textContent =
+      item.title;
+
+    document.getElementById("discoveryFact").textContent =
+      item.fact;
+
+    document.getElementById("discoveryThink").innerHTML =
+      item.think;
+
+    panel.classList.add("active");
+    panel.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+
+  }
+
+
+  function closeDiscovery() {
+
+    const panel =
+      document.getElementById("discoveryPanel");
+
+    if (!panel) {
+      return;
+    }
+
+    panel.classList.remove("active");
+    panel.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = "";
+
+  }
+
+
+  document
+    .getElementById("discoveryPanel")
+    .addEventListener("click", function(event) {
+
+      if (event.target === this) {
+        closeDiscovery();
+      }
+
+    });
+
+
+  document.addEventListener("keydown", function(event) {
+
+    if (event.key === "Escape") {
+      closeDiscovery();
+    }
+
+  });
 
 
   personalizeDashboard();
