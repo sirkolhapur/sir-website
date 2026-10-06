@@ -1998,7 +1998,532 @@
       }
     }
 
-  </style>
+  
+
+    /* =========================
+       SAGE MOCK EXAM ENGINE
+       ========================= */
+
+    .sage-exam-modal {
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .sage-exam-card {
+      width: min(1120px, 100%);
+      max-height: calc(100vh - 28px);
+      overflow: hidden;
+      padding: 0;
+      border-radius: 24px;
+      background: #f7f9fc;
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sage-exam-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 16px 20px;
+      background: #07192d;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sage-exam-brand {
+      min-width: 0;
+    }
+
+    .sage-exam-brand strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .sage-exam-brand span {
+      display: block;
+      margin-top: 3px;
+      color: #f5c542;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .sage-exam-timer {
+      min-width: 100px;
+      padding: 9px 13px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.09);
+      text-align: center;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .sage-exam-timer.warning {
+      background: #fff0d6;
+      color: #9a5a00;
+    }
+
+    .sage-exam-timer.danger {
+      background: #ffe1e1;
+      color: #a51f1f;
+    }
+
+    .sage-exam-close {
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 25px;
+      line-height: 1;
+      padding: 5px;
+    }
+
+    .sage-exam-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .sage-instructions {
+      max-width: 760px;
+      margin: 12px auto 30px;
+    }
+
+    .sage-instructions h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      margin-bottom: 10px;
+    }
+
+    .sage-closing-note {
+    margin: 22px 0 6px;
+    padding: 18px 20px;
+    border-left: 3px solid #b18a15;
+    background: rgba(177,138,21,0.07);
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sage-closing-note strong {
+    font-size: 1.05rem;
+  }
+
+  .sage-closing-note span {
+    line-height: 1.6;
+    color: #59616d;
+  }
+
+  .sage-instructions > p {
+      color: #617086;
+      line-height: 1.7;
+    }
+
+    .sage-test-specs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 24px 0;
+    }
+
+    .sage-test-spec {
+      padding: 15px;
+      border: 1px solid #e1e7ef;
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .sage-test-spec strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .sage-test-spec span {
+      display: block;
+      margin-top: 5px;
+      color: #718096;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .sage-rules {
+      margin: 20px 0;
+      padding: 18px 20px;
+      border-radius: 15px;
+      background: #eef4fb;
+      color: #43546a;
+    }
+
+    .sage-rules strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #14263d;
+    }
+
+    .sage-rules ul {
+      padding-left: 19px;
+      line-height: 1.8;
+      font-size: 13px;
+    }
+
+    .sage-start-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .sage-exam-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .sage-question-panel {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid #e1e7ef;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .sage-question-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      color: #6a788b;
+      font-size: 12px;
+    }
+
+    .sage-question-number {
+      color: #14263d;
+      font-weight: 900;
+    }
+
+    .sage-question-text {
+      color: #15263b;
+      font-size: 18px;
+      line-height: 1.65;
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    .sage-options {
+      display: grid;
+      gap: 11px;
+      margin-top: 24px;
+    }
+
+    .sage-option {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid #dbe3ed;
+      border-radius: 13px;
+      background: #fff;
+      color: #26384e;
+      text-align: left;
+      transition: .16s;
+    }
+
+    .sage-option:hover {
+      border-color: #b9c7d8;
+      background: #f7faff;
+    }
+
+    .sage-option.selected {
+      border-color: #d6a800;
+      background: #fff8dc;
+      box-shadow: 0 0 0 2px rgba(245,197,66,.12);
+    }
+
+    .sage-option-letter {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #edf2f7;
+      color: #516175;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .sage-option.selected .sage-option-letter {
+      background: #f5c542;
+      color: #17253a;
+    }
+
+    .sage-question-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .sage-secondary-btn,
+    .sage-submit-btn,
+    .sage-primary-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 15px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .sage-secondary-btn {
+      border: 1px solid #d5dee9;
+      background: #fff;
+      color: #42536a;
+    }
+
+    .sage-primary-btn {
+      background: #f5c542;
+      color: #17253a;
+    }
+
+    .sage-submit-btn {
+      background: #17253a;
+      color: #fff;
+    }
+
+    .sage-question-palette {
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid #e1e7ef;
+    }
+
+    .sage-palette-title {
+      color: #14263d;
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .sage-palette-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .sage-palette-btn {
+      min-height: 34px;
+      border: 1px solid #d9e1eb;
+      border-radius: 8px;
+      background: #fff;
+      color: #5b6b80;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .sage-palette-btn.current {
+      border-color: #d6a800;
+      box-shadow: inset 0 0 0 2px #f5c542;
+      color: #17253a;
+    }
+
+    .sage-palette-btn.answered {
+      background: #dff7ec;
+      border-color: #9bd9bc;
+      color: #176341;
+    }
+
+    .sage-palette-btn.current.answered {
+      background: #fff8dc;
+      border-color: #d6a800;
+      color: #17253a;
+    }
+
+    .sage-status-legend {
+      margin-top: 15px;
+      display: grid;
+      gap: 7px;
+      color: #718096;
+      font-size: 10px;
+    }
+
+    .sage-status-legend span {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .sage-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e7ecf2;
+      border: 1px solid #d4dce6;
+    }
+
+    .sage-dot.answered { background: #9bd9bc; border-color: #72c59f; }
+    .sage-dot.current { background: #f5c542; border-color: #d6a800; }
+
+    .sage-progress {
+      height: 5px;
+      border-radius: 99px;
+      background: #e8edf3;
+      overflow: hidden;
+      margin: 0 20px 16px;
+    }
+
+    .sage-progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: #f5c542;
+      transition: width .2s;
+    }
+
+    .sage-result {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .sage-result-hero {
+      padding: 25px;
+      border-radius: 18px;
+      background: #07192d;
+      color: #fff;
+    }
+
+    .sage-result-score {
+      font-size: 54px;
+      font-weight: 900;
+      color: #f5c542;
+      line-height: 1;
+    }
+
+    .sage-result-label {
+      margin-top: 7px;
+      color: #b9c7d8;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .sage-result-metrics {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .sage-result-metric {
+      padding: 13px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+    }
+
+    .sage-result-metric strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .sage-result-metric span {
+      display: block;
+      margin-top: 4px;
+      color: #aebdce;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .sage-review {
+      margin-top: 18px;
+    }
+
+    .sage-review-item {
+      margin-bottom: 10px;
+      padding: 15px;
+      border: 1px solid #e1e7ef;
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .sage-review-item.correct { border-left: 4px solid #4fbd89; }
+    .sage-review-item.wrong { border-left: 4px solid #e06b6b; }
+    .sage-review-item.unanswered { border-left: 4px solid #c4ccd7; }
+
+    .sage-review-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #526176;
+    }
+
+    .sage-review-question {
+      margin-top: 8px;
+      color: #1c2e44;
+      line-height: 1.5;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .sage-review-answer {
+      margin-top: 8px;
+      color: #66768a;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .sage-result-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .sage-loading,
+    .sage-error {
+      padding: 45px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .sage-error strong {
+      display: block;
+      color: #a51f1f;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .sage-exam-card {
+        max-height: calc(100vh - 12px);
+        border-radius: 18px;
+      }
+      .sage-exam-layout { grid-template-columns: 1fr; }
+      .sage-question-palette { order: -1; }
+      .sage-palette-grid { grid-template-columns: repeat(10, 1fr); }
+      .sage-test-specs { grid-template-columns: repeat(2, 1fr); }
+      .sage-result-metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 520px) {
+      .sage-exam-modal { padding: 5px; }
+      .sage-exam-topbar { padding: 13px; }
+      .sage-exam-body { padding: 12px; }
+      .sage-question-panel { padding: 16px; }
+      .sage-question-text { font-size: 16px; }
+      .sage-palette-grid { grid-template-columns: repeat(6, 1fr); }
+      .sage-question-actions { flex-wrap: wrap; }
+      .sage-question-actions button { flex: 1; min-width: 110px; }
+      .sage-result-metrics { grid-template-columns: repeat(2, 1fr); }
+      .sage-test-specs { grid-template-columns: 1fr 1fr; }
+    }
+
+</style>
 </head>
 
 <body>
@@ -2853,9 +3378,7 @@
 
         <div class="analysis-card">
 
-          <div class="score">
-            —
-          </div>
+          <div class="score" id="latestScore">—</div>
 
           <div class="score-label">
             YOUR LATEST SCORE
@@ -2864,17 +3387,17 @@
           <div class="metrics">
 
             <div class="metric">
-              <strong>—</strong>
+              <strong id="latestAccuracy">—</strong>
               <span>Accuracy</span>
             </div>
 
             <div class="metric">
-              <strong>—</strong>
+              <strong id="latestSpeed">—</strong>
               <span>Speed</span>
             </div>
 
             <div class="metric">
-              <strong>—</strong>
+              <strong id="latestRank">—</strong>
               <span>Rank</span>
             </div>
 
@@ -2893,22 +3416,22 @@
 
             <div>
               <strong>Concept Strength</strong>
-              — Waiting for your first attempt.
+              <span id="analysisConcept">— Waiting for your first attempt.</span>
             </div>
 
             <div>
               <strong>Accuracy</strong>
-              — Your pattern will appear here.
+              <span id="analysisAccuracy">— Your pattern will appear here.</span>
             </div>
 
             <div>
               <strong>Speed</strong>
-              — Your response behaviour will be analysed.
+              <span id="analysisSpeed">— Your response behaviour will be analysed.</span>
             </div>
 
             <div>
               <strong>Next Move</strong>
-              — SAGE will recommend what to explore next.
+              <span id="analysisNextMove">— SAGE will recommend what to explore next.</span>
             </div>
 
           </div>
@@ -3326,48 +3849,31 @@
 
 
 <!-- =========================
-     MOCK MODAL
+     SAGE MOCK EXAM ENGINE MODAL
      ========================= -->
 
-<div class="modal" id="mockModal">
+<div class="modal sage-exam-modal" id="mockModal" aria-hidden="true">
 
-  <div class="modal-card">
+  <div class="modal-card sage-exam-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 
-    <button
-      class="close-modal"
-      onclick="closeMock()"
-    >
-      ×
-    </button>
-
-    <div class="eyebrow" style="color:#b18a15;">
-      SAGE Challenge
+    <div class="sage-exam-topbar">
+      <div class="sage-exam-brand">
+        <strong id="modalTitle">SAGE Physics Mock Test 1</strong>
+        <span id="sageExamTopMeta">30 Questions • 45 Minutes • 30 Marks</span>
+      </div>
+      <div class="sage-exam-timer" id="sageExamTimer" style="display:none;">45:00</div>
+      <button class="sage-exam-close" id="sageExamClose" type="button" onclick="closeMock()" aria-label="Close">×</button>
     </div>
 
-    <h3 id="modalTitle">
-      Mock Test
-    </h3>
+    <div class="sage-progress" id="sageExamProgress" style="display:none;"><span></span></div>
 
-    <p>
-      This challenge will open with your real SAGE question
-      set, timer, submission, scoring and detailed performance
-      analysis once the SIR backend is connected.
-    </p>
-
-    <br>
-
-    <button
-      class="primary-btn"
-      style="width:100%;"
-      onclick="closeMock()"
-    >
-      CONTINUE →
-    </button>
+    <div class="sage-exam-body" id="sageExamBody">
+      <div class="sage-loading">Loading SAGE Mock 01…</div>
+    </div>
 
   </div>
 
 </div>
-
 
 <script>
 
@@ -3777,49 +4283,615 @@
 
   /*
     =========================
-    MOCK MODAL
+    SAGE MOCK EXAM ENGINE
     =========================
+
+    Mock 01 is loaded from:
+      question-bank/sage-physics-mock-01.json
+
+    This engine intentionally keeps the question data outside the
+    dashboard HTML so future SAGE mocks can reuse the same engine.
   */
 
-  function openMock(number) {
+  const SAGE_MOCK_CONFIG = {
+    1: {
+      file: "question-bank/sage-physics-mock-01.json",
+      fallbackTitle: "SAGE Physics Mock Test 1"
+    }
+  };
 
-    const modal =
-      document.getElementById("mockModal");
+  let sageExam = {
+    number: null,
+    data: null,
+    questions: [],
+    answers: [],
+    current: 0,
+    startedAt: null,
+    remainingSeconds: 0,
+    timerId: null,
+    submitted: false
+  };
 
-    const title =
-      document.getElementById("modalTitle");
-
-    title.textContent =
-      "SAGE Mock " +
-      String(number).padStart(2, "0");
-
-    modal.classList.add("active");
-
+  function sageStudentKey() {
+    return sessionStorage.getItem("sage_student_id") ||
+      sessionStorage.getItem("sage_student_whatsapp") ||
+      sessionStorage.getItem("sage_student_name") ||
+      "anonymous";
   }
 
-
-  function closeMock() {
-
-    document
-      .getElementById("mockModal")
-      .classList.remove("active");
-
+  function sageResultKey(number) {
+    return "sage_mock_result_" + String(number).padStart(2, "0") + "_" + sageStudentKey();
   }
 
+  function sageAttemptKey(number) {
+    return "sage_mock_attempt_" + String(number).padStart(2, "0") + "_" + sageStudentKey();
+  }
 
-  /*
-    Close modal by clicking outside
-  */
+  function sageEscape(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-  document
-    .getElementById("mockModal")
-    .addEventListener("click", function(event) {
+  function sageFormatTime(seconds) {
+    const safe = Math.max(0, Number(seconds) || 0);
+    const minutes = Math.floor(safe / 60);
+    const secs = safe % 60;
+    return String(minutes).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+  }
 
-      if (event.target === this) {
-        closeMock();
+  function sageGetModal() {
+    return document.getElementById("mockModal");
+  }
+
+  function sageRenderBody(html) {
+    const body = document.getElementById("sageExamBody");
+    if (body) body.innerHTML = html;
+  }
+
+  function sageSetModal(open) {
+    const modal = sageGetModal();
+    if (!modal) return;
+    if (open) {
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    } else {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+  }
+
+  function sageSetExamHeader(title, meta, showTimer) {
+    const titleEl = document.getElementById("modalTitle");
+    const metaEl = document.getElementById("sageExamTopMeta");
+    const timerEl = document.getElementById("sageExamTimer");
+    const closeEl = document.getElementById("sageExamClose");
+    const progressEl = document.getElementById("sageExamProgress");
+
+    if (titleEl) titleEl.textContent = title || "SAGE Challenge";
+    if (metaEl) metaEl.textContent = meta || "";
+    if (timerEl) timerEl.style.display = showTimer ? "block" : "none";
+    if (closeEl) closeEl.style.display = showTimer ? "none" : "block";
+    if (progressEl) progressEl.style.display = showTimer ? "block" : "none";
+  }
+
+  async function openMock(number) {
+    sageSetModal(true);
+
+    if (Number(number) !== 1) {
+      sageSetExamHeader(
+        "SAGE Mock " + String(number).padStart(2, "0"),
+        "Challenge coming soon",
+        false
+      );
+      sageRenderBody(`
+        <div class="sage-loading">
+          <div class="eyebrow" style="color:#b18a15;">SAGE Challenge</div>
+          <h2 style="color:#14263d;margin:8px 0 10px;">This challenge is not published yet.</h2>
+          <p>Mock 01 is the first live challenge. More SAGE challenges will appear here when published.</p>
+          <div class="sage-result-actions">
+            <button class="sage-primary-btn" type="button" onclick="closeMock()">BACK TO DASHBOARD</button>
+          </div>
+        </div>
+      `);
+      return;
+    }
+
+    sageSetExamHeader("SAGE Physics Mock Test 1", "Loading question bank…", false);
+    sageRenderBody('<div class="sage-loading">Loading your 30-question challenge…</div>');
+
+    const config = SAGE_MOCK_CONFIG[1];
+
+    try {
+      const response = await fetch(config.file, { cache: "no-store" });
+      if (!response.ok) throw new Error("Question bank returned HTTP " + response.status);
+      const data = await response.json();
+
+      if (!data || !Array.isArray(data.questions) || data.questions.length !== Number(data.question_count || data.questions.length)) {
+        throw new Error("Question bank is incomplete or invalid.");
       }
 
+      sageExam.number = 1;
+      sageExam.data = data;
+      sageExam.questions = data.questions;
+      sageExam.answers = new Array(data.questions.length).fill(null);
+      sageExam.current = 0;
+      sageExam.startedAt = null;
+      sageExam.remainingSeconds = Number(data.duration_minutes || 45) * 60;
+      sageExam.submitted = false;
+
+      const savedResult = localStorage.getItem(sageResultKey(1));
+      if (savedResult) {
+        const result = JSON.parse(savedResult);
+        sageRenderInstructions(data, true, result);
+      } else {
+        sageRenderInstructions(data, false, null);
+      }
+    } catch (error) {
+      console.error("SAGE Mock 01 load error:", error);
+      sageSetExamHeader("SAGE Physics Mock Test 1", "Question bank unavailable", false);
+      sageRenderBody(`
+        <div class="sage-error">
+          <strong>We couldn't load Mock 01.</strong>
+          <p>Make sure this file exists in GitHub at:</p>
+          <code style="display:block;margin:12px 0;padding:10px;background:#f1f4f8;border-radius:8px;color:#39485c;">talent-hunt/question-bank/sage-physics-mock-01.json</code>
+          <p style="font-size:11px;">${sageEscape(error.message)}</p>
+          <div class="sage-result-actions">
+            <button class="sage-primary-btn" type="button" onclick="openMock(1)">TRY AGAIN</button>
+            <button class="sage-secondary-btn" type="button" onclick="closeMock()">CLOSE</button>
+          </div>
+        </div>
+      `);
+    }
+  }
+
+  function sageRenderInstructions(data, completed, previousResult) {
+    sageSetExamHeader(
+      data.title || "SAGE Physics Mock Test 1",
+      `${data.question_count} Questions • ${data.duration_minutes} Minutes • ${data.maximum_marks} Marks`,
+      false
+    );
+
+    const previous = completed ? `
+      <div class="sage-rules" style="background:#eaf8f1;">
+        <strong>You've already completed Mock 01.</strong>
+        <ul>
+          <li>Latest score: <b>${sageEscape(previousResult.score)}/${sageEscape(previousResult.maximumMarks)}</b></li>
+          <li>Accuracy: <b>${sageEscape(previousResult.accuracy)}%</b></li>
+          <li>You can review your performance or take the challenge again.</li>
+        </ul>
+      </div>
+    ` : "";
+
+    sageRenderBody(`
+      <div class="sage-instructions">
+        <div class="eyebrow" style="color:#b18a15;">SAGE • FIRST CHALLENGE</div>
+
+        <h2>Before You Begin</h2>
+
+        <p>
+          Welcome to your first SAGE challenge.
+          This is not about rushing to remember everything you have studied.
+          It is about how you <strong>observe, understand, reason and solve</strong>.
+        </p>
+
+        <p>
+          You are about to attempt <strong>SAGE Physics Mock Test 01</strong>,
+          built around concepts generally encountered from Classes VI–X,
+          with an emphasis on understanding, application, reasoning and problem-solving.
+        </p>
+
+        <div class="sage-test-specs">
+          <div class="sage-test-spec"><strong>${sageEscape(data.question_count)}</strong><span>Questions</span></div>
+          <div class="sage-test-spec"><strong>${sageEscape(data.duration_minutes)} min</strong><span>Time</span></div>
+          <div class="sage-test-spec"><strong>${sageEscape(data.maximum_marks)}</strong><span>Maximum marks</span></div>
+          <div class="sage-test-spec"><strong>0</strong><span>Negative marks</span></div>
+        </div>
+
+        ${previous}
+
+        <div class="sage-rules">
+          <strong>Your Challenge</strong>
+          <ul>
+            <li><b>30</b> single-correct MCQs.</li>
+            <li><b>1 mark</b> for every correct answer.</li>
+            <li><b>No negative marking.</b></li>
+            <li><b>Calculator is not permitted.</b></li>
+          </ul>
+        </div>
+
+        <div class="sage-rules">
+          <strong>How the challenge works</strong>
+          <ul>
+            <li><b>Read carefully.</b> Some questions may look simple but require you to think before choosing.</li>
+            <li><b>Choose one answer.</b> Every question has four options. Select the one best answer.</li>
+            <li><b>Manage your time.</b> The timer starts only when you press <b>BEGIN TEST</b>. Use the question palette to move between questions.</li>
+            <li><b>Change your answer if needed.</b> Your response can be changed any time before final submission.</li>
+            <li><b>Submit when you are ready.</b> When the timer reaches zero, the test will be submitted automatically.</li>
+          </ul>
+        </div>
+
+        <div class="sage-closing-note">
+          <strong>Don't rush to finish. Think.</strong>
+          <span>SAGE is about discovering how you think when the answer isn't obvious.</span>
+        </div>
+
+        <div class="sage-start-row">
+          ${completed ? '<button class="sage-secondary-btn" type="button" onclick="sageShowPreviousResult()">VIEW LAST RESULT</button>' : ''}
+          <button class="sage-primary-btn" type="button" onclick="sageBeginTest()">${completed ? 'RETAKE MY CHALLENGE →' : 'BEGIN MY CHALLENGE →'}</button>
+        </div>
+      </div>
+    `);
+  }
+
+  function sageBeginTest() {
+    sageExam.answers = new Array(sageExam.questions.length).fill(null);
+    sageExam.current = 0;
+    sageExam.startedAt = Date.now();
+    sageExam.remainingSeconds = Number(sageExam.data.duration_minutes || 45) * 60;
+    sageExam.submitted = false;
+
+    sageSaveAttemptState();
+    sageSetExamHeader(
+      sageExam.data.title || "SAGE Physics Mock Test 1",
+      `${sageExam.questions.length} Questions • ${sageExam.data.maximum_marks} Marks`,
+      true
+    );
+    sageRenderQuestion();
+    sageStartTimer();
+  }
+
+  function sageStartTimer() {
+    if (sageExam.timerId) clearInterval(sageExam.timerId);
+    sageUpdateTimer();
+    sageExam.timerId = setInterval(function() {
+      sageExam.remainingSeconds -= 1;
+      sageUpdateTimer();
+      if (sageExam.remainingSeconds <= 0) {
+        clearInterval(sageExam.timerId);
+        sageExam.timerId = null;
+        sageSubmitTest(true);
+      }
+    }, 1000);
+  }
+
+  function sageUpdateTimer() {
+    const el = document.getElementById("sageExamTimer");
+    if (!el) return;
+    el.textContent = sageFormatTime(sageExam.remainingSeconds);
+    el.classList.toggle("warning", sageExam.remainingSeconds <= 300 && sageExam.remainingSeconds > 60);
+    el.classList.toggle("danger", sageExam.remainingSeconds <= 60);
+  }
+
+  function sageRenderQuestion() {
+    const q = sageExam.questions[sageExam.current];
+    if (!q) return;
+
+    const selected = sageExam.answers[sageExam.current];
+    const answeredCount = sageExam.answers.filter(Boolean).length;
+    const progress = ((sageExam.current + 1) / sageExam.questions.length) * 100;
+    const progressBar = document.querySelector("#sageExamProgress > span");
+    if (progressBar) progressBar.style.width = progress + "%";
+
+    const options = ["A", "B", "C", "D"].map(function(letter) {
+      const value = q["option_" + letter];
+      return `
+        <button class="sage-option ${selected === letter ? "selected" : ""}" type="button" onclick="sageSelectAnswer('${letter}')">
+          <span class="sage-option-letter">${letter}</span>
+          <span>${sageEscape(value)}</span>
+        </button>
+      `;
+    }).join("");
+
+    const palette = sageExam.questions.map(function(item, index) {
+      const isAnswered = Boolean(sageExam.answers[index]);
+      const isCurrent = index === sageExam.current;
+      return `<button class="sage-palette-btn ${isAnswered ? "answered" : ""} ${isCurrent ? "current" : ""}" type="button" onclick="sageGoToQuestion(${index})">${String(index + 1).padStart(2, "0")}</button>`;
+    }).join("");
+
+    sageRenderBody(`
+      <div class="sage-exam-layout">
+        <div class="sage-question-panel">
+          <div class="sage-question-head">
+            <span class="sage-question-number">QUESTION ${String(sageExam.current + 1).padStart(2, "0")} / ${sageExam.questions.length}</span>
+            <span>${sageEscape(q.topic || "Physics")} • ${sageEscape(q.difficulty || "")}</span>
+          </div>
+
+          <div class="sage-question-text">${sageEscape(q.question_text)}</div>
+
+          <div class="sage-options">${options}</div>
+
+          <div class="sage-question-actions">
+            <button class="sage-secondary-btn" type="button" onclick="sagePreviousQuestion()" ${sageExam.current === 0 ? "disabled" : ""}>← PREVIOUS</button>
+            <button class="sage-secondary-btn" type="button" onclick="sageClearAnswer()" ${selected ? "" : "disabled"}>CLEAR</button>
+            ${sageExam.current === sageExam.questions.length - 1
+              ? '<button class="sage-submit-btn" type="button" onclick="sageConfirmSubmit()">SUBMIT TEST</button>'
+              : '<button class="sage-primary-btn" type="button" onclick="sageNextQuestion()">SAVE & NEXT →</button>'}
+          </div>
+        </div>
+
+        <aside class="sage-question-palette">
+          <div class="sage-palette-title">Question Palette</div>
+          <div class="sage-palette-grid">${palette}</div>
+          <div class="sage-status-legend">
+            <span><i class="sage-dot current"></i> Current</span>
+            <span><i class="sage-dot answered"></i> Answered</span>
+            <span><i class="sage-dot"></i> Not answered</span>
+          </div>
+          <div style="margin-top:15px;padding-top:12px;border-top:1px solid #edf0f4;color:#65758a;font-size:10px;line-height:1.6;">
+            Answered: <b>${answeredCount}</b> / ${sageExam.questions.length}
+          </div>
+        </aside>
+      </div>
+    `);
+  }
+
+  function sageSelectAnswer(letter) {
+    sageExam.answers[sageExam.current] = letter;
+    sageSaveAttemptState();
+    sageRenderQuestion();
+  }
+
+  function sageClearAnswer() {
+    sageExam.answers[sageExam.current] = null;
+    sageSaveAttemptState();
+    sageRenderQuestion();
+  }
+
+  function sageGoToQuestion(index) {
+    if (index < 0 || index >= sageExam.questions.length) return;
+    sageExam.current = index;
+    sageRenderQuestion();
+  }
+
+  function sagePreviousQuestion() {
+    if (sageExam.current > 0) {
+      sageExam.current -= 1;
+      sageRenderQuestion();
+    }
+  }
+
+  function sageNextQuestion() {
+    if (sageExam.current < sageExam.questions.length - 1) {
+      sageExam.current += 1;
+      sageRenderQuestion();
+    }
+  }
+
+  function sageConfirmSubmit() {
+    const unanswered = sageExam.answers.filter(function(a) { return !a; }).length;
+    const answered = sageExam.answers.length - unanswered;
+
+    sageRenderBody(`
+      <div class="sage-instructions" style="max-width:620px;">
+        <div class="eyebrow" style="color:#b18a15;">FINAL CHECK</div>
+        <h2>Ready to submit?</h2>
+        <p>You have answered <b>${answered}</b> of <b>${sageExam.questions.length}</b> questions.</p>
+        <div class="sage-rules">
+          <strong>${unanswered ? "You still have unanswered questions." : "All questions are answered."}</strong>
+          <ul>
+            <li>Answered: <b>${answered}</b></li>
+            <li>Unanswered: <b>${unanswered}</b></li>
+            <li>There is no negative marking.</li>
+          </ul>
+        </div>
+        <div class="sage-start-row">
+          <button class="sage-secondary-btn" type="button" onclick="sageRenderQuestion()">GO BACK</button>
+          <button class="sage-submit-btn" type="button" onclick="sageSubmitTest(false)">SUBMIT TEST</button>
+        </div>
+      </div>
+    `);
+  }
+
+  function sageSubmitTest(autoSubmitted) {
+    if (sageExam.submitted) return;
+    sageExam.submitted = true;
+    if (sageExam.timerId) {
+      clearInterval(sageExam.timerId);
+      sageExam.timerId = null;
+    }
+
+    const total = sageExam.questions.length;
+    let correct = 0;
+    let wrong = 0;
+    let unanswered = 0;
+
+    sageExam.questions.forEach(function(q, index) {
+      const answer = sageExam.answers[index];
+      if (!answer) unanswered += 1;
+      else if (answer === q.correct_option) correct += 1;
+      else wrong += 1;
     });
+
+    const attempted = correct + wrong;
+    const score = correct;
+    const accuracy = attempted ? Math.round((correct / attempted) * 100) : 0;
+    const timeTakenSeconds = Math.max(0, (Number(sageExam.data.duration_minutes || 45) * 60) - sageExam.remainingSeconds);
+    const speed = timeTakenSeconds > 0 ? (attempted / (timeTakenSeconds / 60)).toFixed(1) : "0.0";
+
+    const result = {
+      testId: sageExam.data.test_id,
+      title: sageExam.data.title,
+      maximumMarks: sageExam.data.maximum_marks,
+      score: score,
+      correct: correct,
+      wrong: wrong,
+      unanswered: unanswered,
+      accuracy: accuracy,
+      speed: speed,
+      timeTakenSeconds: timeTakenSeconds,
+      autoSubmitted: Boolean(autoSubmitted),
+      submittedAt: new Date().toISOString(),
+      answers: sageExam.answers.slice()
+    };
+
+    localStorage.setItem(sageResultKey(1), JSON.stringify(result));
+    localStorage.removeItem(sageAttemptKey(1));
+    sageUpdateDashboardAnalysis(result);
+    sageRenderResult(result);
+  }
+
+  function sageRenderResult(result) {
+    sageSetExamHeader(
+      "SAGE Physics Mock Test 1 • Result",
+      result.autoSubmitted ? "Time ended • Test submitted automatically" : "Test submitted successfully",
+      false
+    );
+
+    const review = sageExam.questions.map(function(q, index) {
+      const your = sageExam.answers[index];
+      const correct = q.correct_option;
+      const state = !your ? "unanswered" : (your === correct ? "correct" : "wrong");
+      const status = state === "correct" ? "CORRECT" : state === "wrong" ? "WRONG" : "UNANSWERED";
+      const yourText = your ? your + ". " + q["option_" + your] : "Not answered";
+      const correctText = correct + ". " + q["option_" + correct];
+
+      return `
+        <div class="sage-review-item ${state}">
+          <div class="sage-review-head"><span>Q${String(index + 1).padStart(2, "0")}</span><span>${status}</span></div>
+          <div class="sage-review-question">${sageEscape(q.question_text)}</div>
+          <div class="sage-review-answer"><b>Your answer:</b> ${sageEscape(yourText)}<br><b>Correct answer:</b> ${sageEscape(correctText)}</div>
+        </div>
+      `;
+    }).join("");
+
+    sageRenderBody(`
+      <div class="sage-result">
+        <div class="sage-result-hero">
+          <div class="eyebrow" style="color:#f5c542;">YOUR SAGE RESULT</div>
+          <div class="sage-result-score">${result.score}/${result.maximumMarks}</div>
+          <div class="sage-result-label">Physics Mock Test 1</div>
+          <div class="sage-result-metrics">
+            <div class="sage-result-metric"><strong>${result.correct}</strong><span>Correct</span></div>
+            <div class="sage-result-metric"><strong>${result.wrong}</strong><span>Wrong</span></div>
+            <div class="sage-result-metric"><strong>${result.unanswered}</strong><span>Unanswered</span></div>
+            <div class="sage-result-metric"><strong>${result.accuracy}%</strong><span>Accuracy</span></div>
+            <div class="sage-result-metric"><strong>${sageFormatTime(result.timeTakenSeconds)}</strong><span>Time Taken</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding:16px;border-radius:14px;background:#fff;border:1px solid #e1e7ef;color:#5d6c80;font-size:12px;line-height:1.6;">
+          <b style="color:#17253a;">Thinking snapshot:</b>
+          ${result.accuracy >= 80 ? "Strong first performance. Your next focus should be consistency and higher-order questions." : result.accuracy >= 60 ? "You have a solid base. Review the questions you missed and strengthen the concepts behind them." : "Use this first attempt as a diagnostic. Review every incorrect question before your next challenge."}
+        </div>
+
+        <div class="sage-review">
+          <div class="eyebrow" style="color:#b18a15;margin-bottom:10px;">ANSWER REVIEW</div>
+          ${review}
+        </div>
+
+        <div class="sage-result-actions">
+          <button class="sage-secondary-btn" type="button" onclick="sageRenderInstructions(sageExam.data, true, JSON.parse(localStorage.getItem(sageResultKey(1))))">RETAKE MOCK</button>
+          <button class="sage-primary-btn" type="button" onclick="closeMock()">BACK TO DASHBOARD</button>
+        </div>
+      </div>
+    `);
+  }
+
+  function sageShowPreviousResult() {
+    const raw = localStorage.getItem(sageResultKey(1));
+    if (!raw) return;
+    try {
+      const result = JSON.parse(raw);
+      sageExam.answers = Array.isArray(result.answers) ? result.answers.slice() : new Array(sageExam.questions.length).fill(null);
+      sageExam.submitted = true;
+      sageRenderResult(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function sageSaveAttemptState() {
+    if (!sageExam.data || sageExam.submitted || !sageExam.startedAt) return;
+    localStorage.setItem(sageAttemptKey(1), JSON.stringify({
+      testId: sageExam.data.test_id,
+      startedAt: sageExam.startedAt,
+      remainingSeconds: sageExam.remainingSeconds,
+      current: sageExam.current,
+      answers: sageExam.answers
+    }));
+  }
+
+  function sageUpdateDashboardAnalysis(result) {
+    const score = document.getElementById("latestScore");
+    const accuracy = document.getElementById("latestAccuracy");
+    const speed = document.getElementById("latestSpeed");
+    const rank = document.getElementById("latestRank");
+    const concept = document.getElementById("analysisConcept");
+    const analysisAccuracy = document.getElementById("analysisAccuracy");
+    const analysisSpeed = document.getElementById("analysisSpeed");
+    const nextMove = document.getElementById("analysisNextMove");
+
+    if (score) score.textContent = result.score + "/" + result.maximumMarks;
+    if (accuracy) accuracy.textContent = result.accuracy + "%";
+    if (speed) speed.textContent = result.speed + "/min";
+    if (rank) rank.textContent = "—";
+    if (analysisAccuracy) analysisAccuracy.textContent = result.accuracy + "% accuracy across attempted questions.";
+    if (analysisSpeed) analysisSpeed.textContent = result.speed + " questions/minute attempted.";
+
+    const topicStats = {};
+    sageExam.questions.forEach(function(q, index) {
+      const topic = q.topic || "Physics";
+      if (!topicStats[topic]) topicStats[topic] = { correct: 0, attempted: 0 };
+      const a = result.answers[index];
+      if (a) {
+        topicStats[topic].attempted += 1;
+        if (a === q.correct_option) topicStats[topic].correct += 1;
+      }
+    });
+
+    const topics = Object.keys(topicStats).filter(function(k) { return topicStats[k].attempted > 0; });
+    topics.sort(function(a,b) {
+      return (topicStats[b].correct / topicStats[b].attempted) - (topicStats[a].correct / topicStats[a].attempted);
+    });
+
+    if (concept) {
+      if (!topics.length) concept.textContent = "No attempted questions yet.";
+      else {
+        const best = topics[0];
+        concept.textContent = best + " is currently your strongest area based on this attempt.";
+      }
+    }
+
+    if (nextMove) {
+      if (result.accuracy >= 80) nextMove.textContent = "Move toward harder application and challenge questions.";
+      else if (result.accuracy >= 60) nextMove.textContent = "Review incorrect concepts, then attempt the next challenge.";
+      else nextMove.textContent = "Revisit your incorrect questions and strengthen the underlying concepts first.";
+    }
+  }
+
+  function sageLoadPreviousDashboardResult() {
+    const raw = localStorage.getItem(sageResultKey(1));
+    if (!raw) return;
+    try {
+      sageUpdateDashboardAnalysis(JSON.parse(raw));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function closeMock() {
+    if (sageExam.timerId) {
+      clearInterval(sageExam.timerId);
+      sageExam.timerId = null;
+    }
+    sageSetModal(false);
+    sageExam.submitted = false;
+    sageSetExamHeader("SAGE Physics Mock Test 1", "30 Questions • 45 Minutes • 30 Marks", false);
+  }
+
+  document.getElementById("mockModal").addEventListener("click", function(event) {
+    if (event.target === this && !sageExam.timerId) {
+      closeMock();
+    }
+  });
+
+  sageLoadPreviousDashboardResult();
 
 </script>
 
