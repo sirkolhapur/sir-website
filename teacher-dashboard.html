@@ -1679,6 +1679,10 @@
             color: #8a6414;
         }
 
+        .dsp-date-group-row {
+            cursor: pointer;
+        }
+
         .dsp-date-group-row td span {
             display: inline-block;
             margin-left: 8px;
@@ -1687,6 +1691,27 @@
             font-weight: 600;
             letter-spacing: 0;
             text-transform: none;
+        }
+
+        .dsp-date-toggle {
+            float: right;
+            margin-left: 12px !important;
+            color: #8a6414 !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .dsp-booking-row.dsp-hidden {
+            display: none;
+        }
+
+        .dsp-date-group-row:hover td {
+            background: #eef3f9;
+        }
+
+        .dsp-date-group-row.today:hover td {
+            background: #fff5df;
         }
 
         @media (max-width: 760px) {
@@ -4355,10 +4380,15 @@
                     const isToday = groupLabel.startsWith("TODAY — ");
 
                     rows.push(`
-                        <tr class="dsp-date-group-row${isToday ? " today" : ""}">
+                        <tr
+                            class="dsp-date-group-row${isToday ? " today" : ""}"
+                            data-dsp-date="${escapeHtml(bookingDate)}"
+                            onclick="toggleDspDateGroup('${escapeHtml(bookingDate)}')"
+                        >
                             <td colspan="8">
                                 ${escapeHtml(groupLabel)}
                                 <span>Date-wise DSP bookings</span>
+                                <span class="dsp-date-toggle">⌃</span>
                             </td>
                         </tr>
                     `);
@@ -4376,7 +4406,10 @@
                     : "—";
 
                 rows.push(`
-                    <tr>
+                    <tr
+                        class="dsp-booking-row"
+                        data-dsp-date="${escapeHtml(bookingDate)}"
+                    >
                         <td>${escapeHtml(bookingDate || "—")}</td>
                         <td>${escapeHtml(slot.start_time || "—")} – ${escapeHtml(slot.end_time || "—")}</td>
                         <td>${escapeHtml(student.full_name || student.student_uid || "—")}</td>
@@ -4390,6 +4423,60 @@
             });
 
             tbody.innerHTML = rows.join("");
+
+            /* Open TODAY by default. If there are no today's bookings,
+               the first available date is opened instead. */
+            const todayISO = new Date().toISOString().slice(0, 10);
+            const availableDates = [
+                ...new Set(
+                    sortedBookings
+                        .map(booking => (slotMap[booking.slot_id] || {}).slot_date)
+                        .filter(Boolean)
+                )
+            ];
+
+            const defaultDate = availableDates.includes(todayISO)
+                ? todayISO
+                : availableDates[0];
+
+            if (defaultDate) {
+                toggleDspDateGroup(defaultDate, true);
+            }
+        }
+
+        function toggleDspDateGroup(date, forceOpen = false) {
+            const rows = document.querySelectorAll(
+                `.dsp-booking-row[data-dsp-date="${date}"]`
+            );
+
+            const header = document.querySelector(
+                `.dsp-date-group-row[data-dsp-date="${date}"]`
+            );
+
+            if (!rows.length || !header) return;
+
+            const isCurrentlyOpen =
+                !rows[0].classList.contains("dsp-hidden");
+
+            /* Only one date remains open at a time. */
+            document
+                .querySelectorAll(".dsp-booking-row")
+                .forEach(row => row.classList.add("dsp-hidden"));
+
+            document
+                .querySelectorAll(".dsp-date-toggle")
+                .forEach(toggle => {
+                    toggle.textContent = "⌄";
+                });
+
+            if (forceOpen || !isCurrentlyOpen) {
+                rows.forEach(row => {
+                    row.classList.remove("dsp-hidden");
+                });
+
+                const toggle = header.querySelector(".dsp-date-toggle");
+                if (toggle) toggle.textContent = "⌃";
+            }
         }
 
         async function loadDspData() {
