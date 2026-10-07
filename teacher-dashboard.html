@@ -1619,6 +1619,16 @@
             overflow: hidden;
         }
 
+        .dsp-table-card .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dsp-table-card .table-wrap table {
+            min-width: 760px;
+        }
+
         .table-card-head {
             display: flex;
             align-items: center;
@@ -1718,9 +1728,78 @@
             .dsp-grid {
                 grid-template-columns: 1fr;
             }
+
+            .dsp-card {
+                padding: 16px;
+            }
+
+            .dsp-card > strong {
+                font-size: 28px;
+            }
+
+            .dsp-card p {
+                font-size: 11px;
+                line-height: 1.5;
+            }
+
+            .dsp-subject-list {
+                gap: 6px;
+            }
+
+            .dsp-subject-pill {
+                padding: 7px 10px;
+                font-size: 11px;
+            }
+
             .table-card-head {
-                align-items: flex-start;
+                align-items: stretch;
                 flex-direction: column;
+                gap: 10px;
+            }
+
+            .table-card-head h3 {
+                font-size: 15px;
+            }
+
+            .table-card-head p {
+                font-size: 11px;
+                line-height: 1.45;
+            }
+
+            .secondary-btn {
+                width: 100%;
+                min-height: 40px;
+            }
+
+            .dsp-table-card {
+                border-radius: 10px;
+            }
+
+            .dsp-table-card .table-wrap {
+                margin-left: -1px;
+                margin-right: -1px;
+                width: calc(100% + 2px);
+            }
+
+            .dsp-table-card .table-wrap table {
+                min-width: 760px;
+            }
+
+            .section-header {
+                gap: 10px;
+            }
+
+            .section-header h2 {
+                font-size: 17px;
+            }
+
+            .section-header p {
+                font-size: 10px;
+                line-height: 1.45;
+            }
+
+            .teacher-status {
+                display: none;
             }
         }
 
@@ -4721,12 +4800,10 @@
                 }
 
 
-                await Promise.all([
-                    loadBatches(),
-                    loadStudents(),
-                    loadTests(),
-                    loadScores()
-                ]);
+                await loadBatches();
+                await loadStudents();
+                await loadTests();
+                await loadScores();
 
                 loading.style.display =
                     "none";
