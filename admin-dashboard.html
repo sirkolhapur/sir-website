@@ -7103,8 +7103,11 @@ async function importValidExcelRows(){
     });
 
     const existingKeys=new Set();
-    for(let i=0;i<sourceKeys.length;i+=500){
-      const chunk=[...new Set(sourceKeys.slice(i,i+500))];
+    // Keep database duplicate protection, but use small PostgREST requests.
+    // A very large .in(...) GET request can return 400 Bad Request.
+    const uniqueSourceKeys=[...new Set(sourceKeys)];
+    for(let i=0;i<uniqueSourceKeys.length;i+=50){
+      const chunk=uniqueSourceKeys.slice(i,i+50);
       if(!chunk.length)continue;
       const {data:existingRows,error:existingError}=await supabaseClient
         .from("student_test_results")
