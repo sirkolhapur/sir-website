@@ -4146,17 +4146,18 @@
         }
 
         async function loadDspBookings() {
-            const { data, error } = await supabaseClient
+            const { data: bookings, error } = await supabaseClient
                 .from("dsp_bookings")
-                .select("id,student_id,teacher_id,question_id,slot_id,status")
-                .eq("teacher_id", currentTeacher.id);
+                .select("id,student_id,teacher_id,question_id,slot_id,status,created_at")
+                .eq("teacher_id", currentTeacher.id)
+                .order("created_at", { ascending: false });
 
             if (error) {
                 console.error("DSP bookings error:", error);
                 throw new Error("Unable to load DSP bookings.");
             }
 
-            dspBookings = data || [];
+            dspBookings = bookings || [];
 
             const studentIds = [...new Set(dspBookings.map(row => row.student_id).filter(Boolean))];
             const questionIds = [...new Set(dspBookings.map(row => row.question_id).filter(Boolean))];
@@ -4178,7 +4179,7 @@
             if (questionIds.length) {
                 const result = await supabaseClient
                     .from("dsp_questions")
-                    .select("id,subject_id,topic_id,question_text,photo_url,image_path")
+                    .select("id,subject_id,topic_id,question_text,image_path")
                     .in("id", questionIds);
                 if (result.error) throw new Error("Unable to load DSP questions.");
                 questions = result.data || [];
@@ -4187,7 +4188,7 @@
             if (slotIds.length) {
                 const result = await supabaseClient
                     .from("dsp_slots")
-                    .select("id,slot_date,start_time,end_time,status")
+                    .select("id,teacher_id,slot_date,start_time,end_time,status,booking_id")
                     .in("id", slotIds);
                 if (result.error) throw new Error("Unable to load DSP slots.");
                 slots = result.data || [];
@@ -4224,7 +4225,11 @@
             const topicMap = Object.fromEntries(topics.map(row => [row.id, row]));
 
             const today = new Date().toISOString().slice(0, 10);
-            const todayCount = dspBookings.filter(row => slotMap[row.slot_id]?.slot_date === today).length;
+            const todayCount = dspBookings.filter(booking => {
+                const slot = slotMap[booking.slot_id] || {};
+                return slot.slot_date === today;
+            }).length;
+
             const countEl = document.getElementById("dspTodayCount");
             if (countEl) countEl.textContent = String(todayCount);
 
@@ -4242,10 +4247,13 @@
                 const slot = slotMap[booking.slot_id] || {};
                 const subject = subjectMap[question.subject_id] || {};
                 const topic = topicMap[question.topic_id] || {};
-                const questionPhoto = question.photo_url || question.image_path || "";
-                const questionText = question.question_text || (questionPhoto ? "Photo question" : "—");
-                const questionCell = questionPhoto
-                    ? `<a class="dsp-question-link" href="${escapeHtml(questionPhoto)}" target="_blank" rel="noopener">${escapeHtml(questionText)}</a>`
+
+                const questionText =
+                    question.question_text ||
+                    (question.image_path ? "Photo question" : "—");
+
+                const questionCell = question.image_path
+                    ? `<a class="dsp-question-link" href="${escapeHtml(question.image_path)}" target="_blank" rel="noopener">${escapeHtml(questionText)}</a>`
                     : escapeHtml(questionText);
 
                 return `
@@ -4503,26 +4511,27 @@
                 }
 
 
-                await loadBatches();
-
-                await loadStudents();
-
-                await loadTests();
-
-                await loadScores();
+                await Promise.all([
+                    loadBatches(),
+                    loadStudents(),
+                    loadTests(),
+                    loadScores()
+                ]);
 
                 loading.style.display =
                     "none";
 
-                loadDspData().catch(error => {
-                    console.error("DSP load error:", error);
-                    showError(error.message || "Unable to load DSP data.");
-                });
-
-
                 console.log(
                     "SIR Teacher Dashboard loaded."
                 );
+
+                loadDspData().catch(error => {
+                    console.error("DSP background load error:", error);
+                    const tbody = document.getElementById("dspBookingsBody");
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="7">Unable to load DSP bookings.</td></tr>`;
+                    }
+                });
 
 
             } catch (error) {
