@@ -819,6 +819,9 @@
 }
 
 .dsp-slot {
+  position:relative;
+  z-index:3;
+  pointer-events:auto;
   border:1px solid var(--line);
   background:rgba(255,255,255,.025);
   color:#d9e0e9;
@@ -3259,20 +3262,30 @@ function dspDateIsWithinWindow(dateValue) {
       const status = String(slot.status || "available").toLowerCase();
       const button = document.createElement("button");
       button.type = "button";
-      button.disabled = status !== "available";
+      button.disabled = false;
+      button.dataset.slotStatus = status;
+      button.dataset.slotId = slot.id;
       button.className = `dsp-slot ${status}` + (dspSelectedSlot?.id === slot.id ? " selected" : "");
       button.innerHTML = `${dspFormatTime(slot.start_time)}<small>${dspFormatTime(slot.end_time)}</small><span class="dsp-slot-status-label">${status === "booked" ? "BOOKED" : status === "blocked" ? "UNAVAILABLE" : "AVAILABLE"}</span>`;
 
-      if (status === "available") {
-        button.addEventListener("click", () => {
-          dspSelectedSlot = slot;
-          dspSlotIdEl.value = slot.id;
-          dspSlotsEl.querySelectorAll(".dsp-slot").forEach(el => el.classList.remove("selected"));
-          button.classList.add("selected");
-          const teacher = dspTeachers.find(t => t.id === slot.teacher_id);
-          dspTeacherInfoEl.textContent = teacher ? `${teacher.full_name} · ${teacher.subject || "Faculty"} · ${dspFormatTime(slot.start_time)}–${dspFormatTime(slot.end_time)}` : "Teacher selected.";
-        });
-      }
+      button.addEventListener("click", () => {
+        if (status !== "available") return;
+        dspSelectedSlot = slot;
+        dspSlotIdEl.value = slot.id;
+        dspSlotsEl.querySelectorAll(".dsp-slot").forEach(el => el.classList.remove("selected"));
+        button.classList.add("selected");
+        const teacher = dspTeachers.find(t => t.id === slot.teacher_id);
+        dspTeacherInfoEl.textContent = teacher ? `${teacher.full_name} · ${teacher.subject || "Faculty"} · ${dspFormatTime(slot.start_time)}–${dspFormatTime(slot.end_time)}` : "Teacher selected.";
+      });
+      button.addEventListener("pointerdown", () => {
+        if (status !== "available") return;
+        dspSelectedSlot = slot;
+        dspSlotIdEl.value = slot.id;
+        dspSlotsEl.querySelectorAll(".dsp-slot").forEach(el => el.classList.remove("selected"));
+        button.classList.add("selected");
+        const teacher = dspTeachers.find(t => t.id === slot.teacher_id);
+        dspTeacherInfoEl.textContent = teacher ? `${teacher.full_name} · ${teacher.subject || "Faculty"} · ${dspFormatTime(slot.start_time)}–${dspFormatTime(slot.end_time)}` : "Teacher selected.";
+      });
       dspSlotsEl.appendChild(button);
     });
   }
