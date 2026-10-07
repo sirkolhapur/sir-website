@@ -2333,6 +2333,24 @@
       <div class="form-grid">
 
         <div class="field full">
+          <label>Student UID</label>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;">
+            <span style="padding:11px 13px;border:1px solid rgba(201,168,78,.35);border-radius:7px;background:rgba(201,168,78,.08);color:#d9b75b;font-weight:800;">SIR</span>
+            <input
+              type="text"
+              id="studentUidSuffix"
+              placeholder="00001 or NEET-001"
+              disabled
+            >
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:9px;font-size:12px;color:#8fa0b5;cursor:pointer;">
+            <input type="checkbox" id="studentUidAuto" checked style="width:auto;margin:0;">
+            Auto-generate UID
+          </label>
+          <small style="color:#7f90a6;">Turn off auto-generate to enter the UID manually. Saved UID will always use the SIR prefix.</small>
+        </div>
+
+        <div class="field full">
           <label>Full Name</label>
           <input
             type="text"
@@ -4929,6 +4947,14 @@ document
   .addEventListener("click", closeModal);
 
 
+document.getElementById("studentUidAuto").addEventListener("change", function () {
+  const suffix = document.getElementById("studentUidSuffix");
+  suffix.disabled = this.checked;
+  if (this.checked) suffix.value = "";
+  if (!this.checked) suffix.focus();
+});
+
+
 function closeModal() {
 
   modal.classList.remove("show");
@@ -4936,6 +4962,9 @@ function closeModal() {
   document
     .getElementById("studentForm")
     .reset();
+
+  document.getElementById("studentUidSuffix").disabled = true;
+  document.getElementById("studentUidAuto").checked = true;
 
   hideMessage();
 
@@ -4957,10 +4986,34 @@ document
     const phone = document.getElementById("studentMobile").value.trim();
     const courseId = document.getElementById("studentCourse").value;
     const batchId = document.getElementById("studentBatch").value;
+    const autoGenerateUid = document.getElementById("studentUidAuto").checked;
+    const uidSuffix = document.getElementById("studentUidSuffix").value.trim();
+    const requestedUid = autoGenerateUid ? null : `SIR${uidSuffix}`;
 
     if (!name || !email || !courseId || !batchId) {
       showMessage("Please complete name, email, course and batch.", "error");
       return;
+    }
+
+    if (!autoGenerateUid && !uidSuffix) {
+      showMessage("Enter a Student UID suffix or turn on Auto-generate UID.", "error");
+      return;
+    }
+
+    if (!autoGenerateUid) {
+      const duplicateUid = await supabaseClient
+        .from("students")
+        .select("id,student_uid,full_name")
+        .eq("student_uid", requestedUid)
+        .maybeSingle();
+      if (duplicateUid.error) {
+        showMessage(duplicateUid.error.message || "Unable to check Student UID.", "error");
+        return;
+      }
+      if (duplicateUid.data) {
+        showMessage(`Student UID ${requestedUid} is already in use by ${duplicateUid.data.full_name || "another student"}.`, "error");
+        return;
+      }
     }
 
     const submit = e.target.querySelector('button[type="submit"]');
@@ -4971,7 +5024,7 @@ document
     try {
       const { data, error } = await supabaseClient.functions.invoke(
         "create-student",
-        { body: { full_name: name, email, phone, course_id: courseId, batch_id: batchId } }
+        { body: { full_name: name, email, phone, course_id: courseId, batch_id: batchId, student_uid: requestedUid } }
       );
 
       if (error) throw new Error(error.message || "Failed to create student account.");
@@ -7032,29 +7085,75 @@ function renderExcelPreview(rows){ const valid=rows.filter(r=>!r.error), invalid
 async function importValidExcelRows(){
   if(!excelValidRows.length)return;
   if(!excelFileHash){showExcelImportMessage("Please select the Excel file again before importing.","error");return;}
-  const btn=document.getElementById("importExcelRowsBtn");btn.disabled=true;btn.textContent="Importing...";
+  const btn=document.getElementById("importExcelRowsBtn");btn.disabled=true;btn.textContent="Checking duplicates...";
   try{
     const sourceKeys=excelValidRows.map(buildResultSourceKey);
     const seenKeys=new Set();
-    const duplicateKeys=[];
-    sourceKeys.forEach(k=>{if(seenKeys.has(k))duplicateKeys.push(k);else seenKeys.add(k);});
-    if(duplicateKeys.length)throw new Error(`Duplicate result rows detected inside this Excel file (${duplicateKeys.length}). Please remove the duplicate rows before importing.`);
+    const duplicateInFile=[];
+    const uniqueRows=[];
+
+    excelValidRows.forEach((row,index)=>{
+      const key=sourceKeys[index];
+      if(seenKeys.has(key)){
+        duplicateInFile.push(row);
+      }else{
+        seenKeys.add(key);
+        uniqueRows.push(row);
+      }
+    });
+
+    const existingKeys=new Set();
     for(let i=0;i<sourceKeys.length;i+=500){
-      const chunk=sourceKeys.slice(i,i+500);
-      const {data:existingRows,error:existingError}=await supabaseClient.from("student_test_results").select("id,source_key").in("source_key",chunk);
+      const chunk=[...new Set(sourceKeys.slice(i,i+500))];
+      if(!chunk.length)continue;
+      const {data:existingRows,error:existingError}=await supabaseClient
+        .from("student_test_results")
+        .select("id,source_key")
+        .in("source_key",chunk);
       if(existingError)throw existingError;
-      if(existingRows?.length)throw new Error(`Some result rows already exist in SIR Results (${existingRows.length}). Import blocked to protect existing data.`);
+      (existingRows||[]).forEach(row=>{if(row.source_key)existingKeys.add(row.source_key);});
     }
+
+    const rowsToImport=uniqueRows.filter(row=>!existingKeys.has(buildResultSourceKey(row)));
+    const skippedExisting=uniqueRows.length-rowsToImport.length;
+    const skippedTotal=duplicateInFile.length+skippedExisting;
+
+    if(!rowsToImport.length){
+      const detail=[];
+      if(duplicateInFile.length)detail.push(`${duplicateInFile.length} duplicate row(s) inside the Excel`);
+      if(skippedExisting)detail.push(`${skippedExisting} result(s) already present in SIR Results`);
+      showExcelImportMessage(`Nothing new to import. ${detail.join("; ")||"All valid rows were duplicates."}. Existing data was preserved.` ,"error");
+      btn.disabled=false;
+      btn.textContent="Import Valid Rows";
+      return;
+    }
+
+    btn.textContent="Importing...";
     const fileName=document.getElementById("excelFileName").textContent||"result.xlsx";
-    const {data:batch,error:be}=await supabaseClient.from("result_import_batches").insert({file_name:fileName,file_hash:excelFileHash,status:"processing",total_rows:excelImportRows.length,valid_rows:excelValidRows.length,invalid_rows:excelImportRows.length-excelValidRows.length,raw_metadata:{format:"SIR_RESULT_V2",question_sheet_rows:excelQuestionRows.length}}).select().single();
+    const {data:batch,error:be}=await supabaseClient.from("result_import_batches").insert({
+      file_name:fileName,
+      file_hash:excelFileHash,
+      status:"processing",
+      total_rows:excelImportRows.length,
+      valid_rows:rowsToImport.length,
+      invalid_rows:excelImportRows.length-excelValidRows.length,
+      raw_metadata:{format:"SIR_RESULT_V2",question_sheet_rows:excelQuestionRows.length,duplicate_rows_skipped:skippedTotal,duplicate_rows_inside_file:duplicateInFile.length,existing_results_skipped:skippedExisting}
+    }).select().single();
     if(be)throw be;
+
     const resultMap=new Map();
-    for(const row of excelValidRows){
+    for(const row of rowsToImport){
       const payload={student_id:row.student_id,import_batch_id:batch.id,exam_name:row.exam_name,test_date:row.test_date,mode:row.mode,test_type:row.test_type,stream:row.stream,max_marks:row.max_marks,marks_obtained:row.marks_obtained,percentage:row.percentage,percentile:row.percentile,batch_rank:row.batch_rank,overall_rank:row.overall_rank,status:row.status,source_row_number:row.rowNumber,source_key:buildResultSourceKey(row),raw_data:row.raw_data};
-      const {data:res,error:re}=await supabaseClient.from("student_test_results").insert(payload).select().single(); if(re)throw re;
+      const {data:res,error:re}=await supabaseClient.from("student_test_results").insert(payload).select().single();
+      if(re)throw re;
       resultMap.set(`${row.student_id}|${row.exam_name}|${row.test_date||""}`,res.id);
-      if(row.subjects.length){ const sp=row.subjects.map(x=>({result_id:res.id,subject:x.subject,marks_obtained:x.marks_obtained,attempted:x.attempted,correct:x.correct,wrong:x.wrong,skipped:x.skipped,raw_data:x.raw_data})); const {error:se}=await supabaseClient.from("student_test_subject_results").insert(sp); if(se)throw se; }
+      if(row.subjects.length){
+        const sp=row.subjects.map(x=>({result_id:res.id,subject:x.subject,marks_obtained:x.marks_obtained,attempted:x.attempted,correct:x.correct,wrong:x.wrong,skipped:x.skipped,raw_data:x.raw_data}));
+        const {error:se}=await supabaseClient.from("student_test_subject_results").insert(sp);
+        if(se)throw se;
+      }
     }
+
     const validQuestions=excelQuestionRows.filter(q=>!q.error);
     if(validQuestions.length){
       const qPayload=[];
@@ -7062,15 +7161,27 @@ async function importValidExcelRows(){
         const resultId=resultMap.get(`${q.student_id}|${q.exam_name}|${q.test_date||""}`);
         if(resultId)qPayload.push({result_id:resultId,student_id:q.student_id,subject:q.subject,question_number:q.question_number,student_answer:q.student_answer,correct_answer:q.correct_answer,result:q.result,is_correct:q.result.toLowerCase()==="correct",is_skipped:q.result.toLowerCase()==="skipped",marks_obtained:q.marks_obtained,raw_data:q.raw_data});
       }
-      if(qPayload.length){const {error:qe}=await supabaseClient.from("student_question_results").insert(qPayload);if(qe)throw qe;}
+      if(qPayload.length){
+        const {error:qe}=await supabaseClient.from("student_question_results").insert(qPayload);
+        if(qe)throw qe;
+      }
     }
+
     const allGood=excelImportRows.length===excelValidRows.length && excelQuestionRows.every(q=>!q.error);
-    await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors")}).eq("id",batch.id);
-    const qmsg=validQuestions.length?` ${validQuestions.length} question response(s) imported.`:"";
-    showExcelImportMessage(`${excelValidRows.length} SIR result row(s) imported successfully.${qmsg}`,"success");
-    await loadResults();setTimeout(closeExcelImportModal,1000);
-  }catch(e){console.error("SIR result import error",e);const duplicate=e?.code==="23505"||/duplicate key|unique constraint/i.test(String(e?.message||""));showExcelImportMessage(duplicate?"Duplicate result/file detected. Import blocked to protect existing data.":(e.message||"Unable to import SIR results."),"error");}
-  finally{btn.disabled=excelValidRows.length===0;btn.textContent="Import Valid Rows";}
+    await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors"),imported_at:new Date().toISOString()}).eq("id",batch.id);
+    const qmsg=validQuestions.length?` ${validQuestions.length} question response(s) detected.`:"";
+    const skipMsg=skippedTotal?` ${skippedTotal} duplicate row(s) skipped; existing data was not overwritten.`:"";
+    showExcelImportMessage(`${rowsToImport.length} SIR result row(s) imported successfully.${skipMsg}${qmsg}`,"success");
+    await loadResults();
+    setTimeout(closeExcelImportModal,1300);
+  }catch(e){
+    console.error("SIR result import error",e);
+    const duplicate=e?.code==="23505"||/duplicate key|unique constraint/i.test(String(e?.message||""));
+    showExcelImportMessage(duplicate?"A duplicate result was detected during import. Existing data was protected; please retry the remaining new rows.":(e.message||"Unable to import SIR results."),"error");
+  }finally{
+    btn.disabled=excelValidRows.length===0;
+    btn.textContent="Import Valid Rows";
+  }
 }
 
 document.getElementById("resultSearch")?.addEventListener("input",renderResults);
