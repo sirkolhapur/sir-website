@@ -7103,18 +7103,31 @@ async function importValidExcelRows(){
     });
 
     const existingKeys=new Set();
-    // Keep database duplicate protection, but use small PostgREST requests.
-    // A very large .in(...) GET request can return 400 Bad Request.
+    // Keep database duplicate protection, but avoid making hundreds of
+    // duplicate-check requests one after another. Each request stays small
+    // enough for PostgREST, while up to 5 requests are checked in parallel.
     const uniqueSourceKeys=[...new Set(sourceKeys)];
+    const duplicateCheckChunks=[];
     for(let i=0;i<uniqueSourceKeys.length;i+=50){
       const chunk=uniqueSourceKeys.slice(i,i+50);
-      if(!chunk.length)continue;
-      const {data:existingRows,error:existingError}=await supabaseClient
-        .from("student_test_results")
-        .select("id,source_key")
-        .in("source_key",chunk);
-      if(existingError)throw existingError;
-      (existingRows||[]).forEach(row=>{if(row.source_key)existingKeys.add(row.source_key);});
+      if(chunk.length)duplicateCheckChunks.push(chunk);
+    }
+
+    for(let i=0;i<duplicateCheckChunks.length;i+=5){
+      const requestBatch=duplicateCheckChunks.slice(i,i+5);
+      const responses=await Promise.all(requestBatch.map(chunk=>
+        supabaseClient
+          .from("student_test_results")
+          .select("id,source_key")
+          .in("source_key",chunk)
+      ));
+
+      for(const response of responses){
+        if(response.error)throw response.error;
+        (response.data||[]).forEach(row=>{
+          if(row.source_key)existingKeys.add(row.source_key);
+        });
+      }
     }
 
     const rowsToImport=uniqueRows.filter(row=>!existingKeys.has(buildResultSourceKey(row)));
