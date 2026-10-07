@@ -844,6 +844,40 @@
 
 .dsp-slot.selected small { color:var(--gold-light); }
 
+.dsp-slot.available {
+  border-color:rgba(45,190,125,.45);
+  background:rgba(45,190,125,.08);
+  color:#b9f3d5;
+}
+
+.dsp-slot.available small { color:#8ee2b7; }
+
+.dsp-slot.booked {
+  border-color:rgba(220,80,80,.55);
+  background:rgba(220,80,80,.10);
+  color:#ffb0b0;
+  cursor:not-allowed;
+  opacity:.9;
+}
+
+.dsp-slot.booked small { color:#ef8d8d; }
+
+.dsp-slot.blocked {
+  border-color:rgba(150,160,175,.25);
+  background:rgba(150,160,175,.05);
+  color:#8993a2;
+  cursor:not-allowed;
+}
+
+.dsp-slot-status-label {
+  display:block;
+  margin-top:5px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+
 .dsp-teacher-box {
   margin-top:12px;
   border:1px solid var(--line);
@@ -3180,9 +3214,32 @@ function dspDateIsWithinWindow(dateValue) {
     });
     dspTeacherEl.disabled = dspTeachers.length === 0;
 
-    dspSlots = (slots || []).filter(slot => {
-      const status = String(slot.status || "available").toLowerCase();
-      return status === "available" && dspTeachers.some(t => t.id === slot.teacher_id);
+    const slotRows = (slots || []).filter(slot => dspTeachers.some(t => t.id === slot.teacher_id));
+    const slotIds = slotRows.map(slot => slot.id).filter(Boolean);
+    let bookedSlotIds = new Set();
+
+    if (slotIds.length) {
+      const { data: bookingRows, error: bookingError } = await supabaseClient
+        .from("dsp_bookings")
+        .select("slot_id,status")
+        .in("slot_id", slotIds);
+
+      if (bookingError) {
+        console.error("DSP slot booking status error:", bookingError);
+        dspSlotsEl.innerHTML = `<div class="dsp-empty">Unable to verify slot availability. Please refresh.</div>`;
+        return;
+      }
+
+      bookedSlotIds = new Set((bookingRows || [])
+        .filter(row => String(row.status || "booked").toLowerCase() === "booked")
+        .map(row => row.slot_id)
+        .filter(Boolean));
+    }
+
+    dspSlots = slotRows.map(slot => {
+      const rawStatus = String(slot.status || "available").toLowerCase();
+      const status = bookedSlotIds.has(slot.id) ? "booked" : rawStatus;
+      return { ...slot, status };
     });
 
     renderDspSlots();
@@ -3199,18 +3256,23 @@ function dspDateIsWithinWindow(dateValue) {
 
     dspSlotsEl.innerHTML = "";
     slots.forEach(slot => {
+      const status = String(slot.status || "available").toLowerCase();
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "dsp-slot" + (dspSelectedSlot?.id === slot.id ? " selected" : "");
-      button.innerHTML = `${dspFormatTime(slot.start_time)}<small>${dspFormatTime(slot.end_time)}</small>`;
-      button.addEventListener("click", () => {
-        dspSelectedSlot = slot;
-        dspSlotIdEl.value = slot.id;
-        dspSlotsEl.querySelectorAll(".dsp-slot").forEach(el => el.classList.remove("selected"));
-        button.classList.add("selected");
-        const teacher = dspTeachers.find(t => t.id === slot.teacher_id);
-        dspTeacherInfoEl.textContent = teacher ? `${teacher.full_name} · ${teacher.subject || "Faculty"} · ${dspFormatTime(slot.start_time)}–${dspFormatTime(slot.end_time)}` : "Teacher selected.";
-      });
+      button.disabled = status !== "available";
+      button.className = `dsp-slot ${status}` + (dspSelectedSlot?.id === slot.id ? " selected" : "");
+      button.innerHTML = `${dspFormatTime(slot.start_time)}<small>${dspFormatTime(slot.end_time)}</small><span class="dsp-slot-status-label">${status === "booked" ? "BOOKED" : status === "blocked" ? "UNAVAILABLE" : "AVAILABLE"}</span>`;
+
+      if (status === "available") {
+        button.addEventListener("click", () => {
+          dspSelectedSlot = slot;
+          dspSlotIdEl.value = slot.id;
+          dspSlotsEl.querySelectorAll(".dsp-slot").forEach(el => el.classList.remove("selected"));
+          button.classList.add("selected");
+          const teacher = dspTeachers.find(t => t.id === slot.teacher_id);
+          dspTeacherInfoEl.textContent = teacher ? `${teacher.full_name} · ${teacher.subject || "Faculty"} · ${dspFormatTime(slot.start_time)}–${dspFormatTime(slot.end_time)}` : "Teacher selected.";
+        });
+      }
       dspSlotsEl.appendChild(button);
     });
   }
@@ -3297,16 +3359,31 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
     dspBookBtn.disabled = true;
     dspBookBtn.textContent = "BOOKING...";
 
+    let uploadedImagePath = null;
+
     try {
       const imageFile = dspImageEl.files?.[0] || null;
 
-      /*
-        The DSP database source currently confirms the question/booking
-        relations, but the exact image-storage column is not present in the
-        current dashboard source. We therefore keep the selected photo as a
-        local preview and submit the question text without inventing a DB
-        column.
-      */
+      /* Upload the optional question photo first. The RPC then stores the
+         exact Storage object path against the question record. */
+      if (imageFile) {
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+        if (userError || !userData?.user?.id) {
+          throw new Error("Unable to verify your student account for photo upload.");
+        }
+
+        const extension = (imageFile.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        uploadedImagePath = `${userData.user.id}/${crypto.randomUUID()}.${extension}`;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("dsp-question-images")
+          .upload(uploadedImagePath, imageFile, {
+            contentType: imageFile.type || "image/jpeg",
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+      }
 
       const { data: bookingResult, error: bookingError } =
         await supabaseClient.rpc("book_dsp_slot", {
@@ -3314,7 +3391,8 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
           p_teacher_id: teacherId,
           p_subject_id: subjectId,
           p_topic_id: topicId,
-          p_question_text: questionText
+          p_question_text: questionText,
+          p_image_path: uploadedImagePath
         });
 
       if (bookingError) throw bookingError;
@@ -3322,11 +3400,12 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         throw new Error(bookingResult?.message || "Unable to confirm this DSP slot.");
       }
 
-      if (imageFile) {
-        dspShowMessage("Doubt booked. Photo preview was captured, but image storage is not connected yet because the current project source does not expose the DSP image-storage column/bucket.", "info");
-      } else {
-        dspShowMessage("Doubt booked successfully. Your 3-minute slot is confirmed.", "success");
-      }
+      dspShowMessage(
+        imageFile
+          ? "Doubt booked successfully. Your question photo is attached for the teacher."
+          : "Doubt booked successfully. Your 3-minute slot is confirmed.",
+        "success"
+      );
 
       document.getElementById("dspQuestionText").value = "";
       dspImageEl.value = "";
@@ -3339,6 +3418,9 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
       await loadDSPTeachersAndSlots();
 
     } catch (error) {
+      if (uploadedImagePath) {
+        await supabaseClient.storage.from("dsp-question-images").remove([uploadedImagePath]);
+      }
       console.error("DSP booking error:", error);
       dspShowMessage(error?.message || "Unable to book the doubt. Please try again.", "error");
     } finally {
