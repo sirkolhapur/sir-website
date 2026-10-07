@@ -1662,6 +1662,33 @@
             text-decoration: underline;
         }
 
+        .dsp-date-group-row td {
+            padding: 13px 16px;
+            background: #f7f9fc;
+            border-top: 1px solid #dfe6f1;
+            border-bottom: 1px solid #dfe6f1;
+            color: #07152f;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .dsp-date-group-row.today td {
+            background: #fffaf0;
+            color: #8a6414;
+        }
+
+        .dsp-date-group-row td span {
+            display: inline-block;
+            margin-left: 8px;
+            color: #667085;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
         @media (max-width: 760px) {
             .dsp-grid {
                 grid-template-columns: 1fr;
@@ -4259,12 +4286,85 @@
                 return;
             }
 
-            tbody.innerHTML = dspBookings.map(booking => {
+            /*
+              Keep the existing booking data flow intact, but present the
+              teacher's bookings date-wise. Each date gets one clear group
+              heading, while bookings within that date remain chronological.
+            */
+            const sortedBookings = [...dspBookings].sort((a, b) => {
+                const slotA = slotMap[a.slot_id] || {};
+                const slotB = slotMap[b.slot_id] || {};
+
+                const dateA = String(slotA.slot_date || "");
+                const dateB = String(slotB.slot_date || "");
+
+                if (dateA !== dateB) {
+                    return dateB.localeCompare(dateA);
+                }
+
+                return String(slotA.start_time || "")
+                    .localeCompare(String(slotB.start_time || ""));
+            });
+
+            const formatDspGroupDate = (dateString) => {
+                if (!dateString) return "DATE NOT AVAILABLE";
+
+                const date = new Date(`${dateString}T00:00:00`);
+                if (Number.isNaN(date.getTime())) return dateString;
+
+                const formatted = date.toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                });
+
+                const today = new Date();
+                const todayISO =
+                    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const tomorrowISO =
+                    `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+
+                if (dateString === todayISO) {
+                    return `TODAY — ${formatted}`;
+                }
+
+                if (dateString === tomorrowISO) {
+                    return `TOMORROW — ${formatted}`;
+                }
+
+                return formatted;
+            };
+
+            let lastDate = null;
+            const rows = [];
+
+            sortedBookings.forEach(booking => {
                 const student = studentMap[booking.student_id] || {};
                 const question = questionMap[booking.question_id] || {};
                 const slot = slotMap[booking.slot_id] || {};
                 const subject = subjectMap[question.subject_id] || {};
                 const topic = topicMap[question.topic_id] || {};
+
+                const bookingDate = slot.slot_date || "";
+
+                if (bookingDate !== lastDate) {
+                    const groupLabel = formatDspGroupDate(bookingDate);
+                    const isToday = groupLabel.startsWith("TODAY — ");
+
+                    rows.push(`
+                        <tr class="dsp-date-group-row${isToday ? " today" : ""}">
+                            <td colspan="8">
+                                ${escapeHtml(groupLabel)}
+                                <span>Date-wise DSP bookings</span>
+                            </td>
+                        </tr>
+                    `);
+
+                    lastDate = bookingDate;
+                }
 
                 const questionText =
                     question.question_text ||
@@ -4275,9 +4375,9 @@
                     ? `<a class="dsp-question-link" href="${escapeHtml(question.photo_url)}" target="_blank" rel="noopener">View Photo</a>`
                     : "—";
 
-                return `
+                rows.push(`
                     <tr>
-                        <td>${escapeHtml(slot.slot_date || "—")}</td>
+                        <td>${escapeHtml(bookingDate || "—")}</td>
                         <td>${escapeHtml(slot.start_time || "—")} – ${escapeHtml(slot.end_time || "—")}</td>
                         <td>${escapeHtml(student.full_name || student.student_uid || "—")}</td>
                         <td>${escapeHtml(subject.name || "—")}</td>
@@ -4285,8 +4385,11 @@
                         <td>${questionCell}</td>
                         <td>${photoCell}</td>
                         <td>${escapeHtml(booking.status || "—")}</td>
-                    </tr>`;
-            }).join("");
+                    </tr>
+                `);
+            });
+
+            tbody.innerHTML = rows.join("");
         }
 
         async function loadDspData() {
