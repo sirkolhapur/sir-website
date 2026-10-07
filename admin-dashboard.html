@@ -1716,6 +1716,23 @@
     .result-import-note{margin-top:10px;color:#8ea3b8;font-size:11px;line-height:1.5}
     @media(max-width:760px){.question-summary{grid-template-columns:1fr 1fr}.question-analysis-box{padding:15px}}
 
+
+.dsp-slot.available {
+  border-color:rgba(45,190,125,.45);
+  background:rgba(45,190,125,.08);
+}
+.dsp-slot.available .dsp-slot-status { color:#8ee2b7; }
+.dsp-slot.booked {
+  border-color:rgba(220,80,80,.55);
+  background:rgba(220,80,80,.10);
+}
+.dsp-slot.booked .dsp-slot-status { color:#ff9d9d; }
+.dsp-slot.blocked {
+  border-color:rgba(150,160,175,.25);
+  background:rgba(150,160,175,.05);
+}
+.dsp-slot.blocked .dsp-slot-status { color:#8e98a7; }
+
 .dsp-slot-booking {
   margin-top: 8px;
   display: flex;
@@ -6222,7 +6239,7 @@ document
         .from("dsp_teacher_availability")
         .select("id")
         .eq("teacher_id", teacherId)
-        .eq("date", date)
+        .eq("availability_date", date)
         .maybeSingle();
 
       if (findError) throw findError;
