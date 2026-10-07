@@ -3440,6 +3440,13 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
 
         if (!imageAttachError) {
           imageAttached = true;
+
+          /*
+            The image path is now safely stored in dsp_questions.
+            Clear the temporary upload reference so a later UI refresh
+            failure cannot accidentally delete an already-attached photo.
+          */
+          uploadedImagePath = null;
         } else {
           console.warn("DSP question image could not be attached:", imageAttachError);
           await supabaseClient.storage.from("dsp-question-images").remove([uploadedImagePath]);
