@@ -3308,6 +3308,8 @@ loginForm.addEventListener(
 
       showDashboard();
 
+      await loadCourses();
+      await loadBatches();
       await loadStudents();
       await loadAdminBatches();
       await loadAdminTests();
@@ -6956,6 +6958,8 @@ document
 
   showDashboard();
 
+  await loadCourses();
+  await loadBatches();
   await loadStudents();
 
   await loadTeachers();
