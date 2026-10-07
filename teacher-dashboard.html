@@ -4188,7 +4188,7 @@
             if (slotIds.length) {
                 const result = await supabaseClient
                     .from("dsp_slots")
-                    .select("id,teacher_id,slot_date,start_time,end_time,status,booking_id")
+                    .select("id,teacher_id,slot_date,start_time,end_time,status")
                     .in("id", slotIds);
                 if (result.error) throw new Error("Unable to load DSP slots.");
                 slots = result.data || [];
