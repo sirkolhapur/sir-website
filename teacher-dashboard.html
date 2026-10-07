@@ -2337,11 +2337,12 @@
                                         <th>SUBJECT</th>
                                         <th>TOPIC</th>
                                         <th>QUESTION</th>
+                                        <th>PHOTO</th>
                                         <th>STATUS</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dspBookingsBody">
-                                    <tr><td colspan="7">Loading DSP bookings...</td></tr>
+                                    <tr><td colspan="8">Loading DSP bookings...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -4183,6 +4184,23 @@
                     .in("id", questionIds);
                 if (result.error) throw new Error("Unable to load DSP questions.");
                 questions = result.data || [];
+
+                // Resolve private Storage paths into short-lived teacher-viewable URLs.
+                await Promise.all(questions.map(async question => {
+                    question.photo_url = null;
+                    if (!question.image_path) return;
+
+                    const { data: signedImage, error: signedImageError } =
+                        await supabaseClient.storage
+                            .from("dsp-question-images")
+                            .createSignedUrl(question.image_path, 3600);
+
+                    if (!signedImageError && signedImage?.signedUrl) {
+                        question.photo_url = signedImage.signedUrl;
+                    } else if (signedImageError) {
+                        console.warn("DSP question photo URL could not be generated:", signedImageError);
+                    }
+                }));
             }
 
             if (slotIds.length) {
@@ -4237,7 +4255,7 @@
             if (!tbody) return;
 
             if (!dspBookings.length) {
-                tbody.innerHTML = `<tr><td colspan="7">No DSP bookings yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8">No DSP bookings yet.</td></tr>`;
                 return;
             }
 
@@ -4252,9 +4270,10 @@
                     question.question_text ||
                     (question.image_path ? "Photo question" : "—");
 
-                const questionCell = question.image_path
-                    ? `<a class="dsp-question-link" href="${escapeHtml(question.image_path)}" target="_blank" rel="noopener">${escapeHtml(questionText)}</a>`
-                    : escapeHtml(questionText);
+                const questionCell = escapeHtml(questionText);
+                const photoCell = question.photo_url
+                    ? `<a class="dsp-question-link" href="${escapeHtml(question.photo_url)}" target="_blank" rel="noopener">View Photo</a>`
+                    : "—";
 
                 return `
                     <tr>
@@ -4264,6 +4283,7 @@
                         <td>${escapeHtml(subject.name || "—")}</td>
                         <td>${escapeHtml(topic.name || "—")}</td>
                         <td>${questionCell}</td>
+                        <td>${photoCell}</td>
                         <td>${escapeHtml(booking.status || "—")}</td>
                     </tr>`;
             }).join("");
@@ -4529,7 +4549,7 @@
                     console.error("DSP background load error:", error);
                     const tbody = document.getElementById("dspBookingsBody");
                     if (tbody) {
-                        tbody.innerHTML = `<tr><td colspan="7">Unable to load DSP bookings.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="8">Unable to load DSP bookings.</td></tr>`;
                     }
                 });
 
