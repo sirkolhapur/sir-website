@@ -710,6 +710,278 @@
       flex-wrap: wrap;
     }
 
+    .student-results-btn {
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.45);
+      color: #F0C75E;
+      padding: 7px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .student-results-btn:hover {
+      background: rgba(201,168,78,.18);
+    }
+
+    /* =========================
+       STUDENT-WISE RESULTS MODAL
+    ========================= */
+    .student-results-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 1000;
+    }
+
+    .student-results-modal.show {
+      display: flex;
+    }
+
+    .student-results-box {
+      width: 100%;
+      max-width: 820px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: #0c1d33;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.42);
+    }
+
+    .student-results-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 17px;
+    }
+
+    .student-results-kicker {
+      color: #F0C75E;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .student-results-head h3 {
+      font-size: 21px;
+      line-height: 1.25;
+      margin-bottom: 5px;
+    }
+
+    .student-results-meta {
+      color: #8fa0b5;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .student-results-close {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 9px;
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .student-results-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 9px;
+      margin-bottom: 16px;
+    }
+
+    .student-results-summary-card {
+      background: #0d2038;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 12px 13px;
+    }
+
+    .student-results-summary-card span {
+      display: block;
+      color: #8190a5;
+      font-size: 10px;
+      margin-bottom: 5px;
+    }
+
+    .student-results-summary-card strong {
+      display: block;
+      color: #fff;
+      font-size: 17px;
+    }
+
+    .student-result-card {
+      background: #0b1c32;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .student-result-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .student-result-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .student-result-test {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .student-result-date {
+      color: #7f90a6;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .student-result-status {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(105,211,145,.10);
+      color: #75dda0;
+      border: 1px solid rgba(105,211,145,.20);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .student-result-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .student-result-metric {
+      padding: 10px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .student-result-metric span {
+      display: block;
+      color: #7f90a6;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .45px;
+      margin-bottom: 4px;
+    }
+
+    .student-result-metric strong {
+      color: #f4f7fb;
+      font-size: 13px;
+    }
+
+    .student-result-subjects {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .student-result-subject {
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: #07152f;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .student-result-subject strong {
+      color: #dce3ed;
+      font-size: 11px;
+    }
+
+    .student-result-subject span {
+      display: block;
+      color: #F0C75E;
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .student-result-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .student-result-details-btn {
+      border: 1px solid rgba(201,168,78,.38);
+      background: rgba(201,168,78,.08);
+      color: #F0C75E;
+      border-radius: 8px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .student-results-empty {
+      padding: 28px 14px;
+      text-align: center;
+      color: #8190a5;
+      font-size: 12px;
+      border: 1px dashed rgba(255,255,255,.09);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 650px) {
+      .student-results-modal {
+        padding: 8px;
+        align-items: flex-end;
+      }
+
+      .student-results-box {
+        max-height: 94vh;
+        border-radius: 15px 15px 10px 10px;
+        padding: 15px;
+      }
+
+      .student-results-head h3 {
+        font-size: 18px;
+      }
+
+      .student-results-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .student-result-metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .student-result-subjects {
+        grid-template-columns: 1fr;
+      }
+
+      .student-result-top {
+        flex-direction: column;
+      }
+    }
+
     .batch-manage-btn {
       background: transparent;
       border: 1px solid rgba(120,160,220,.45);
@@ -2346,6 +2618,32 @@
 
 </div>
 
+<!-- STUDENT-WISE RESULTS MODAL -->
+
+<div class="student-results-modal" id="studentResultsModal">
+  <div class="student-results-box">
+    <div class="student-results-head">
+      <div>
+        <div class="student-results-kicker">Student Results</div>
+        <h3 id="studentResultsTitle">Student Results</h3>
+        <div class="student-results-meta" id="studentResultsMeta">Loading result profile...</div>
+      </div>
+      <button type="button" class="student-results-close" id="closeStudentResults">&times;</button>
+    </div>
+
+    <div class="student-results-summary" id="studentResultsSummary">
+      <div class="student-results-summary-card"><span>Total Tests</span><strong>—</strong></div>
+      <div class="student-results-summary-card"><span>Latest Percentage</span><strong>—</strong></div>
+      <div class="student-results-summary-card"><span>Average Percentage</span><strong>—</strong></div>
+    </div>
+
+    <div id="studentResultsBody">
+      <div class="student-results-empty">Loading results...</div>
+    </div>
+  </div>
+</div>
+
+
 <!-- ADD STUDENT MODAL -->
 
 <div class="modal" id="studentModal">
@@ -3515,6 +3813,14 @@ function renderStudents(students) {
             </button>
 
             <button
+              class="student-results-btn"
+              type="button"
+              onclick="openStudentResults('${escapeHtml(student.id)}')"
+            >
+              RESULTS
+            </button>
+
+            <button
               class="reset-password-btn"
               onclick="resetStudentPassword(
                 '${escapeHtml(student.student_uid || "")}',
@@ -3542,6 +3848,231 @@ function renderStudents(students) {
     `).join("");
 
 }
+
+
+/* --------------------------------
+   STUDENT-WISE RESULTS
+-------------------------------- */
+
+function closeStudentResults() {
+  document.getElementById("studentResultsModal")?.classList.remove("show");
+}
+
+function studentResultMarks(result) {
+  if (String(result?.status || "").toUpperCase() === "AB") return "AB";
+  return `${result?.marks_obtained ?? "—"} / ${result?.max_marks ?? "—"}`;
+}
+
+function formatStudentResultDate(result) {
+  const date = result?.test_date || "Date not recorded";
+  const mode = result?.mode ? ` • ${result.mode}` : "";
+  return `${date}${mode}`;
+}
+
+function renderStudentResults(student, results, subjectRows) {
+  const summary = document.getElementById("studentResultsSummary");
+  const body = document.getElementById("studentResultsBody");
+  if (!summary || !body) return;
+
+  const appeared = (results || []).filter(r => String(r.status || "").toUpperCase() !== "AB");
+  const percentages = appeared.map(r => Number(r.percentage)).filter(Number.isFinite);
+  const latest = results?.[0];
+  const average = percentages.length
+    ? `${(percentages.reduce((a, b) => a + b, 0) / percentages.length).toFixed(2)}%`
+    : "—";
+
+  summary.innerHTML = `
+    <div class="student-results-summary-card">
+      <span>Total Tests</span>
+      <strong>${results.length}</strong>
+    </div>
+    <div class="student-results-summary-card">
+      <span>Latest Percentage</span>
+      <strong>${latest?.percentage == null ? "—" : `${escapeHtml(latest.percentage)}%`}</strong>
+    </div>
+    <div class="student-results-summary-card">
+      <span>Average Percentage</span>
+      <strong>${escapeHtml(average)}</strong>
+    </div>`;
+
+  if (!results.length) {
+    body.innerHTML = '<div class="student-results-empty">No results have been recorded for this student yet.</div>';
+    return;
+  }
+
+  const subjectMap = {};
+  (subjectRows || []).forEach(row => {
+    if (!subjectMap[row.result_id]) subjectMap[row.result_id] = [];
+    subjectMap[row.result_id].push(row);
+  });
+
+  body.innerHTML = results.map(result => {
+    const subjects = subjectMap[result.id] || [];
+    const subjectHtml = subjects.length
+      ? subjects.map(subject => {
+          const acws = [
+            subject.attempted != null ? `A:${subject.attempted}` : "",
+            subject.correct != null ? `C:${subject.correct}` : "",
+            subject.wrong != null ? `W:${subject.wrong}` : "",
+            subject.skipped != null ? `S:${subject.skipped}` : ""
+          ].filter(Boolean).join(" • ");
+          return `<div class="student-result-subject"><strong>${escapeHtml(subject.subject || "Subject")}</strong><span>${escapeHtml(subject.marks_obtained ?? "—")}${acws ? ` <small style="color:#7f90a6;font-weight:600;">(${escapeHtml(acws)})</small>` : ""}</span></div>`;
+        }).join("")
+      : '<div class="student-results-empty">Subject-wise marks are not available for this result.</div>';
+
+    const resultId = String(result.id || "").replace(/'/g, "\\'");
+    const status = result.status || "Appeared";
+
+    return `
+      <div class="student-result-card">
+        <div class="student-result-top">
+          <div>
+            <div class="student-result-test">${escapeHtml(result.exam_name || "Test")}</div>
+            <div class="student-result-date">${escapeHtml(formatStudentResultDate(result))}</div>
+          </div>
+          <span class="student-result-status">${escapeHtml(status)}</span>
+        </div>
+
+        <div class="student-result-metrics">
+          <div class="student-result-metric"><span>Marks</span><strong>${escapeHtml(studentResultMarks(result))}</strong></div>
+          <div class="student-result-metric"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+          <div class="student-result-metric"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
+          <div class="student-result-metric"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>
+        </div>
+
+        <div class="student-result-subjects">
+          ${subjectHtml}
+        </div>
+
+        <div class="student-result-actions">
+          <button type="button" class="student-result-details-btn" onclick="openStudentResultDetails('${resultId}')">VIEW DETAILS</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+async function openStudentResults(studentId) {
+  const student = (allStudents || []).find(s => String(s.id) === String(studentId));
+  const modal = document.getElementById("studentResultsModal");
+  const title = document.getElementById("studentResultsTitle");
+  const meta = document.getElementById("studentResultsMeta");
+  const summary = document.getElementById("studentResultsSummary");
+  const body = document.getElementById("studentResultsBody");
+
+  if (!student || !modal || !title || !meta || !summary || !body) return;
+
+  title.textContent = student.full_name || "Student Results";
+  const courseName = (allCourses.find(c => c.id === student.course_id)?.name) || "—";
+  const batchName = (allActiveBatches.find(b => b.id === student.batch_id)?.name) || "—";
+  meta.textContent = `UID: ${student.student_uid || "—"} • Course: ${courseName} • Batch: ${batchName}`;
+  summary.innerHTML = `
+    <div class="student-results-summary-card"><span>Total Tests</span><strong>—</strong></div>
+    <div class="student-results-summary-card"><span>Latest Percentage</span><strong>—</strong></div>
+    <div class="student-results-summary-card"><span>Average Percentage</span><strong>—</strong></div>`;
+  body.innerHTML = '<div class="student-results-empty">Loading results...</div>';
+  modal.classList.add("show");
+
+  try {
+    const { data: resultRows, error: resultError } = await supabaseClient
+      .from("student_test_results")
+      .select("*")
+      .eq("student_id", student.id)
+      .order("test_date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (resultError) throw resultError;
+
+    const resultIds = (resultRows || []).map(result => result.id).filter(Boolean);
+    let subjectRows = [];
+
+    if (resultIds.length) {
+      const { data, error } = await supabaseClient
+        .from("student_test_subject_results")
+        .select("*")
+        .in("result_id", resultIds);
+
+      if (error) throw error;
+      subjectRows = data || [];
+    }
+
+    renderStudentResults(student, resultRows || [], subjectRows);
+  } catch (error) {
+    console.error("Student-wise results load error:", error);
+    body.innerHTML = `<div class="student-results-empty">Unable to load this student's results. ${escapeHtml(error.message || "Please try again.")}</div>`;
+  }
+}
+
+async function openStudentResultDetails(resultId) {
+  const resultResponse = await supabaseClient
+    .from("student_test_results")
+    .select("*")
+    .eq("id", resultId)
+    .maybeSingle();
+
+  if (resultResponse.error || !resultResponse.data) {
+    alert(resultResponse.error?.message || "Result details could not be loaded.");
+    return;
+  }
+
+  const result = resultResponse.data;
+  const student = (allStudents || []).find(s => String(s.id) === String(result.student_id));
+  const modal = document.getElementById("questionAnalysisModal");
+  if (!modal) return;
+
+  document.getElementById("questionAnalysisTitle").textContent = `Question-wise Analysis — ${result.exam_name || "Test"}`;
+  document.getElementById("questionAnalysisSubtitle").textContent = `${student?.full_name || "Student"} • ${result.test_date || "—"} • ${result.mode || "—"}`;
+  document.getElementById("questionAnalysisSummary").innerHTML = `
+    <div class="question-summary-card"><span>Marks</span><strong>${String(result.status || "").toUpperCase() === "AB" ? "AB" : `${escapeHtml(result.marks_obtained ?? "—")}/${escapeHtml(result.max_marks ?? "—")}`}</strong></div>
+    <div class="question-summary-card"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+    <div class="question-summary-card"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
+    <div class="question-summary-card"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>`;
+  document.getElementById("questionAnalysisBody").innerHTML = '<div class="question-empty">Loading question responses...</div>';
+  modal.classList.add("show");
+
+  const { data, error } = await supabaseClient
+    .from("student_question_results")
+    .select("*")
+    .eq("result_id", resultId)
+    .order("subject")
+    .order("question_number");
+
+  if (error) {
+    console.error("Question analysis load error", error);
+    document.getElementById("questionAnalysisBody").innerHTML = `<div class="question-empty">Question-level data is not available yet. ${escapeHtml(error.message || "")}</div>`;
+    return;
+  }
+
+  const rows = data || [];
+  if (!rows.length) {
+    document.getElementById("questionAnalysisBody").innerHTML = '<div class="question-empty">No question-level responses have been imported for this test yet. The test-level and subject-level result is available above.</div>';
+    return;
+  }
+
+  const counts = { correct: 0, wrong: 0, skipped: 0 };
+  rows.forEach(q => {
+    const label = questionResultLabel(q);
+    if (label === "Wrong") counts.wrong++;
+    else if (label === "Skipped") counts.skipped++;
+    else counts.correct++;
+  });
+  document.getElementById("questionAnalysisSummary").innerHTML += `
+    <div class="question-summary-card"><span>Correct</span><strong class="q-correct">${counts.correct}</strong></div>
+    <div class="question-summary-card"><span>Wrong</span><strong class="q-wrong">${counts.wrong}</strong></div>
+    <div class="question-summary-card"><span>Skipped</span><strong class="q-skipped">${counts.skipped}</strong></div>`;
+
+  const groups = {};
+  rows.forEach(q => (groups[q.subject] ||= []).push(q));
+  document.getElementById("questionAnalysisBody").innerHTML = Object.entries(groups).map(([subject, qs]) => {
+    const c = { correct: 0, wrong: 0, skipped: 0 };
+    qs.forEach(q => { const label = questionResultLabel(q); c[label.toLowerCase()]++; });
+    return `<div class="subject-analysis"><div class="subject-analysis-head"><strong>${escapeHtml(subject)}</strong><small><span class="q-correct">${c.correct || 0} Correct</span> • <span class="q-wrong">${c.wrong || 0} Wrong</span> • <span class="q-skipped">${c.skipped || 0} Skipped</span></small></div><div class="question-table-wrap"><table class="question-table"><thead><tr><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th>Result</th><th>Marks</th></tr></thead><tbody>${qs.map(q => { const label = questionResultLabel(q); return `<tr><td>Q${escapeHtml(q.question_number ?? "—")}</td><td>${escapeHtml(q.student_answer ?? "—")}</td><td>${escapeHtml(q.correct_answer ?? "—")}</td><td class="${questionResultClass(label)}">${label}</td><td>${q.marks_obtained == null ? "—" : escapeHtml(q.marks_obtained)}</td></tr>`; }).join("")}</tbody></table></div></div>`;
+  }).join("");
+}
+
+document.getElementById("closeStudentResults")?.addEventListener("click", closeStudentResults);
+document.getElementById("studentResultsModal")?.addEventListener("click", event => {
+  if (event.target.id === "studentResultsModal") closeStudentResults();
+});
 
 
 /* --------------------------------
