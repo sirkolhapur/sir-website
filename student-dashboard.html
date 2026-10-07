@@ -3300,36 +3300,25 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         column.
       */
 
-      const { data: question, error: questionError } = await supabaseClient
-        .from("dsp_questions")
-        .insert({
-          student_id: currentStudentForDSP.id,
-          teacher_id: teacherId,
-          subject_id: subjectId,
-          topic_id: topicId,
-          question_text: questionText
-        })
-        .select("*")
-        .single();
+      /*
+        Atomic DSP booking. The database RPC locks the selected slot,
+        validates the student/teacher/topic/availability, creates the
+        question + booking, and marks the slot booked in one transaction.
+        This prevents two students from taking the same 3-minute slot.
+      */
+      const { data: bookingResult, error: bookingError } =
+        await supabaseClient.rpc("book_dsp_slot", {
+          p_slot_id: slotId,
+          p_teacher_id: teacherId,
+          p_subject_id: subjectId,
+          p_topic_id: topicId,
+          p_question_text: questionText
+        });
 
-      if (questionError) throw questionError;
+      if (bookingError) throw bookingError;
 
-      const { data: booking, error: bookingError } = await supabaseClient
-        .from("dsp_bookings")
-        .insert({
-          student_id: currentStudentForDSP.id,
-          teacher_id: teacherId,
-          question_id: question.id,
-          slot_id: slotId,
-          status: "booked"
-        })
-        .select("*")
-        .single();
-
-      if (bookingError) {
-        /* Best-effort cleanup of the orphaned question. */
-        await supabaseClient.from("dsp_questions").delete().eq("id", question.id);
-        throw bookingError;
+      if (!bookingResult?.success) {
+        throw new Error(bookingResult?.message || "Unable to confirm this DSP slot.");
       }
 
       if (imageFile) {
@@ -3377,6 +3366,10 @@ dspDateEl.value = dspToday;
 
     dspDateEl.addEventListener("change", async () => {
       dspClearMessage();
+      if (!dspDateIsWithinWindow(dspDateEl.value)) {
+        dspShowMessage(`DSP booking is available only for the next ${DSP_AVAILABLE_DAYS} days, including today.`, "error");
+        dspDateEl.value = dspTodayISO();
+      }
       await loadDSPTeachersAndSlots();
       renderDSPDailyLimit();
     });
