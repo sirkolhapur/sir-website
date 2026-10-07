@@ -1440,14 +1440,6 @@
       text-transform: uppercase;
     }
 
-    .dsp-slot-booked-student {
-      margin-top: 6px;
-      color: #f0c75e;
-      font-size: 10px;
-      line-height: 1.4;
-      font-weight: 700;
-    }
-
     .dsp-slot.available {
       border-color: rgba(105,211,145,.20);
     }
@@ -1470,57 +1462,6 @@
 
     .dsp-slot.blocked .dsp-slot-status {
       color: #ff9292;
-    }
-
-    .dsp-bookings-panel {
-      border-top: 1px solid rgba(255,255,255,.06);
-    }
-
-    .dsp-bookings-list {
-      padding: 14px 18px 18px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .dsp-booking-card {
-      border: 1px solid rgba(240,199,94,.18);
-      background: #07152F;
-      border-radius: 10px;
-      padding: 12px 14px;
-    }
-
-    .dsp-booking-card-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .dsp-booking-card-time {
-      color: #F0C75E;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .dsp-booking-card-status {
-      color: #69d391;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .dsp-booking-card-student {
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 7px;
-    }
-
-    .dsp-booking-card-meta, .dsp-booking-card-question {
-      color: #8e9caf;
-      font-size: 11px;
-      line-height: 1.5;
-      margin-top: 4px;
     }
 
     @media (max-width: 900px) {
@@ -1774,6 +1715,18 @@
     .question-empty{padding:20px;color:#9db0c4;text-align:center}.question-details-btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:11px}.question-details-btn:hover{background:rgba(255,255,255,.1)}
     .result-import-note{margin-top:10px;color:#8ea3b8;font-size:11px;line-height:1.5}
     @media(max-width:760px){.question-summary{grid-template-columns:1fr 1fr}.question-analysis-box{padding:15px}}
+
+.dsp-slot-booking {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.dsp-slot-booking span {
+  opacity: .82;
+}
 </style>
 </head>
 
@@ -2328,18 +2281,6 @@
 
           <div id="dspSlotsList" class="dsp-slots-list">
             <div class="dsp-empty">Select a teacher and date to view slots.</div>
-          </div>
-
-          <div class="dsp-bookings-panel">
-            <div class="dsp-slot-header">
-              <div>
-                <h3>DSP Bookings</h3>
-                <span>Booked time · student · UID · doubt</span>
-              </div>
-            </div>
-            <div id="dspBookingsList" class="dsp-bookings-list">
-              <div class="dsp-empty">Select a teacher and date to view bookings.</div>
-            </div>
           </div>
         </div>
 
@@ -6224,9 +6165,9 @@ document
 
     const { data, error } = await supabaseClient
       .from("dsp_teacher_availability")
-      .select("id,teacher_id,date,is_available,reason")
+      .select("id,teacher_id,availability_date,is_available,reason")
       .eq("teacher_id", teacherId)
-      .eq("date", date)
+      .eq("availability_date", date)
       .maybeSingle();
 
     if (error) {
@@ -6272,7 +6213,7 @@ document
     try {
       const payload = {
         teacher_id: teacherId,
-        date,
+        availability_date: date,
         is_available: isAvailable,
         reason: isAvailable ? null : reason
       };
@@ -6287,6 +6228,7 @@ document
       if (findError) throw findError;
 
       let error;
+
       if (existing?.id) {
         ({ error } = await supabaseClient
           .from("dsp_teacher_availability")
@@ -6300,34 +6242,28 @@ document
 
       if (error) throw error;
 
-      /*
-        OFF blocks only genuinely free slots. Existing bookings are never
-        deleted or changed, so an already-booked student keeps the slot.
-      */
       if (!isAvailable) {
         const { error: blockError } = await supabaseClient
           .from("dsp_slots")
           .update({ status: "blocked" })
           .eq("teacher_id", teacherId)
-          .eq("date", date)
-          .eq("status", "available")
-          .is("booking_id", null);
+          .eq("slot_date", date)
+          .eq("status", "available");
         if (blockError) throw blockError;
       } else {
         const { error: restoreError } = await supabaseClient
           .from("dsp_slots")
           .update({ status: "available" })
           .eq("teacher_id", teacherId)
-          .eq("date", date)
-          .eq("status", "blocked")
-          .is("booking_id", null);
+          .eq("slot_date", date)
+          .eq("status", "blocked");
         if (restoreError) throw restoreError;
       }
 
       showDspMessage(
         isAvailable
-          ? `Availability restored for ${formatDspDate(date)}. Free slots are visible again.`
-          : `Teacher marked unavailable for ${formatDspDate(date)}. Free slots are hidden from students.`,
+          ? `Availability saved for ${formatDspDate(date)}. Free slots are available again.`
+          : `Teacher marked unavailable for ${formatDspDate(date)}. Free slots are blocked; existing bookings are preserved.`,
         "success"
       );
 
@@ -6399,11 +6335,27 @@ document
     button.textContent = "Generating...";
 
     try {
+      const { data: offDay, error: offDayError } = await supabaseClient
+        .from("dsp_off_days")
+        .select("id,off_date,reason")
+        .eq("off_date", date)
+        .maybeSingle();
+
+      if (offDayError) throw offDayError;
+      if (offDay) {
+        showDspMessage(
+          `Institute DSP is OFF on ${formatDspDate(date)}${offDay.reason ? `: ${offDay.reason}` : "."}`,
+          "error"
+        );
+        await loadDspSlots();
+        return;
+      }
+
       const { data: existingSlots, error: existingError } = await supabaseClient
         .from("dsp_slots")
         .select("id,start_time,end_time,status")
         .eq("teacher_id", teacherId)
-        .eq("date", date)
+        .eq("slot_date", date)
         .order("start_time", { ascending: true });
 
       if (existingError) throw existingError;
@@ -6416,11 +6368,10 @@ document
 
       const rows = generateDspSlotRows().map(slot => ({
         teacher_id: teacherId,
-        date,
+        slot_date: date,
         start_time: slot.start_time,
         end_time: slot.end_time,
-        status: "available",
-        booking_id: null
+        status: "available"
       }));
 
       const { error } = await supabaseClient
@@ -6450,39 +6401,22 @@ document
     const date = document.getElementById("dspScheduleDate")?.value;
     const list = document.getElementById("dspSlotsList");
     const summary = document.getElementById("dspSlotSummary");
-    const bookingsList = document.getElementById("dspBookingsList");
 
     if (!list || !summary) return;
 
     if (!teacherId || !date) {
       list.innerHTML = `<div class="dsp-empty">Select a teacher and date to view slots.</div>`;
       summary.textContent = "Select a teacher and date.";
-      if (bookingsList) bookingsList.innerHTML = `<div class="dsp-empty">Select a teacher and date to view bookings.</div>`;
       return;
     }
 
     list.innerHTML = `<div class="dsp-empty">Loading slots...</div>`;
-    if (bookingsList) bookingsList.innerHTML = `<div class="dsp-empty">Loading bookings...</div>`;
 
-    const { data: availability, error: availabilityError } = await supabaseClient
-      .from("dsp_teacher_availability")
-      .select("is_available,reason")
-      .eq("teacher_id", teacherId)
-      .eq("date", date)
-      .maybeSingle();
-
-    if (availabilityError) {
-      console.error("DSP availability read error:", availabilityError);
-      list.innerHTML = `<div class="dsp-empty">Unable to load teacher availability.</div>`;
-      summary.textContent = "Unable to load availability.";
-      return;
-    }
-
-    const { data, error } = await supabaseClient
+    const { data: slots, error } = await supabaseClient
       .from("dsp_slots")
-      .select("id,start_time,end_time,status,booking_id")
+      .select("id,start_time,end_time,status,slot_date")
       .eq("teacher_id", teacherId)
-      .eq("date", date)
+      .eq("slot_date", date)
       .order("start_time", { ascending: true });
 
     if (error) {
@@ -6492,122 +6426,91 @@ document
       return;
     }
 
-    const slots = data || [];
-    const teacherOff = availability?.is_available === false;
-    const booked = slots.filter(s => String(s.status).toLowerCase() === "booked").length;
-    const available = slots.filter(s => String(s.status).toLowerCase() === "available").length;
-    const blocked = slots.length - booked - available;
+    const slotRows = slots || [];
+    const slotIds = slotRows.map(s => s.id).filter(Boolean);
+    let bookings = [];
+    let students = [];
+    let questions = [];
 
-    summary.textContent = teacherOff
-      ? `${slots.length} slots · TEACHER OFF · ${booked} booked`
-      : `${slots.length} slots · ${available} available · ${booked} booked · ${blocked} blocked`;
+    if (slotIds.length) {
+      const { data: bookingRows, error: bookingError } = await supabaseClient
+        .from("dsp_bookings")
+        .select("id,student_id,teacher_id,question_id,slot_id,booking_date,start_time,end_time,status")
+        .in("slot_id", slotIds)
+        .eq("teacher_id", teacherId);
 
-    if (!slots.length) {
+      if (bookingError) {
+        console.error("DSP booking details error:", bookingError);
+      } else {
+        bookings = bookingRows || [];
+
+        const studentIds = [...new Set(bookings.map(b => b.student_id).filter(Boolean))];
+        const questionIds = [...new Set(bookings.map(b => b.question_id).filter(Boolean))];
+
+        if (studentIds.length) {
+          const { data: studentRows, error: studentError } = await supabaseClient
+            .from("students")
+            .select("id,student_uid,full_name")
+            .in("id", studentIds);
+          if (studentError) console.error("DSP booking student details error:", studentError);
+          students = studentRows || [];
+        }
+
+        if (questionIds.length) {
+          const { data: questionRows, error: questionError } = await supabaseClient
+            .from("dsp_questions")
+            .select("id,question_text")
+            .in("id", questionIds);
+          if (questionError) console.error("DSP booking question details error:", questionError);
+          questions = questionRows || [];
+        }
+      }
+    }
+
+    const bookingBySlot = new Map(bookings.map(b => [b.slot_id, b]));
+    const studentById = new Map(students.map(s => [s.id, s]));
+    const questionById = new Map(questions.map(q => [q.id, q]));
+
+    const booked = slotRows.filter(s => String(s.status).toLowerCase() === "booked").length;
+    const available = slotRows.filter(s => String(s.status).toLowerCase() === "available").length;
+    const blocked = slotRows.length - booked - available;
+
+    summary.textContent =
+      `${slotRows.length} slots · ${available} available · ${booked} booked · ${blocked} blocked`;
+
+    if (!slotRows.length) {
       list.innerHTML = `
         <div class="dsp-empty">
           No slots generated for this date. Click “Generate Slots”.
         </div>
       `;
-    } else {
-      const bookingIds = slots.map(s => s.booking_id).filter(Boolean);
-      let bookingMap = new Map();
-
-      if (bookingIds.length) {
-        const { data: bookings, error: bookingError } = await supabaseClient
-          .from("dsp_bookings")
-          .select("id,student_id,question_id,status")
-          .in("id", bookingIds);
-
-        if (!bookingError) {
-          const studentIds = [...new Set((bookings || []).map(b => b.student_id).filter(Boolean))];
-          let studentMap = new Map();
-          if (studentIds.length) {
-            const { data: students } = await supabaseClient
-              .from("students")
-              .select("id,student_uid,full_name")
-              .in("id", studentIds);
-            (students || []).forEach(st => studentMap.set(st.id, st));
-          }
-
-          (bookings || []).forEach(b => {
-            const st = studentMap.get(b.student_id);
-            bookingMap.set(b.id, { ...b, student: st || null });
-          });
-        }
-      }
-
-      list.innerHTML = slots.map(slot => {
-        const status = String(slot.status || "available").toLowerCase();
-        const safeStatus = ["available", "booked", "blocked"].includes(status) ? status : "blocked";
-        const booking = slot.booking_id ? bookingMap.get(slot.booking_id) : null;
-        const studentLine = booking?.student
-          ? `<div class="dsp-slot-booked-student">${escapeHtml(booking.student.full_name || "Student")} · ${escapeHtml(booking.student.student_uid || "No UID")}</div>`
-          : "";
-
-        return `
-          <div class="dsp-slot ${safeStatus}">
-            <div class="dsp-slot-time">${formatDspTime(slot.start_time)} – ${formatDspTime(slot.end_time)}</div>
-            <div class="dsp-slot-status">${escapeHtml(safeStatus)}</div>
-            ${studentLine}
-          </div>
-        `;
-      }).join("");
-    }
-
-    await loadDspBookingsForSelectedTeacher(teacherId, date, slots);
-  }
-
-  async function loadDspBookingsForSelectedTeacher(teacherId, date, slots = []) {
-    const box = document.getElementById("dspBookingsList");
-    if (!box) return;
-
-    const bookedSlots = (slots || []).filter(s => String(s.status || "").toLowerCase() === "booked" && s.booking_id);
-    if (!bookedSlots.length) {
-      box.innerHTML = `<div class="dsp-empty">No students have booked a DSP slot for this teacher on this date.</div>`;
       return;
     }
 
-    const bookingIds = bookedSlots.map(s => s.booking_id);
-    const { data: bookings, error: bookingError } = await supabaseClient
-      .from("dsp_bookings")
-      .select("id,student_id,question_id,status")
-      .in("id", bookingIds);
+    list.innerHTML = slotRows.map(slot => {
+      const status = String(slot.status || "available").toLowerCase();
+      const safeStatus = ["available", "booked", "blocked"].includes(status)
+        ? status
+        : "blocked";
+      const booking = bookingBySlot.get(slot.id);
+      const student = booking ? studentById.get(booking.student_id) : null;
+      const question = booking ? questionById.get(booking.question_id) : null;
 
-    if (bookingError) {
-      console.error("DSP booking panel error:", bookingError);
-      box.innerHTML = `<div class="dsp-empty">Unable to load booking details.</div>`;
-      return;
-    }
-
-    const studentIds = [...new Set((bookings || []).map(b => b.student_id).filter(Boolean))];
-    const questionIds = [...new Set((bookings || []).map(b => b.question_id).filter(Boolean))];
-
-    const [{ data: students }, { data: questions }] = await Promise.all([
-      studentIds.length
-        ? supabaseClient.from("students").select("id,student_uid,full_name").in("id", studentIds)
-        : Promise.resolve({ data: [] }),
-      questionIds.length
-        ? supabaseClient.from("dsp_questions").select("id,question_text").in("id", questionIds)
-        : Promise.resolve({ data: [] })
-    ]);
-
-    const studentMap = new Map((students || []).map(st => [st.id, st]));
-    const questionMap = new Map((questions || []).map(q => [q.id, q]));
-    const bookingMap = new Map((bookings || []).map(b => [b.id, b]));
-
-    box.innerHTML = bookedSlots.map(slot => {
-      const booking = bookingMap.get(slot.booking_id);
-      const student = booking ? studentMap.get(booking.student_id) : null;
-      const question = booking ? questionMap.get(booking.question_id) : null;
       return `
-        <div class="dsp-booking-card">
-          <div class="dsp-booking-card-head">
-            <div class="dsp-booking-card-time">${formatDspTime(slot.start_time)} – ${formatDspTime(slot.end_time)}</div>
-            <div class="dsp-booking-card-status">${escapeHtml(String(booking?.status || "booked"))}</div>
+        <div class="dsp-slot ${safeStatus}">
+          <div class="dsp-slot-time">
+            ${formatDspTime(slot.start_time)} – ${formatDspTime(slot.end_time)}
           </div>
-          <div class="dsp-booking-card-student">${escapeHtml(student?.full_name || "Student")}</div>
-          <div class="dsp-booking-card-meta">UID: ${escapeHtml(student?.student_uid || "—")}</div>
-          <div class="dsp-booking-card-question">${escapeHtml(question?.question_text || "No question text available.")}</div>
+          <div class="dsp-slot-status">
+            ${escapeHtml(safeStatus)}
+          </div>
+          ${booking ? `
+            <div class="dsp-slot-booking">
+              <strong>${escapeHtml(student?.full_name || "Student")}</strong>
+              ${student?.student_uid ? `<span>UID: ${escapeHtml(student.student_uid)}</span>` : ""}
+              ${question?.question_text ? `<span>${escapeHtml(question.question_text)}</span>` : ""}
+            </div>
+          ` : ""}
         </div>
       `;
     }).join("");
@@ -6868,7 +6771,7 @@ document
             class="dsp-save"
             data-save-dsp-teacher="${escapeHtml(teacher.id)}"
           >
-            Save Subjects
+            Save
           </button>
         </div>
       `;
