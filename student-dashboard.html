@@ -833,9 +833,15 @@
 
 .dsp-slot:hover,
 .dsp-slot.selected {
-  border-color:var(--gold);
-  color:var(--gold-light);
-  background:rgba(217,170,69,.08);
+  border-color: var(--gold) !important;
+  color: var(--gold-light) !important;
+  background: rgba(217,170,69,.12) !important;
+  box-shadow: 0 0 0 1px rgba(217,170,69,.25),
+              0 0 14px rgba(217,170,69,.12);
+}
+
+.dsp-slot.selected small {
+  color: var(--gold-light) !important;
 }
 
 .dsp-slot small {
