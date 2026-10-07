@@ -2997,6 +2997,23 @@ header, main, footer {
     const offset = d.getTimezoneOffset();
     return new Date(d.getTime() - offset * 60000).toISOString().slice(0,10);
   }
+  const DSP_AVAILABLE_DAYS = 6;
+
+function dspMaxDateISO() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + (DSP_AVAILABLE_DAYS - 1));
+
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0,10);
+}
+
+function dspDateIsWithinWindow(dateValue) {
+  const minDate = dspTodayISO();
+  const maxDate = dspMaxDateISO();
+
+  return !!dateValue && dateValue >= minDate && dateValue <= maxDate;
+}
 
   function dspShowMessage(text, type = "info") {
     dspMessageEl.textContent = text;
@@ -3244,12 +3261,21 @@ header, main, footer {
     }
 
     const subjectId = dspSubjectEl.value;
-    const topicId = dspTopicEl.value;
-    const teacherId = dspTeacherEl.value;
-    const slotId = dspSlotIdEl.value;
-    const questionText = document.getElementById("dspQuestionText").value.trim();
+const topicId = dspTopicEl.value;
+const teacherId = dspTeacherEl.value;
+const slotId = dspSlotIdEl.value;
+const selectedDate = dspDateEl.value;
+const questionText = document.getElementById("dspQuestionText").value.trim();
 
-    if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
+if (!dspDateIsWithinWindow(selectedDate)) {
+  dspShowMessage(
+    `DSP booking is available only for the next ${DSP_AVAILABLE_DAYS} days, including today.`,
+    "error"
+  );
+  return;
+}
+
+if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
       dspShowMessage("Please complete subject, topic, teacher, slot and question.", "error");
       return;
     }
@@ -3333,8 +3359,11 @@ header, main, footer {
 
   function initDSP(student) {
     currentStudentForDSP = student;
-    dspDateEl.min = dspTodayISO();
-    dspDateEl.value = dspTodayISO();
+    const dspToday = dspTodayISO();
+
+dspDateEl.min = dspToday;
+dspDateEl.max = dspMaxDateISO();
+dspDateEl.value = dspToday;
 
     loadDSPSubjects();
     loadDSPBookings(student.id);
