@@ -3240,7 +3240,7 @@ function dspDateIsWithinWindow(dateValue) {
       }
 
       bookedSlotIds = new Set((bookingRows || [])
-        .filter(row => String(row.status || "booked").toLowerCase() === "booked")
+        .filter(row => ["booked", "confirmed", "scheduled", "pending"].includes(String(row.status || "").toLowerCase()))
         .map(row => row.slot_id)
         .filter(Boolean));
     }
@@ -3404,14 +3404,19 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         if (uploadError) throw uploadError;
       }
 
+      /*
+        The active booking RPC is the 5-argument atomic function.
+        It creates dsp_questions + dsp_bookings + marks the slot booked
+        in one transaction. Do not pass p_image_path here because that
+        belongs to an older 6-argument RPC version.
+      */
       const { data: bookingResult, error: bookingError } =
         await supabaseClient.rpc("book_dsp_slot", {
           p_slot_id: slotId,
           p_teacher_id: teacherId,
           p_subject_id: subjectId,
           p_topic_id: topicId,
-          p_question_text: questionText,
-          p_image_path: uploadedImagePath
+          p_question_text: questionText
         });
 
       if (bookingError) throw bookingError;
@@ -3419,11 +3424,36 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         throw new Error(bookingResult?.message || "Unable to confirm this DSP slot.");
       }
 
+      let imageAttached = false;
+
+      /*
+        The booking RPC above intentionally owns the atomic booking flow.
+        If a photo was uploaded, attach its Storage path to the question
+        record after the booking succeeds. Failure here must NOT cancel an
+        already-confirmed booking.
+      */
+      if (uploadedImagePath && bookingResult.question_id) {
+        const { error: imageAttachError } = await supabaseClient
+          .from("dsp_questions")
+          .update({ image_path: uploadedImagePath })
+          .eq("id", bookingResult.question_id);
+
+        if (!imageAttachError) {
+          imageAttached = true;
+        } else {
+          console.warn("DSP question image could not be attached:", imageAttachError);
+          await supabaseClient.storage.from("dsp-question-images").remove([uploadedImagePath]);
+          uploadedImagePath = null;
+        }
+      }
+
       dspShowMessage(
-        imageFile
+        imageAttached
           ? "Doubt booked successfully. Your question photo is attached for the teacher."
-          : "Doubt booked successfully. Your 3-minute slot is confirmed.",
-        "success"
+          : imageFile
+            ? "Doubt booked successfully. Your 3-minute slot is confirmed. The photo could not be attached, but your question is safely booked."
+            : "Doubt booked successfully. Your 3-minute slot is confirmed.",
+        imageAttached || !imageFile ? "success" : "info"
       );
 
       document.getElementById("dspQuestionText").value = "";
