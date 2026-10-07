@@ -3148,15 +3148,23 @@ function dspDateIsWithinWindow(dateValue) {
       return;
     }
 
-    const [{ data: teachers, error: teachersError }, { data: availability, error: availabilityError }, { data: slots, error: slotsError }] = await Promise.all([
+    const [{ data: teachers, error: teachersError }, { data: availability, error: availabilityError }, { data: slots, error: slotsError }, { data: offDay, error: offDayError }] = await Promise.all([
       supabaseClient.from("teachers").select("id,full_name,subject,is_active").in("id", teacherIds).eq("is_active", true),
-      supabaseClient.from("dsp_teacher_availability").select("teacher_id,date,is_available,reason").in("teacher_id", teacherIds).eq("date", date),
-      supabaseClient.from("dsp_slots").select("id,teacher_id,date,start_time,end_time,status,booking_id").in("teacher_id", teacherIds).eq("date", date).order("start_time")
+      supabaseClient.from("dsp_teacher_availability").select("teacher_id,availability_date,is_available,reason").in("teacher_id", teacherIds).eq("availability_date", date),
+      supabaseClient.from("dsp_slots").select("id,teacher_id,slot_date,start_time,end_time,status").in("teacher_id", teacherIds).eq("slot_date", date).order("start_time"),
+      supabaseClient.from("dsp_off_days").select("off_date,reason").eq("off_date", date).maybeSingle()
     ]);
 
-    if (teachersError || availabilityError || slotsError) {
+    if (teachersError || availabilityError || slotsError || offDayError) {
       console.error("DSP availability error:", teachersError || availabilityError || slotsError);
       dspSlotsEl.innerHTML = `<div class="dsp-empty">Unable to load today's slots. Please refresh.</div>`;
+      return;
+    }
+
+    if (offDay) {
+      dspTeacherEl.innerHTML = `<option value="">DSP is OFF today</option>`;
+      dspTeacherEl.disabled = true;
+      dspSlotsEl.innerHTML = `<div class="dsp-empty">DSP is unavailable on ${date}${offDay.reason ? ` — ${offDay.reason}` : "."}</div>`;
       return;
     }
 
@@ -3174,7 +3182,7 @@ function dspDateIsWithinWindow(dateValue) {
 
     dspSlots = (slots || []).filter(slot => {
       const status = String(slot.status || "available").toLowerCase();
-      return status === "available" && !slot.booking_id && dspTeachers.some(t => t.id === slot.teacher_id);
+      return status === "available" && dspTeachers.some(t => t.id === slot.teacher_id);
     });
 
     renderDspSlots();
@@ -3300,12 +3308,6 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         column.
       */
 
-      /*
-        Atomic DSP booking. The database RPC locks the selected slot,
-        validates the student/teacher/topic/availability, creates the
-        question + booking, and marks the slot booked in one transaction.
-        This prevents two students from taking the same 3-minute slot.
-      */
       const { data: bookingResult, error: bookingError } =
         await supabaseClient.rpc("book_dsp_slot", {
           p_slot_id: slotId,
@@ -3316,7 +3318,6 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
         });
 
       if (bookingError) throw bookingError;
-
       if (!bookingResult?.success) {
         throw new Error(bookingResult?.message || "Unable to confirm this DSP slot.");
       }
