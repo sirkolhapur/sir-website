@@ -826,9 +826,9 @@ function renderNotices(notices){
         <p>${escapeHTML(notice.content || "")}</p>
 
         ${
-          notice.expiry_date
+          notice.expires_at
             ? `<div class="notice-date" style="margin-top:18px;">
-                 Valid until ${escapeHTML(formatDate(notice.expiry_date))}
+                 Valid until ${escapeHTML(formatDate(notice.expires_at))}
                </div>`
             : ""
         }
@@ -851,7 +851,7 @@ async function loadNotices(){
         content,
         notice_type,
         event_date,
-        expiry_date,
+        expires_at,
         is_published,
         published_at,
         created_at,
@@ -867,9 +867,9 @@ async function loadNotices(){
 
     const visible = (data || []).filter(notice => {
 
-      if(!notice.expiry_date) return true;
+      if(!notice.expires_at) return true;
 
-      const expiry = new Date(notice.expiry_date);
+      const expiry = new Date(notice.expires_at);
 
       return Number.isNaN(expiry.getTime()) || expiry >= now;
     });
