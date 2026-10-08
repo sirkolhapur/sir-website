@@ -626,15 +626,18 @@ async function loadHomepageNotices() {
 
     try {
 
-        const { data, error } =
-            await supabaseClient
-                .from("notices")
-                .select("*")
-                .eq("is_published", true)
-                .order("published_at", {
-                    ascending: false
-                })
-                .limit(4);
+        const today = new Date().toISOString().split("T")[0];
+
+const { data, error } =
+    await supabaseClient
+        .from("notices")
+        .select("*")
+        .eq("is_published", true)
+        .or(`expires_at.is.null,expires_at.gte.${today}`)
+        .order("published_at", {
+            ascending: false
+        })
+        .limit(4);
 
         if (error) {
 
