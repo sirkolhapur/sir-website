@@ -1143,6 +1143,299 @@
 
 
         /* =====================================================
+           RESULTS WORKSPACE
+        ===================================================== */
+
+        .results-toolbar {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 16px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .results-toolbar-copy {
+
+            color: #98a2b3;
+
+            font-size: 10px;
+        }
+
+
+        .results-filters {
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .results-filter {
+
+            height: 38px;
+
+            border: 1px solid #dfe4ec;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            color: #172033;
+
+            padding: 0 11px;
+
+            font-size: 10px;
+
+            outline: none;
+        }
+
+
+        .results-filter:focus {
+
+            border-color: #d7a62a;
+
+            box-shadow: 0 0 0 3px rgba(215,166,42,.08);
+        }
+
+
+        .results-filter.search {
+
+            width: 230px;
+        }
+
+
+        .results-filter.batch {
+
+            min-width: 150px;
+        }
+
+
+        .results-directory-table td {
+
+            vertical-align: middle;
+        }
+
+
+        .results-action-btn {
+
+            border: 1px solid #d7a62a;
+
+            background: #fffaf0;
+
+            color: #8a6713;
+
+            border-radius: 7px;
+
+            padding: 8px 11px;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+            letter-spacing: .04em;
+        }
+
+
+        .results-action-btn:hover {
+
+            background: #d7a62a;
+
+            color: #ffffff;
+        }
+
+
+        .results-back-btn {
+
+            border: 0;
+
+            background: transparent;
+
+            color: #9a7214;
+
+            padding: 0;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            margin-bottom: 14px;
+        }
+
+
+        .results-student-head {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .results-student-head h3 {
+
+            color: #07152f;
+
+            font-size: 20px;
+
+            font-weight: 650;
+
+            margin-bottom: 5px;
+        }
+
+
+        .results-student-meta {
+
+            color: #7a8495;
+
+            font-size: 10px;
+
+        }
+
+
+        .results-test-card {
+
+            background: #ffffff;
+
+            border: 1px solid #e5e9f0;
+
+            border-radius: 12px;
+
+            box-shadow: 0 5px 20px rgba(16,24,40,.035);
+
+            overflow: hidden;
+        }
+
+
+        .results-test-card-head {
+
+            padding: 16px;
+
+            border-bottom: 1px solid #edf0f4;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+        }
+
+
+        .results-test-card-head h3 {
+
+            color: #07152f;
+
+            font-size: 15px;
+
+            margin-bottom: 4px;
+        }
+
+
+        .results-test-card-head p {
+
+            color: #98a2b3;
+
+            font-size: 9px;
+        }
+
+
+        .results-test-detail {
+
+            margin-top: 18px;
+        }
+
+
+        .results-detail-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(3,1fr);
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .results-detail-box {
+
+            background: #f8f9fb;
+
+            border-radius: 9px;
+
+            padding: 15px;
+
+        }
+
+
+        .results-detail-box small {
+
+            display: block;
+
+            color: #98a2b3;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: .1em;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .results-detail-box strong {
+
+            color: #07152f;
+
+            font-size: 19px;
+
+        }
+
+
+        @media (max-width: 760px) {
+
+            .results-filter.search {
+                width: 100%;
+            }
+
+            .results-filter.batch {
+                width: 100%;
+            }
+
+            .results-student-head,
+            .results-test-card-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .results-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        /* =====================================================
            MOBILE
         ===================================================== */
 
@@ -2297,123 +2590,72 @@
                     id="section-results"
                 >
 
-                    <div class="section-header">
+                    <div id="resultsDirectoryView">
 
-                        <div>
+                        <div class="section-header">
 
-                            <h2>
-                                Student Results
-                            </h2>
+                            <div>
+                                <h2>Student Results</h2>
+                                <p>View and analyse academic performance of your students.</p>
+                            </div>
 
-                            <p>
-                                Test performance across your students.
-                            </p>
+                        </div>
+
+                        <div class="results-toolbar">
+
+                            <div class="results-toolbar-copy">
+                                Select a student to open the complete result history.
+                            </div>
+
+                            <div class="results-filters">
+                                <input
+                                    type="search"
+                                    id="resultStudentSearch"
+                                    class="results-filter search"
+                                    placeholder="Search student or UID"
+                                >
+
+                                <select
+                                    id="resultBatchFilter"
+                                    class="results-filter batch"
+                                >
+                                    <option value="">All Batches</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="card table-card">
+
+                            <div class="table-wrapper">
+
+                                <table class="results-directory-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>STUDENT</th>
+                                            <th>UID</th>
+                                            <th>BATCH</th>
+                                            <th>TESTS</th>
+                                            <th>AVERAGE</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="resultsDirectoryBody"></tbody>
+
+                                </table>
+
+                            </div>
 
                         </div>
 
                     </div>
 
 
-                    <div class="result-summary">
+                    <div id="resultsStudentView" style="display:none;"></div>
 
-                        <div class="result-box">
-
-                            <small>
-                                SCORES
-                            </small>
-
-                            <strong id="resultCount">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="result-box">
-
-                            <small>
-                                AVERAGE
-                            </small>
-
-                            <strong id="resultAverage">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="result-box">
-
-                            <small>
-                                HIGHEST
-                            </small>
-
-                            <strong id="resultHighest">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="result-box">
-
-                            <small>
-                                TESTS
-                            </small>
-
-                            <strong id="resultTests">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="card table-card">
-
-                        <div class="table-wrapper">
-
-                            <table>
-
-                                <thead>
-
-                                    <tr>
-
-                                        <th>
-                                            STUDENT
-                                        </th>
-
-                                        <th>
-                                            SUBJECT
-                                        </th>
-
-                                        <th>
-                                            MARKS
-                                        </th>
-
-                                        <th>
-                                            MAX
-                                        </th>
-
-                                        <th>
-                                            RANK
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody
-                                    id="resultsTableBody"
-                                ></tbody>
-
-                            </table>
-
-                        </div>
-
-                    </div>
+                    <div id="resultsTestView" style="display:none;"></div>
 
                 </section>
 
@@ -2678,6 +2920,10 @@
         let teacherTests = [];
 
         let teacherScores = [];
+
+        let selectedStudentForResults = null;
+
+        let selectedTestForResults = null;
 
         let selectedStudentForReview = null;
 
@@ -4037,169 +4283,562 @@
            RENDER RESULTS
         ===================================================== */
 
-        function renderResults() {
+        function getStudentScores(studentId) {
 
-            const count =
-                teacherScores.length;
+            return teacherScores.filter(
+                score => score.student_id === studentId
+            );
+
+        }
 
 
-            const marks =
-                teacherScores
-                    .map(
-                        score =>
-                            Number(
-                                score.marks_obtained
-                            )
-                    )
-                    .filter(
-                        value =>
-                            Number.isFinite(value)
+        function getTestForScore(score) {
+
+            return teacherTests.find(
+                test => test.id === score.test_id
+            );
+
+        }
+
+
+        function formatResultDate(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return escapeHtml(value);
+            }
+
+            return date.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+
+        }
+
+
+        function getStudentResultSummary(studentId) {
+
+            const scores = getStudentScores(studentId);
+
+            const grouped = new Map();
+
+            scores.forEach(score => {
+
+                if (!grouped.has(score.test_id)) {
+                    grouped.set(score.test_id, []);
+                }
+
+                grouped.get(score.test_id).push(score);
+
+            });
+
+            const tests = [...grouped.entries()].map(
+                ([testId, rows]) => {
+
+                    const marks = rows.reduce(
+                        (sum, row) =>
+                            sum + (Number(row.marks_obtained) || 0),
+                        0
                     );
 
+                    const max = rows.reduce(
+                        (sum, row) =>
+                            sum + (Number(row.max_marks) || 0),
+                        0
+                    );
 
-            const average =
-                marks.length
-                    ? (
-                        marks.reduce(
-                            (a,b) => a + b,
-                            0
-                        ) /
-                        marks.length
-                    ).toFixed(1)
-                    : "0";
+                    const percentage = max > 0
+                        ? (marks / max) * 100
+                        : 0;
+
+                    const ranks = rows
+                        .map(row => Number(row.rank))
+                        .filter(value => Number.isFinite(value) && value > 0);
+
+                    return {
+                        testId,
+                        rows,
+                        marks,
+                        max,
+                        percentage,
+                        rank: ranks.length ? Math.min(...ranks) : null,
+                        test: getTestForScore(rows[0])
+                    };
+
+                }
+            );
+
+            const totalMarks = tests.reduce(
+                (sum, test) => sum + test.marks,
+                0
+            );
+
+            const totalMax = tests.reduce(
+                (sum, test) => sum + test.max,
+                0
+            );
+
+            const average = totalMax > 0
+                ? (totalMarks / totalMax) * 100
+                : 0;
+
+            const highest = tests.length
+                ? Math.max(...tests.map(test => test.percentage))
+                : 0;
+
+            const ranks = tests
+                .map(test => test.rank)
+                .filter(value => Number.isFinite(value));
+
+            return {
+                scores,
+                tests,
+                average,
+                highest,
+                bestRank: ranks.length ? Math.min(...ranks) : null
+            };
+
+        }
 
 
-            const highest =
-                marks.length
-                    ? Math.max(...marks)
-                    : 0;
+        function populateResultBatchFilter() {
+
+            const select = document.getElementById("resultBatchFilter");
+
+            if (!select) {
+                return;
+            }
+
+            const current = select.value;
+
+            const options = assignedBatches.map(batch => `
+                <option value="${escapeHtml(batch.id)}">
+                    ${escapeHtml(batch.name || "Unnamed Batch")}
+                </option>
+            `).join("");
+
+            select.innerHTML = `
+                <option value="">All Batches</option>
+                ${options}
+            `;
+
+            if ([...select.options].some(option => option.value === current)) {
+                select.value = current;
+            }
+
+        }
 
 
-            const testIds =
-                new Set(
-                    teacherScores.map(
-                        score =>
-                            score.test_id
-                    )
-                );
+        function renderResultDirectory() {
 
+            const tbody = document.getElementById("resultsDirectoryBody");
 
-            document.getElementById(
-                "resultCount"
-            ).textContent =
-                count;
+            if (!tbody) {
+                return;
+            }
 
+            populateResultBatchFilter();
 
-            document.getElementById(
-                "resultAverage"
-            ).textContent =
-                average;
+            const search = String(
+                document.getElementById("resultStudentSearch")?.value || ""
+            ).trim().toLowerCase();
 
+            const batchId =
+                document.getElementById("resultBatchFilter")?.value || "";
 
-            document.getElementById(
-                "resultHighest"
-            ).textContent =
-                highest;
+            const students = assignedStudents.filter(student => {
 
+                const matchesSearch = !search ||
+                    String(student.full_name || "").toLowerCase().includes(search) ||
+                    String(student.student_uid || "").toLowerCase().includes(search);
 
-            document.getElementById(
-                "resultTests"
-            ).textContent =
-                testIds.size;
+                const matchesBatch = !batchId || student.batch_id === batchId;
 
+                return matchesSearch && matchesBatch;
 
-            const tbody =
-                document.getElementById(
-                    "resultsTableBody"
-                );
+            });
 
-
-            if (!teacherScores.length) {
+            if (!students.length) {
 
                 tbody.innerHTML = `
-
                     <tr>
-
-                        <td
-                            colspan="5"
-                            class="empty-state"
-                        >
-                            No results available yet.
+                        <td colspan="6" class="empty-state">
+                            No students found.
                         </td>
-
                     </tr>
-
                 `;
 
                 return;
 
             }
 
+            tbody.innerHTML = students.map(student => {
 
-            tbody.innerHTML =
-                teacherScores
-                    .map(score => {
+                const summary = getStudentResultSummary(student.id);
 
-                        const student =
-                            assignedStudents.find(
-                                s =>
-                                    s.id ===
-                                    score.student_id
-                            );
+                const batch = assignedBatches.find(
+                    item => item.id === student.batch_id
+                );
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="student-name">
+                                ${escapeHtml(student.full_name || "Unknown")}
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="uid">
+                                ${escapeHtml(student.student_uid || "—")}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(batch?.name || "—")}
+                        </td>
+
+                        <td>
+                            ${summary.tests.length}
+                        </td>
+
+                        <td>
+                            ${summary.tests.length
+                                ? `${summary.average.toFixed(1)}%`
+                                : "—"}
+                        </td>
+
+                        <td>
+                            <button
+                                type="button"
+                                class="results-action-btn"
+                                onclick="openStudentResults('${escapeHtml(student.id)}')"
+                            >
+                                VIEW RESULTS
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+            }).join("");
+
+        }
 
 
-                        return `
+        function showResultsDirectory() {
 
-                            <tr>
+            selectedStudentForResults = null;
+            selectedTestForResults = null;
 
-                                <td>
+            document.getElementById("resultsDirectoryView").style.display = "block";
+            document.getElementById("resultsStudentView").style.display = "none";
+            document.getElementById("resultsTestView").style.display = "none";
 
-                                    <div class="student-name">
-                                        ${escapeHtml(
-                                            student?.full_name || "Unknown"
-                                        )}
-                                    </div>
+            renderResultDirectory();
 
-                                    <span class="uid">
-                                        ${escapeHtml(
-                                            student?.student_uid || ""
-                                        )}
-                                    </span>
+        }
 
-                                </td>
 
-                                <td>
-                                    ${escapeHtml(
-                                        score.subject || "—"
-                                    )}
-                                </td>
+        function openStudentResults(studentId) {
 
-                                <td>
-                                    <strong>
-                                        ${escapeHtml(
-                                            score.marks_obtained ?? "—"
-                                        )}
-                                    </strong>
-                                </td>
+            const student = assignedStudents.find(
+                item => item.id === studentId
+            );
 
-                                <td>
-                                    ${escapeHtml(
-                                        score.max_marks ?? "—"
-                                    )}
-                                </td>
+            if (!student) {
+                showError("Unable to find this student.");
+                return;
+            }
 
-                                <td>
-                                    ${escapeHtml(
-                                        score.rank ?? "—"
-                                    )}
-                                </td>
+            selectedStudentForResults = student;
+            selectedTestForResults = null;
 
-                            </tr>
+            document.getElementById("resultsDirectoryView").style.display = "none";
+            document.getElementById("resultsStudentView").style.display = "block";
+            document.getElementById("resultsTestView").style.display = "none";
 
-                        `;
+            renderStudentResults(student.id);
 
-                    })
-                    .join("");
+        }
+
+
+        function renderStudentResults(studentId) {
+
+            const student = assignedStudents.find(
+                item => item.id === studentId
+            );
+
+            const container = document.getElementById("resultsStudentView");
+
+            if (!student || !container) {
+                return;
+            }
+
+            const batch = assignedBatches.find(
+                item => item.id === student.batch_id
+            );
+
+            const summary = getStudentResultSummary(student.id);
+
+            container.innerHTML = `
+
+                <button
+                    type="button"
+                    class="results-back-btn"
+                    onclick="showResultsDirectory()"
+                >
+                    ← ALL STUDENTS
+                </button>
+
+                <div class="results-student-head">
+                    <div>
+                        <h3>${escapeHtml(student.full_name || "Student")}</h3>
+                        <div class="results-student-meta">
+                            UID: ${escapeHtml(student.student_uid || "—")}
+                            &nbsp;•&nbsp;
+                            ${escapeHtml(batch?.name || "—")}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-summary">
+
+                    <div class="result-box">
+                        <small>TESTS ATTEMPTED</small>
+                        <strong>${summary.tests.length}</strong>
+                    </div>
+
+                    <div class="result-box">
+                        <small>AVERAGE</small>
+                        <strong>${summary.tests.length ? `${summary.average.toFixed(1)}%` : "0"}</strong>
+                    </div>
+
+                    <div class="result-box">
+                        <small>BEST SCORE</small>
+                        <strong>${summary.tests.length ? `${summary.highest.toFixed(1)}%` : "0"}</strong>
+                    </div>
+
+                    <div class="result-box">
+                        <small>BEST RANK</small>
+                        <strong>${summary.bestRank ?? "—"}</strong>
+                    </div>
+
+                </div>
+
+                <div class="section-header">
+                    <div>
+                        <h2>Test History</h2>
+                        <p>Complete test-wise performance of this student.</p>
+                    </div>
+                </div>
+
+                <div class="results-test-card">
+
+                    <div class="table-wrapper">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>TEST</th>
+                                    <th>DATE</th>
+                                    <th>SCORE</th>
+                                    <th>%</th>
+                                    <th>RANK</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                ${summary.tests.length
+                                    ? summary.tests.map(test => `
+                                        <tr>
+                                            <td>
+                                                <div class="student-name">
+                                                    ${escapeHtml(test.test?.title || "Test")}
+                                                </div>
+                                                <span class="uid">
+                                                    ${escapeHtml(test.test?.subject || "")}
+                                                </span>
+                                            </td>
+                                            <td>${formatResultDate(test.test?.test_date)}</td>
+                                            <td>${test.marks} / ${test.max}</td>
+                                            <td>${test.percentage.toFixed(1)}%</td>
+                                            <td>${test.rank ?? "—"}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    class="results-action-btn"
+                                                    onclick="openTestResults('${escapeHtml(test.testId)}')"
+                                                >
+                                                    VIEW
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join("")
+                                    : `
+                                        <tr>
+                                            <td colspan="6" class="empty-state">
+                                                No test results available for this student yet.
+                                            </td>
+                                        </tr>
+                                    `}
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        function openTestResults(testId) {
+
+            if (!selectedStudentForResults) {
+                return;
+            }
+
+            selectedTestForResults = testId;
+
+            document.getElementById("resultsStudentView").style.display = "none";
+            document.getElementById("resultsTestView").style.display = "block";
+
+            renderTestResults(testId);
+
+        }
+
+
+        function renderTestResults(testId) {
+
+            const student = selectedStudentForResults;
+            const container = document.getElementById("resultsTestView");
+
+            if (!student || !container) {
+                return;
+            }
+
+            const summary = getStudentResultSummary(student.id);
+            const test = summary.tests.find(
+                item => String(item.testId) === String(testId)
+            );
+
+            if (!test) {
+                return;
+            }
+
+            const testInfo = test.test;
+
+            const subjectMap = new Map();
+
+            test.rows.forEach(row => {
+
+                const subject = row.subject || "Other";
+
+                if (!subjectMap.has(subject)) {
+                    subjectMap.set(subject, {
+                        marks: 0,
+                        max: 0
+                    });
+                }
+
+                const item = subjectMap.get(subject);
+
+                item.marks += Number(row.marks_obtained) || 0;
+                item.max += Number(row.max_marks) || 0;
+
+            });
+
+            container.innerHTML = `
+
+                <button
+                    type="button"
+                    class="results-back-btn"
+                    onclick="openStudentResults('${escapeHtml(student.id)}')"
+                >
+                    ← BACK TO ${escapeHtml((student.full_name || "STUDENT").toUpperCase())}
+                </button>
+
+                <div class="results-student-head">
+                    <div>
+                        <h3>${escapeHtml(testInfo?.title || "Test Analysis")}</h3>
+                        <div class="results-student-meta">
+                            ${escapeHtml(student.full_name || "Student")}
+                            &nbsp;•&nbsp;
+                            ${formatResultDate(testInfo?.test_date)}
+                            ${testInfo?.subject ? `&nbsp;•&nbsp; ${escapeHtml(testInfo.subject)}` : ""}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-detail-grid">
+
+                    <div class="results-detail-box">
+                        <small>SCORE</small>
+                        <strong>${test.marks} / ${test.max}</strong>
+                    </div>
+
+                    <div class="results-detail-box">
+                        <small>PERCENTAGE</small>
+                        <strong>${test.percentage.toFixed(1)}%</strong>
+                    </div>
+
+                    <div class="results-detail-box">
+                        <small>RANK</small>
+                        <strong>${test.rank ?? "—"}</strong>
+                    </div>
+
+                </div>
+
+                <div class="results-test-card results-test-detail">
+
+                    <div class="results-test-card-head">
+                        <div>
+                            <h3>Subject Performance</h3>
+                            <p>Subject-wise marks recorded for this test.</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>SUBJECT</th>
+                                    <th>MARKS</th>
+                                    <th>MAX</th>
+                                    <th>PERCENTAGE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${[...subjectMap.entries()].map(([subject, value]) => `
+                                    <tr>
+                                        <td class="student-name">${escapeHtml(subject)}</td>
+                                        <td>${value.marks}</td>
+                                        <td>${value.max}</td>
+                                        <td>${value.max > 0 ? ((value.marks / value.max) * 100).toFixed(1) : "0.0"}%</td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        function renderResults() {
+
+            showResultsDirectory();
 
         }
 
@@ -4663,6 +5302,13 @@
                             );
 
 
+                        if (section === "results") {
+
+                            showResultsDirectory();
+
+                        }
+
+
                         if (target) {
 
                             target.classList.add(
@@ -4701,6 +5347,27 @@
 
             }
         );
+
+
+
+        /* =====================================================
+           RESULTS SEARCH / FILTER
+        ===================================================== */
+
+        document
+            .getElementById("resultStudentSearch")
+            ?.addEventListener(
+                "input",
+                renderResultDirectory
+            );
+
+
+        document
+            .getElementById("resultBatchFilter")
+            ?.addEventListener(
+                "change",
+                renderResultDirectory
+            );
 
 
 
