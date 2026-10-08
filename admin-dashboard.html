@@ -6961,7 +6961,21 @@ document
     const date=document.getElementById("dspScheduleDate")?.value;
     const button=document.getElementById("generateDspSlotsBtn");
     if(!teacherId||!date)return showDspMessage("Select a teacher and date first.","error");
-    if(!isDspManageDate(date))return showDspMessage("Select a date within the 6-day DSP management window.","error");
+    if(!isDspManageDate(date))return showDspMessage("Select a date within the 7-day DSP management window.","error");
+    const {data:teacherSetting,error:teacherSettingError}=await supabaseClient
+  .from("dsp_teacher_settings")
+  .select("is_enabled")
+  .eq("teacher_id",teacherId)
+  .maybeSingle();
+
+if(teacherSettingError)throw teacherSettingError;
+
+if(teacherSetting?.is_enabled===false){
+  return showDspMessage(
+    "DSP is disabled for this teacher. Enable DSP from the Teachers section before generating slots.",
+    "error"
+  );
+}
     if(!document.getElementById("dspTeacherAvailable")?.checked)return showDspMessage("Teacher is unavailable for this date. Slots will not be generated.","error");
     button.disabled=true;button.textContent="Generating...";
     try{
