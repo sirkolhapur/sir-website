@@ -378,36 +378,44 @@ button{font:inherit}
   font-weight:400;
 }
 
-/* STATIC CATEGORY CARDS */
-.info-card{
-  border-top:1px solid var(--line);
-  padding:28px 0;
-  display:grid;
-  grid-template-columns:230px 1fr 30px;
-  gap:25px;
-  align-items:center;
+/* PREMIUM NOTICE TOOLS */
+.notice-tools{
+  display:flex;
+  gap:12px;
+  margin:28px 0 30px;
+  flex-wrap:wrap;
 }
-
-.info-card:last-child{border-bottom:1px solid var(--line)}
-
-.info-label{
-  color:var(--muted);
+.notice-search,.notice-filter{
+  height:48px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  padding:0 15px;
   font-family:Arial,Helvetica,sans-serif;
-  font-size:10px;
-  letter-spacing:.15em;
-  text-transform:uppercase;
+  font-size:13px;
+  outline:none;
 }
-
-.info-card h3{
-  font-size:28px;
-  font-weight:700;
-  line-height:1.1;
+.notice-search{flex:1 1 320px}
+.notice-filter{min-width:170px}
+.notice-search:focus,.notice-filter:focus{border-color:var(--gold)}
+.featured-notice{
+  background:#07152F;
+  color:#fff;
+  padding:34px;
+  margin-bottom:24px;
+  border-left:4px solid var(--gold);
 }
-
-.info-arrow{
-  font-family:Arial,Helvetica,sans-serif;
-  font-size:22px;
-}
+.featured-notice .notice-type{color:var(--gold-light)}
+.featured-notice .notice-date{color:#cbd1dc}
+.featured-notice h3{font-size:clamp(28px,4vw,44px);line-height:1.08;margin:12px 0}
+.featured-notice p{color:#d8dce5;font-size:16px;max-width:760px}
+.featured-valid{margin-top:18px;color:#cbd1dc;font:11px Arial,sans-serif}
+.latest-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:35px 0 18px}
+.latest-heading h3{font:700 25px/1.1 Arial,sans-serif}
+.view-all-btn{font:700 11px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#12376F}
+.view-all-btn:hover{color:var(--gold)}
+.notice-card.is-hidden{display:none}
+.notice-no-results{grid-column:1/-1;padding:35px;text-align:center;background:#fff;border:1px solid var(--line);color:var(--muted);font-family:Arial,sans-serif}
 
 /* FOOTER */
 .site-footer{
@@ -512,18 +520,14 @@ button{font:inherit}
     grid-template-columns:1fr;
   }
 
-  .info-card{
-    grid-template-columns:1fr 25px;
-    gap:8px;
+  .notice-tools{
+    flex-direction:column;
   }
-
-  .info-label{
-    grid-column:1/-1;
+  .notice-search,.notice-filter{
+    width:100%;
   }
-
-  .info-card h3{
-    font-size:23px;
-  }
+  .featured-notice{padding:25px;}
+  .latest-heading{align-items:center;}
 
   .footer-inner{
     grid-template-columns:1fr;
@@ -646,38 +650,35 @@ button{font:inherit}
 
     <section class="notice-section">
       <p class="section-kicker">LIVE UPDATES</p>
-      <h2 class="section-heading">
-        What's happening <span>at SIR.</span>
-      </h2>
+      <h2 class="section-heading">What's happening <span>at SIR.</span></h2>
       <div class="section-rule"></div>
+
+      <div class="notice-tools">
+        <input class="notice-search" id="noticeSearch" type="search" placeholder="Search notices..." aria-label="Search notices">
+        <select class="notice-filter" id="noticeCategory" aria-label="Filter by category">
+          <option value="all">All categories</option>
+          <option value="announcement">Announcements</option>
+          <option value="general">General</option>
+          <option value="class_schedule">Class Schedule</option>
+          <option value="test_schedule">Test Schedule</option>
+        </select>
+        <select class="notice-filter" id="noticeSort" aria-label="Sort notices">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+
+      <div id="featuredNotice"></div>
+      <div class="latest-heading">
+        <h3>Latest Notices</h3>
+        <a class="view-all-btn" href="#all-notices" id="viewAllNotices">VIEW ALL NOTICES →</a>
+      </div>
 
       <div class="notice-grid" id="dynamicNoticeGrid" data-loading="true">
         <div class="notice-empty">
           <strong>Loading notices…</strong>
           Please wait.
         </div>
-      </div>
-    </section>
-
-    <section class="notice-section">
-      <p class="section-kicker">WHAT YOU'LL FIND HERE</p>
-
-      <div class="info-card">
-        <div class="info-label">CLASS SCHEDULE</div>
-        <h3>Know what's happening next.</h3>
-        <div class="info-arrow">→</div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-label">TEST SCHEDULE</div>
-        <h3>Know when you're being assessed.</h3>
-        <div class="info-arrow">→</div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-label">ANNOUNCEMENTS</div>
-        <h3>Stay updated with SIR.</h3>
-        <div class="info-arrow">→</div>
       </div>
     </section>
 
@@ -759,137 +760,100 @@ const supabaseClient = window.supabase.createClient(
 );
 
 const noticeGrid = document.getElementById("dynamicNoticeGrid");
+const featuredNotice = document.getElementById("featuredNotice");
+const noticeSearch = document.getElementById("noticeSearch");
+const noticeCategory = document.getElementById("noticeCategory");
+const noticeSort = document.getElementById("noticeSort");
+const viewAllNotices = document.getElementById("viewAllNotices");
+let allNotices = [];
 
 function escapeHTML(value){
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
 function formatDate(value){
-  if(!value) return "";
-
-  const date = new Date(value);
-
-  if(Number.isNaN(date.getTime())){
-    return String(value);
-  }
-
-  return date.toLocaleDateString("en-IN", {
-    day:"numeric",
-    month:"short",
-    year:"numeric"
-  });
+  if(!value)return "";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return String(value);
+  return date.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
 }
 
 function typeLabel(value){
-  const text = String(value || "ANNOUNCEMENT")
-    .replace(/_/g, " ")
-    .trim();
+  return String(value||"ANNOUNCEMENT").replace(/_/g," ").trim().toUpperCase();
+}
 
-  return text.toUpperCase();
+function noticeMarkup(notice){
+  const date=notice.event_date||notice.published_at||notice.created_at;
+  return `
+    <article class="notice-card">
+      <div class="notice-meta">
+        <span class="notice-type">${escapeHTML(typeLabel(notice.notice_type))}</span>
+        ${date?`<span class="notice-date">${escapeHTML(formatDate(date))}</span>`:""}
+      </div>
+      <h3>${escapeHTML(notice.title||"SIR Notice")}</h3>
+      <p>${escapeHTML(notice.content||"")}</p>
+      ${notice.expires_at?`<div class="notice-date" style="margin-top:18px;">Valid until ${escapeHTML(formatDate(notice.expires_at))}</div>`:""}
+    </article>`;
+}
+
+function renderFeatured(notice){
+  if(!notice){featuredNotice.innerHTML="";return;}
+  const date=notice.event_date||notice.published_at||notice.created_at;
+  featuredNotice.innerHTML=`
+    <article class="featured-notice">
+      <div class="notice-meta">
+        <span class="notice-type">${escapeHTML(typeLabel(notice.notice_type))} · FEATURED</span>
+        ${date?`<span class="notice-date">${escapeHTML(formatDate(date))}</span>`:""}
+      </div>
+      <h3>${escapeHTML(notice.title||"SIR Notice")}</h3>
+      <p>${escapeHTML(notice.content||"")}</p>
+      ${notice.expires_at?`<div class="featured-valid">Valid until ${escapeHTML(formatDate(notice.expires_at))}</div>`:""}
+    </article>`;
 }
 
 function renderNotices(notices){
-
-  if(!notices || !notices.length){
-    noticeGrid.innerHTML = `
-      <div class="notice-empty">
-        <strong>No new notices right now.</strong>
-        New notices and important announcements will appear here.
-      </div>
-    `;
-    noticeGrid.dataset.loading = "false";
-    return;
-  }
-
-  noticeGrid.innerHTML = notices.map(notice => {
-
-    const date =
-      notice.event_date ||
-      notice.published_at ||
-      notice.created_at ||
-      notice.updated_at;
-
-    return `
-      <article class="notice-card">
-        <div class="notice-meta">
-          <span class="notice-type">${escapeHTML(typeLabel(notice.notice_type))}</span>
-          ${date ? `<span class="notice-date">${escapeHTML(formatDate(date))}</span>` : ""}
-        </div>
-
-        <h3>${escapeHTML(notice.title || "SIR Notice")}</h3>
-
-        <p>${escapeHTML(notice.content || "")}</p>
-
-        ${
-          notice.expires_at
-            ? `<div class="notice-date" style="margin-top:18px;">
-                 Valid until ${escapeHTML(formatDate(notice.expires_at))}
-               </div>`
-            : ""
-        }
-      </article>
-    `;
-  }).join("");
-
-  noticeGrid.dataset.loading = "false";
+  const query=(noticeSearch.value||"").trim().toLowerCase();
+  const category=noticeCategory.value;
+  const filtered=notices.filter(notice=>{
+    const matchesCategory=category==="all"||notice.notice_type===category;
+    const haystack=`${notice.title||""} ${notice.content||""} ${notice.notice_type||""}`.toLowerCase();
+    return matchesCategory&&(!query||haystack.includes(query));
+  });
+  const sorted=[...filtered].sort((a,b)=>{
+    const da=new Date(a.published_at||a.created_at||0).getTime();
+    const db=new Date(b.published_at||b.created_at||0).getTime();
+    return noticeSort.value==="oldest"?da-db:db-da;
+  });
+  const featured=sorted[0];
+  renderFeatured(featured);
+  const latest=sorted.slice(0,4);
+  noticeGrid.innerHTML=latest.length?latest.map(noticeMarkup).join(""):`<div class="notice-no-results">No notices match your search.</div>`;
+  noticeGrid.dataset.loading="false";
 }
 
 async function loadNotices(){
-
   try{
-
-    const { data, error } = await supabaseClient
-      .from("notices")
-      .select(`
-        id,
-        title,
-        content,
-        notice_type,
-        event_date,
-        expires_at,
-        is_published,
-        published_at,
-        created_at,
-        updated_at
-      `)
-      .eq("is_published", true)
-      .order("event_date", { ascending:false, nullsFirst:false })
-      .order("created_at", { ascending:false });
-
-    if(error) throw error;
-
-    const now = new Date();
-
-    const visible = (data || []).filter(notice => {
-
-      if(!notice.expires_at) return true;
-
-      const expiry = new Date(notice.expires_at);
-
-      return Number.isNaN(expiry.getTime()) || expiry >= now;
-    });
-
-    renderNotices(visible);
-
+    const {data,error}=await supabaseClient.from("notices").select(`id,title,content,notice_type,event_date,expires_at,is_published,published_at,created_at,updated_at`).eq("is_published",true).order("published_at",{ascending:false});
+    if(error)throw error;
+    const now=new Date();
+    allNotices=(data||[]).filter(notice=>!notice.expires_at||new Date(notice.expires_at)>=now);
+    renderNotices(allNotices);
   }catch(error){
-
-    console.error("Notice Board error:", error);
-
-    noticeGrid.innerHTML = `
-      <div class="notice-empty">
-        <strong>Notices are being updated.</strong>
-        Please check again shortly.
-      </div>
-    `;
-
-    noticeGrid.dataset.loading = "false";
+    console.error("Notice Board error:",error);
+    noticeGrid.innerHTML=`<div class="notice-empty"><strong>Notices are being updated.</strong>Please check again shortly.</div>`;
+    noticeGrid.dataset.loading="false";
   }
 }
+
+[noticeSearch,noticeCategory,noticeSort].forEach(control=>control.addEventListener("input",()=>renderNotices(allNotices)));
+viewAllNotices.addEventListener("click",function(event){
+  event.preventDefault();
+  noticeGrid.innerHTML=allNotices.length?allNotices.map(noticeMarkup).join(""):`<div class="notice-no-results">No notices available.</div>`;
+  document.getElementById("dynamicNoticeGrid").scrollIntoView({behavior:"smooth",block:"start"});
+});
 
 loadNotices();
 </script>
