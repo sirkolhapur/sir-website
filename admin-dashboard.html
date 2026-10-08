@@ -6716,7 +6716,7 @@ document
   const DSP_WINDOW_START = "14:30";
   const DSP_WINDOW_END = "17:30";
   const DSP_SLOT_MINUTES = 3;
-  const DSP_MANAGE_DAYS = 6;
+  const DSP_MANAGE_DAYS = 7;
 
   const DSP_COURSE_RULES = {
     NEET: {
@@ -6903,7 +6903,7 @@ document
     const till=document.getElementById("dspAvailableTill")?.value||DSP_WINDOW_END;
     const button=document.getElementById("saveDspAvailabilityBtn");
     if(!teacherId||!date) return showDspMessage("Select a teacher and date first.","error");
-    if(!isDspManageDate(date)) return showDspMessage("Select a date within the 6-day DSP management window.","error");
+    if(!isDspManageDate(date)) return showDspMessage("Select a date within the 7-day DSP management window.","error");
     if(!isAvailable&&!reason) return showDspMessage("Add a message/reason when marking a teacher unavailable.","error");
     const fromMin=timeToMinutes(from), tillMin=timeToMinutes(till), winStart=timeToMinutes(DSP_WINDOW_START), winEnd=timeToMinutes(DSP_WINDOW_END);
     if(isAvailable && (!Number.isFinite(fromMin)||!Number.isFinite(tillMin)||fromMin<winStart||tillMin>winEnd||fromMin>=tillMin)) return showDspMessage("Teacher custom hours must stay within 2:30 PM–5:30 PM and From must be before Till.","error");
