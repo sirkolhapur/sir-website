@@ -1411,6 +1411,116 @@
             font-size: 11px;
         }
 
+        .student-profile-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 5px;
+            margin: 0 0 20px;
+            background: #f4f6f9;
+            border: 1px solid #e5e9f0;
+            border-radius: 10px;
+        }
+
+        .student-profile-tab {
+            border: 0;
+            border-radius: 7px;
+            padding: 11px 12px;
+            background: transparent;
+            color: #667085;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            cursor: pointer;
+        }
+
+        .student-profile-tab.active {
+            background: #07152f;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(7,21,47,.12);
+        }
+
+        .student-profile-slide {
+            display: none;
+        }
+
+        .student-profile-slide.active {
+            display: block;
+        }
+
+        .student-result-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .student-result-card {
+            background: #f8f9fb;
+            border: 1px solid #edf0f4;
+            border-radius: 9px;
+            padding: 13px;
+        }
+
+        .student-result-card small {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            margin-bottom: 6px;
+        }
+
+        .student-result-card strong {
+            color: #07152f;
+            font-size: 18px;
+        }
+
+        .student-result-list {
+            border: 1px solid #edf0f4;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .student-result-row {
+            display: grid;
+            grid-template-columns: 1.5fr .8fr .8fr .7fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .student-result-row:last-child {
+            border-bottom: 0;
+        }
+
+        .student-result-row small {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+
+        .student-result-row strong {
+            color: #07152f;
+            font-size: 10px;
+        }
+
+        .student-result-empty {
+            padding: 28px 16px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 10px;
+        }
+
+        .student-result-note {
+            margin-top: 12px;
+            color: #98a2b3;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
         .review-section-title {
             margin: 0 0 5px;
             color: #07152f;
@@ -1520,8 +1630,14 @@
             }
 
             .student-profile-summary,
-            .review-grid {
+            .review-grid,
+            .student-result-summary {
                 grid-template-columns: 1fr;
+            }
+
+            .student-result-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
 
             .review-field.full {
@@ -3518,6 +3634,106 @@
         }
 
 
+        function setStudentProfileSlide(slide) {
+
+            document
+                .querySelectorAll("[data-profile-slide]")
+                .forEach(button => {
+                    const active =
+                        button.dataset.profileSlide === slide;
+
+                    button.classList.toggle("active", active);
+                    button.setAttribute("aria-selected", String(active));
+                });
+
+            document
+                .querySelectorAll("[data-profile-panel]")
+                .forEach(panel => {
+                    panel.classList.toggle(
+                        "active",
+                        panel.dataset.profilePanel === slide
+                    );
+                });
+
+        }
+
+
+        function renderStudentProfileResults(studentId) {
+
+            const scores =
+                teacherScores.filter(
+                    score => score.student_id === studentId
+                );
+
+            const tests =
+                new Set(
+                    scores.map(score => score.test_id)
+                );
+
+            const marks =
+                scores
+                    .map(score => Number(score.marks_obtained))
+                    .filter(value => Number.isFinite(value));
+
+            const average =
+                marks.length
+                    ? (marks.reduce((sum, value) => sum + value, 0) / marks.length).toFixed(1)
+                    : "—";
+
+            const highest =
+                marks.length
+                    ? Math.max(...marks)
+                    : "—";
+
+            document.getElementById("studentProfileResultTests").textContent =
+                tests.size;
+
+            document.getElementById("studentProfileResultAverage").textContent =
+                average;
+
+            document.getElementById("studentProfileResultHighest").textContent =
+                highest;
+
+            const list =
+                document.getElementById("studentProfileResultList");
+
+            if (!scores.length) {
+                list.innerHTML =
+                    '<div class="student-result-empty">No results available yet.</div>';
+                return;
+            }
+
+            list.innerHTML =
+                scores.slice(0, 8).map(score => {
+                    const test =
+                        teacherTests.find(item => item.id === score.test_id);
+
+                    return `
+                        <div class="student-result-row">
+                            <div>
+                                <strong>${escapeHtml(test?.title || "Test")}</strong>
+                                <small>${escapeHtml(test?.test_date || "Date not recorded")}</small>
+                            </div>
+                            <div>
+                                <small>SUBJECT</small>
+                                <strong>${escapeHtml(score.subject || "—")}</strong>
+                            </div>
+                            <div>
+                                <small>MARKS</small>
+                                <strong>${escapeHtml(score.marks_obtained ?? "—")} / ${escapeHtml(score.max_marks ?? "—")}</strong>
+                            </div>
+                            <div>
+                                <small>RANK</small>
+                                <strong>${escapeHtml(score.rank ?? "—")}</strong>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
+
+        }
+
+
         async function openStudentProfile(
             studentId
         ) {
@@ -3585,6 +3801,8 @@
                     : "INACTIVE";
 
             clearReviewMessage();
+            setStudentProfileSlide("results");
+            renderStudentProfileResults(student.id);
 
             const modal =
                 document.getElementById(
@@ -4911,13 +5129,79 @@
                 </div>
 
 
-                <h3 class="review-section-title">
-                    Weekly Teacher Review
-                </h3>
+                <div class="student-profile-tabs" role="tablist" aria-label="Student profile sections">
+                    <button
+                        type="button"
+                        class="student-profile-tab active"
+                        id="studentProfileResultTab"
+                        data-profile-slide="results"
+                        role="tab"
+                        aria-selected="true"
+                    >
+                        PERFORMANCE
+                    </button>
 
-                <p class="review-section-subtitle">
-                    Teacher → Student → Parent
-                </p>
+                    <button
+                        type="button"
+                        class="student-profile-tab"
+                        id="studentProfileReviewTab"
+                        data-profile-slide="review"
+                        role="tab"
+                        aria-selected="false"
+                    >
+                        WEEKLY REVIEW
+                    </button>
+                </div>
+
+                <div
+                    class="student-profile-slide active"
+                    id="studentProfileResultsSlide"
+                    data-profile-panel="results"
+                >
+                    <h3 class="review-section-title">
+                        Performance Overview
+                    </h3>
+
+                    <p class="review-section-subtitle">
+                        Recent academic performance for this student.
+                    </p>
+
+                    <div class="student-result-summary">
+                        <div class="student-result-card">
+                            <small>TESTS</small>
+                            <strong id="studentProfileResultTests">—</strong>
+                        </div>
+                        <div class="student-result-card">
+                            <small>AVERAGE</small>
+                            <strong id="studentProfileResultAverage">—</strong>
+                        </div>
+                        <div class="student-result-card">
+                            <small>HIGHEST</small>
+                            <strong id="studentProfileResultHighest">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="student-result-list" id="studentProfileResultList">
+                        <div class="student-result-empty">Loading performance...</div>
+                    </div>
+
+                    <p class="student-result-note">
+                        Detailed question-wise analysis will be added in the next result step.
+                    </p>
+                </div>
+
+                <div
+                    class="student-profile-slide"
+                    id="studentProfileReviewSlide"
+                    data-profile-panel="review"
+                >
+                    <h3 class="review-section-title">
+                        Weekly Teacher Review
+                    </h3>
+
+                    <p class="review-section-subtitle">
+                        Teacher → Student → Parent
+                    </p>
 
 
                 <div class="review-grid">
@@ -5039,6 +5323,8 @@
 
                 </div>
 
+                </div>
+
             </div>
 
         </div>
@@ -5048,6 +5334,12 @@
 
 <script>
     // Student profile/review controls are bound after the modal HTML exists.
+    document.querySelectorAll("[data-profile-slide]").forEach(button => {
+        button.addEventListener("click", () => {
+            setStudentProfileSlide(button.dataset.profileSlide);
+        });
+    });
+
     document.getElementById("studentModalClose")?.addEventListener(
         "click",
         closeStudentProfile
