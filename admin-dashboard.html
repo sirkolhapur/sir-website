@@ -1186,6 +1186,128 @@
     }
 
     /* =========================
+       NOTICE MANAGEMENT
+    ========================= */
+
+    .notice-admin-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notice-admin-card {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .notice-admin-card:last-child {
+      border-bottom: 0;
+    }
+
+    .notice-admin-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .notice-admin-title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .notice-admin-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 7px;
+    }
+
+    .notice-admin-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(201,168,78,.10);
+      border: 1px solid rgba(201,168,78,.24);
+      color: #F0C75E;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .notice-admin-badge.published {
+      background: rgba(70,180,110,.10);
+      border-color: rgba(70,180,110,.22);
+      color: #75dda0;
+    }
+
+    .notice-admin-badge.draft {
+      background: rgba(255,255,255,.05);
+      border-color: rgba(255,255,255,.10);
+      color: #9eabbd;
+    }
+
+    .notice-admin-content {
+      margin-top: 13px;
+      color: #dce3ed;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .notice-admin-dates {
+      margin-top: 11px;
+      color: #7f90a6;
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .notice-admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+      flex: 0 0 auto;
+    }
+
+    .notice-action-btn {
+      border: 1px solid rgba(255,255,255,.13);
+      background: transparent;
+      color: #cbd5e1;
+      padding: 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .notice-action-btn:hover {
+      border-color: rgba(201,168,78,.45);
+      color: #F0C75E;
+    }
+
+    .notice-action-btn.delete:hover {
+      border-color: rgba(220,90,90,.45);
+      color: #ff9a9a;
+    }
+
+    .notice-modal-box {
+      max-width: 720px;
+    }
+
+    @media (max-width: 650px) {
+      .notice-admin-top {
+        flex-direction: column;
+      }
+
+      .notice-admin-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    /* =========================
        LOGIN PAGE
     ========================= */
 
@@ -2477,8 +2599,6 @@
 
     <!-- NOTICES -->
 
-    <!-- NOTICES -->
-
 <section class="section" id="notices">
 
   <div class="section-head">
@@ -2516,6 +2636,136 @@
   </div>
 
 </section>
+
+<!-- NOTICE EDIT / PUBLISH MODAL -->
+
+<div class="modal" id="noticeModal">
+
+  <div class="modal-box notice-modal-box">
+
+    <div class="modal-head">
+      <div>
+        <h2 id="noticeModalTitle">Publish Notice</h2>
+        <small style="color:#8fa0b5;">
+          Publish a notice to the SIR public website.
+        </small>
+      </div>
+
+      <button
+        type="button"
+        class="close"
+        id="closeNoticeModal"
+      >
+        &times;
+      </button>
+    </div>
+
+    <form id="noticeForm">
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label for="noticeTitle">Notice Title</label>
+          <input
+            type="text"
+            id="noticeTitle"
+            maxlength="180"
+            placeholder="e.g. NEET Batch 2027 Admissions Open"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="noticeType">Notice Type</label>
+          <select id="noticeType" required>
+            <option value="general">General</option>
+            <option value="class_schedule">Class Schedule</option>
+            <option value="test_schedule">Test Schedule</option>
+            <option value="announcement">Announcement</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="noticeEventDate">Event / Notice Date</label>
+          <input
+            type="date"
+            id="noticeEventDate"
+          >
+        </div>
+
+        <div class="field full">
+          <label for="noticeContent">Notice Content</label>
+          <textarea
+            id="noticeContent"
+            rows="10"
+            placeholder="Write the complete notice here..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="noticeExpiryDate">Expiry Date</label>
+          <input
+            type="date"
+            id="noticeExpiryDate"
+          >
+          <small style="color:#7f90a6;">
+            Optional. The notice can stop showing after this date.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="noticePublishDate">Publish Date & Time</label>
+          <input
+            type="datetime-local"
+            id="noticePublishDate"
+          >
+          <small style="color:#7f90a6;">
+            Used when the notice is published.
+          </small>
+        </div>
+
+        <div class="field full">
+          <label style="display:flex;align-items:center;gap:9px;">
+            <input
+              type="checkbox"
+              id="noticePublished"
+              checked
+              style="width:auto;margin:0;"
+            >
+            <span>Publish this notice on the public website</span>
+          </label>
+        </div>
+
+      </div>
+
+      <div id="noticeFormMessage" class="message"></div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-btn"
+          id="cancelNotice"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="primary-btn"
+          id="publishNoticeSubmit"
+        >
+          Publish Notice
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
   
 
     <section
@@ -7617,6 +7867,477 @@ if(teacherSetting?.is_enabled===false){
 
 
 /* --------------------------------
+   NOTICE MANAGEMENT
+-------------------------------- */
+
+let editingNoticeId = null;
+let adminNotices = [];
+
+function showNoticeMessage(text, type = "success") {
+  const box = document.getElementById("noticeMessage");
+  if (!box) return;
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+function hideNoticeMessage() {
+  const box = document.getElementById("noticeMessage");
+  if (!box) return;
+  box.textContent = "";
+  box.className = "message";
+}
+
+function showNoticeFormMessage(text, type = "error") {
+  const box = document.getElementById("noticeFormMessage");
+  if (!box) return;
+  box.textContent = text;
+  box.className = `message show ${type}`;
+}
+
+function hideNoticeFormMessage() {
+  const box = document.getElementById("noticeFormMessage");
+  if (!box) return;
+  box.textContent = "";
+  box.className = "message";
+}
+
+function formatNoticeDate(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function formatNoticeDateTime(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function noticeTypeLabel(type) {
+  const labels = {
+    general: "General",
+    class_schedule: "Class Schedule",
+    test_schedule: "Test Schedule",
+    announcement: "Announcement"
+  };
+
+  return labels[type] || String(type || "General");
+}
+
+function toDateTimeLocalValue(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const local = new Date(
+    date.getTime() - date.getTimezoneOffset() * 60000
+  );
+
+  return local.toISOString().slice(0, 16);
+}
+
+function openNoticeModal(notice = null) {
+  const modal = document.getElementById("noticeModal");
+  const title = document.getElementById("noticeModalTitle");
+  const submit = document.getElementById("publishNoticeSubmit");
+  const form = document.getElementById("noticeForm");
+
+  if (!modal || !form) return;
+
+  editingNoticeId = notice?.id || null;
+
+  form.reset();
+  hideNoticeFormMessage();
+
+  if (notice) {
+    title.textContent = "Edit Notice";
+    submit.textContent = "Save Changes";
+
+    document.getElementById("noticeTitle").value = notice.title || "";
+    document.getElementById("noticeType").value =
+      notice.notice_type || "general";
+    document.getElementById("noticeEventDate").value =
+      notice.event_date || "";
+    document.getElementById("noticeContent").value =
+      notice.content || "";
+    document.getElementById("noticeExpiryDate").value =
+      notice.expires_at ? String(notice.expires_at).slice(0, 10) : "";
+    document.getElementById("noticePublishDate").value =
+      toDateTimeLocalValue(notice.published_at);
+    document.getElementById("noticePublished").checked =
+      notice.is_published !== false;
+  } else {
+    title.textContent = "Publish Notice";
+    submit.textContent = "Publish Notice";
+
+    document.getElementById("noticeType").value = "general";
+    document.getElementById("noticePublished").checked = true;
+
+    const now = new Date();
+    const local = new Date(
+      now.getTime() - now.getTimezoneOffset() * 60000
+    );
+
+    document.getElementById("noticePublishDate").value =
+      local.toISOString().slice(0, 16);
+  }
+
+  modal.classList.add("show");
+  document.getElementById("noticeTitle")?.focus();
+}
+
+function closeNoticeModal() {
+  const modal = document.getElementById("noticeModal");
+  if (!modal) return;
+
+  modal.classList.remove("show");
+  editingNoticeId = null;
+  hideNoticeFormMessage();
+}
+
+function renderAdminNotices() {
+  const box = document.getElementById("noticeList");
+  if (!box) return;
+
+  if (!adminNotices.length) {
+    box.innerHTML = `
+      <div class="empty">
+        No notices have been created yet.
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = adminNotices.map(notice => {
+    const statusClass = notice.is_published ? "published" : "draft";
+    const statusText = notice.is_published ? "Published" : "Draft";
+
+    const eventDate = notice.event_date
+      ? `Event: ${escapeHtml(formatNoticeDate(notice.event_date))}`
+      : "";
+
+    const publishedDate = notice.published_at
+      ? `Published: ${escapeHtml(formatNoticeDateTime(notice.published_at))}`
+      : "Not published";
+
+    const expiryDate = notice.expires_at
+      ? `Expiry: ${escapeHtml(formatNoticeDate(notice.expires_at))}`
+      : "";
+
+    return `
+      <article class="notice-admin-card">
+        <div class="notice-admin-top">
+
+          <div style="min-width:0;">
+            <div class="notice-admin-title">
+              ${escapeHtml(notice.title || "Untitled Notice")}
+            </div>
+
+            <div class="notice-admin-meta">
+              <span class="notice-admin-badge">
+                ${escapeHtml(noticeTypeLabel(notice.notice_type))}
+              </span>
+
+              <span class="notice-admin-badge ${statusClass}">
+                ${statusText}
+              </span>
+            </div>
+          </div>
+
+          <div class="notice-admin-actions">
+            <button
+              type="button"
+              class="notice-action-btn"
+              data-edit-notice="${escapeHtml(notice.id)}"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              class="notice-action-btn delete"
+              data-delete-notice="${escapeHtml(notice.id)}"
+            >
+              Delete
+            </button>
+          </div>
+
+        </div>
+
+        <div class="notice-admin-content">
+          ${escapeHtml(notice.content || "")}
+        </div>
+
+        <div class="notice-admin-dates">
+          ${eventDate ? `${eventDate} &nbsp;•&nbsp; ` : ""}
+          ${publishedDate}
+          ${expiryDate ? ` &nbsp;•&nbsp; ${expiryDate}` : ""}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  box.querySelectorAll("[data-edit-notice]").forEach(button => {
+    button.addEventListener("click", () => {
+      const notice = adminNotices.find(
+        item => String(item.id) === String(button.dataset.editNotice)
+      );
+
+      if (notice) openNoticeModal(notice);
+    });
+  });
+
+  box.querySelectorAll("[data-delete-notice]").forEach(button => {
+    button.addEventListener("click", () => {
+      deleteNotice(button.dataset.deleteNotice);
+    });
+  });
+}
+
+async function loadNotices() {
+  const box = document.getElementById("noticeList");
+  if (!box) return;
+
+  box.innerHTML = `
+    <div class="empty">
+      Loading notices...
+    </div>
+  `;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("notices")
+      .select(`
+        id,
+        title,
+        content,
+        notice_type,
+        event_date,
+        published_at,
+        expires_at,
+        is_published,
+        created_by,
+        created_at
+      `)
+      .order("is_published", { ascending: false })
+      .order("event_date", { ascending: false, nullsFirst: false })
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    adminNotices = data || [];
+    renderAdminNotices();
+  } catch (error) {
+    console.error("Notice load error:", error);
+
+    adminNotices = [];
+
+    box.innerHTML = `
+      <div class="empty">
+        Unable to load notices.
+      </div>
+    `;
+
+    showNoticeMessage(
+      error?.message || "Unable to load notices.",
+      "error"
+    );
+  }
+}
+
+async function saveNotice(event) {
+  event.preventDefault();
+
+  const title = document.getElementById("noticeTitle")?.value.trim();
+  const noticeType = document.getElementById("noticeType")?.value;
+  const eventDate = document.getElementById("noticeEventDate")?.value || null;
+  const content = document.getElementById("noticeContent")?.value.trim();
+  const expiryDate = document.getElementById("noticeExpiryDate")?.value || null;
+  const publishDate = document.getElementById("noticePublishDate")?.value || null;
+  const isPublished = document.getElementById("noticePublished")?.checked === true;
+  const button = document.getElementById("publishNoticeSubmit");
+
+  if (!title || !content) {
+    showNoticeFormMessage("Title and notice content are required.", "error");
+    return;
+  }
+
+  if (!noticeType) {
+    showNoticeFormMessage("Select a notice type.", "error");
+    return;
+  }
+
+  if (
+    eventDate &&
+    expiryDate &&
+    expiryDate < eventDate
+  ) {
+    showNoticeFormMessage(
+      "Expiry date cannot be before the event / notice date.",
+      "error"
+    );
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = editingNoticeId ? "Saving..." : "Publishing...";
+
+  try {
+    const payload = {
+      title,
+      content,
+      notice_type: noticeType,
+      event_date: eventDate,
+      published_at: isPublished
+        ? (publishDate ? new Date(publishDate).toISOString() : new Date().toISOString())
+        : null,
+      expires_at: expiryDate,
+      is_published: isPublished
+    };
+
+    if (editingNoticeId) {
+      const { error } = await supabaseClient
+        .from("notices")
+        .update(payload)
+        .eq("id", editingNoticeId);
+
+      if (error) throw error;
+
+      closeNoticeModal();
+      showNoticeMessage("Notice updated successfully.", "success");
+    } else {
+      const { data: authData, error: authError } =
+        await supabaseClient.auth.getUser();
+
+      if (authError) throw authError;
+
+      if (authData?.user?.id) {
+        payload.created_by = authData.user.id;
+      }
+
+      const { error } = await supabaseClient
+        .from("notices")
+        .insert(payload);
+
+      if (error) throw error;
+
+      closeNoticeModal();
+      showNoticeMessage(
+        isPublished
+          ? "Notice published successfully."
+          : "Notice saved as draft.",
+        "success"
+      );
+    }
+
+    await loadNotices();
+    await loadCounters();
+  } catch (error) {
+    console.error("Notice save error:", error);
+
+    showNoticeFormMessage(
+      error?.message || "Unable to save notice.",
+      "error"
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = editingNoticeId
+      ? "Save Changes"
+      : "Publish Notice";
+  }
+}
+
+async function deleteNotice(noticeId) {
+  const notice = adminNotices.find(
+    item => String(item.id) === String(noticeId)
+  );
+
+  if (!notice) return;
+
+  if (
+    !confirm(
+      `Delete this notice?\n\n${notice.title || "Untitled Notice"}`
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("notices")
+      .delete()
+      .eq("id", noticeId);
+
+    if (error) throw error;
+
+    showNoticeMessage("Notice deleted successfully.", "success");
+
+    await loadNotices();
+    await loadCounters();
+  } catch (error) {
+    console.error("Notice delete error:", error);
+
+    showNoticeMessage(
+      error?.message || "Unable to delete notice.",
+      "error"
+    );
+  }
+}
+
+document
+  .getElementById("publishNoticeBtn")
+  ?.addEventListener("click", () => openNoticeModal());
+
+document
+  .getElementById("closeNoticeModal")
+  ?.addEventListener("click", closeNoticeModal);
+
+document
+  .getElementById("cancelNotice")
+  ?.addEventListener("click", closeNoticeModal);
+
+document
+  .getElementById("noticeForm")
+  ?.addEventListener("submit", saveNotice);
+
+document
+  .getElementById("noticeModal")
+  ?.addEventListener("click", event => {
+    if (event.target.id === "noticeModal") {
+      closeNoticeModal();
+    }
+  });
+
+document
+  .querySelector('[data-section="notices"]')
+  ?.addEventListener("click", async () => {
+    hideNoticeMessage();
+    await loadNotices();
+  });
+
+/* --------------------------------
    INIT
 -------------------------------- */
 
@@ -7650,6 +8371,7 @@ if(teacherSetting?.is_enabled===false){
   await loadAdminTests();
 
   await loadCounters();
+  await loadNotices();
 
 })();
 
