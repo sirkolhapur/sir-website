@@ -2921,6 +2921,10 @@
 
         let teacherScores = [];
 
+        let teacherMasterResults = [];
+
+        let teacherMasterSubjects = [];
+
         let selectedStudentForResults = null;
 
         let selectedTestForResults = null;
@@ -4218,60 +4222,87 @@
                     student => student.id
                 );
 
-
             if (!studentIds.length) {
-
                 teacherScores = [];
-
+                teacherMasterResults = [];
+                teacherMasterSubjects = [];
                 renderResults();
-
                 return;
-
             }
 
+            const [masterResponse, subjectResponse, legacyResponse] =
+                await Promise.all([
+                    supabaseClient
+                        .from("student_test_results")
+                        .select(`
+                            id,
+                            student_id,
+                            exam_name,
+                            test_date,
+                            mode,
+                            test_type,
+                            stream,
+                            max_marks,
+                            marks_obtained,
+                            percentage,
+                            percentile,
+                            batch_rank,
+                            overall_rank,
+                            status
+                        `)
+                        .in("student_id", studentIds)
+                        .order("test_date", { ascending: false }),
+                    supabaseClient
+                        .from("student_test_subject_results")
+                        .select(`
+                            id,
+                            result_id,
+                            subject,
+                            marks_obtained,
+                            attempted,
+                            correct,
+                            wrong,
+                            skipped
+                        `),
+                    supabaseClient
+                        .from("test_scores")
+                        .select(`
+                            id,
+                            test_id,
+                            student_id,
+                            subject,
+                            marks_obtained,
+                            max_marks,
+                            rank,
+                            correct_answers
+                        `)
+                        .in("student_id", studentIds)
+                        .order("id", { ascending: false })
+                ]);
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient
-                    .from("test_scores")
-                    .select(`
-                        id,
-                        test_id,
-                        student_id,
-                        subject,
-                        marks_obtained,
-                        max_marks,
-                        rank,
-                        correct_answers
-                    `)
-                    .in(
-                        "student_id",
-                        studentIds
-                    )
-                    .order(
-                        "id",
-                        {
-                            ascending: false
-                        }
-                    );
-
-
-            if (error) {
-
-                console.error(error);
-
-                throw new Error(
-                    "Unable to load student results."
+            if (masterResponse.error) {
+                console.warn(
+                    "Authoritative student results unavailable; using legacy test scores.",
+                    masterResponse.error
                 );
-
+                teacherMasterResults = [];
+                teacherMasterSubjects = [];
+            } else {
+                teacherMasterResults = masterResponse.data || [];
+                teacherMasterSubjects = subjectResponse.error
+                    ? []
+                    : (subjectResponse.data || []);
             }
 
-
-            teacherScores =
-                data || [];
-
+            if (legacyResponse.error) {
+                console.warn(
+                    "Legacy teacher scores unavailable.",
+                    legacyResponse.error
+                );
+                teacherScores = [];
+            } else {
+                teacherScores = legacyResponse.data || [];
+            }
 
             renderResults();
 
@@ -4324,43 +4355,126 @@
 
         function getStudentResultSummary(studentId) {
 
-            const scores = getStudentScores(studentId);
+            const masterResults =
+                teacherMasterResults.filter(
+                    result => result.student_id === studentId
+                );
 
+            if (masterResults.length) {
+
+                const tests = masterResults.map(result => {
+
+                    const subjectRows =
+                        teacherMasterSubjects.filter(
+                            row => row.result_id === result.id
+                        );
+
+                    const fallbackRow = {
+                        subject:
+                            result.stream ||
+                            result.test_type ||
+                            result.mode ||
+                            "Overall",
+                        marks_obtained:
+                            result.marks_obtained,
+                        max_marks:
+                            result.max_marks
+                    };
+
+                    const rows =
+                        subjectRows.length
+                            ? subjectRows.map(row => ({
+                                ...row,
+                                max_marks: null,
+                                rank: result.batch_rank ?? result.overall_rank
+                            }))
+                            : [fallbackRow];
+
+                    return {
+                        testId: result.id,
+                        rows,
+                        marks: Number(result.marks_obtained) || 0,
+                        max: Number(result.max_marks) || 0,
+                        percentage: Number(result.percentage) || 0,
+                        rank:
+                            Number.isFinite(Number(result.batch_rank))
+                                ? Number(result.batch_rank)
+                                : (
+                                    Number.isFinite(Number(result.overall_rank))
+                                        ? Number(result.overall_rank)
+                                        : null
+                                ),
+                        test: {
+                            title: result.exam_name || "Test",
+                            test_date: result.test_date,
+                            subject:
+                                result.stream ||
+                                result.test_type ||
+                                result.mode ||
+                                ""
+                        },
+                        status: result.status || "Appeared",
+                        percentile: result.percentile
+                    };
+
+                });
+
+                const validPercentages =
+                    tests
+                        .map(test => Number(test.percentage))
+                        .filter(value => Number.isFinite(value));
+
+                const average = validPercentages.length
+                    ? validPercentages.reduce((a, b) => a + b, 0) /
+                        validPercentages.length
+                    : 0;
+
+                const highest = validPercentages.length
+                    ? Math.max(...validPercentages)
+                    : 0;
+
+                const ranks = tests
+                    .map(test => test.rank)
+                    .filter(value => Number.isFinite(value) && value > 0);
+
+                return {
+                    scores: masterResults,
+                    tests,
+                    average,
+                    highest,
+                    bestRank: ranks.length ? Math.min(...ranks) : null
+                };
+            }
+
+            /* Legacy fallback */
+            const scores = getStudentScores(studentId);
             const grouped = new Map();
 
             scores.forEach(score => {
-
                 if (!grouped.has(score.test_id)) {
                     grouped.set(score.test_id, []);
                 }
-
                 grouped.get(score.test_id).push(score);
-
             });
 
             const tests = [...grouped.entries()].map(
                 ([testId, rows]) => {
-
                     const marks = rows.reduce(
                         (sum, row) =>
                             sum + (Number(row.marks_obtained) || 0),
                         0
                     );
-
                     const max = rows.reduce(
                         (sum, row) =>
                             sum + (Number(row.max_marks) || 0),
                         0
                     );
-
                     const percentage = max > 0
                         ? (marks / max) * 100
                         : 0;
-
                     const ranks = rows
                         .map(row => Number(row.rank))
                         .filter(value => Number.isFinite(value) && value > 0);
-
                     return {
                         testId,
                         rows,
@@ -4370,7 +4484,6 @@
                         rank: ranks.length ? Math.min(...ranks) : null,
                         test: getTestForScore(rows[0])
                     };
-
                 }
             );
 
@@ -4378,20 +4491,16 @@
                 (sum, test) => sum + test.marks,
                 0
             );
-
             const totalMax = tests.reduce(
                 (sum, test) => sum + test.max,
                 0
             );
-
             const average = totalMax > 0
                 ? (totalMarks / totalMax) * 100
                 : 0;
-
             const highest = tests.length
                 ? Math.max(...tests.map(test => test.percentage))
                 : 0;
-
             const ranks = tests
                 .map(test => test.rank)
                 .filter(value => Number.isFinite(value));
@@ -4405,6 +4514,7 @@
             };
 
         }
+
 
 
         function populateResultBatchFilter() {
@@ -4518,7 +4628,7 @@
                             <button
                                 type="button"
                                 class="results-action-btn"
-                                onclick="openStudentResults('${escapeHtml(student.id)}')"
+                                data-result-student-id="${escapeHtml(student.id)}"
                             >
                                 VIEW RESULTS
                             </button>
@@ -4529,6 +4639,20 @@
             }).join("");
 
         }
+
+
+        document.getElementById("resultsDirectoryBody")?.addEventListener(
+            "click",
+            event => {
+                const button = event.target.closest("[data-result-student-id]");
+
+                if (!button) {
+                    return;
+                }
+
+                openStudentResults(button.dataset.resultStudentId);
+            }
+        );
 
 
         function showResultsDirectory() {
@@ -4667,8 +4791,8 @@
                                                 </span>
                                             </td>
                                             <td>${formatResultDate(test.test?.test_date)}</td>
-                                            <td>${test.marks} / ${test.max}</td>
-                                            <td>${test.percentage.toFixed(1)}%</td>
+                                            <td>${String(test.status || "").toUpperCase() === "AB" ? "AB" : `${test.marks} / ${test.max}`}</td>
+                                            <td>${String(test.status || "").toUpperCase() === "AB" ? "—" : `${test.percentage.toFixed(1)}%`}</td>
                                             <td>${test.rank ?? "—"}</td>
                                             <td>
                                                 <button
@@ -4795,6 +4919,11 @@
                         <strong>${test.rank ?? "—"}</strong>
                     </div>
 
+                    <div class="results-detail-box">
+                        <small>PERCENTILE</small>
+                        <strong>${test.percentile ?? "—"}</strong>
+                    </div>
+
                 </div>
 
                 <div class="results-test-card results-test-detail">
@@ -4821,8 +4950,8 @@
                                     <tr>
                                         <td class="student-name">${escapeHtml(subject)}</td>
                                         <td>${value.marks}</td>
-                                        <td>${value.max}</td>
-                                        <td>${value.max > 0 ? ((value.marks / value.max) * 100).toFixed(1) : "0.0"}%</td>
+                                        <td>${value.max > 0 ? value.max : "—"}</td>
+                                        <td>${value.max > 0 ? ((value.marks / value.max) * 100).toFixed(1) : "—"}${value.max > 0 ? "%" : ""}</td>
                                     </tr>
                                 `).join("")}
                             </tbody>
