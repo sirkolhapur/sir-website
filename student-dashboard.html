@@ -2898,41 +2898,38 @@ header, main, footer {
       };
     }
 
-
-    let hasCorrect = false;
-    let hasWrong = false;
-    let hasSkipped = false;
-
-    let correct = 0;
-    let wrong = 0;
-    let skipped = 0;
-
-
-    subjects.forEach(subject => {
-
-      if (subject.correct !== null && subject.correct !== undefined) {
-        hasCorrect = true;
-        correct += Number(subject.correct) || 0;
-      }
-
-      if (subject.wrong !== null && subject.wrong !== undefined) {
-        hasWrong = true;
-        wrong += Number(subject.wrong) || 0;
-      }
-
-      if (subject.skipped !== null && subject.skipped !== undefined) {
-        hasSkipped = true;
-        skipped += Number(subject.skipped) || 0;
-      }
-
-    });
-
+    const sumField = field => {
+      const values = subjects.map(subject => finiteNumber(subject?.[field]));
+      if (values.some(value => value === null)) return null;
+      return values.reduce((total, value) => total + value, 0);
+    };
 
     return {
-      correct: hasCorrect ? correct : null,
-      wrong: hasWrong ? wrong : null,
-      skipped: hasSkipped ? skipped : null
+      correct: sumField("correct"),
+      wrong: sumField("wrong"),
+      skipped: sumField("skipped")
     };
+
+  }
+
+
+  function getQuestionOutcome(question) {
+
+    const result = String(question?.result || "").trim().toLowerCase();
+
+    if (question?.is_skipped === true || ["skipped", "unanswered"].includes(result)) {
+      return "skipped";
+    }
+
+    if (question?.is_correct === true || result === "correct") {
+      return "correct";
+    }
+
+    if (question?.is_correct === false || ["wrong", "incorrect", "wrong_answer"].includes(result)) {
+      return "wrong";
+    }
+
+    return null;
 
   }
 
@@ -2947,34 +2944,34 @@ header, main, footer {
       };
     }
 
-
     let correct = 0;
     let wrong = 0;
     let skipped = 0;
-
+    let hasUnknown = false;
 
     questions.forEach(question => {
 
-      const result =
-        String(question.result || "").trim().toLowerCase();
+      const outcome = getQuestionOutcome(question);
 
-
-      if (question.is_skipped || result === "skipped") {
+      if (outcome === "skipped") {
         skipped++;
-        return;
-      }
-
-
-      if (question.is_correct || result === "correct") {
+      } else if (outcome === "correct") {
         correct++;
-        return;
+      } else if (outcome === "wrong") {
+        wrong++;
+      } else {
+        hasUnknown = true;
       }
-
-
-      wrong++;
 
     });
 
+    if (hasUnknown) {
+      return {
+        correct: null,
+        wrong: null,
+        skipped: null
+      };
+    }
 
     return {
       correct,
@@ -3716,7 +3713,7 @@ dspDateEl.value = dspToday;
       row.marks_obtained !== undefined
     ) {
 
-      return Number(
+      return finiteNumber(
         row.marks_obtained
       );
 
@@ -3746,7 +3743,7 @@ dspDateEl.value = dspToday;
       row.max_marks !== undefined
     ) {
 
-      return Number(
+      return finiteNumber(
         row.max_marks
       );
 
@@ -3759,7 +3756,7 @@ dspDateEl.value = dspToday;
       row.test.max_marks !== undefined
     ) {
 
-      return Number(
+      return finiteNumber(
         row.test.max_marks
       );
 
@@ -3788,7 +3785,8 @@ dspDateEl.value = dspToday;
     if (
       row.percentage !== null &&
       row.percentage !== undefined &&
-      !isNaN(Number(row.percentage))
+      String(row.percentage).trim() !== "" &&
+      Number.isFinite(Number(row.percentage))
     ) {
 
       return Number(row.percentage);
@@ -3978,7 +3976,7 @@ dspDateEl.value = dspToday;
      SIR JOURNEY — PHASE 1 DATA LAYER
      ===================================================== */
   function finiteNumber(value){if(value===null||value===undefined||(typeof value==='string'&&value.trim()===''))return null;const n=Number(value);return Number.isFinite(n)?n:null}
-  function getQuestionCounts(row){const c=finiteNumber(row?.correct_answers),w=finiteNumber(row?.incorrect_answers),s=finiteNumber(row?.unanswered);if(c===null&&w===null&&s===null)return null;return{correct:c??0,wrong:w??0,skipped:s??0}}
+  function getQuestionCounts(row){const c=finiteNumber(row?.correct_answers),w=finiteNumber(row?.incorrect_answers),s=finiteNumber(row?.unanswered);if(c===null||w===null||s===null)return null;return{correct:c,wrong:w,skipped:s}}
   function getTotalQuestions(row){const x=getQuestionCounts(row);if(x)return x.correct+x.wrong+x.skipped;const q=Array.isArray(row?.question_results)?row.question_results.length:0;return q||null}
   function getAttemptedQuestions(row){const x=getQuestionCounts(row);return x?x.correct+x.wrong:null}
   function getAccuracy(row){const x=getQuestionCounts(row);if(!x)return null;const a=x.correct+x.wrong;return a>0?(x.correct/a)*100:null}
@@ -4696,26 +4694,23 @@ dspDateEl.value = dspToday;
       ? `
         <div class="subject-result-grid">
           ${subjects.map(subject => {
-            const pct =
-              Number(subject.percentage);
-            const safePct =
-              !isNaN(pct)
-                ? pct
-                : (
-                    Number(subject.max_marks) > 0
-                      ? (Number(subject.marks_obtained || 0) / Number(subject.max_marks)) * 100
-                      : 0
-                  );
+            let safePct = finiteNumber(subject.percentage);
+            const subjectMarks = finiteNumber(subject.marks_obtained);
+            const subjectMax = finiteNumber(subject.max_marks);
+
+            if (safePct === null && subjectMarks !== null && subjectMax !== null && subjectMax > 0) {
+              safePct = (subjectMarks / subjectMax) * 100;
+            }
 
             return `
               <div class="subject-result-card">
-                <strong>${escapeHTML(Math.round(safePct))}%</strong>
+                <strong>${safePct === null ? "—" : escapeHTML(Math.round(safePct)) + "%"}</strong>
                 <small>
                   ${escapeHTML(subject.subject || "Subject")}
                   · ${escapeHTML(subject.marks_obtained ?? "—")} / ${escapeHTML(subject.max_marks ?? "—")}
                 </small>
                 <div class="subject-result-bar">
-                  <i style="width:${Math.max(0, Math.min(100, safePct))}%"></i>
+                  <i style="width:${safePct === null ? 0 : Math.max(0, Math.min(100, safePct))}%"></i>
                 </div>
                 <small>
                   ${
@@ -4753,15 +4748,17 @@ dspDateEl.value = dspToday;
             const result =
               String(question.result || "").trim().toLowerCase();
 
+            const outcome = getQuestionOutcome(question);
+
             const statusClass =
-              question.is_skipped || result === "skipped"
+              outcome === "skipped"
                 ? "answer-skipped"
-                : (question.is_correct || result === "correct" ? "answer-correct" : "answer-wrong");
+                : (outcome === "correct" ? "answer-correct" : (outcome === "wrong" ? "answer-wrong" : ""));
 
             const statusText =
-              question.is_skipped || result === "skipped"
+              outcome === "skipped"
                 ? "Unanswered"
-                : (question.is_correct || result === "correct" ? "Correct" : "Incorrect");
+                : (outcome === "correct" ? "Correct" : (outcome === "wrong" ? "Incorrect" : "Status unavailable"));
 
             const attempted =
               q.studentAnswer === null || q.studentAnswer === undefined || String(q.studentAnswer).trim() === ""
