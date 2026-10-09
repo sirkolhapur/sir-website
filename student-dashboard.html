@@ -3893,7 +3893,7 @@ dspDateEl.value = dspToday;
   /* =====================================================
      SIR JOURNEY — PHASE 1 DATA LAYER
      ===================================================== */
-  function finiteNumber(value){const n=Number(value);return Number.isFinite(n)?n:null}
+  function finiteNumber(value){if(value===null||value===undefined||(typeof value==='string'&&value.trim()===''))return null;const n=Number(value);return Number.isFinite(n)?n:null}
   function getQuestionCounts(row){const c=finiteNumber(row?.correct_answers),w=finiteNumber(row?.incorrect_answers),s=finiteNumber(row?.unanswered);if(c===null&&w===null&&s===null)return null;return{correct:c??0,wrong:w??0,skipped:s??0}}
   function getTotalQuestions(row){const x=getQuestionCounts(row);if(x)return x.correct+x.wrong+x.skipped;const q=Array.isArray(row?.question_results)?row.question_results.length:0;return q||null}
   function getAttemptedQuestions(row){const x=getQuestionCounts(row);return x?x.correct+x.wrong:null}
@@ -4015,15 +4015,16 @@ dspDateEl.value = dspToday;
 
       subjects.forEach(subject => {
         const name = String(subject.subject || "Other").trim();
-        const marks = Number(subject.marks_obtained);
-        const max = Number(subject.max_marks);
-        let pct = Number(subject.percentage);
+        // Missing database values must remain missing, not become 0 via Number(null).
+        const marks = finiteNumber(subject.marks_obtained);
+        const max = finiteNumber(subject.max_marks);
+        let pct = finiteNumber(subject.percentage);
 
-        if (isNaN(pct) && max > 0 && !isNaN(marks)) {
+        if (pct === null && marks !== null && max !== null && max > 0) {
           pct = (marks / max) * 100;
         }
 
-        if (isNaN(pct)) return;
+        if (pct === null) return;
 
         if (!aggregate.has(name)) {
           aggregate.set(name, { total: 0, count: 0 });
