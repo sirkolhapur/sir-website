@@ -8481,7 +8481,7 @@ function parseSirExcelRow(row,index){
   const maxMarks=marksPair.max ?? maxExplicit;
   const obtained=marksPair.obtained;
   let percentage=cleanNumber(excelValue(row,["%TAGE","Percentage","%","Percent"]));
-  if(percentage===null && obtained!==null && maxMarks) percentage=Number(((obtained/maxMarks)*100).toFixed(2));
+  if(percentage===null && obtained!==null && maxMarks!==null && maxMarks>0) percentage=Number(((obtained/maxMarks)*100).toFixed(2));
   const percentile=cleanNumber(excelValue(row,["%TILE","Percentile"]));
   const batchRankRaw=excelValue(row,["Batch Rank"]), overallRankRaw=excelValue(row,["Overall Rank","Rank"]);
   const batchRank=/^ab$/i.test(String(batchRankRaw).trim())?null:cleanNumber(batchRankRaw);
@@ -8518,8 +8518,12 @@ function renderResults(){
   const search=(document.getElementById("resultSearch")?.value||"").trim().toLowerCase();
   const testFilter=document.getElementById("resultTestFilter")?.value||""; const subjectFilter=document.getElementById("resultSubjectFilter")?.value||"";
   const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
-  const appeared=adminResults.filter(r=>String(r.status||"").toUpperCase()!=="AB"); const pcts=appeared.map(r=>Number(r.percentage)).filter(Number.isFinite);
-  document.getElementById("totalResults").textContent=adminResults.length; document.getElementById("resultStudents").textContent=new Set(appeared.map(r=>r.student_id)).size; document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"0%"; document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"0%";
+  const appeared=adminResults.filter(r=>String(r.status||"").trim().toUpperCase()!=="AB");
+  const pcts=appeared.map(r=>r.percentage===null||r.percentage===undefined||String(r.percentage).trim()===""?null:Number(r.percentage)).filter(v=>v!==null&&Number.isFinite(v));
+  document.getElementById("totalResults").textContent=adminResults.length;
+  document.getElementById("resultStudents").textContent=new Set(appeared.map(r=>r.student_id).filter(Boolean)).size;
+  document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"—";
+  document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"—";
   if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty">No SIR results found.</td></tr>'; return; }
   tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${r.percentage==null?"—":escapeHtml(r.percentage)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
 }
@@ -8528,14 +8532,16 @@ function questionResultClass(result){
   const v=String(result||"").trim().toLowerCase();
   if(v.includes("wrong")||v.includes("incorrect"))return "q-wrong";
   if(v.includes("skip")||v.includes("unanswer")||v==="-"||v==="")return "q-skipped";
-  return "q-correct";
+  if(v.includes("correct"))return "q-correct";
+  return "q-unavailable";
 }
 function questionResultLabel(q){
   const v=String(q.result||"").trim().toLowerCase();
   if(v.includes("wrong")||v.includes("incorrect"))return "Wrong";
-  if(v.includes("skip")||v.includes("unanswer"))return "Skipped";
+  if(v.includes("skip")||v.includes("unanswer")||q.is_skipped===true||q.is_skipped===1)return "Skipped";
   if(q.is_correct===true||q.is_correct===1||v.includes("correct"))return "Correct";
-  return q.student_answer==null||String(q.student_answer).trim()===""||String(q.student_answer).trim()==="-"?"Skipped":"Correct";
+  if(q.student_answer==null||String(q.student_answer).trim()===""||String(q.student_answer).trim()==="-")return "Skipped";
+  return "Status unavailable";
 }
 async function openQuestionAnalysis(resultId){
   const result=adminResults.find(x=>x.id===resultId); if(!result)return;
@@ -8553,10 +8559,10 @@ async function openQuestionAnalysis(resultId){
   }
   const rows=data||[];
   if(!rows.length){ document.getElementById("questionAnalysisBody").innerHTML='<div class="question-empty">No question-level responses have been imported for this test yet. The test-level and subject-level result is available above.</div>'; return; }
-  const counts={correct:0,wrong:0,skipped:0}; rows.forEach(q=>{const l=questionResultLabel(q); if(l==="Wrong")counts.wrong++;else if(l==="Skipped")counts.skipped++;else counts.correct++;});
-  document.getElementById("questionAnalysisSummary").innerHTML+=`<div class="question-summary-card"><span>Correct</span><strong class="q-correct">${counts.correct}</strong></div><div class="question-summary-card"><span>Wrong</span><strong class="q-wrong">${counts.wrong}</strong></div><div class="question-summary-card"><span>Skipped</span><strong class="q-skipped">${counts.skipped}</strong></div>`;
+  const counts={correct:0,wrong:0,skipped:0,unknown:0}; rows.forEach(q=>{const l=questionResultLabel(q); if(l==="Wrong")counts.wrong++;else if(l==="Skipped")counts.skipped++;else if(l==="Correct")counts.correct++;else counts.unknown++;});
+  document.getElementById("questionAnalysisSummary").innerHTML+=`<div class="question-summary-card"><span>Correct</span><strong class="q-correct">${counts.correct}</strong></div><div class="question-summary-card"><span>Wrong</span><strong class="q-wrong">${counts.wrong}</strong></div><div class="question-summary-card"><span>Skipped</span><strong class="q-skipped">${counts.skipped}</strong></div>${counts.unknown?`<div class="question-summary-card"><span>Status unavailable</span><strong>${counts.unknown}</strong></div>`:""}`;
   const groups={}; rows.forEach(q=>(groups[q.subject] ||= []).push(q));
-  document.getElementById("questionAnalysisBody").innerHTML=Object.entries(groups).map(([subject,qs])=>{const c={correct:0,wrong:0,skipped:0};qs.forEach(q=>{const l=questionResultLabel(q);c[l.toLowerCase()]++;});return `<div class="subject-analysis"><div class="subject-analysis-head"><strong>${escapeHtml(subject)}</strong><small><span class="q-correct">${c.correct||0} Correct</span> • <span class="q-wrong">${c.wrong||0} Wrong</span> • <span class="q-skipped">${c.skipped||0} Skipped</span></small></div><div class="question-table-wrap"><table class="question-table"><thead><tr><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th>Result</th><th>Marks</th></tr></thead><tbody>${qs.map(q=>{const label=questionResultLabel(q);return `<tr><td>Q${escapeHtml(q.question_number??"—")}</td><td>${escapeHtml(q.student_answer??"—")}</td><td>${escapeHtml(q.correct_answer??"—")}</td><td class="${questionResultClass(label)}">${label}</td><td>${q.marks_obtained==null?"—":escapeHtml(q.marks_obtained)}</td></tr>`;}).join("")}</tbody></table></div></div>`;}).join("");
+  document.getElementById("questionAnalysisBody").innerHTML=Object.entries(groups).map(([subject,qs])=>{const c={correct:0,wrong:0,skipped:0,unknown:0};qs.forEach(q=>{const l=questionResultLabel(q);if(l==="Correct")c.correct++;else if(l==="Wrong")c.wrong++;else if(l==="Skipped")c.skipped++;else c.unknown++;});return `<div class="subject-analysis"><div class="subject-analysis-head"><strong>${escapeHtml(subject)}</strong><small><span class="q-correct">${c.correct} Correct</span> • <span class="q-wrong">${c.wrong} Wrong</span> • <span class="q-skipped">${c.skipped} Skipped</span>${c.unknown?` • ${c.unknown} Status unavailable`:""}</small></div><div class="question-table-wrap"><table class="question-table"><thead><tr><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th>Result</th><th>Marks</th></tr></thead><tbody>${qs.map(q=>{const label=questionResultLabel(q);return `<tr><td>Q${escapeHtml(q.question_number??"—")}</td><td>${escapeHtml(q.student_answer??"—")}</td><td>${escapeHtml(q.correct_answer??"—")}</td><td class="${questionResultClass(label)}">${label}</td><td>${q.marks_obtained==null?"—":escapeHtml(q.marks_obtained)}</td></tr>`;}).join("")}</tbody></table></div></div>`;}).join("");
 }
 function closeQuestionAnalysis(){document.getElementById("questionAnalysisModal")?.classList.remove("show");}
 
