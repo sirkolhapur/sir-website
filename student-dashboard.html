@@ -1470,7 +1470,91 @@ header, main, footer {
 
 /* ===== SIR JOURNEY PHASE 1 ===== */
 .journey-hero{margin-top:22px;padding:28px;border:1px solid rgba(217,170,69,.18);border-radius:24px;background:linear-gradient(135deg,rgba(217,170,69,.055),rgba(255,255,255,.025))}.journey-top{display:flex;justify-content:space-between;gap:24px;margin-bottom:22px}.journey-kicker{color:var(--gold-light);text-transform:uppercase;letter-spacing:2.4px;font-size:10px;margin-bottom:8px}.journey-title{font-family:Georgia,serif;font-size:clamp(28px,4vw,42px);font-weight:400}.journey-subtitle{color:var(--muted);font-size:13px;line-height:1.65;max-width:680px;margin-top:8px}.journey-source-note{border:1px solid var(--line);border-radius:13px;padding:12px 14px;color:var(--muted);font-size:10px;line-height:1.5;max-width:270px}.journey-source-note strong{display:block;color:var(--gold-light);margin-bottom:4px}.journey-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.journey-stat,.story-card,.trend-panel{border:1px solid var(--line);border-radius:18px;background:var(--card);padding:20px}.journey-stat small,.batch-stat small,.story-item small{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.journey-stat strong{font-size:25px;font-weight:500}.journey-stat span,.story-item span,.batch-stat span{display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:5px}.story-grid,.trend-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.story-card.primary{background:linear-gradient(135deg,rgba(217,170,69,.075),rgba(255,255,255,.025));border-color:rgba(217,170,69,.16)}.story-card h3,.trend-panel h3{font-family:Georgia,serif;font-weight:400;font-size:21px;margin-bottom:7px}.story-card>p,.trend-panel>p{color:var(--muted);font-size:11px;line-height:1.6}.story-list,.consistency-card{display:grid;gap:9px;margin-top:15px}.story-item,.consistency-line{border:1px solid var(--line);border-radius:13px;padding:12px}.story-item small{color:var(--gold-light);text-transform:uppercase;letter-spacing:1px;font-size:9px}.story-item strong{display:block;font-size:13px;font-weight:500;line-height:1.45}.trend-bars,.accuracy-bars{min-height:250px;display:flex;align-items:flex-end;gap:9px;padding:20px 0 4px;overflow:hidden}.trend-bar-wrap,.accuracy-bar-wrap{flex:1;min-width:30px;height:220px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}.trend-bar,.accuracy-bar{width:min(34px,75%);min-height:4px;border-radius:7px 7px 2px 2px}.trend-bar{background:linear-gradient(to top,var(--gold),var(--gold-light))}.accuracy-bar{background:linear-gradient(to top,#7c94b4,#b8c9df)}.trend-bar-label,.trend-bar-value,.accuracy-bar-label,.accuracy-bar-value{font-size:9px;color:var(--muted);white-space:nowrap}.trend-bar-value,.accuracy-bar-value{color:var(--gold-light)}.consistency-line{display:flex;justify-content:space-between;gap:15px}.consistency-line span{color:var(--muted);font-size:10px}.consistency-line strong{font-size:13px}.batch-card{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.batch-stat{border:1px solid var(--line);border-radius:15px;padding:17px}.batch-stat strong{font-size:22px;font-weight:500}.data-unavailable{border:1px dashed var(--line);border-radius:13px;padding:15px;color:var(--muted);font-size:11px;line-height:1.6}.subject-journey-row{display:grid;grid-template-columns:100px 1fr 70px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.subject-journey-row:last-child{border-bottom:0}.subject-journey-name{font-size:12px}.subject-journey-track{height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.subject-journey-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}.subject-journey-value{text-align:right;color:var(--gold-light);font-size:11px}.subject-journey-meta{grid-column:2/-1;color:var(--muted);font-size:10px}.question-accounting{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.question-account-card{border:1px solid var(--line);border-radius:14px;padding:14px}.question-account-card small{display:block;color:var(--muted);font-size:9px;margin-bottom:6px}.question-account-card strong{font-size:20px}.question-account-card.correct strong{color:#8ee2b7}.question-account-card.wrong strong{color:#f2aaaa}.question-account-card.total strong{color:var(--gold-light)}.test-story{margin-top:12px;padding:13px;border:1px solid var(--line);border-radius:13px;color:var(--muted);font-size:11px;line-height:1.6}.test-story strong{color:var(--gold-light)}@media(max-width:850px){.journey-top,.story-grid,.trend-grid{display:grid;grid-template-columns:1fr}.journey-stat-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.journey-hero{padding:19px}.question-accounting{grid-template-columns:1fr 1fr}.batch-card{grid-template-columns:1fr}.subject-journey-row{grid-template-columns:82px 1fr 52px}}
-  </style>
+  
+
+    /* SIR UI/UX PASS 1 — visual-only polish; preserve existing markup and logic */
+    :root {
+      --navy: #071426;
+      --navy-2: #0d1f36;
+      --gold: #d9aa45;
+      --gold-light: #f0cf7a;
+      --white: #ffffff;
+      --muted: #aab7c8;
+      --line: rgba(255,255,255,0.10);
+      --card: rgba(13,31,54,0.72);
+      --danger: #df7777;
+      --surface-raised: rgba(17,39,66,0.82);
+      --focus-ring: rgba(240,207,122,0.72);
+    }
+
+    body {
+      background-color: var(--navy);
+      background-image:
+        radial-gradient(ellipse at 82% 0%, rgba(217,170,69,0.075), transparent 34%),
+        radial-gradient(ellipse at 12% 42%, rgba(32,88,143,0.10), transparent 38%),
+        linear-gradient(180deg, #071426 0%, #08182b 58%, #06111f 100%);
+    }
+
+    :where(.subject-panel, .position-card, .action-card, .story-card,
+      .trend-panel, .journey-stat, .batch-stat, .question-account-card,
+      .test-row, .dsp-card, .profile-card) {
+      transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    :where(.subject-panel, .position-card, .action-card, .story-card,
+      .trend-panel, .journey-stat, .batch-stat, .question-account-card) {
+      box-shadow: 0 10px 28px rgba(0,0,0,.12);
+    }
+
+    :where(.subject-panel, .position-card, .action-card, .story-card,
+      .trend-panel, .journey-stat, .batch-stat, .question-account-card):hover {
+      border-color: rgba(217,170,69,.22);
+    }
+
+    :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    :where(button, .action-btn) { -webkit-tap-highlight-color: transparent; }
+    .action-btn { min-height: 42px; transition: filter .18s ease, transform .18s ease, box-shadow .18s ease; }
+    .action-btn:hover { filter: brightness(1.06); box-shadow: 0 6px 18px rgba(217,170,69,.13); }
+    .action-btn:active { transform: translateY(1px); }
+
+    /* Keep reading comfortable and prevent narrow-screen overflow. */
+    p, .journey-subtitle, .story-card>p, .trend-panel>p { overflow-wrap: anywhere; }
+    img, svg, canvas { max-width: 100%; }
+
+    @media (max-width: 850px) {
+      .dashboard-hero { padding: 22px; border-radius: 22px; }
+      .position-card, .action-card, .subject-panel { padding: 18px; }
+      .journey-stat, .story-card, .trend-panel { padding: 16px; }
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-hero { padding: 18px; border-radius: 18px; }
+      .position-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .position-card { padding: 14px; min-width: 0; }
+      .position-card strong { font-size: 22px; }
+      .action-card, .subject-panel { padding: 16px; border-radius: 17px; }
+      .subject-line { grid-template-columns: minmax(76px, .8fr) minmax(45px, 1fr) 48px; gap: 8px; }
+      .action-main { flex-wrap: wrap; }
+      .action-btn { white-space: normal; text-align: center; }
+      .question-accounting { gap: 8px; }
+      .question-account-card { min-width: 0; padding: 11px; }
+      .question-account-card strong { font-size: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+</style>
 </head>
 
 <body>
@@ -3893,7 +3977,7 @@ dspDateEl.value = dspToday;
   /* =====================================================
      SIR JOURNEY — PHASE 1 DATA LAYER
      ===================================================== */
-  function finiteNumber(value){const n=Number(value);return Number.isFinite(n)?n:null}
+  function finiteNumber(value){if(value===null||value===undefined||(typeof value==='string'&&value.trim()===''))return null;const n=Number(value);return Number.isFinite(n)?n:null}
   function getQuestionCounts(row){const c=finiteNumber(row?.correct_answers),w=finiteNumber(row?.incorrect_answers),s=finiteNumber(row?.unanswered);if(c===null&&w===null&&s===null)return null;return{correct:c??0,wrong:w??0,skipped:s??0}}
   function getTotalQuestions(row){const x=getQuestionCounts(row);if(x)return x.correct+x.wrong+x.skipped;const q=Array.isArray(row?.question_results)?row.question_results.length:0;return q||null}
   function getAttemptedQuestions(row){const x=getQuestionCounts(row);return x?x.correct+x.wrong:null}
@@ -4015,15 +4099,16 @@ dspDateEl.value = dspToday;
 
       subjects.forEach(subject => {
         const name = String(subject.subject || "Other").trim();
-        const marks = Number(subject.marks_obtained);
-        const max = Number(subject.max_marks);
-        let pct = Number(subject.percentage);
+        // Missing database values must remain missing, not become 0 via Number(null).
+        const marks = finiteNumber(subject.marks_obtained);
+        const max = finiteNumber(subject.max_marks);
+        let pct = finiteNumber(subject.percentage);
 
-        if (isNaN(pct) && max > 0 && !isNaN(marks)) {
+        if (pct === null && marks !== null && max !== null && max > 0) {
           pct = (marks / max) * 100;
         }
 
-        if (isNaN(pct)) return;
+        if (pct === null) return;
 
         if (!aggregate.has(name)) {
           aggregate.set(name, { total: 0, count: 0 });
