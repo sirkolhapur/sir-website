@@ -5644,23 +5644,27 @@
 
 
                 if (!teacherLoaded) {
-
+                    loading.style.display = "none";
                     return;
-
                 }
 
 
                 await loadBatches();
                 await loadStudents();
                 await loadTests();
-                await loadScores();
 
-                loading.style.display =
-                    "none";
+                // Do not let a slow/blocked Results query keep the entire
+                // dashboard stuck on the full-screen Loading overlay.
+                loading.style.display = "none";
+                console.log("SIR Teacher Dashboard core loaded.");
 
-                console.log(
-                    "SIR Teacher Dashboard loaded."
-                );
+                loadScores().catch(error => {
+                    console.error("Teacher results background load error:", error);
+                    const resultsBody = document.getElementById("resultsTableBody");
+                    if (resultsBody) {
+                        resultsBody.innerHTML = `<tr><td colspan="8">Results could not be loaded. Please refresh and try again.</td></tr>`;
+                    }
+                });
 
                 loadDspData().catch(error => {
                     console.error("DSP background load error:", error);
