@@ -4706,7 +4706,7 @@ dspDateEl.value = dspToday;
                 <strong>${safePct === null ? "—" : escapeHTML(Math.round(safePct)) + "%"}</strong>
                 <small>
                   ${escapeHTML(subject.subject || "Subject")}
-                  · ${escapeHTML(subject.marks_obtained ?? "—")} / ${escapeHTML(subject.max_marks ?? "—")}
+                  · ${escapeHTML(subjectMarks ?? "—")} / ${escapeHTML(subjectMax ?? "—")}
                 </small>
                 <div class="subject-result-bar">
                   <i style="width:${safePct === null ? 0 : Math.max(0, Math.min(100, safePct))}%"></i>
