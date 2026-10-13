@@ -2634,25 +2634,25 @@ header, main, footer {
               : null;
 
 
-          const subjects =
+          let subjects =
             subjectsByResult.get(result.id) || [];
 
 
           const questions =
             questionsByResult.get(result.id) || [];
 
+          /* Recover a subject row only when that subject row is absent and question-level source records exist. Never invent a missing subject. */
+          const subjectKey = value => { const k=String(value||"").toLowerCase().replace(/[^a-z]/g,""); return ({phy:"physics",physics:"physics",chem:"chemistry",chemistry:"chemistry",bio:"biology",biology:"biology",math:"mathematics",maths:"mathematics",mathematics:"mathematics"})[k] || k; };
+          if (questions.length) { const known=new Set(subjects.map(s=>subjectKey(s.subject))); const groups=new Map(); questions.forEach(q=>{ const key=subjectKey(q.subject); if(!key||known.has(key))return; if(!groups.has(key))groups.set(key,[]); groups.get(key).push(q); }); groups.forEach((items,key)=>{ let correct=0,wrong=0,skipped=0,knownMarks=0,allMarks=true,allOutcomesKnown=true; items.forEach(q=>{ const outcome=getQuestionOutcome(q); if(outcome==="correct")correct++; else if(outcome==="wrong")wrong++; else if(outcome==="skipped")skipped++; else allOutcomesKnown=false; const mark=finiteNumber(q.marks_obtained); if(mark===null)allMarks=false; else knownMarks+=mark; }); const label=({physics:"Physics",chemistry:"Chemistry",biology:"Biology",mathematics:"Mathematics"})[key]||String(items[0].subject||key); const marks=allMarks?knownMarks:(allOutcomesKnown?correct*4-wrong:null); subjects.push({subject:label,marks_obtained:marks,max_marks:items.length*4,percentage:marks===null?null:marks/(items.length*4)*100,attempted:correct+wrong,correct:allOutcomesKnown?correct:null,wrong:allOutcomesKnown?wrong:null,skipped:allOutcomesKnown?skipped:null,derived_from_question_rows:true}); }); }
 
           const subjectStats =
             summariseSubjectStats(subjects);
 
-
           const inferredCorrect =
             subjectStats.correct;
 
-
           const inferredWrong =
             subjectStats.wrong;
-
 
           const inferredSkipped =
             subjectStats.skipped;
