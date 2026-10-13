@@ -1694,7 +1694,7 @@ header, main, footer {
     <section class="section"><div class="section-heading"><div class="section-kicker">Consistency</div><h2>How regularly are you testing yourself?</h2><p>Based only on test dates present in your academic records.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Assessment Frequency</h3><p>Recorded assessments over time. No artificial streak or penalty.</p><div class="trend-bars" id="consistencyTimeline"></div></div><div class="trend-panel"><h3>Consistency Snapshot</h3><p>Transparent counts instead of a made-up consistency score.</p><div class="consistency-card" id="consistencySnapshot"></div></div></div></section>
     <section class="section"><div class="section-heading"><div class="section-kicker">Performance trends</div><h2>See the movement, not just the mark.</h2><p>Percentage and accuracy answer different questions, so they remain separate.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Score / Percentage Trend</h3><p>Official percentage first; calculation only when source fields support it.</p><div class="trend-bars" id="journeyPerformanceTrend"></div></div><div class="trend-panel"><h3>Accuracy Trend</h3><p>Correct ÷ attempted, only when correct/wrong data supports it.</p><div class="accuracy-bars" id="journeyAccuracyTrend"></div></div></div></section>
     <section class="section"><div class="section-heading"><div class="section-kicker">Batch comparison</div><h2>Where do you stand?</h2><p>Ethical comparison using percentile and rank values actually supplied by the result.</p></div><div class="story-card"><div class="batch-card" id="batchComparison"></div><div class="test-story" id="batchStory">Batch comparison will appear when supported data is present.</div></div></section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Subject journey</div><h2>Where is your preparation strongest?</h2><p>Subject-level performance from actual subject result records.</p></div><div class="subject-panel"><div id="subjectJourney"></div></div></section>
+    <section class="section"><div class="section-heading"><div class="section-kicker">Latest test · Subject breakdown</div><h2>How did you perform in each subject?</h2><p>Subject-level performance in your most recent attended assessment.</p></div><div class="subject-panel"><div id="subjectJourney"></div></div></section>
 
     <!-- CURRENT POSITION -->
     <section class="section">
@@ -1809,9 +1809,9 @@ header, main, footer {
     <!-- SUBJECT PERFORMANCE -->
     <section class="section">
       <div class="section-heading">
-        <div class="section-kicker">Subject intelligence</div>
-        <h2>Where is your preparation strongest?</h2>
-        <p>Subject-wise performance from your available academic results.</p>
+        <div class="section-kicker">Across recorded tests</div>
+        <h2>Which subjects are strongest overall?</h2>
+        <p>Combined subject performance across available attended assessments.</p>
       </div>
 
       <div class="subject-panel">
@@ -3772,10 +3772,11 @@ dspDateEl.value = dspToday;
      PERCENTAGE
      ===================================================== */
 
+  function isAbsentResult(row) { const status = String(row?.status || "").trim().toLowerCase().replace(/[ _-]+/g, ""); return ["absent", "ab", "notattended", "notattempted", "cancelled", "canceled"].includes(status); }
+  function getLatestAttendedRecord(records) { return records.find(row => !isAbsentResult(row) && (getScore(row) !== null || getPercentage(row) !== null)) || null; }
+  function getAttendedRecordCount(records) { return records.filter(row => !isAbsentResult(row) && (getScore(row) !== null || getPercentage(row) !== null)).length; }
   function getPercentage(row) {
-    if (!row) return null;
-    const status = String(row.status || "").trim().toLowerCase().replace(/[ _-]+/g, "");
-    if (["absent", "ab", "notattended", "notattempted", "cancelled", "canceled"].includes(status)) return null;
+    if (!row || isAbsentResult(row)) return null;
     const score = getScore(row);
     const maxMarks = getMaxMarks(row);
     if (score !== null && maxMarks !== null && maxMarks > 0 && score >= 0) {
@@ -3783,7 +3784,7 @@ dspDateEl.value = dspToday;
       if (Number.isFinite(calculated) && calculated >= 0 && calculated <= 100) return calculated;
     }
     const stored = finiteNumber(row.percentage);
-    if (stored !== null && stored >= 0 && stored <= 100) return stored;
+    if (stored !== null && stored >= 0 && stored <= 100) { const accuracy = getAccuracy(row); if (row.result_id && accuracy !== null && Math.abs(stored - accuracy) < 0.15) return null; return stored; }
     return null;
   }
 
@@ -3983,12 +3984,12 @@ dspDateEl.value = dspToday;
   function getResultComparison(row){return{percentile:finiteNumber(row?.percentile),batchRank:finiteNumber(row?.batch_rank),overallRank:finiteNumber(row?.overall_rank)}}
   function getSortedChronologicalRecords(records){return[...records].filter(r=>getAcademicDate(r)>0).sort((a,b)=>getAcademicDate(a)-getAcademicDate(b))}
   function renderJourney(records){renderJourneyStats(records);renderPerformanceStory(records);renderConsistency(records);renderJourneyTrends(records);renderBatchComparison(records);renderSubjectJourney(records)}
-  function renderJourneyStats(records){const a=document.getElementById('journeyTestCount'),b=document.getElementById('journeyLatestPerformance'),c=document.getElementById('journeyLatestAccuracy'),d=document.getElementById('journeyLatestPercentile');if(!records.length){a.textContent='0';b.textContent=c.textContent=d.textContent='—';return}const r=records[0],p=getPercentage(r),acc=getAccuracy(r),cmp=getResultComparison(r);a.textContent=records.length;b.textContent=p===null?'—':formatPercent(p);c.textContent=acc===null?'—':formatPercent(acc);d.textContent=cmp.percentile!==null?formatPercent(cmp.percentile):cmp.batchRank!==null?`#${cmp.batchRank}`:'—'}
-  function renderPerformanceStory(records){const h=document.getElementById('performanceStoryHeadline'),i=document.getElementById('performanceStoryIntro'),l=document.getElementById('performanceStoryList'),box=document.getElementById('latestCheckpointStory');if(!records.length){h.textContent='Your journey begins with your first result.';i.textContent='No academic result history is available yet.';l.innerHTML='<div class="data-unavailable">No result history is available.</div>';box.innerHTML='<div class="data-unavailable">No latest checkpoint is available.</div>';return}const latest=records[0],chron=getSortedChronologicalRecords(records),vals=chron.map(getPercentage).filter(v=>v!==null),lp=getPercentage(latest),fp=vals[0]??null,bp=vals.length?Math.max(...vals):null,acc=getAccuracy(latest),att=getAttemptedQuestions(latest),total=getTotalQuestions(latest),cmp=getResultComparison(latest);h.textContent=vals.length>=2&&lp!==null?(lp-fp>0.05?'Your performance has moved upward.':lp-fp<-0.05?'Your latest result is below your starting point.':'Your performance is currently stable.'):'Your latest result is now a checkpoint.';i.textContent='These observations are calculated only from result fields available to your account.';const items=[];if(lp!==null)items.push(['LATEST PERFORMANCE',formatPercent(lp),latest.exam_name||latest.test?.title||'Latest assessment']);if(vals.length>=2&&lp!==null)items.push(['CHANGE FROM FIRST RECORDED RESULT',`${lp-fp>=0?'+':''}${(lp-fp).toFixed(1)} percentage points`,'Compared with your earliest recorded percentage.']);if(bp!==null)items.push(['BEST RECORDED PERFORMANCE',formatPercent(bp),'Highest percentage in the available result history.']);if(acc!==null)items.push(['LATEST ACCURACY',formatPercent(acc),`${att} attempted question${att===1?'':'s'} in the latest result.`]);if(cmp.percentile!==null)items.push(['LATEST PEER POSITION',`${cmp.percentile.toFixed(1)} percentile`,'Official percentile supplied by the result.']);else if(cmp.batchRank!==null)items.push(['LATEST BATCH POSITION',`#${cmp.batchRank}`,'Official batch rank supplied by the result.']);l.innerHTML=items.length?items.slice(0,5).map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">Not enough supported data for a richer story yet.</div>';const latestItems=[];if(total!==null){const q=getQuestionCounts(latest);latestItems.push(['QUESTION ACCOUNTING',`${total} total questions`,q?`${q.correct} correct · ${q.wrong} wrong · ${q.skipped} skipped/unanswered`:'Question-level records are available.'])}if(acc!==null)latestItems.push(['ATTEMPT ACCURACY',formatPercent(acc),'Correct answers divided by attempted questions.']);if(cmp.batchRank!==null)latestItems.push(['BATCH RANK',`#${cmp.batchRank}`,'Taken directly from the latest result.']);if(cmp.overallRank!==null)latestItems.push(['OVERALL RANK',`#${cmp.overallRank}`,'Taken directly from the latest result.']);box.innerHTML=latestItems.length?latestItems.map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">The latest result does not contain enough supported fields for a richer checkpoint story.</div>'}
+  function renderJourneyStats(records){const a=document.getElementById('journeyTestCount'),b=document.getElementById('journeyLatestPerformance'),c=document.getElementById('journeyLatestAccuracy'),d=document.getElementById('journeyLatestPercentile'),r=getLatestAttendedRecord(records);a.textContent=getAttendedRecordCount(records);if(!r){b.textContent=c.textContent=d.textContent='—';return}const p=getPercentage(r),acc=getAccuracy(r),cmp=getResultComparison(r);b.textContent=p===null?'—':formatPercent(p);c.textContent=acc===null?'—':formatPercent(acc);d.textContent=cmp.percentile!==null?`${cmp.percentile.toFixed(1)} percentile`:cmp.batchRank!==null?`#${cmp.batchRank}`:'—'}
+  function renderPerformanceStory(records){const h=document.getElementById('performanceStoryHeadline'),i=document.getElementById('performanceStoryIntro'),l=document.getElementById('performanceStoryList'),box=document.getElementById('latestCheckpointStory');if(!records.length){h.textContent='Your journey begins with your first result.';i.textContent='No academic result history is available yet.';l.innerHTML='<div class="data-unavailable">No result history is available.</div>';box.innerHTML='<div class="data-unavailable">No latest checkpoint is available.</div>';return}const latest=getLatestAttendedRecord(records)||records[0],chron=getSortedChronologicalRecords(records),vals=chron.map(getPercentage).filter(v=>v!==null),lp=getPercentage(latest),fp=vals[0]??null,bp=vals.length?Math.max(...vals):null,acc=getAccuracy(latest),att=getAttemptedQuestions(latest),total=getTotalQuestions(latest),cmp=getResultComparison(latest);h.textContent=vals.length>=2&&lp!==null?(lp-fp>0.05?'Your performance has moved upward.':lp-fp<-0.05?'Your latest result is below your starting point.':'Your performance is currently stable.'):'Your latest result is now a checkpoint.';i.textContent='These observations are calculated only from result fields available to your account.';const items=[];if(lp!==null)items.push(['LATEST PERFORMANCE',formatPercent(lp),latest.exam_name||latest.test?.title||'Latest assessment']);if(vals.length>=2&&lp!==null)items.push(['CHANGE FROM FIRST RECORDED RESULT',`${lp-fp>=0?'+':''}${(lp-fp).toFixed(1)} percentage points`,'Compared with your earliest recorded percentage.']);if(bp!==null)items.push(['BEST RECORDED PERFORMANCE',formatPercent(bp),'Highest percentage in the available result history.']);if(acc!==null)items.push(['LATEST ACCURACY',formatPercent(acc),`${att} attempted question${att===1?'':'s'} in the latest result.`]);if(cmp.percentile!==null)items.push(['LATEST PEER POSITION',`${cmp.percentile.toFixed(1)} percentile`,'Official percentile supplied by the result.']);else if(cmp.batchRank!==null)items.push(['LATEST BATCH POSITION',`#${cmp.batchRank}`,'Official batch rank supplied by the result.']);l.innerHTML=items.length?items.slice(0,5).map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">Not enough supported data for a richer story yet.</div>';const latestItems=[];if(total!==null){const q=getQuestionCounts(latest);latestItems.push(['QUESTION ACCOUNTING',`${total} total questions`,q?`${q.correct} correct · ${q.wrong} wrong · ${q.skipped} skipped/unanswered`:'Question-level records are available.'])}if(acc!==null)latestItems.push(['ATTEMPT ACCURACY',formatPercent(acc),'Correct answers divided by attempted questions.']);if(cmp.batchRank!==null)latestItems.push(['BATCH RANK',`#${cmp.batchRank}`,'Taken directly from the latest result.']);if(cmp.overallRank!==null)latestItems.push(['OVERALL RANK',`#${cmp.overallRank}`,'Taken directly from the latest result.']);box.innerHTML=latestItems.length?latestItems.map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">The latest result does not contain enough supported fields for a richer checkpoint story.</div>'}
   function renderConsistency(records){const t=document.getElementById('consistencyTimeline'),s=document.getElementById('consistencySnapshot'),rows=getSortedChronologicalRecords(records);if(!rows.length){t.innerHTML='<div class="data-unavailable">No test dates are available.</div>';s.innerHTML='<div class="consistency-line"><span>Tests with a date</span><strong>0</strong></div>';return}t.innerHTML='';rows.slice(-10).forEach((r,i)=>{const w=document.createElement('div');w.className='trend-bar-wrap';w.innerHTML=`<div class="trend-bar-value">${i+1}</div><div class="trend-bar" style="height:${Math.max(18,35+i*6)}%"></div><div class="trend-bar-label">${escapeHTML(formatDate(r.test_date||r.test?.test_date).replace(/\s+\d{4}$/,''))}</div>`;t.appendChild(w)});const span=Math.max(0,Math.round((getAcademicDate(rows.at(-1))-getAcademicDate(rows[0]))/86400000)),gap=rows.length>1?span/(rows.length-1):null;s.innerHTML=`<div class="consistency-line"><span>Tests with a date</span><strong>${rows.length}</strong></div><div class="consistency-line"><span>Days between first & latest</span><strong>${span}</strong></div><div class="consistency-line"><span>Average gap</span><strong>${gap===null?'—':gap.toFixed(1)+' days'}</strong></div>`}
   function renderJourneyTrends(records){const p=document.getElementById('journeyPerformanceTrend'),a=document.getElementById('journeyAccuracyTrend'),rows=getSortedChronologicalRecords(records).slice(-10);p.innerHTML=a.innerHTML='';rows.forEach((r,i)=>{const pct=getPercentage(r);if(pct!==null){const w=document.createElement('div');w.className='trend-bar-wrap';w.innerHTML=`<div class="trend-bar-value">${Math.round(pct)}%</div><div class="trend-bar" style="height:${Math.max(5,Math.min(100,pct))}%"></div><div class="trend-bar-label">${escapeHTML((r.exam_name||r.test?.title||`Test ${i+1}`).slice(0,12))}</div>`;p.appendChild(w)}const acc=getAccuracy(r);if(acc!==null){const w=document.createElement('div');w.className='accuracy-bar-wrap';w.innerHTML=`<div class="accuracy-bar-value">${Math.round(acc)}%</div><div class="accuracy-bar" style="height:${Math.max(5,Math.min(100,acc))}%"></div><div class="accuracy-bar-label">${escapeHTML((r.exam_name||r.test?.title||`Test ${i+1}`).slice(0,12))}</div>`;a.appendChild(w)}});if(!p.children.length)p.innerHTML='<div class="data-unavailable">No supported percentage data is available.</div>';if(!a.children.length)a.innerHTML='<div class="data-unavailable">Accuracy requires correct and wrong/skipped data.</div>'}
-  function renderBatchComparison(records){const c=document.getElementById('batchComparison'),s=document.getElementById('batchStory');if(!records.length)return;const x=getResultComparison(records[0]);c.innerHTML=`<div class="batch-stat"><small>PERCENTILE</small><strong>${x.percentile===null?'—':x.percentile.toFixed(1)}</strong><span>${x.percentile===null?'Not supplied.':'Official percentile.'}</span></div><div class="batch-stat"><small>BATCH RANK</small><strong>${x.batchRank===null?'—':'#'+x.batchRank}</strong><span>${x.batchRank===null?'Not supplied.':'Official batch rank.'}</span></div><div class="batch-stat"><small>OVERALL RANK</small><strong>${x.overallRank===null?'—':'#'+x.overallRank}</strong><span>${x.overallRank===null?'Not supplied.':'Official overall rank.'}</span></div>`;s.innerHTML=x.percentile!==null?`Your latest result places you at the <strong>${x.percentile.toFixed(1)} percentile</strong>.`:x.batchRank!==null?`Your latest batch position is <strong>#${x.batchRank}</strong>.`:'The latest result does not contain supported peer-position data, so no number is invented.'}
-  function renderSubjectJourney(records){const c=document.getElementById('subjectJourney'),r=records[0];if(!r||!Array.isArray(r.subjects)||!r.subjects.length){c.innerHTML='<div class="data-unavailable">Subject journey requires subject-level result records.</div>';return}const rows=r.subjects.map(s=>{let m=finiteNumber(s.marks_obtained),mx=finiteNumber(s.max_marks),cc=finiteNumber(s.correct),ww=finiteNumber(s.wrong),sk=finiteNumber(s.skipped);if(m===null&&cc!==null&&ww!==null&&cc>=0&&ww>=0)m=cc*4-ww;if((mx===null||mx<=0)&&cc!==null&&ww!==null&&sk!==null&&(cc+ww+sk)>0)mx=(cc+ww+sk)*4;let p=m!==null&&mx!==null&&mx>0?m/mx*100:finiteNumber(s.percentage);return{name:s.subject||'Subject',p,m,mx,c:cc,w:ww,sk}}).filter(x=>x.p!==null).sort((a,b)=>b.p-a.p);c.innerHTML=rows.length?rows.map(x=>`<div class="subject-journey-row"><div class="subject-journey-name">${escapeHTML(x.name)}</div><div class="subject-journey-track"><div class="subject-journey-fill" style="width:${Math.max(0,Math.min(100,x.p))}%"></div></div><div class="subject-journey-value">${Math.round(x.p)}%</div><div class="subject-journey-meta">${x.m!==null&&x.mx!==null?`${escapeHTML(x.m)} / ${escapeHTML(x.mx)}`:'Marks not available'}${x.c!==null?` · ${x.c} correct`:''}${x.w!==null?` · ${x.w} wrong`:''}${x.sk!==null?` · ${x.sk} skipped`:''}</div></div>`).join(''):'<div class="data-unavailable">Subject records exist, but no supported percentage is available.</div>'}
+  function renderBatchComparison(records){const c=document.getElementById('batchComparison'),s=document.getElementById('batchStory'),latest=getLatestAttendedRecord(records);if(!latest)return;const x=getResultComparison(latest);c.innerHTML=`<div class="batch-stat"><small>PERCENTILE</small><strong>${x.percentile===null?'—':x.percentile.toFixed(1)}</strong><span>${x.percentile===null?'Not supplied.':'Official percentile.'}</span></div><div class="batch-stat"><small>BATCH RANK</small><strong>${x.batchRank===null?'—':'#'+x.batchRank}</strong><span>${x.batchRank===null?'Not supplied.':'Official batch rank.'}</span></div><div class="batch-stat"><small>OVERALL RANK</small><strong>${x.overallRank===null?'—':'#'+x.overallRank}</strong><span>${x.overallRank===null?'Not supplied.':'Official overall rank.'}</span></div>`;s.innerHTML=x.percentile!==null?`Your latest result places you at the <strong>${x.percentile.toFixed(1)} percentile</strong>.`:x.batchRank!==null?`Your latest batch position is <strong>#${x.batchRank}</strong>.`:'The latest result does not contain supported peer-position data, so no number is invented.'}
+  function renderSubjectJourney(records){const c=document.getElementById('subjectJourney'),r=getLatestAttendedRecord(records);if(!r||!Array.isArray(r.subjects)||!r.subjects.length){c.innerHTML='<div class="data-unavailable">Subject journey requires subject-level result records.</div>';return}const rows=r.subjects.map(s=>{let m=finiteNumber(s.marks_obtained),mx=finiteNumber(s.max_marks),cc=finiteNumber(s.correct),ww=finiteNumber(s.wrong),sk=finiteNumber(s.skipped);if(m===null&&cc!==null&&ww!==null&&cc>=0&&ww>=0)m=cc*4-ww;if((mx===null||mx<=0)&&cc!==null&&ww!==null&&sk!==null&&(cc+ww+sk)>0)mx=(cc+ww+sk)*4;let p=m!==null&&mx!==null&&mx>0?m/mx*100:finiteNumber(s.percentage);return{name:s.subject||'Subject',p,m,mx,c:cc,w:ww,sk}}).filter(x=>x.p!==null).sort((a,b)=>b.p-a.p);c.innerHTML=rows.length?rows.map(x=>`<div class="subject-journey-row"><div class="subject-journey-name">${escapeHTML(x.name)}</div><div class="subject-journey-track"><div class="subject-journey-fill" style="width:${Math.max(0,Math.min(100,x.p))}%"></div></div><div class="subject-journey-value">${Math.round(x.p)}%</div><div class="subject-journey-meta">${x.m!==null&&x.mx!==null?`${escapeHTML(x.m)} / ${escapeHTML(x.mx)}`:'Marks not available'}${x.c!==null?` · ${x.c} correct`:''}${x.w!==null?` · ${x.w} wrong`:''}${x.sk!==null?` · ${x.sk} skipped`:''}</div></div>`).join(''):'<div class="data-unavailable">Subject records exist, but no supported percentage is available.</div>'}
 
   /* =====================================================
      ANALYTICS
@@ -4003,7 +4004,7 @@ dspDateEl.value = dspToday;
         .map(getPercentage)
         .filter(value => value !== null && !isNaN(value));
 
-    document.getElementById("testsAttempted").textContent = records.length;
+    document.getElementById("testsAttempted").textContent = getAttendedRecordCount(records);
 
     if (!validPercentages.length) {
       renderEmptyAnalytics();
@@ -4014,7 +4015,8 @@ dspDateEl.value = dspToday;
     const median = calculateMedian(validPercentages);
     const mode = calculateMode(validPercentages);
     const highest = Math.max(...validPercentages);
-    const latest = validPercentages[0];
+    const latestRecord = getLatestAttendedRecord(records);
+    const latest = latestRecord ? getPercentage(latestRecord) : null;
 
     document.getElementById("averageScore").textContent =
       formatPercent(mean);
@@ -4053,8 +4055,9 @@ dspDateEl.value = dspToday;
     const metaEl = document.getElementById("latestActionMeta");
     const buttonEl = document.getElementById("latestActionBtn");
 
-    if (!records.length) {
-      textEl.textContent = "Your latest test will appear here once your academic results are available.";
+    const latest = getLatestAttendedRecord(records);
+    if (!latest) {
+      textEl.textContent = "Your latest attended test will appear here once an attended academic result is available.";
       scoreEl.textContent = "—";
       metaEl.textContent = "No assessment yet";
       buttonEl.disabled = true;
@@ -4063,7 +4066,6 @@ dspDateEl.value = dspToday;
       return;
     }
 
-    const latest = records[0];
     const title = latest.test?.title || latest.exam_name || "Latest Assessment";
     const percentage = getPercentage(latest);
     const score = getScore(latest);
@@ -5178,13 +5180,11 @@ dspDateEl.value = dspToday;
           .auth
           .signOut();
 
-
         window.location.href =
           "student-login.html";
 
       }
     );
-
 
   /* =====================================================
      GLOBAL UI
