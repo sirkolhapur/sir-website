@@ -2150,6 +2150,9 @@
 .dsp-slot-booking span {
   opacity: .82;
 }
+.dsp-range-list { display:flex; flex-direction:column; gap:6px; }
+    .dsp-range-row label { display:flex; flex-direction:column; gap:5px; }
+    @media(max-width:600px){.dsp-range-row{grid-template-columns:1fr 1fr!important}.dsp-range-row button{grid-column:1/-1;width:100%}}
 </style>
 </head>
 
@@ -2237,6 +2240,10 @@
       Batches
     </button>
 
+    <button class="nav-btn" data-section="absentStudents">
+      Absent Students
+    </button>
+
     <button class="nav-btn" data-section="tests">
       Tests
     </button>
@@ -2284,6 +2291,11 @@
         </div>
 
         <div class="stat-card">
+          <span>Active Batches</span>
+          <strong id="activeBatchesCount">—</strong>
+        </div>
+
+        <div class="stat-card">
           <span>Total Tests</span>
           <strong id="totalTests">—</strong>
         </div>
@@ -2297,6 +2309,20 @@
 
     </section>
 
+
+    <!-- ABSENT STUDENTS -->
+    <section class="section" id="absentStudents">
+      <div class="section-head"><h2>Absent Students</h2></div>
+      <div class="dsp-control-panel" style="margin-bottom:16px">
+        <div class="dsp-schedule-controls">
+          <div><label class="dsp-field-label" for="absenceDate">Date</label><input class="dsp-input" type="date" id="absenceDate"></div>
+          <div><label class="dsp-field-label" for="absenceBatch">Batch (optional)</label><select class="dsp-select" id="absenceBatch"><option value="">All batches</option></select></div>
+          <div class="dsp-schedule-actions"><button type="button" class="dsp-save" id="loadAbsentStudentsBtn">Load Absent Students</button></div>
+        </div>
+        <p class="dsp-schedule-note">This list uses the additive <code>student_attendance</code> table. Run the supplied SQL migration before using it.</p>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Student</th><th>Student UID</th><th>Batch</th><th>Date</th><th>Status</th></tr></thead><tbody id="absentStudentsBody"><tr><td colspan="5" class="empty">Choose a date and load records.</td></tr></tbody></table></div>
+    </section>
 
     <!-- STUDENTS -->
 
@@ -2851,14 +2877,11 @@
               <input id="dspScheduleDate" class="dsp-input" type="date">
             </div>
 
-            <div>
-              <label class="dsp-field-label">Available From</label>
-              <input id="dspAvailableFrom" class="dsp-input" type="time" min="14:30" max="17:30" value="14:30">
-            </div>
-
-            <div>
-              <label class="dsp-field-label">Available Till</label>
-              <input id="dspAvailableTill" class="dsp-input" type="time" min="14:30" max="17:30" value="17:30">
+            <div style="grid-column:1/-1">
+              <label class="dsp-field-label">Availability ranges (24-hour clock)</label>
+              <div id="dspAvailabilityRanges" class="dsp-range-list"></div>
+              <button type="button" class="secondary-btn" id="addDspRangeBtn" style="margin-top:8px">+ Add time range</button>
+              <small style="display:block;margin-top:6px;opacity:.8">Example: 14:00–15:00 and 16:00–17:00. Each range generates 3-minute slots. Ranges must not overlap.</small>
             </div>
 
             <div class="dsp-availability-box">
@@ -2887,7 +2910,7 @@
           </div>
 
           <div class="dsp-schedule-note">
-            <strong>DSP window:</strong> 2:30 PM – 5:30 PM &nbsp;•&nbsp;
+            <strong>DSP window:</strong> 24 hours (00:00–23:59) &nbsp;•&nbsp;
             <strong>Slot:</strong> 3 minutes &nbsp;•&nbsp;
             <strong>Quota:</strong> NEET 3+3+3 · JEE 3+3+3 &nbsp;•&nbsp; <strong>Total:</strong> 9 questions / 27 minutes / student / day
           </div>
@@ -2901,6 +2924,11 @@
 
           <div id="dspSlotsList" class="dsp-slots-list">
             <div class="dsp-empty">Select a teacher and date to view slots.</div>
+          </div>
+
+          <div class="dsp-control-panel" style="margin-top:18px">
+            <div class="dsp-panel-head"><div><h3>Teacher-wise DSP Bookings</h3><span>Select a teacher to review their bookings across dates</span></div><button type="button" class="secondary-btn" id="loadTeacherDspBookingsBtn">View Teacher Bookings</button></div>
+            <div id="teacherDspBookingsList" class="dsp-slots-list"><div class="dsp-empty">Choose a teacher above and click View Teacher Bookings.</div></div>
           </div>
         </div>
 
@@ -4807,6 +4835,9 @@ async function loadBatches() {
   }
 
   allActiveBatches = data || [];
+  populateAbsenceBatchFilter?.();
+  const activeBatchCounter=document.getElementById("activeBatchesCount");
+  if(activeBatchCounter)activeBatchCounter.textContent=allActiveBatches.length;
 
   const select =
     document.getElementById(
@@ -6900,6 +6931,31 @@ document.getElementById("archivedTeachersBtn").addEventListener("click", () => {
   renderTeacherSearch();
 });
 
+
+/* --------------------------------
+   ABSENT STUDENTS (requires student_attendance migration)
+-------------------------------- */
+async function loadAbsentStudents(){
+  const body=document.getElementById("absentStudentsBody");
+  const date=document.getElementById("absenceDate")?.value;
+  const batchId=document.getElementById("absenceBatch")?.value;
+  if(!date){body.innerHTML='<tr><td colspan="5" class="empty">Choose a date first.</td></tr>';return;}
+  body.innerHTML='<tr><td colspan="5" class="empty">Loading…</td></tr>';
+  const {data,error}=await supabaseClient.from("student_attendance").select("student_id,attendance_date,status").eq("attendance_date",date).eq("status","absent");
+  if(error){console.error("Absent students load error:",error);body.innerHTML='<tr><td colspan="5" class="empty">Unable to load absences. Check the supplied SQL migration and Supabase policies.</td></tr>';return;}
+  const attendance=data||[];const studentIds=[...new Set(attendance.map(r=>r.student_id).filter(Boolean))];
+  let students=[];
+  if(studentIds.length){const result=await supabaseClient.from("students").select("id,student_uid,full_name,batch_id").in("id",studentIds);if(result.error){console.error(result.error);body.innerHTML='<tr><td colspan="5" class="empty">Attendance loaded, but student details could not be loaded.</td></tr>';return;}students=result.data||[];}
+  const studentMap=new Map(students.map(st=>[String(st.id),st]));
+  const rows=attendance.map(r=>({...r,student:studentMap.get(String(r.student_id))})).filter(r=>r.student&&(!batchId||String(r.student.batch_id)===String(batchId)));
+  const batchMap=new Map((allActiveBatches||[]).map(b=>[String(b.id),b.name]));
+  body.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.student.full_name||"Student")}</td><td>${escapeHtml(r.student.student_uid||"—")}</td><td>${escapeHtml(batchMap.get(String(r.student.batch_id))||"—")}</td><td>${escapeHtml(r.attendance_date||date)}</td><td>Absent</td></tr>`).join(""):'<tr><td colspan="5" class="empty">No absent students recorded for this date.</td></tr>';
+}
+function populateAbsenceBatchFilter(){const select=document.getElementById("absenceBatch");if(!select)return;select.innerHTML='<option value="">All batches</option>'+((allActiveBatches||[]).map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(b.name)}</option>`).join(""));}
+document.getElementById("loadAbsentStudentsBtn")?.addEventListener("click",loadAbsentStudents);
+document.getElementById("absenceDate")?.setAttribute("value",getTodayIso());
+document.getElementById("absenceDate")?.addEventListener("change",()=>{});
+
 /* --------------------------------
    COUNTERS
 -------------------------------- */
@@ -7007,8 +7063,8 @@ document
      DSP — LOCKED ARCHITECTURE
   ========================= */
 
-  const DSP_WINDOW_START = "14:30";
-  const DSP_WINDOW_END = "17:30";
+  const DSP_WINDOW_START = "00:00";
+  const DSP_WINDOW_END = "23:59";
   const DSP_SLOT_MINUTES = 3;
   const DSP_MANAGE_DAYS = 7;
 
@@ -7164,28 +7220,53 @@ document
     text.style.color = available ? "#69d391" : "#ff9292";
   }
 
+  function getDspRangeRows() {
+    const host=document.getElementById("dspAvailabilityRanges");
+    return [...(host?.querySelectorAll(".dsp-range-row")||[])].map(row=>({
+      from:row.querySelector("[data-range-from]")?.value||"",
+      till:row.querySelector("[data-range-till]")?.value||""
+    }));
+  }
+
+  function renderDspRangeRows(ranges=[{from:"14:30",till:"17:30"}]) {
+    const host=document.getElementById("dspAvailabilityRanges"); if(!host)return;
+    host.innerHTML=ranges.map((r,i)=>`<div class="dsp-range-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:6px 0;align-items:end">
+      <label class="dsp-field-label">From<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-from value="${escapeHtml(r.from||"")}" required></label>
+      <label class="dsp-field-label">Till<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-till value="${escapeHtml(r.till||"")}" required></label>
+      <button type="button" class="secondary-btn" data-remove-range="${i}" aria-label="Remove range">Remove</button></div>`).join("");
+    host.querySelectorAll("[data-remove-range]").forEach(btn=>btn.addEventListener("click",()=>{const rows=getDspRangeRows();rows.splice(Number(btn.dataset.removeRange),1);renderDspRangeRows(rows);}));
+  }
+
+  function validateDspRanges(ranges) {
+    if(!ranges.length) return "Add at least one availability range.";
+    const normalized=[];
+    for(const r of ranges){const a=timeToMinutes(r.from),b=timeToMinutes(r.till);if(!Number.isFinite(a)||!Number.isFinite(b)||a<0||b>1439||a>=b)return "Each range must have a valid From time earlier than Till (00:00–23:59).";normalized.push({start:a,end:b,from:r.from,till:r.till});}
+    normalized.sort((a,b)=>a.start-b.start);
+    for(let i=1;i<normalized.length;i++)if(normalized[i].start<normalized[i-1].end)return "Availability ranges overlap. Adjust them before saving.";
+    return null;
+  }
+
   async function loadDspAvailability() {
-    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
-    const date = document.getElementById("dspScheduleDate")?.value;
-    if (!teacherId || !date) return;
-    if (!isDspManageDate(date)) { setDspDateLimits(); return; }
-    const { data, error } = await supabaseClient.from("dsp_teacher_availability")
+    const teacherId=document.getElementById("dspScheduleTeacher")?.value;
+    const date=document.getElementById("dspScheduleDate")?.value;
+    if(!teacherId||!date)return;
+    if(!isDspManageDate(date)){setDspDateLimits();return;}
+    const {data,error}=await supabaseClient.from("dsp_teacher_availability")
       .select("id,teacher_id,availability_date,is_available,reason,available_from,available_till")
       .eq("teacher_id",teacherId).eq("availability_date",date).maybeSingle();
-    if (error) { console.error("DSP availability error:",error); showDspMessage(error.message||"Unable to load teacher availability.","error"); return; }
+    if(error){console.error("DSP availability error:",error);showDspMessage(error.message||"Unable to load teacher availability.","error");return;}
     const availableInput=document.getElementById("dspTeacherAvailable");
     const reasonInput=document.getElementById("dspUnavailableReason");
-    const fromInput=document.getElementById("dspAvailableFrom");
-    const tillInput=document.getElementById("dspAvailableTill");
-    if(data){
-      availableInput.checked=data.is_available!==false;
-      reasonInput.value=data.reason||"";
-      fromInput.value=data.available_from?.slice(0,5)||DSP_WINDOW_START;
-      tillInput.value=data.available_till?.slice(0,5)||DSP_WINDOW_END;
-    } else {
-      availableInput.checked=true; reasonInput.value=""; fromInput.value=DSP_WINDOW_START; tillInput.value=DSP_WINDOW_END;
-    }
-    updateDspAvailabilityUI();
+    if(data){availableInput.checked=data.is_available!==false;reasonInput.value=data.reason||"";}
+    else{availableInput.checked=true;reasonInput.value="";}
+    let ranges=[];
+    const {data:rangeRows,error:rangeError}=await supabaseClient.from("dsp_teacher_availability_ranges")
+      .select("id,start_time,end_time,sort_order").eq("teacher_id",teacherId).eq("availability_date",date).order("sort_order",{ascending:true});
+    if(rangeError && rangeError.code!=="42P01"){console.error("DSP ranges load error:",rangeError);showDspMessage("Could not load multiple ranges. Run the provided SQL migration.","error");}
+    if(rangeRows?.length)ranges=rangeRows.map(r=>({from:String(r.start_time).slice(0,5),till:String(r.end_time).slice(0,5)}));
+    else if(data?.available_from&&data?.available_till)ranges=[{from:String(data.available_from).slice(0,5),till:String(data.available_till).slice(0,5)}];
+    if(!ranges.length)ranges=[{from:"14:30",till:"17:30"}];
+    renderDspRangeRows(ranges);updateDspAvailabilityUI();
   }
 
   async function saveDspAvailability() {
@@ -7193,27 +7274,24 @@ document
     const date=document.getElementById("dspScheduleDate")?.value;
     const isAvailable=document.getElementById("dspTeacherAvailable")?.checked;
     const reason=document.getElementById("dspUnavailableReason")?.value.trim()||null;
-    const from=document.getElementById("dspAvailableFrom")?.value||DSP_WINDOW_START;
-    const till=document.getElementById("dspAvailableTill")?.value||DSP_WINDOW_END;
     const button=document.getElementById("saveDspAvailabilityBtn");
-    if(!teacherId||!date) return showDspMessage("Select a teacher and date first.","error");
-    if(!isDspManageDate(date)) return showDspMessage("Select a date within the 7-day DSP management window.","error");
-    if(!isAvailable&&!reason) return showDspMessage("Add a message/reason when marking a teacher unavailable.","error");
-    const fromMin=timeToMinutes(from), tillMin=timeToMinutes(till), winStart=timeToMinutes(DSP_WINDOW_START), winEnd=timeToMinutes(DSP_WINDOW_END);
-    if(isAvailable && (!Number.isFinite(fromMin)||!Number.isFinite(tillMin)||fromMin<winStart||tillMin>winEnd||fromMin>=tillMin)) return showDspMessage("Teacher custom hours must stay within 2:30 PM–5:30 PM and From must be before Till.","error");
-    button.disabled=true; button.textContent="Saving...";
+    if(!teacherId||!date)return showDspMessage("Select a teacher and date first.","error");
+    if(!isDspManageDate(date))return showDspMessage("Select a date within the 7-day DSP management window.","error");
+    if(!isAvailable&&!reason)return showDspMessage("Add a message/reason when marking a teacher unavailable.","error");
+    const ranges=getDspRangeRows();
+    if(isAvailable){const rangeError=validateDspRanges(ranges);if(rangeError)return showDspMessage(rangeError,"error");}
+    button.disabled=true;button.textContent="Saving...";
     try{
-      const payload={teacher_id:teacherId,availability_date:date,is_available:isAvailable,reason:isAvailable?null:reason,available_from:isAvailable?from:null,available_till:isAvailable?till:null};
+      const payload={teacher_id:teacherId,availability_date:date,is_available:isAvailable,reason:isAvailable?null:reason,available_from:isAvailable?ranges[0].from:null,available_till:isAvailable?ranges[ranges.length-1].till:null};
       const {data:existing,error:findError}=await supabaseClient.from("dsp_teacher_availability").select("id").eq("teacher_id",teacherId).eq("availability_date",date).maybeSingle();
       if(findError)throw findError;
-      let error;
-      if(existing?.id)({error}=await supabaseClient.from("dsp_teacher_availability").update(payload).eq("id",existing.id));
-      else({error}=await supabaseClient.from("dsp_teacher_availability").insert(payload));
-      if(error)throw error;
-      await reconcileDspSlots(teacherId,date,isAvailable?from:DSP_WINDOW_START,isAvailable?till:DSP_WINDOW_START,isAvailable);
-      showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)}. Booked slots are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
+      let error;if(existing?.id)({error}=await supabaseClient.from("dsp_teacher_availability").update(payload).eq("id",existing.id));else({error}=await supabaseClient.from("dsp_teacher_availability").insert(payload));if(error)throw error;
+      const {error:deleteError}=await supabaseClient.from("dsp_teacher_availability_ranges").delete().eq("teacher_id",teacherId).eq("availability_date",date);if(deleteError)throw deleteError;
+      if(isAvailable){const rangePayload=ranges.map((r,i)=>({teacher_id:teacherId,availability_date:date,start_time:r.from,end_time:r.till,sort_order:i}));const {error:insertError}=await supabaseClient.from("dsp_teacher_availability_ranges").insert(rangePayload);if(insertError)throw insertError;}
+      await reconcileDspSlotsForRanges(teacherId,date,isAvailable?ranges:[],isAvailable);
+      showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
       await loadDspSlots();
-    }catch(error){console.error("Save DSP availability error:",error);showDspMessage(error?.message||"Unable to save availability.","error");}
+    }catch(error){console.error("Save DSP availability error:",error);showDspMessage(error?.message||"Unable to save availability. Ensure the multiple-range SQL migration has been applied.","error");}
     finally{button.disabled=false;button.textContent="Save Availability";}
   }
 
@@ -7250,6 +7328,18 @@ document
     if(missing.length){const {error:e}=await supabaseClient.from("dsp_slots").insert(missing);if(e)throw e;}
   }
 
+  async function reconcileDspSlotsForRanges(teacherId,date,ranges,isAvailable=true){
+    const {data:existingSlots,error}=await supabaseClient.from("dsp_slots").select("id,start_time,end_time,status").eq("teacher_id",teacherId).eq("slot_date",date).order("start_time",{ascending:true});
+    if(error)throw error;
+    const desired=ranges.flatMap(r=>generateDspSlotRows(r.from,r.till));
+    const keyOf=s=>`${String(s.start_time).slice(0,8)}|${String(s.end_time).slice(0,8)}`;
+    const desiredKeys=new Set(isAvailable?desired.map(keyOf):[]);
+    for(const slot of (existingSlots||[])){if(String(slot.status).toLowerCase()==="booked")continue;const target=desiredKeys.has(keyOf(slot))?"available":"blocked";if(slot.status!==target){const {error:e}=await supabaseClient.from("dsp_slots").update({status:target}).eq("id",slot.id);if(e)throw e;}}
+    const existingKeys=new Set((existingSlots||[]).map(keyOf));
+    const missing=desired.filter(slot=>!existingKeys.has(keyOf(slot))).map(slot=>({teacher_id:teacherId,slot_date:date,start_time:slot.start_time,end_time:slot.end_time,status:"available"}));
+    if(missing.length){const {error:e}=await supabaseClient.from("dsp_slots").insert(missing);if(e)throw e;}
+  }
+
   async function generateDspSlots() {
     const teacherId=document.getElementById("dspScheduleTeacher")?.value;
     const date=document.getElementById("dspScheduleDate")?.value;
@@ -7276,10 +7366,10 @@ if(teacherSetting?.is_enabled===false){
       const {data:offDay,error:offDayError}=await supabaseClient.from("dsp_off_days").select("id,off_date,reason").eq("off_date",date).maybeSingle();
       if(offDayError)throw offDayError;
       if(offDay){showDspMessage(`Institute DSP is OFF on ${formatDspDate(date)}${offDay.reason?`: ${offDay.reason}`:"."}`,"error");await loadDspSlots();return;}
-      const from=document.getElementById("dspAvailableFrom")?.value||DSP_WINDOW_START;
-      const till=document.getElementById("dspAvailableTill")?.value||DSP_WINDOW_END;
-      await reconcileDspSlots(teacherId,date,from,till,true);
-      showDspMessage(`DSP slots reconciled for ${formatDspDate(date)}. Existing bookings were preserved.`);
+      const ranges=getDspRangeRows();
+      const rangeError=validateDspRanges(ranges);if(rangeError)throw new Error(rangeError);
+      await reconcileDspSlotsForRanges(teacherId,date,ranges,true);
+      showDspMessage(`DSP slots reconciled for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings were preserved.`);
       await loadDspSlots();
     }catch(error){console.error("Generate DSP slots error:",error);showDspMessage(error?.message||"Unable to generate DSP slots.","error");}
     finally{button.disabled=false;button.textContent="Generate Slots";}
@@ -7405,6 +7495,27 @@ if(teacherSetting?.is_enabled===false){
     }).join("");
   }
 
+  async function loadTeacherDspBookings(){
+    const teacherId=document.getElementById("dspScheduleTeacher")?.value;
+    const host=document.getElementById("teacherDspBookingsList");
+    if(!teacherId){host.innerHTML='<div class="dsp-empty">Select a teacher first.</div>';return;}
+    host.innerHTML='<div class="dsp-empty">Loading teacher bookings…</div>';
+    const {data:slots,error:slotError}=await supabaseClient.from("dsp_slots").select("id,slot_date,start_time,end_time,status").eq("teacher_id",teacherId).order("slot_date",{ascending:false}).order("start_time",{ascending:true});
+    if(slotError){console.error(slotError);host.innerHTML='<div class="dsp-empty">Unable to load slots for this teacher.</div>';return;}
+    const bookedSlots=(slots||[]).filter(s=>String(s.status).toLowerCase()==="booked");
+    if(!bookedSlots.length){host.innerHTML='<div class="dsp-empty">No booked DSP slots found for this teacher.</div>';return;}
+    const ids=bookedSlots.map(s=>s.id);
+    const {data:bookings,error:bookingError}=await supabaseClient.from("dsp_bookings").select("id,student_id,teacher_id,question_id,slot_id,booking_date,start_time,end_time,status").in("slot_id",ids).eq("teacher_id",teacherId);
+    if(bookingError){console.error(bookingError);host.innerHTML='<div class="dsp-empty">Slots are booked, but booking details could not be loaded.</div>';return;}
+    const rows=bookings||[];const studentIds=[...new Set(rows.map(b=>b.student_id).filter(Boolean))];const questionIds=[...new Set(rows.map(b=>b.question_id).filter(Boolean))];
+    let students=[],questions=[];
+    if(studentIds.length){const r=await supabaseClient.from("students").select("id,student_uid,full_name").in("id",studentIds);if(r.error)console.error(r.error);students=r.data||[];}
+    if(questionIds.length){const r=await supabaseClient.from("dsp_questions").select("id,question_text").in("id",questionIds);if(r.error)console.error(r.error);questions=r.data||[];}
+    const studentMap=new Map(students.map(x=>[x.id,x])),questionMap=new Map(questions.map(x=>[x.id,x])),slotMap=new Map(bookedSlots.map(x=>[x.id,x]));
+    host.innerHTML=rows.length?rows.map(b=>{const slot=slotMap.get(b.slot_id)||{};const student=studentMap.get(b.student_id)||{};const q=questionMap.get(b.question_id)||{};return `<div class="dsp-slot booked"><div class="dsp-slot-time">${escapeHtml(b.booking_date||slot.slot_date||"Date not set")} · ${formatDspTime(b.start_time||slot.start_time)} – ${formatDspTime(b.end_time||slot.end_time)}</div><div class="dsp-slot-booking"><strong>${escapeHtml(student.full_name||"Student")}</strong>${student.student_uid?`<span>UID: ${escapeHtml(student.student_uid)}</span>`:""}<span>Status: ${escapeHtml(b.status||"booked")}</span>${q.question_text?`<span>${escapeHtml(q.question_text)}</span>`:""}</div></div>`;}).join(""):'<div class="dsp-empty">No booking records matched the booked slots.</div>';
+  }
+  document.getElementById("loadTeacherDspBookingsBtn")?.addEventListener("click",loadTeacherDspBookings);
+
   document.getElementById("dspInstituteEnabled")?.addEventListener("change", () => {
     const enabled = document.getElementById("dspInstituteEnabled")?.checked;
     document.getElementById("dspInstituteStatusText").textContent = enabled ? "DSP ON" : "DSP OFF";
@@ -7438,16 +7549,18 @@ if(teacherSetting?.is_enabled===false){
       await loadDspSlots();
     });
 
-  document.getElementById("dspAvailableFrom")?.addEventListener("change", () => {
-    const from = document.getElementById("dspAvailableFrom");
-    if (timeToMinutes(from?.value) < timeToMinutes(DSP_WINDOW_START)) from.value = DSP_WINDOW_START;
-    if (timeToMinutes(from?.value) > timeToMinutes(DSP_WINDOW_END)) from.value = DSP_WINDOW_END;
+  document.getElementById("addDspRangeBtn")?.addEventListener("click",()=>{
+    const ranges=getDspRangeRows();
+    const last=ranges[ranges.length-1];
+    const start=last?.till||"14:30";
+    const startMin=timeToMinutes(start);
+    const endMin=Math.min(1439,startMin+60);
+    const pad=n=>String(n).padStart(2,"0");
+    ranges.push({from:start,till:`${pad(Math.floor(endMin/60))}:${pad(endMin%60)}`});
+    renderDspRangeRows(ranges);
   });
-  document.getElementById("dspAvailableTill")?.addEventListener("change", () => {
-    const till = document.getElementById("dspAvailableTill");
-    if (timeToMinutes(till?.value) < timeToMinutes(DSP_WINDOW_START)) till.value = DSP_WINDOW_START;
-    if (timeToMinutes(till?.value) > timeToMinutes(DSP_WINDOW_END)) till.value = DSP_WINDOW_END;
-  });
+  renderDspRangeRows();
+
 
   document
     .getElementById("saveDspAvailabilityBtn")
