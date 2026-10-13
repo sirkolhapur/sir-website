@@ -2104,6 +2104,12 @@
         .dsp-availability-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid #e3e8f0; border-radius: 10px; background: #f8fafc; }
         .dsp-availability-item strong { color: #10264b; font-size: 13px; }
         .dsp-availability-item span { color: #52617a; font-size: 12px; }
+        .dsp-availability-item.is-available { background: #ecfdf3; border-color: #86efac; }
+        .dsp-availability-item.is-available .dsp-slot-status { color: #15803d; font-weight: 700; }
+        .dsp-availability-item.is-booked { background: #fef2f2; border-color: #fca5a5; }
+        .dsp-availability-item.is-booked .dsp-slot-status { color: #b91c1c; font-weight: 700; }
+        .dsp-availability-item.is-unavailable { background: #f3f4f6; border-color: #d1d5db; }
+        .dsp-availability-day { grid-column: 1 / -1; margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: #fff8e8; color: #8a5a00; font-size: 12px; font-weight: 800; }
         .dsp-availability-empty { color: #667085; font-size: 13px; padding: 8px 0; }
         @media (max-width: 640px) { .dsp-availability-list { grid-template-columns: 1fr; } }
 
@@ -2702,7 +2708,7 @@
                         </div>
                         <div class="dsp-card dsp-availability-card">
                             <div class="dsp-availability-heading">
-                                <div class="dsp-card-label">TODAY'S DSP SLOTS</div>
+                                <div class="dsp-card-label">DSP SLOTS · NEXT 7 DAYS</div>
                                 <button type="button" id="toggleDspAvailability"
                                     class="dsp-availability-toggle"
                                     aria-expanded="true"
@@ -5097,51 +5103,89 @@
             if (!container) return;
 
             const today = getLocalISODate();
-            const todaySlots = (slots || [])
-                .filter(slot => slot.slot_date === today)
+            const todayDate = new Date(`${today}T12:00:00`);
+            const endDate = new Date(todayDate);
+            endDate.setDate(endDate.getDate() + 6);
+            const endDay = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
+
+            const validSlots = (slots || [])
+                .filter(slot => slot.slot_date >= today && slot.slot_date <= endDay)
                 .filter(slot => {
-                    const status = String(slot.status || "").toLowerCase();
+                    const status = String(slot.status || "available").toLowerCase();
                     return !["blocked", "disabled", "cancelled", "canceled"].includes(status);
                 })
-                .sort((a, b) => String(a.start_time || "").localeCompare(String(b.start_time || "")));
+                .sort((a, b) => String(a.slot_date || "").localeCompare(String(b.slot_date || "")) ||
+                    String(a.start_time || "").localeCompare(String(b.start_time || "")));
 
-            if (!todaySlots.length) {
-                container.innerHTML = `<div class="dsp-availability-empty">No DSP slots are scheduled for today.</div>`;
-                if (timingEl) timingEl.textContent = "Today's DSP timing: No slots scheduled";
+            const todaySlots = validSlots.filter(slot => slot.slot_date === today);
+            if (timingEl) {
+                const toMinutes = value => {
+                    const match = String(value || "").match(/^(\d{1,2}):(\d{2})/);
+                    return match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+                };
+                const ranges = [];
+                todaySlots.forEach(slot => {
+                    const start = toMinutes(slot.start_time);
+                    const end = toMinutes(slot.end_time);
+                    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return;
+                    const previous = ranges[ranges.length - 1];
+                    if (previous && start === previous.endMinutes) {
+                        previous.end = slot.end_time;
+                        previous.endMinutes = end;
+                    } else {
+                        ranges.push({ start: slot.start_time, end: slot.end_time, endMinutes: end });
+                    }
+                });
+                timingEl.textContent = ranges.length
+                    ? `Today's DSP timing: ${ranges.map(range => `${formatDspTime(range.start)} – ${formatDspTime(range.end)}`).join(" · ")} · 3 minutes per question`
+                    : "Today's DSP timing: No slots scheduled";
+            }
+
+            if (!validSlots.length) {
+                container.innerHTML = `<div class="dsp-availability-empty">No DSP slots are scheduled in the next 7 days.</div>`;
                 return;
             }
 
-            const firstStart = todaySlots[0].start_time;
-            const lastEnd = todaySlots.reduce((latest, slot) =>
-                String(slot.end_time || "") > String(latest || "") ? slot.end_time : latest,
-                todaySlots[0].end_time
-            );
-
-            if (timingEl) {
-                timingEl.textContent = `Today's DSP timing: ${formatDspTime(firstStart)} – ${formatDspTime(lastEnd)} · 3 minutes per question`;
-            }
-
-            container.innerHTML = todaySlots.map(slot => `
-                <div class="dsp-availability-item">
-                    <strong>${escapeHtml(formatDspSlotDate(slot.slot_date))}</strong>
-                    <span>${escapeHtml(formatDspTime(slot.start_time))} – ${escapeHtml(formatDspTime(slot.end_time))}</span>
-                    <span>Status: ${escapeHtml(slot.status || "available")}</span>
-                </div>
-            `).join("");
+            let lastDate = "";
+            const cards = [];
+            validSlots.forEach(slot => {
+                const status = String(slot.status || "available").toLowerCase();
+                const isBooked = status === "booked" || status === "confirmed" || status === "reserved";
+                const isAvailable = status === "available" || status === "open";
+                const cardClass = isBooked ? "is-booked" : (isAvailable ? "is-available" : "is-unavailable");
+                if (slot.slot_date !== lastDate) {
+                    cards.push(`<div class="dsp-availability-day">${escapeHtml(formatDspSlotDate(slot.slot_date))}</div>`);
+                    lastDate = slot.slot_date;
+                }
+                const readableStatus = isBooked ? "BOOKED" : (isAvailable ? "AVAILABLE" : String(slot.status || "unavailable").toUpperCase());
+                cards.push(`
+                    <div class="dsp-availability-item ${cardClass}">
+                        <strong>${escapeHtml(formatDspSlotDate(slot.slot_date))}</strong>
+                        <span>${escapeHtml(formatDspTime(slot.start_time))} – ${escapeHtml(formatDspTime(slot.end_time))}</span>
+                        <span class="dsp-slot-status">Status: ${escapeHtml(readableStatus)}</span>
+                    </div>
+                `);
+            });
+            container.innerHTML = cards.join("");
         }
 
-        async function loadTeacherDspAvailability() {
+                async function loadTeacherDspAvailability() {
             const container = document.getElementById("dspTeacherAvailability");
             if (container) container.innerHTML = `<div class="dsp-availability-empty">Loading your available slots...</div>`;
 
             const today = getLocalISODate();
+            const lastDateObj = new Date(`${today}T12:00:00`);
+            lastDateObj.setDate(lastDateObj.getDate() + 6);
+            const lastDate = `${lastDateObj.getFullYear()}-${String(lastDateObj.getMonth() + 1).padStart(2, "0")}-${String(lastDateObj.getDate()).padStart(2, "0")}`;
             const { data, error } = await supabaseClient
                 .from("dsp_slots")
                 .select("id,teacher_id,slot_date,start_time,end_time,status")
                 .eq("teacher_id", currentTeacher.id)
-                .eq("slot_date", today)
+                .gte("slot_date", today)
+                .lte("slot_date", lastDate)
+                .order("slot_date", { ascending: true })
                 .order("start_time", { ascending: true })
-                .limit(500);
+                .limit(3500);
 
             if (error) {
                 console.error("Teacher DSP availability error:", error);
