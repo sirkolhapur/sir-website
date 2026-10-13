@@ -4189,6 +4189,25 @@ function closeStudentResults() {
   document.getElementById("studentResultsModal")?.classList.remove("show");
 }
 
+// Official score percentage is marks obtained / maximum marks * 100.
+ // Accuracy and percentile are separate metrics and must never be substituted here.
+function resultScorePercentage(result) {
+  if (!result || String(result.status || "").trim().toUpperCase() === "AB") return null;
+  const obtained = Number(result.marks_obtained);
+  const maximum = Number(result.max_marks);
+  if (result.marks_obtained !== null && result.marks_obtained !== undefined &&
+      result.max_marks !== null && result.max_marks !== undefined &&
+      String(result.marks_obtained).trim() !== "" &&
+      String(result.max_marks).trim() !== "" &&
+      Number.isFinite(obtained) && Number.isFinite(maximum) && maximum > 0) {
+    return Number(((obtained / maximum) * 100).toFixed(2));
+  }
+  const stored = result.percentage;
+  if (stored === null || stored === undefined || String(stored).trim() === "") return null;
+  const parsed = Number(stored);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function studentResultMarks(result) {
   if (String(result?.status || "").toUpperCase() === "AB") return "AB";
   return `${result?.marks_obtained ?? "—"} / ${result?.max_marks ?? "—"}`;
@@ -4206,7 +4225,7 @@ function renderStudentResults(student, results, subjectRows) {
   if (!summary || !body) return;
 
   const appeared = (results || []).filter(r => String(r.status || "").toUpperCase() !== "AB");
-  const percentages = appeared.map(r => Number(r.percentage)).filter(Number.isFinite);
+  const percentages = appeared.map(resultScorePercentage).filter(v => v !== null);
   const latest = results?.[0];
   const average = percentages.length
     ? `${(percentages.reduce((a, b) => a + b, 0) / percentages.length).toFixed(2)}%`
@@ -4219,7 +4238,7 @@ function renderStudentResults(student, results, subjectRows) {
     </div>
     <div class="student-results-summary-card">
       <span>Latest Percentage</span>
-      <strong>${latest?.percentage == null ? "—" : `${escapeHtml(latest.percentage)}%`}</strong>
+      <strong>${resultScorePercentage(latest) == null ? "—" : `${resultScorePercentage(latest).toFixed(2)}%`}</strong>
     </div>
     <div class="student-results-summary-card">
       <span>Average Percentage</span>
@@ -4266,7 +4285,7 @@ function renderStudentResults(student, results, subjectRows) {
 
         <div class="student-result-metrics">
           <div class="student-result-metric"><span>Marks</span><strong>${escapeHtml(studentResultMarks(result))}</strong></div>
-          <div class="student-result-metric"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+          <div class="student-result-metric"><span>Percentage</span><strong>${resultScorePercentage(result) == null ? "—" : `${resultScorePercentage(result).toFixed(2)}%`}</strong></div>
           <div class="student-result-metric"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
           <div class="student-result-metric"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>
         </div>
@@ -4354,7 +4373,7 @@ async function openStudentResultDetails(resultId) {
   document.getElementById("questionAnalysisSubtitle").textContent = `${student?.full_name || "Student"} • ${result.test_date || "—"} • ${result.mode || "—"}`;
   document.getElementById("questionAnalysisSummary").innerHTML = `
     <div class="question-summary-card"><span>Marks</span><strong>${String(result.status || "").toUpperCase() === "AB" ? "AB" : `${escapeHtml(result.marks_obtained ?? "—")}/${escapeHtml(result.max_marks ?? "—")}`}</strong></div>
-    <div class="question-summary-card"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+    <div class="question-summary-card"><span>Percentage</span><strong>${resultScorePercentage(result) == null ? "—" : `${resultScorePercentage(result).toFixed(2)}%`}</strong></div>
     <div class="question-summary-card"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
     <div class="question-summary-card"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>`;
   document.getElementById("questionAnalysisBody").innerHTML = '<div class="question-empty">Loading question responses...</div>';
@@ -8493,8 +8512,11 @@ function parseSirExcelRow(row,index){
   const maxExplicit=cleanNumber(excelValue(row,["Max Marks","Maximum Marks"]));
   const maxMarks=marksPair.max ?? maxExplicit;
   const obtained=marksPair.obtained;
-  let percentage=cleanNumber(excelValue(row,["%TAGE","Percentage","%","Percent"]));
-  if(percentage===null && obtained!==null && maxMarks!==null && maxMarks>0) percentage=Number(((obtained/maxMarks)*100).toFixed(2));
+  const importedPercentage=cleanNumber(excelValue(row,["%TAGE","Percentage","%","Percent"]));
+  // Recalculate score percentage from marks whenever possible; do not trust a stale/mis-mapped Excel %.
+  let percentage=(obtained!==null && maxMarks!==null && maxMarks>0)
+    ? Number(((obtained/maxMarks)*100).toFixed(2))
+    : importedPercentage;
   const percentile=cleanNumber(excelValue(row,["%TILE","Percentile"]));
   const batchRankRaw=excelValue(row,["Batch Rank"]), overallRankRaw=excelValue(row,["Overall Rank","Rank"]);
   const batchRank=/^ab$/i.test(String(batchRankRaw).trim())?null:cleanNumber(batchRankRaw);
@@ -8583,13 +8605,13 @@ function renderResults(){
   const getSubjects = resultId => subjectsByResultId.get(String(resultId)) || [];
   const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
   const appeared=adminResults.filter(r=>String(r.status||"").trim().toUpperCase()!=="AB");
-  const pcts=appeared.map(r=>r.percentage===null||r.percentage===undefined||String(r.percentage).trim()===""?null:Number(r.percentage)).filter(v=>v!==null&&Number.isFinite(v));
+  const pcts=appeared.map(resultScorePercentage).filter(v=>v!==null);
   document.getElementById("totalResults").textContent=adminResults.length;
   document.getElementById("resultStudents").textContent=new Set(appeared.map(r=>r.student_id).filter(Boolean)).size;
   document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"—";
   document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"—";
   if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty">No SIR results found.</td></tr>'; return; }
-  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${r.percentage==null?"—":escapeHtml(r.percentage)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
+  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${resultScorePercentage(r)==null?"—":resultScorePercentage(r).toFixed(2)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
 }
 
 function questionResultClass(result){
@@ -8613,7 +8635,7 @@ async function openQuestionAnalysis(resultId){
   const modal=document.getElementById("questionAnalysisModal");
   document.getElementById("questionAnalysisTitle").textContent=`Question-wise Analysis — ${result.exam_name||"Test"}`;
   document.getElementById("questionAnalysisSubtitle").textContent=`${student?.full_name||"Student"} • ${result.test_date||"—"} • ${result.mode||"—"}`;
-  document.getElementById("questionAnalysisSummary").innerHTML=`<div class="question-summary-card"><span>Marks</span><strong>${String(result.status||"").toUpperCase()==="AB"?"AB":`${escapeHtml(result.marks_obtained??"—")}/${escapeHtml(result.max_marks??"—")}`}</strong></div><div class="question-summary-card"><span>Percentage</span><strong>${result.percentage==null?"—":escapeHtml(result.percentage)+"%"}</strong></div><div class="question-summary-card"><span>Percentile</span><strong>${result.percentile==null?"—":escapeHtml(result.percentile)}</strong></div><div class="question-summary-card"><span>Ranks</span><strong>${result.batch_rank??"—"} / ${result.overall_rank??"—"}</strong></div>`;
+  document.getElementById("questionAnalysisSummary").innerHTML=`<div class="question-summary-card"><span>Marks</span><strong>${String(result.status||"").toUpperCase()==="AB"?"AB":`${escapeHtml(result.marks_obtained??"—")}/${escapeHtml(result.max_marks??"—")}`}</strong></div><div class="question-summary-card"><span>Percentage</span><strong>${resultScorePercentage(result)==null?"—":resultScorePercentage(result).toFixed(2)+"%"}</strong></div><div class="question-summary-card"><span>Percentile</span><strong>${result.percentile==null?"—":escapeHtml(result.percentile)}</strong></div><div class="question-summary-card"><span>Ranks</span><strong>${result.batch_rank??"—"} / ${result.overall_rank??"—"}</strong></div>`;
   document.getElementById("questionAnalysisBody").innerHTML='<div class="question-empty">Loading question responses...</div>'; modal.classList.add("show");
   const {data,error}=await supabaseClient.from("student_question_results").select("*").eq("result_id",resultId).order("subject").order("question_number");
   if(error){
