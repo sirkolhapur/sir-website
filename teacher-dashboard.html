@@ -2096,6 +2096,14 @@
             }
         }
 
+        .dsp-availability-card { grid-column: 1 / -1; }
+        .dsp-availability-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin-top: 10px; }
+        .dsp-availability-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid #e3e8f0; border-radius: 10px; background: #f8fafc; }
+        .dsp-availability-item strong { color: #10264b; font-size: 13px; }
+        .dsp-availability-item span { color: #52617a; font-size: 12px; }
+        .dsp-availability-empty { color: #667085; font-size: 13px; padding: 8px 0; }
+        @media (max-width: 640px) { .dsp-availability-list { grid-template-columns: 1fr; } }
+
 </style>
 
 </head>
@@ -2687,7 +2695,13 @@
                         <div class="dsp-card">
                             <div class="dsp-card-label">TODAY'S BOOKINGS</div>
                             <strong id="dspTodayCount">0</strong>
-                            <p>2:30 PM – 5:30 PM · 3 minutes per question</p>
+                            <p>3 minutes per question</p>
+                        </div>
+                        <div class="dsp-card dsp-availability-card">
+                            <div class="dsp-card-label">YOUR UPCOMING DSP SLOTS</div>
+                            <div id="dspTeacherAvailability" class="dsp-availability-list" aria-live="polite">
+                                Loading your available slots...
+                            </div>
                         </div>
                     </div>
 
@@ -4217,10 +4231,9 @@
 
         async function loadScores() {
 
-            const studentIds =
-                assignedStudents.map(
-                    student => student.id
-                );
+            const studentIds = assignedStudents
+                .map(student => student.id)
+                .filter(Boolean);
 
             if (!studentIds.length) {
                 teacherScores = [];
@@ -4230,82 +4243,62 @@
                 return;
             }
 
-            const [masterResponse, subjectResponse, legacyResponse] =
-                await Promise.all([
-                    supabaseClient
-                        .from("student_test_results")
-                        .select(`
-                            id,
-                            student_id,
-                            exam_name,
-                            test_date,
-                            mode,
-                            test_type,
-                            stream,
-                            max_marks,
-                            marks_obtained,
-                            percentage,
-                            percentile,
-                            batch_rank,
-                            overall_rank,
-                            status
-                        `)
-                        .in("student_id", studentIds)
-                        .order("test_date", { ascending: false }),
-                    supabaseClient
-                        .from("student_test_subject_results")
-                        .select(`
-                            id,
-                            result_id,
-                            subject,
-                            marks_obtained,
-                            attempted,
-                            correct,
-                            wrong,
-                            skipped
-                        `),
-                    supabaseClient
-                        .from("test_scores")
-                        .select(`
-                            id,
-                            test_id,
-                            student_id,
-                            subject,
-                            marks_obtained,
-                            max_marks,
-                            rank,
-                            correct_answers
-                        `)
-                        .in("student_id", studentIds)
-                        .order("id", { ascending: false })
-                ]);
+            // Query the two result sources independently so a failure in one
+            // source does not prevent the other source from being displayed.
+            const [masterResponse, legacyResponse] = await Promise.all([
+                supabaseClient
+                    .from("student_test_results")
+                    .select(`
+                        id, student_id, exam_name, test_date, mode, test_type,
+                        stream, max_marks, marks_obtained, percentage,
+                        percentile, batch_rank, overall_rank, status
+                    `)
+                    .in("student_id", studentIds)
+                    .order("test_date", { ascending: false }),
+                supabaseClient
+                    .from("test_scores")
+                    .select(`id, test_id, student_id, subject, marks_obtained,
+                        max_marks, rank, correct_answers`)
+                    .in("student_id", studentIds)
+                    .order("id", { ascending: false })
+            ]);
 
             if (masterResponse.error) {
-                console.warn(
-                    "Authoritative student results unavailable; using legacy test scores.",
-                    masterResponse.error
-                );
+                console.warn("Teacher master results unavailable; legacy results will be used.", masterResponse.error);
                 teacherMasterResults = [];
                 teacherMasterSubjects = [];
             } else {
                 teacherMasterResults = masterResponse.data || [];
-                teacherMasterSubjects = subjectResponse.error
-                    ? []
-                    : (subjectResponse.data || []);
+                teacherMasterSubjects = [];
+
+                const resultIds = [...new Set(
+                    teacherMasterResults.map(row => row.id).filter(Boolean)
+                )];
+
+                // Only fetch subject rows belonging to these students' results.
+                // This avoids unrelated rows and reduces RLS/query-size issues.
+                if (resultIds.length) {
+                    const subjectResponse = await supabaseClient
+                        .from("student_test_subject_results")
+                        .select("id,result_id,subject,marks_obtained,attempted,correct,wrong,skipped")
+                        .in("result_id", resultIds);
+
+                    if (subjectResponse.error) {
+                        console.warn("Teacher subject-result details unavailable; overall results will still be shown.", subjectResponse.error);
+                    } else {
+                        teacherMasterSubjects = subjectResponse.data || [];
+                    }
+                }
             }
 
             if (legacyResponse.error) {
-                console.warn(
-                    "Legacy teacher scores unavailable.",
-                    legacyResponse.error
-                );
+                console.warn("Legacy teacher scores unavailable.", legacyResponse.error);
                 teacherScores = [];
             } else {
                 teacherScores = legacyResponse.data || [];
             }
 
             renderResults();
-
         }
 
 
@@ -5045,6 +5038,62 @@
             renderDspAssignments();
         }
 
+        function formatDspSlotDate(dateString) {
+            if (!dateString) return "Date not available";
+            const date = new Date(`${dateString}T00:00:00`);
+            if (Number.isNaN(date.getTime())) return dateString;
+            return date.toLocaleDateString("en-IN", {
+                weekday: "short", day: "2-digit", month: "short", year: "numeric"
+            });
+        }
+
+        function renderTeacherDspAvailability(slots) {
+            const container = document.getElementById("dspTeacherAvailability");
+            if (!container) return;
+
+            const available = (slots || []).filter(slot => {
+                const status = String(slot.status || "").toLowerCase();
+                return !["blocked", "disabled", "cancelled", "canceled"].includes(status);
+            });
+
+            if (!available.length) {
+                container.innerHTML = `<div class="dsp-availability-empty">No upcoming DSP slots are available for your account. If slots were configured by the admin, refresh or ask the admin to check the teacher assignment and slot records.</div>`;
+                return;
+            }
+
+            container.innerHTML = available.map(slot => `
+                <div class="dsp-availability-item">
+                    <strong>${escapeHtml(formatDspSlotDate(slot.slot_date))}</strong>
+                    <span>${escapeHtml(slot.start_time || "Time not set")} – ${escapeHtml(slot.end_time || "Time not set")}</span>
+                    <span>Status: ${escapeHtml(slot.status || "available")}</span>
+                </div>
+            `).join("");
+        }
+
+        async function loadTeacherDspAvailability() {
+            const container = document.getElementById("dspTeacherAvailability");
+            if (container) container.innerHTML = `<div class="dsp-availability-empty">Loading your available slots...</div>`;
+
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+            const { data, error } = await supabaseClient
+                .from("dsp_slots")
+                .select("id,teacher_id,slot_date,start_time,end_time,status")
+                .eq("teacher_id", currentTeacher.id)
+                .gte("slot_date", today)
+                .order("slot_date", { ascending: true })
+                .order("start_time", { ascending: true })
+                .limit(100);
+
+            if (error) {
+                console.error("Teacher DSP availability error:", error);
+                if (container) container.innerHTML = `<div class="dsp-availability-empty">Unable to load DSP slot timings. Please refresh or contact the admin if this continues.</div>`;
+                return;
+            }
+
+            renderTeacherDspAvailability(data || []);
+        }
+
         async function loadDspBookings() {
             const { data: bookings, error } = await supabaseClient
                 .from("dsp_bookings")
@@ -5141,7 +5190,8 @@
             const subjectMap = Object.fromEntries(subjects.map(row => [row.id, row]));
             const topicMap = Object.fromEntries(topics.map(row => [row.id, row]));
 
-            const today = new Date().toISOString().slice(0, 10);
+            const localNow = new Date();
+            const today = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, "0")}-${String(localNow.getDate()).padStart(2, "0")}`;
             const todayCount = dspBookings.filter(booking => {
                 const slot = slotMap[booking.slot_id] || {};
                 return slot.slot_date === today;
@@ -5273,7 +5323,8 @@
 
             /* Open TODAY by default. If there are no today's bookings,
                the first available date is opened instead. */
-            const todayISO = new Date().toISOString().slice(0, 10);
+            const localDate = new Date();
+            const todayISO = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`;
             const availableDates = [
                 ...new Set(
                     sortedBookings
@@ -5327,8 +5378,11 @@
         }
 
         async function loadDspData() {
-            await loadDspAssignments();
-            await loadDspBookings();
+            await Promise.all([
+                loadDspAssignments(),
+                loadDspBookings(),
+                loadTeacherDspAvailability()
+            ]);
         }
 
         document.getElementById("dspRefreshBtn")?.addEventListener("click", async () => {
