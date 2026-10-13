@@ -8510,6 +8510,23 @@ function parseSirExcelRow(row,index){
   return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,mode:dateMode.mode,test_type:String(excelValue(row,["Exam Type","Test Type","Category"] )||"").trim()||null,stream:deriveStream(row),max_marks:maxMarks,marks_obtained:obtained,percentage,percentile,batch_rank:batchRank,overall_rank:overallRank,status,subjects,raw_data:row};
 }
 
+// Supabase/PostgREST commonly caps a response at 1,000 rows. Fetch pages
+// explicitly so the Results screen never silently omits later subject rows.
+async function fetchAllResultRows(tableName, selectColumns, configureQuery) {
+  const pageSize = 1000;
+  const rows = [];
+  for (let from = 0; ; from += pageSize) {
+    let query = supabaseClient.from(tableName).select(selectColumns);
+    if (typeof configureQuery === "function") query = configureQuery(query);
+    const { data, error } = await query.range(from, from + pageSize - 1);
+    if (error) throw error;
+    const page = data || [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
 async function loadResults() {
   const tbody = document.getElementById("resultsTableBody");
   if (!tbody) return;
@@ -8518,53 +8535,32 @@ async function loadResults() {
     '<tr><td colspan="11" class="empty">Loading results...</td></tr>';
 
   try {
-    const [resultsResponse, subjectsResponse] = await Promise.all([
-      supabaseClient
-        .from("student_test_results")
-        .select("*")
-        .order("test_date", { ascending: false })
-        .order("created_at", { ascending: false }),
-
-      supabaseClient
-        .from("student_test_subject_results")
-        .select("*")
+    const [results, subjects] = await Promise.all([
+      fetchAllResultRows("student_test_results", "*", query =>
+        query.order("test_date", { ascending: false })
+             .order("created_at", { ascending: false })
+             .order("id", { ascending: true })
+      ),
+      fetchAllResultRows("student_test_subject_results", "*", query =>
+        query.order("id", { ascending: true })
+      )
     ]);
 
-    // Main results are required. Surface permission/query failures clearly.
-    if (resultsResponse.error) {
-      console.error("Results load error:", resultsResponse.error);
-      throw new Error(
-        "Unable to load test results: " +
-        (resultsResponse.error.message || "Unknown database error")
-      );
-    }
-
-    adminResults = resultsResponse.data || [];
-
-    // Subject marks are supplementary. Keep the main results visible if
-    // this query fails, while logging the actual reason for troubleshooting.
-    if (subjectsResponse.error) {
-      console.error("Subject results load error:", subjectsResponse.error);
-      adminResultSubjects = [];
-    } else {
-      adminResultSubjects = subjectsResponse.data || [];
-    }
+    adminResults = results;
+    adminResultSubjects = subjects;
+    console.info(
+      `Results loaded: ${adminResults.length} test records; ` +
+      `${adminResultSubjects.length} subject records.`
+    );
 
     populateResultTestSelect();
     renderResults();
-
-    if (subjectsResponse.error) {
-      console.warn(
-        "Main results loaded, but subject-wise marks could not be loaded. " +
-        "Check access to student_test_subject_results in Supabase."
-      );
-    }
   } catch (error) {
     console.error("Results load error:", error);
     tbody.innerHTML =
       '<tr><td colspan="11" class="empty">' +
       'Unable to load results: ' +
-      escapeHtml(error.message || "Unknown error") +
+      escapeHtml(error.message || "Unknown database error") +
       '</td></tr>';
   }
 }
@@ -8578,7 +8574,14 @@ function renderResults(){
   const studentMap=Object.fromEntries((allStudents||[]).map(s=>[s.id,s]));
   const search=(document.getElementById("resultSearch")?.value||"").trim().toLowerCase();
   const testFilter=document.getElementById("resultTestFilter")?.value||""; const subjectFilter=document.getElementById("resultSubjectFilter")?.value||"";
-  const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
+  const subjectsByResultId = new Map();
+  adminResultSubjects.forEach(subjectRow => {
+    const key = String(subjectRow.result_id);
+    if (!subjectsByResultId.has(key)) subjectsByResultId.set(key, []);
+    subjectsByResultId.get(key).push(subjectRow);
+  });
+  const getSubjects = resultId => subjectsByResultId.get(String(resultId)) || [];
+  const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
   const appeared=adminResults.filter(r=>String(r.status||"").trim().toUpperCase()!=="AB");
   const pcts=appeared.map(r=>r.percentage===null||r.percentage===undefined||String(r.percentage).trim()===""?null:Number(r.percentage)).filter(v=>v!==null&&Number.isFinite(v));
   document.getElementById("totalResults").textContent=adminResults.length;
@@ -8586,7 +8589,7 @@ function renderResults(){
   document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"—";
   document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"—";
   if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty">No SIR results found.</td></tr>'; return; }
-  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${r.percentage==null?"—":escapeHtml(r.percentage)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
+  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${r.percentage==null?"—":escapeHtml(r.percentage)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
 }
 
 function questionResultClass(result){
@@ -8815,12 +8818,13 @@ async function repairMissingResultSubjects() {
   btn.disabled = true;
   btn.textContent = "Checking subject rows...";
   try {
-    const { data: existing, error: readError } = await supabaseClient
-      .from("student_test_subject_results")
-      .select("result_id,subject");
-    if (readError) throw readError;
+    const existing = await fetchAllResultRows(
+      "student_test_subject_results",
+      "result_id,subject",
+      query => query.order("id", { ascending: true })
+    );
 
-    const resultIdsWithSubjects = new Set((existing || []).map(x => x.result_id));
+    const resultIdsWithSubjects = new Set(existing.map(x => x.result_id));
     const candidates = adminResults.filter(r =>
       !resultIdsWithSubjects.has(r.id) &&
       String(r.status || "").trim().toUpperCase() !== "AB" &&
