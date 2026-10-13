@@ -2526,6 +2526,7 @@
           <div class="build-marker">SIR EXCEL RESULT MANAGEMENT</div>
         </div>
         <div class="results-head-actions">
+          <button class="excel-btn" id="repairMissingSubjectsBtn" type="button">Repair Missing Subject Marks</button>
           <button class="excel-btn" id="openExcelImportBtn">↑ Excel Import</button>
         </div>
       </div>
@@ -8438,8 +8439,20 @@ function parseSubjectCell(value) {
   if (!text || text === "-" || /^ab$/i.test(text)) return null;
   const first = text.match(/^\s*(-?\d+(?:\.\d+)?)/);
   const marks = first ? Number(first[1]) : null;
-  const get = key => { const m=text.match(new RegExp(`(?:^|[^A-Z])${key}\\s*[:=]?\\s*(\\d+)`,`i`)); return m?Number(m[1]):null; };
-  return {marks_obtained:marks,attempted:get("A"),correct:get("C"),wrong:get("W"),skipped:get("S"),raw_data:{source_cell:text}};
+  // Source reports sometimes omit commas, e.g. "61 A:24,C:17 W:7,S:6".
+  // Parse each labelled count independently rather than requiring punctuation.
+  const get = key => {
+    const m = text.match(new RegExp(`(?:^|[^A-Z])${key}\\s*[:=]\\s*(\\d+)`, "i"));
+    return m ? Number(m[1]) : null;
+  };
+  return {
+    marks_obtained: marks,
+    attempted: get("A"),
+    correct: get("C"),
+    wrong: get("W"),
+    skipped: get("S"),
+    raw_data: { source_cell: text }
+  };
 }
 function deriveStream(row) {
   const explicit = String(excelValue(row,["Stream"]) || "").trim().toUpperCase();
@@ -8632,7 +8645,7 @@ function isQuestionSheetName(name){return /question|response|answer/i.test(Strin
 function parseQuestionExcelRow(row,index){
   const uid=String(excelValue(row,["Student UID","Student ID","UID","Roll Number","Roll No","Roll"])||"").trim();
   const name=String(excelValue(row,["Student Name","Name"])||"").trim();
-  const maps=resultStudentMaps(); const student=maps.byUid[uid.toLowerCase()]||maps.byName[name.toLowerCase()]||null;
+  const student=findResultStudent(uid,name);
   const examName=String(excelValue(row,["Exam Name","Test Name","Test","Exam"])||"").trim();
   const dateValue=excelValue(row,["Date","Test Date","Date/Mode"]);
   const dateMode=parseDateMode(dateValue,row);
@@ -8649,7 +8662,7 @@ function parseQuestionExcelRow(row,index){
   else if(!examName) error="Exam name missing";
   else if(!subject) error="Subject missing";
   else if(questionNumber===null) error="Question number missing";
-  return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,subject,question_number:questionNumber,student_answer:studentAnswer||null,correct_answer:correctAnswer||null,result,marks_obtained:marks,raw_data:row};
+  return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,mode:dateMode.mode,test_type:String(excelValue(row,["Exam Type","Test Type","Category"])||"").trim()||null,stream:String(excelValue(row,["Stream"])||"").trim()||null,subject,question_number:questionNumber,student_answer:studentAnswer||null,correct_answer:correctAnswer||null,result,marks_obtained:marks,raw_data:row};
 }
 async function handleResultExcelFile(event){ const file=event.target.files?.[0];if(!file)return;document.getElementById("excelFileName").textContent=file.name;hideExcelImportMessage();document.getElementById("importExcelRowsBtn").disabled=true;excelFileHash=""; try{const buffer=await file.arrayBuffer();excelFileHash=await sha256Hex(buffer);const {data:existingHash,error:hashError}=await supabaseClient.from("result_import_batches").select("id,file_name,status,imported_at").eq("file_hash",excelFileHash).limit(1);if(hashError)throw hashError;if(existingHash?.length){const old=existingHash[0];throw new Error(`This Excel file has already been imported${old.file_name?` as ${old.file_name}`:""}. Duplicate import blocked.`);}const wb=XLSX.read(buffer,{type:"array",cellDates:true});const firstName=wb.SheetNames[0];const sh=wb.Sheets[firstName];const rows=XLSX.utils.sheet_to_json(sh,{defval:"",raw:false});if(!rows.length)throw new Error("The selected first sheet is empty.");const {data:importStudents,error:importStudentsError}=await supabaseClient.from("students").select("id,student_uid,full_name,email,phone,is_active,course_id,batch_id");if(importStudentsError)throw importStudentsError;allStudents=importStudents||[];excelImportRows=rows;excelValidRows=rows.map(parseSirExcelRow);excelQuestionRows=[];const qSheetName=wb.SheetNames.find(isQuestionSheetName);if(qSheetName){const qRows=XLSX.utils.sheet_to_json(wb.Sheets[qSheetName],{defval:"",raw:false});excelQuestionRows=qRows.map(parseQuestionExcelRow);}
 renderExcelPreview(excelValidRows);if(excelQuestionRows.length){const qValid=excelQuestionRows.filter(q=>!q.error).length;showExcelImportMessage(`${excelValidRows.length} test row(s) ready. ${excelQuestionRows.length} question response row(s) detected; ${qValid} valid.`,excelQuestionRows.some(q=>q.error)?"error":"success");}}catch(e){console.error(e);excelFileHash="";document.getElementById("excelPreviewWrap").style.display="none";document.getElementById("excelPreviewWrap").innerHTML="";document.getElementById("excelImportSummary").innerHTML="";showExcelImportMessage(e.message||"Unable to read Excel.","error");} }
@@ -8735,7 +8748,7 @@ async function importValidExcelRows(){
       const payload={student_id:row.student_id,import_batch_id:batch.id,exam_name:row.exam_name,test_date:row.test_date,mode:row.mode,test_type:row.test_type,stream:row.stream,max_marks:row.max_marks,marks_obtained:row.marks_obtained,percentage:row.percentage,percentile:row.percentile,batch_rank:row.batch_rank,overall_rank:row.overall_rank,status:row.status,source_row_number:row.rowNumber,source_key:buildResultSourceKey(row),raw_data:row.raw_data};
       const {data:res,error:re}=await supabaseClient.from("student_test_results").insert(payload).select().single();
       if(re)throw re;
-      resultMap.set(`${row.student_id}|${row.exam_name}|${row.test_date||""}`,res.id);
+      resultMap.set(buildResultSourceKey(row), res.id);
       if(row.subjects.length){
         const sp=row.subjects.map(x=>({result_id:res.id,subject:x.subject,marks_obtained:x.marks_obtained,attempted:x.attempted,correct:x.correct,wrong:x.wrong,skipped:x.skipped,raw_data:x.raw_data}));
         const {error:se}=await supabaseClient.from("student_test_subject_results").insert(sp);
@@ -8744,21 +8757,34 @@ async function importValidExcelRows(){
     }
 
     const validQuestions=excelQuestionRows.filter(q=>!q.error);
+    let matchedQuestionCount = 0;
     if(validQuestions.length){
       const qPayload=[];
       for(const q of validQuestions){
-        const resultId=resultMap.get(`${q.student_id}|${q.exam_name}|${q.test_date||""}`);
+        const candidates = rowsToImport.filter(row =>
+          row.student_id === q.student_id &&
+          String(row.exam_name || "").trim().toLowerCase() === String(q.exam_name || "").trim().toLowerCase() &&
+          String(row.test_date || "") === String(q.test_date || "") &&
+          (!q.mode || String(row.mode || "").toLowerCase() === String(q.mode).toLowerCase()) &&
+          (!q.test_type || String(row.test_type || "").toLowerCase() === String(q.test_type).toLowerCase()) &&
+          (!q.stream || String(row.stream || "").toLowerCase() === String(q.stream).toLowerCase())
+        );
+        // If response rows cannot be linked uniquely to a test result, do not attach them to an arbitrary test.
+        const resultId = candidates.length === 1 ? resultMap.get(buildResultSourceKey(candidates[0])) : null;
         if(resultId)qPayload.push({result_id:resultId,student_id:q.student_id,subject:q.subject,question_number:q.question_number,student_answer:q.student_answer,correct_answer:q.correct_answer,result:q.result,is_correct:q.result.toLowerCase()==="correct",is_skipped:q.result.toLowerCase()==="skipped",marks_obtained:q.marks_obtained,raw_data:q.raw_data});
       }
+      matchedQuestionCount = qPayload.length;
       if(qPayload.length){
         const {error:qe}=await supabaseClient.from("student_question_results").insert(qPayload);
         if(qe)throw qe;
       }
     }
 
-    const allGood=excelImportRows.length===excelValidRows.length && excelQuestionRows.every(q=>!q.error);
-    await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors"),imported_at:new Date().toISOString()}).eq("id",batch.id);
-    const qmsg=validQuestions.length?` ${validQuestions.length} question response(s) detected.`:"";
+    const unmatchedQuestionCount = validQuestions.length - matchedQuestionCount;
+    const allGood=excelImportRows.length===excelValidRows.length && excelQuestionRows.every(q=>!q.error) && unmatchedQuestionCount===0;
+    const {error:batchUpdateError}=await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors"),imported_at:new Date().toISOString()}).eq("id",batch.id);
+    if(batchUpdateError)console.error("Import batch status update failed:",batchUpdateError);
+    const qmsg=validQuestions.length?` ${matchedQuestionCount} question response(s) linked to a unique test result${unmatchedQuestionCount?`; ${unmatchedQuestionCount} not imported because the matching test was missing or ambiguous`:""}.`:"";
     const skipMsg=skippedTotal?` ${skippedTotal} duplicate row(s) skipped; existing data was not overwritten.`:"";
     showExcelImportMessage(`${rowsToImport.length} SIR result row(s) imported successfully.${skipMsg}${qmsg}`,"success");
     await loadResults();
@@ -8772,6 +8798,92 @@ async function importValidExcelRows(){
     btn.textContent="Import Valid Rows";
   }
 }
+
+async function repairMissingResultSubjects() {
+  const btn = document.getElementById("repairMissingSubjectsBtn");
+  if (!btn) return;
+  if (!adminResults.length) {
+    alert("Load Results first. No result rows are currently available.");
+    return;
+  }
+  const proceed = window.confirm(
+    "This will only add subject rows for results that currently have ZERO subject rows, using the saved raw Excel row. Existing subject rows will not be changed or deleted. Continue?"
+  );
+  if (!proceed) return;
+
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Checking subject rows...";
+  try {
+    const { data: existing, error: readError } = await supabaseClient
+      .from("student_test_subject_results")
+      .select("result_id,subject");
+    if (readError) throw readError;
+
+    const resultIdsWithSubjects = new Set((existing || []).map(x => x.result_id));
+    const candidates = adminResults.filter(r =>
+      !resultIdsWithSubjects.has(r.id) &&
+      String(r.status || "").trim().toUpperCase() !== "AB" &&
+      r.raw_data && typeof r.raw_data === "object"
+    );
+
+    const payload = [];
+    let noSubjectSource = 0;
+    for (const result of candidates) {
+      const raw = result.raw_data;
+      const definitions = [
+        ["Physics", ["PHY", "Physics"]],
+        ["Chemistry", ["CHEM", "Chemistry"]],
+        ["Mathematics", ["MATH", "Math", "Mathematics"]],
+        ["Biology", ["BIO", "Biology"]]
+      ];
+      const parsed = [];
+      for (const [subject, aliases] of definitions) {
+        const value = excelValue(raw, aliases);
+        const item = parseSubjectCell(value);
+        if (item) parsed.push({
+          result_id: result.id,
+          subject,
+          marks_obtained: item.marks_obtained,
+          attempted: item.attempted,
+          correct: item.correct,
+          wrong: item.wrong,
+          skipped: item.skipped,
+          raw_data: item.raw_data
+        });
+      }
+      if (parsed.length) payload.push(...parsed);
+      else noSubjectSource++;
+    }
+
+    if (!payload.length) {
+      alert(`No repairable subject rows found. Checked ${candidates.length} result(s); ${noSubjectSource} had no usable subject cells in saved raw data.`);
+      return;
+    }
+
+    btn.textContent = `Adding ${payload.length} subject rows...`;
+    // Small chunks avoid oversized PostgREST requests.
+    let inserted = 0;
+    for (let i = 0; i < payload.length; i += 100) {
+      const { error } = await supabaseClient
+        .from("student_test_subject_results")
+        .insert(payload.slice(i, i + 100));
+      if (error) throw error;
+      inserted += Math.min(100, payload.length - i);
+    }
+
+    await loadResults();
+    alert(`Repair complete: added ${inserted} subject row(s) for results that had no subject rows. Existing subject rows were not modified.`);
+  } catch (error) {
+    console.error("Missing subject repair failed:", error);
+    alert("Repair stopped: " + (error.message || "Unknown error") + ". No existing subject rows were intentionally overwritten. Check Supabase permissions and refresh Results before retrying.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+document.getElementById("repairMissingSubjectsBtn")?.addEventListener("click", repairMissingResultSubjects);
 
 document.getElementById("resultSearch")?.addEventListener("input",renderResults);
 document.getElementById("resultTestFilter")?.addEventListener("change",renderResults);
