@@ -2097,7 +2097,10 @@
         }
 
         .dsp-availability-card { grid-column: 1 / -1; }
+        .dsp-availability-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .dsp-availability-toggle { border: 1px solid #d7a42b; border-radius: 7px; background: #fff; color: #10264b; padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
         .dsp-availability-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin-top: 10px; }
+        .dsp-availability-list[hidden] { display: none !important; }
         .dsp-availability-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid #e3e8f0; border-radius: 10px; background: #f8fafc; }
         .dsp-availability-item strong { color: #10264b; font-size: 13px; }
         .dsp-availability-item span { color: #52617a; font-size: 12px; }
@@ -2695,12 +2698,21 @@
                         <div class="dsp-card">
                             <div class="dsp-card-label">TODAY'S BOOKINGS</div>
                             <strong id="dspTodayCount">0</strong>
-                            <p>3 minutes per question</p>
+                            <p id="dspTodayTiming">Today's DSP timing: loading...</p>
                         </div>
                         <div class="dsp-card dsp-availability-card">
-                            <div class="dsp-card-label">YOUR UPCOMING DSP SLOTS</div>
+                            <div class="dsp-availability-heading">
+                                <div class="dsp-card-label">TODAY'S DSP SLOTS</div>
+                                <button type="button" id="toggleDspAvailability"
+                                    class="dsp-availability-toggle"
+                                    aria-expanded="true"
+                                    aria-controls="dspTeacherAvailability"
+                                    onclick="toggleTeacherDspAvailability()">
+                                    Hide slots
+                                </button>
+                            </div>
                             <div id="dspTeacherAvailability" class="dsp-availability-list" aria-live="polite">
-                                Loading your available slots...
+                                Loading today's DSP slots...
                             </div>
                         </div>
                     </div>
@@ -4388,7 +4400,13 @@
                         rows,
                         marks: Number(result.marks_obtained) || 0,
                         max: Number(result.max_marks) || 0,
-                        percentage: Number(result.percentage) || 0,
+                        // Keep the displayed percentage consistent with the displayed score.
+                        // Use the stored percentage only when maximum marks are unavailable.
+                        percentage: Number(result.max_marks) > 0
+                            ? (Number(result.marks_obtained || 0) / Number(result.max_marks)) * 100
+                            : (Number.isFinite(Number(result.percentage))
+                                ? Number(result.percentage)
+                                : 0),
                         rank:
                             Number.isFinite(Number(result.batch_rank))
                                 ? Number(result.batch_rank)
@@ -5047,24 +5065,66 @@
             });
         }
 
+        function getLocalISODate() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        }
+
+        function formatDspTime(value) {
+            if (!value) return "Time not set";
+            const match = String(value).match(/^(\\d{1,2}):(\\d{2})/);
+            if (!match) return String(value);
+            const hour = Number(match[1]);
+            const minute = match[2];
+            const suffix = hour >= 12 ? "PM" : "AM";
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minute} ${suffix}`;
+        }
+
+        function toggleTeacherDspAvailability() {
+            const container = document.getElementById("dspTeacherAvailability");
+            const button = document.getElementById("toggleDspAvailability");
+            if (!container || !button) return;
+            const willHide = !container.hidden;
+            container.hidden = willHide;
+            button.textContent = willHide ? "Show slots" : "Hide slots";
+            button.setAttribute("aria-expanded", String(!willHide));
+        }
+
         function renderTeacherDspAvailability(slots) {
             const container = document.getElementById("dspTeacherAvailability");
+            const timingEl = document.getElementById("dspTodayTiming");
             if (!container) return;
 
-            const available = (slots || []).filter(slot => {
-                const status = String(slot.status || "").toLowerCase();
-                return !["blocked", "disabled", "cancelled", "canceled"].includes(status);
-            });
+            const today = getLocalISODate();
+            const todaySlots = (slots || [])
+                .filter(slot => slot.slot_date === today)
+                .filter(slot => {
+                    const status = String(slot.status || "").toLowerCase();
+                    return !["blocked", "disabled", "cancelled", "canceled"].includes(status);
+                })
+                .sort((a, b) => String(a.start_time || "").localeCompare(String(b.start_time || "")));
 
-            if (!available.length) {
-                container.innerHTML = `<div class="dsp-availability-empty">No upcoming DSP slots are available for your account. If slots were configured by the admin, refresh or ask the admin to check the teacher assignment and slot records.</div>`;
+            if (!todaySlots.length) {
+                container.innerHTML = `<div class="dsp-availability-empty">No DSP slots are scheduled for today.</div>`;
+                if (timingEl) timingEl.textContent = "Today's DSP timing: No slots scheduled";
                 return;
             }
 
-            container.innerHTML = available.map(slot => `
+            const firstStart = todaySlots[0].start_time;
+            const lastEnd = todaySlots.reduce((latest, slot) =>
+                String(slot.end_time || "") > String(latest || "") ? slot.end_time : latest,
+                todaySlots[0].end_time
+            );
+
+            if (timingEl) {
+                timingEl.textContent = `Today's DSP timing: ${formatDspTime(firstStart)} – ${formatDspTime(lastEnd)} · 3 minutes per question`;
+            }
+
+            container.innerHTML = todaySlots.map(slot => `
                 <div class="dsp-availability-item">
                     <strong>${escapeHtml(formatDspSlotDate(slot.slot_date))}</strong>
-                    <span>${escapeHtml(slot.start_time || "Time not set")} – ${escapeHtml(slot.end_time || "Time not set")}</span>
+                    <span>${escapeHtml(formatDspTime(slot.start_time))} – ${escapeHtml(formatDspTime(slot.end_time))}</span>
                     <span>Status: ${escapeHtml(slot.status || "available")}</span>
                 </div>
             `).join("");
@@ -5074,16 +5134,14 @@
             const container = document.getElementById("dspTeacherAvailability");
             if (container) container.innerHTML = `<div class="dsp-availability-empty">Loading your available slots...</div>`;
 
-            const now = new Date();
-            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+            const today = getLocalISODate();
             const { data, error } = await supabaseClient
                 .from("dsp_slots")
                 .select("id,teacher_id,slot_date,start_time,end_time,status")
                 .eq("teacher_id", currentTeacher.id)
-                .gte("slot_date", today)
-                .order("slot_date", { ascending: true })
+                .eq("slot_date", today)
                 .order("start_time", { ascending: true })
-                .limit(100);
+                .limit(500);
 
             if (error) {
                 console.error("Teacher DSP availability error:", error);
