@@ -7063,8 +7063,8 @@ document
      DSP — LOCKED ARCHITECTURE
   ========================= */
 
-  const DSP_WINDOW_START = "00:00";
-  const DSP_WINDOW_END = "23:59";
+  const DSP_WINDOW_START = "14:30";
+  const DSP_WINDOW_END = "17:30";
   const DSP_SLOT_MINUTES = 3;
   const DSP_MANAGE_DAYS = 7;
 
@@ -7150,7 +7150,7 @@ document
     const date = document.getElementById("dspInstituteDate")?.value;
     const enabled = document.getElementById("dspInstituteEnabled")?.checked;
     const reason = document.getElementById("dspInstituteReason")?.value.trim() || null;
-    if (!date || !isDspManageDate(date)) return showDspMessage("Select a date within the 6-day DSP management window.","error");
+    if (!date || !isDspManageDate(date)) return showDspMessage("Select a date within the 7-day DSP management window.","error");
     if (!enabled && !reason) return showDspMessage("Add a reason when turning institute DSP OFF.","error");
     try {
       const { data: existing, error: findError } = await supabaseClient.from("dsp_off_days").select("id").eq("off_date",date).maybeSingle();
@@ -7231,8 +7231,8 @@ document
   function renderDspRangeRows(ranges=[{from:"14:30",till:"17:30"}]) {
     const host=document.getElementById("dspAvailabilityRanges"); if(!host)return;
     host.innerHTML=ranges.map((r,i)=>`<div class="dsp-range-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:6px 0;align-items:end">
-      <label class="dsp-field-label">From<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-from value="${escapeHtml(r.from||"")}" required></label>
-      <label class="dsp-field-label">Till<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-till value="${escapeHtml(r.till||"")}" required></label>
+      <label class="dsp-field-label">From<input class="dsp-input" type="time" min="14:30" max="17:30" data-range-from value="${escapeHtml(r.from||"")}" required></label>
+      <label class="dsp-field-label">Till<input class="dsp-input" type="time" min="14:30" max="17:30" data-range-till value="${escapeHtml(r.till||"")}" required></label>
       <button type="button" class="secondary-btn" data-remove-range="${i}" aria-label="Remove range">Remove</button></div>`).join("");
     host.querySelectorAll("[data-remove-range]").forEach(btn=>btn.addEventListener("click",()=>{const rows=getDspRangeRows();rows.splice(Number(btn.dataset.removeRange),1);renderDspRangeRows(rows);}));
   }
@@ -7240,7 +7240,7 @@ document
   function validateDspRanges(ranges) {
     if(!ranges.length) return "Add at least one availability range.";
     const normalized=[];
-    for(const r of ranges){const a=timeToMinutes(r.from),b=timeToMinutes(r.till);if(!Number.isFinite(a)||!Number.isFinite(b)||a<0||b>1439||a>=b)return "Each range must have a valid From time earlier than Till (00:00–23:59).";normalized.push({start:a,end:b,from:r.from,till:r.till});}
+    for(const r of ranges){const a=timeToMinutes(r.from),b=timeToMinutes(r.till);if(!Number.isFinite(a)||!Number.isFinite(b)||a<timeToMinutes(DSP_WINDOW_START)||b>timeToMinutes(DSP_WINDOW_END)||a>=b)return `Each availability range must be within ${formatDspTime(DSP_WINDOW_START)}–${formatDspTime(DSP_WINDOW_END)}, with From earlier than Till.`;normalized.push({start:a,end:b,from:r.from,till:r.till});}
     normalized.sort((a,b)=>a.start-b.start);
     for(let i=1;i<normalized.length;i++)if(normalized[i].start<normalized[i-1].end)return "Availability ranges overlap. Adjust them before saving.";
     return null;
