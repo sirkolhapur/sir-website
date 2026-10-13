@@ -3089,7 +3089,7 @@ header, main, footer {
      ===================================================== */
 
   const DSP_MAX_QUESTIONS = 3;
-  const DSP_MAX_MINUTES = 10;
+  const DSP_MAX_MINUTES = DSP_MAX_QUESTIONS * DSP_SLOT_MINUTES;
   const DSP_SLOT_MINUTES = 3;
   const DSP_START_MINUTES = 14 * 60 + 30;
   const DSP_END_MINUTES = 17 * 60 + 30;
@@ -3772,53 +3772,53 @@ dspDateEl.value = dspToday;
      PERCENTAGE
      ===================================================== */
 
-  function getPercentage(
-    row
-  ) {
-
-    /*
-      Imported institute results already contain the official
-      percentage. Prefer it so the dashboard does not recalculate
-      or subtly change an imported value.
-    */
-
-    if (
-      row.percentage !== null &&
-      row.percentage !== undefined &&
-      String(row.percentage).trim() !== "" &&
-      Number.isFinite(Number(row.percentage))
-    ) {
-
-      return Number(row.percentage);
-
+  function getPercentage(row) {
+    if (!row) return null;
+    const status = String(row.status || "").trim().toLowerCase().replace(/[ _-]+/g, "");
+    if (["absent", "ab", "notattended", "notattempted", "cancelled", "canceled"].includes(status)) return null;
+    const score = getScore(row);
+    const maxMarks = getMaxMarks(row);
+    if (score !== null && maxMarks !== null && maxMarks > 0 && score >= 0) {
+      const calculated = (score / maxMarks) * 100;
+      if (Number.isFinite(calculated) && calculated >= 0 && calculated <= 100) return calculated;
     }
-
-
-    const score =
-      getScore(row);
-
-
-    const maxMarks =
-      getMaxMarks(row);
-
-
-    if (
-      score === null ||
-      maxMarks === null ||
-      maxMarks <= 0
-    ) {
-
-      return null;
-
-    }
-
-
-    return (
-      score /
-      maxMarks
-    ) * 100;
-
+    const stored = finiteNumber(row.percentage);
+    if (stored !== null && stored >= 0 && stored <= 100) return stored;
+    return null;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   /* =====================================================
@@ -3897,78 +3897,78 @@ dspDateEl.value = dspToday;
      MODE
      ===================================================== */
 
-  function calculateMode(
-    values
-  ) {
-
-    if (!values.length) {
-
-      return null;
-
+  function calculateMode(values) {
+    if (!Array.isArray(values) || !values.length) return null;
+    const frequency = new Map();
+    values.forEach(value => {
+      const key = Number(Number(value).toFixed(1));
+      frequency.set(key, (frequency.get(key) || 0) + 1);
+    });
+    let mode = null, highestFrequency = 1;
+    for (const [value, count] of frequency.entries()) {
+      if (count > highestFrequency) { mode = value; highestFrequency = count; }
     }
-
-
-    const frequency = {};
-
-
-    values.forEach(
-      value => {
-
-        frequency[value] =
-          (frequency[value] || 0) + 1;
-
-      }
-    );
-
-
-    let mode =
-      values[0];
-
-
-    let highestFrequency =
-      frequency[mode];
-
-
-    Object.keys(
-      frequency
-    ).forEach(
-      value => {
-
-        if (
-          frequency[value] >
-          highestFrequency
-        ) {
-
-          mode =
-            Number(value);
-
-
-          highestFrequency =
-            frequency[value];
-
-        }
-
-      }
-    );
-
-
-    /*
-      If no score is repeated,
-      there is no meaningful mode.
-    */
-
-    if (
-      highestFrequency === 1
-    ) {
-
-      return null;
-
-    }
-
-
     return mode;
-
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4089,61 +4089,61 @@ dspDateEl.value = dspToday;
   function renderSubjectPerformance(records) {
     const container = document.getElementById("subjectPerformance");
     if (!container) return;
-
     const aggregate = new Map();
-
     records.forEach(record => {
-      const subjects = Array.isArray(record.subjects) ? record.subjects : [];
-
-      subjects.forEach(subject => {
-        const name = String(subject.subject || "Other").trim();
-        // Missing database values must remain missing, not become 0 via Number(null).
+      (Array.isArray(record.subjects) ? record.subjects : []).forEach(subject => {
+        const name = String(subject.subject || "Other").trim() || "Other";
         const marks = finiteNumber(subject.marks_obtained);
-        const max = finiteNumber(subject.max_marks);
-        const correct = finiteNumber(subject.correct), wrong = finiteNumber(subject.wrong), skipped = finiteNumber(subject.skipped); let effectiveMax = max; if ((effectiveMax === null || effectiveMax <= 0) && correct !== null && wrong !== null && skipped !== null && (correct + wrong + skipped) > 0) effectiveMax = (correct + wrong + skipped) * 4; let pct = marks !== null && effectiveMax !== null && effectiveMax > 0 ? (marks / effectiveMax) * 100 : finiteNumber(subject.percentage);
-
-        if (pct === null && marks !== null && effectiveMax !== null && effectiveMax > 0) {
-          pct = (marks / effectiveMax) * 100;
-        }
-
-        if (pct === null) return;
-
-        if (!aggregate.has(name)) {
-          aggregate.set(name, { total: 0, count: 0 });
-        }
-
+        let max = finiteNumber(subject.max_marks);
+        const correct = finiteNumber(subject.correct), wrong = finiteNumber(subject.wrong), skipped = finiteNumber(subject.skipped);
+        if ((max === null || max <= 0) && correct !== null && wrong !== null && skipped !== null && correct + wrong + skipped > 0) max = (correct + wrong + skipped) * 4;
+        let pct = marks !== null && max !== null && max > 0 && marks >= 0 ? marks / max * 100 : null;
+        if (pct === null) { const stored = finiteNumber(subject.percentage); if (stored !== null && stored >= 0 && stored <= 100) pct = stored; }
+        if (pct === null || !Number.isFinite(pct)) return;
+        if (!aggregate.has(name)) aggregate.set(name, { marks: 0, max: 0, fallbackTotal: 0, fallbackCount: 0 });
         const item = aggregate.get(name);
-        item.total += pct;
-        item.count += 1;
+        if (marks !== null && max !== null && max > 0 && marks >= 0) { item.marks += marks; item.max += max; }
+        else { item.fallbackTotal += pct; item.fallbackCount += 1; }
       });
     });
-
-    if (!aggregate.size) {
-      container.innerHTML = `
-        <div class="empty">
-          Subject-wise performance will appear here when subject-level result data is available.
-        </div>
-      `;
-      return;
-    }
-
-    const rows = [...aggregate.entries()]
-      .map(([name, item]) => ({
-        name,
-        percentage: item.total / item.count
-      }))
-      .sort((a,b) => b.percentage - a.percentage);
-
-    container.innerHTML = rows.map(row => `
-      <div class="subject-line">
-        <div class="subject-name">${escapeHTML(row.name)}</div>
-        <div class="subject-track">
-          <div class="subject-fill" style="width:${Math.max(0, Math.min(100, row.percentage))}%"></div>
-        </div>
-        <div class="subject-value">${Math.round(row.percentage)}%</div>
-      </div>
-    `).join("");
+    const rows = [...aggregate.entries()].map(([name, item]) => ({ name, percentage: item.max > 0 ? item.marks / item.max * 100 : (item.fallbackCount ? item.fallbackTotal / item.fallbackCount : null) })).filter(row => row.percentage !== null && Number.isFinite(row.percentage)).sort((a,b) => b.percentage-a.percentage);
+    if (!rows.length) { container.innerHTML = '<div class="empty">Subject-wise performance will appear here when supported subject-level result data is available.</div>'; return; }
+    container.innerHTML = rows.map(row => `<div class="subject-line"><div class="subject-name">${escapeHTML(row.name)}</div><div class="subject-track"><div class="subject-fill" style="width:${Math.max(0, Math.min(100, row.percentage))}%"></div></div><div class="subject-value">${Math.round(row.percentage)}%</div></div>`).join("");
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   function initScienceHooks() {
     const hooks = [
@@ -4694,13 +4694,12 @@ dspDateEl.value = dspToday;
       ? `
         <div class="subject-result-grid">
           ${subjects.map(subject => {
-            let safePct = finiteNumber(subject.percentage);
             const subjectMarks = finiteNumber(subject.marks_obtained);
-            const subjectMax = finiteNumber(subject.max_marks);
-
-            if (safePct === null && subjectMarks !== null && subjectMax !== null && subjectMax > 0) {
-              safePct = (subjectMarks / subjectMax) * 100;
-            }
+            let subjectMax = finiteNumber(subject.max_marks);
+            const subjectCorrect = finiteNumber(subject.correct), subjectWrong = finiteNumber(subject.wrong), subjectSkipped = finiteNumber(subject.skipped);
+            if ((subjectMax === null || subjectMax <= 0) && subjectCorrect !== null && subjectWrong !== null && subjectSkipped !== null && subjectCorrect + subjectWrong + subjectSkipped > 0) subjectMax = (subjectCorrect + subjectWrong + subjectSkipped) * 4;
+            let safePct = subjectMarks !== null && subjectMax !== null && subjectMax > 0 && subjectMarks >= 0 ? subjectMarks / subjectMax * 100 : null;
+            if (safePct === null) { const storedPct = finiteNumber(subject.percentage); if (storedPct !== null && storedPct >= 0 && storedPct <= 100) safePct = storedPct; }
 
             return `
               <div class="subject-result-card">
@@ -5227,5 +5226,6 @@ dspDateEl.value = dspToday;
   initDashboard();
 
 </script>
+
 </body>
 </html>
