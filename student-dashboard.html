@@ -1910,13 +1910,16 @@ header, main, footer {
               </div>
 
               <div class="dsp-field">
-                <label for="dspQuestionText">What is your doubt?</label>
-                <textarea id="dspQuestionText" placeholder="Write your question clearly..." required></textarea>
+                <label for="dspQuestionText">What is your doubt? (optional if photo attached)</label><textarea id="dspQuestionText" placeholder="Write your question here, or attach a photo..."></textarea>
               </div>
 
               <div class="dsp-field">
-                <label for="dspQuestionImage">Question Photo (optional)</label>
-                <input class="dsp-file" type="file" id="dspQuestionImage" accept="image/*"><label for="dspQuestionCamera" style="display:block;margin-top:8px;">Or take a photo with your camera</label><input class="dsp-file" type="file" id="dspQuestionCamera" accept="image/*" capture="environment"><img class="dsp-preview" id="dspImagePreview" alt="Question preview">
+                <label>Question Photo (optional)</label>
+                <button class="dsp-btn secondary" id="dspChoosePhotoBtn" type="button" style="width:100%;">＋ Add Question Photo</button>
+                <div id="dspPhotoChoiceMenu" style="display:none;gap:8px;margin-top:8px;"><button class="dsp-btn secondary" id="dspGalleryBtn" type="button">Choose from Gallery</button><button class="dsp-btn secondary" id="dspCameraBtn" type="button">Take Photo</button></div>
+                <input class="dsp-file" type="file" id="dspQuestionImage" accept="image/*" style="display:none;">
+                <input class="dsp-file" type="file" id="dspQuestionCamera" accept="image/*" capture="environment" style="display:none;">
+                <img class="dsp-preview" id="dspImagePreview" alt="Question preview">
               </div>
 
               <div class="dsp-teacher-box" id="dspTeacherInfo">
@@ -3113,7 +3116,9 @@ header, main, footer {
   const dspBookBtn = document.getElementById("dspBookBtn");
   const dspTeacherInfoEl = document.getElementById("dspTeacherInfo");
   const dspImageEl = document.getElementById("dspQuestionImage");
-  const dspImagePreviewEl = document.getElementById("dspImagePreview"); let dspSelectedImageFile = null; const dspCameraEl = document.getElementById("dspQuestionCamera");
+  const dspCameraEl = document.getElementById("dspQuestionCamera");
+  const dspImagePreviewEl = document.getElementById("dspImagePreview");
+  let dspSelectedImageFile = null;
 
   function dspTodayISO() {
     const d = new Date();
@@ -3444,8 +3449,8 @@ if (!dspDateIsWithinWindow(selectedDate)) {
   return;
 }
 
-if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
-      dspShowMessage("Please complete subject, topic, teacher, slot and question.", "error");
+if (!subjectId || !topicId || !teacherId || !slotId || (!questionText && !dspSelectedImageFile && !dspImageEl.files?.[0] && !dspCameraEl?.files?.[0])) {
+      dspShowMessage("Please complete subject, topic, teacher and slot, then write your doubt or attach a question photo.", "error");
       return;
     }
 
@@ -3545,6 +3550,8 @@ if (!subjectId || !topicId || !teacherId || !slotId || !questionText) {
 
       document.getElementById("dspQuestionText").value = "";
       dspImageEl.value = ""; if (dspCameraEl) dspCameraEl.value = ""; dspSelectedImageFile = null;
+      document.getElementById("dspPhotoChoiceMenu").style.display = "none";
+      document.getElementById("dspChoosePhotoBtn").textContent = "＋ Add Question Photo";
       dspImagePreviewEl.src = "";
       dspImagePreviewEl.classList.remove("show");
       dspSelectedSlot = null;
@@ -3619,16 +3626,13 @@ dspDateEl.value = dspToday;
       dspShowMessage("DSP availability refreshed.", "success");
     });
 
-    const handleDspImageChoice = event => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      dspSelectedImageFile = file;
-      const reader = new FileReader();
-      reader.onload = e => { dspImagePreviewEl.src = e.target.result; dspImagePreviewEl.classList.add("show"); };
-      reader.readAsDataURL(file);
-    };
-    dspImageEl.addEventListener("change", handleDspImageChoice);
-    dspCameraEl?.addEventListener("change", handleDspImageChoice);
+    const photoMenu = document.getElementById("dspPhotoChoiceMenu");
+    document.getElementById("dspChoosePhotoBtn").addEventListener("click", () => { photoMenu.style.display = photoMenu.style.display === "flex" ? "none" : "flex"; });
+    document.getElementById("dspGalleryBtn").addEventListener("click", () => { photoMenu.style.display = "none"; dspImageEl.click(); });
+    document.getElementById("dspCameraBtn").addEventListener("click", () => { photoMenu.style.display = "none"; dspCameraEl.click(); });
+    const handleDspPhoto = input => { const file = input.files?.[0]; if (!file) return; dspSelectedImageFile = file; dspImageEl.value = ""; dspCameraEl.value = ""; document.getElementById("dspChoosePhotoBtn").textContent = "✓ Photo selected — Change photo"; const reader = new FileReader(); reader.onload = e => { dspImagePreviewEl.src = e.target.result; dspImagePreviewEl.classList.add("show"); }; reader.readAsDataURL(file); };
+    dspImageEl.addEventListener("change", () => handleDspPhoto(dspImageEl));
+    dspCameraEl.addEventListener("change", () => handleDspPhoto(dspCameraEl));
   }
 
 
@@ -5222,10 +5226,6 @@ dspDateEl.value = dspToday;
   initDashboard();
 
 </script>
-
-
-
-
 
 </body>
 </html>
