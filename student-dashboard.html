@@ -3776,49 +3776,49 @@ dspDateEl.value = dspToday;
     row
   ) {
 
-    /*
-      Imported institute results already contain the official
-      percentage. Prefer it so the dashboard does not recalculate
-      or subtly change an imported value.
-    */
+    if (!row) return null;
+    const status = String(row.status || "").trim().toUpperCase();
+    if (["AB", "ABSENT", "NOT_ATTENDED"].includes(status)) return null;
 
-    if (
-      row.percentage !== null &&
-      row.percentage !== undefined &&
-      String(row.percentage).trim() !== "" &&
-      Number.isFinite(Number(row.percentage))
-    ) {
-
-      return Number(row.percentage);
-
+    // Marks-based score percentage takes priority over stored percentages.
+    const score = getScore(row);
+    const maxMarks = getMaxMarks(row);
+    if (score !== null && maxMarks !== null && maxMarks > 0) {
+      return (score / maxMarks) * 100;
     }
 
-
-    const score =
-      getScore(row);
-
-
-    const maxMarks =
-      getMaxMarks(row);
-
-
-    if (
-      score === null ||
-      maxMarks === null ||
-      maxMarks <= 0
-    ) {
-
-      return null;
-
-    }
-
-
-    return (
-      score /
-      maxMarks
-    ) * 100;
+    // Stored percentage is only a fallback when marks are unavailable.
+    const stored = finiteNumber(row.percentage);
+    return stored !== null ? stored : null;
 
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   /* =====================================================
@@ -4097,14 +4097,14 @@ dspDateEl.value = dspToday;
 
       subjects.forEach(subject => {
         const name = String(subject.subject || "Other").trim();
-        // Missing database values must remain missing, not become 0 via Number(null).
+        // Marks/max is authoritative; stored percentage is a fallback only.
         const marks = finiteNumber(subject.marks_obtained);
         const max = finiteNumber(subject.max_marks);
-        let pct = finiteNumber(subject.percentage);
+        let pct = null;
+        if (marks !== null && max !== null && max > 0) pct = (marks / max) * 100;
+        else pct = finiteNumber(subject.percentage);
 
-        if (pct === null && marks !== null && max !== null && max > 0) {
-          pct = (marks / max) * 100;
-        }
+
 
         if (pct === null) return;
 
