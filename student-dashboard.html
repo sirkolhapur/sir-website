@@ -1573,6 +1573,16 @@ header, main, footer {
     .student-nav-foot{margin-top:auto;padding:15px 10px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.6}
     body.student-nav-open{overflow:hidden}
     #studentOverview,#sirJourney,#doubtSolvingProgramme,#gameZone,#lecturesZone{scroll-margin-top:95px}
+
+    /* Compact student dashboard: feed sections open from the sliding menu only. */
+    main .section { display:none; }
+    main .section.student-view-active { display:block; }
+    main .dashboard-hero { display:block; }
+    main.student-feed-mode .dashboard-hero { display:none; }
+    main.student-feed-mode .section.student-view-active { display:block; }
+    main.student-feed-mode .section:not(.student-view-active) { display:none; }
+    .student-nav-links a[aria-current="page"]{background:rgba(217,170,69,.14);border-color:rgba(217,170,69,.38)}
+
     .portal-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px}
     .portal-feature-card{min-width:0;padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));}
     .portal-feature-card .feature-symbol{font-size:25px;color:var(--gold-light);margin-bottom:12px}
@@ -1653,11 +1663,20 @@ header, main, footer {
   <nav class="student-nav-links">
     <a href="#studentOverview" data-student-nav><span>⌂</span> Overview</a>
     <a href="#sirJourney" data-student-nav><span>↗</span> Academic Journey</a>
-    <a href="#testsList" data-student-nav><span>▤</span> Test History</a>
+    <a href="#performanceStorySection" data-student-nav><span>✧</span> Performance Story</a>
+    <a href="#consistencySection" data-student-nav><span>◷</span> Consistency</a>
+    <a href="#performanceTrendsSection" data-student-nav><span>↗</span> Performance Trends</a>
+    <a href="#batchComparisonSection" data-student-nav><span>◎</span> Batch Comparison</a>
+    <a href="#subjectJourneySection" data-student-nav><span>◈</span> Subject Journey</a>
+    <a href="#currentPositionSection" data-student-nav><span>▦</span> Current Position</a>
+    <a href="#todayActionSection" data-student-nav><span>→</span> Today's Focus</a>
+    <a href="#performanceSection" data-student-nav><span>▥</span> Performance Analytics</a>
+    <a href="#subjectPerformanceSection" data-student-nav><span>◉</span> Subject Performance</a>
+    <a href="#testHistorySection" data-student-nav><span>▤</span> Test History</a>
     <a href="#gameZone" data-student-nav><span>♜</span> SIR Rankers Quest</a>
     <a href="#lecturesZone" data-student-nav><span>▷</span> Lectures</a>
     <a href="#doubtSolvingProgramme" data-student-nav><span>✦</span> Doubt Solving Programme</a>
-    <a href="#reviewContainer" data-student-nav><span>✓</span> Weekly Teacher Review</a>
+    <a href="#weeklyTeacherReview" data-student-nav><span>✓</span> Weekly Teacher Review</a>
   </nav>
   <div class="student-nav-foot">Be consistent. Learn deeply. Move forward.</div>
 </aside>
@@ -1741,14 +1760,14 @@ header, main, footer {
     <section class="section" id="sirJourney">
       <div class="journey-hero"><div class="journey-top"><div><div class="journey-kicker">SIR Journey · Phase 1</div><div class="journey-title">Your preparation has a story.</div><div class="journey-subtitle">Your tests are checkpoints. Understand performance, accuracy, consistency, subject performance and your supported peer position without invented metrics.</div></div><div class="journey-source-note"><strong>DATA-SUPPORTED VIEW</strong>Only result fields available to your account are used. Missing data is never replaced with an invented score.</div></div><div class="journey-stat-grid"><div class="journey-stat"><small>TESTS COMPLETED</small><strong id="journeyTestCount">—</strong><span>Recorded assessments</span></div><div class="journey-stat"><small>LATEST PERFORMANCE</small><strong id="journeyLatestPerformance">—</strong><span>Official percentage when available</span></div><div class="journey-stat"><small>ACCURACY</small><strong id="journeyLatestAccuracy">—</strong><span>Correct ÷ attempted when supported</span></div><div class="journey-stat"><small>PEER POSITION</small><strong id="journeyLatestPercentile">—</strong><span>Percentile or rank from result data</span></div></div></div>
     </section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Performance story</div><h2>What is your data saying?</h2><p>Only supported patterns from your actual result history.</p></div><div class="story-grid"><div class="story-card primary"><h3 id="performanceStoryHeadline">Your performance story is loading.</h3><p id="performanceStoryIntro">Preparing your available result data.</p><div class="story-list" id="performanceStoryList"></div></div><div class="story-card"><h3>Latest checkpoint</h3><p>Your latest assessment, explained without unsupported metrics.</p><div class="story-list" id="latestCheckpointStory"></div></div></div></section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Consistency</div><h2>How regularly are you testing yourself?</h2><p>Based only on test dates present in your academic records.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Assessment Frequency</h3><p>Recorded assessments over time. No artificial streak or penalty.</p><div class="trend-bars" id="consistencyTimeline"></div></div><div class="trend-panel"><h3>Consistency Snapshot</h3><p>Transparent counts instead of a made-up consistency score.</p><div class="consistency-card" id="consistencySnapshot"></div></div></div></section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Performance trends</div><h2>See the movement, not just the mark.</h2><p>Percentage and accuracy answer different questions, so they remain separate.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Score / Percentage Trend</h3><p>Official percentage first; calculation only when source fields support it.</p><div class="trend-bars" id="journeyPerformanceTrend"></div></div><div class="trend-panel"><h3>Accuracy Trend</h3><p>Correct ÷ attempted, only when correct/wrong data supports it.</p><div class="accuracy-bars" id="journeyAccuracyTrend"></div></div></div></section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Batch comparison</div><h2>Where do you stand?</h2><p>Ethical comparison using percentile and rank values actually supplied by the result.</p></div><div class="story-card"><div class="batch-card" id="batchComparison"></div><div class="test-story" id="batchStory">Batch comparison will appear when supported data is present.</div></div></section>
-    <section class="section"><div class="section-heading"><div class="section-kicker">Subject journey</div><h2>Where is your preparation strongest?</h2><p>Subject-level performance from actual subject result records.</p></div><div class="subject-panel"><div id="subjectJourney"></div></div></section>
+    <section class="section" id="performanceStorySection"><div class="section-heading"><div class="section-kicker">Performance story</div><h2>What is your data saying?</h2><p>Only supported patterns from your actual result history.</p></div><div class="story-grid"><div class="story-card primary"><h3 id="performanceStoryHeadline">Your performance story is loading.</h3><p id="performanceStoryIntro">Preparing your available result data.</p><div class="story-list" id="performanceStoryList"></div></div><div class="story-card"><h3>Latest checkpoint</h3><p>Your latest assessment, explained without unsupported metrics.</p><div class="story-list" id="latestCheckpointStory"></div></div></div></section>
+    <section class="section" id="consistencySection"><div class="section-heading"><div class="section-kicker">Consistency</div><h2>How regularly are you testing yourself?</h2><p>Based only on test dates present in your academic records.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Assessment Frequency</h3><p>Recorded assessments over time. No artificial streak or penalty.</p><div class="trend-bars" id="consistencyTimeline"></div></div><div class="trend-panel"><h3>Consistency Snapshot</h3><p>Transparent counts instead of a made-up consistency score.</p><div class="consistency-card" id="consistencySnapshot"></div></div></div></section>
+    <section class="section" id="performanceTrendsSection"><div class="section-heading"><div class="section-kicker">Performance trends</div><h2>See the movement, not just the mark.</h2><p>Percentage and accuracy answer different questions, so they remain separate.</p></div><div class="trend-grid"><div class="trend-panel"><h3>Score / Percentage Trend</h3><p>Official percentage first; calculation only when source fields support it.</p><div class="trend-bars" id="journeyPerformanceTrend"></div></div><div class="trend-panel"><h3>Accuracy Trend</h3><p>Correct ÷ attempted, only when correct/wrong data supports it.</p><div class="accuracy-bars" id="journeyAccuracyTrend"></div></div></div></section>
+    <section class="section" id="batchComparisonSection"><div class="section-heading"><div class="section-kicker">Batch comparison</div><h2>Where do you stand?</h2><p>Ethical comparison using percentile and rank values actually supplied by the result.</p></div><div class="story-card"><div class="batch-card" id="batchComparison"></div><div class="test-story" id="batchStory">Batch comparison will appear when supported data is present.</div></div></section>
+    <section class="section" id="subjectJourneySection"><div class="section-heading"><div class="section-kicker">Subject journey</div><h2>Where is your preparation strongest?</h2><p>Subject-level performance from actual subject result records.</p></div><div class="subject-panel"><div id="subjectJourney"></div></div></section>
 
     <!-- CURRENT POSITION -->
-    <section class="section">
+    <section class="section" id="currentPositionSection">
       <div class="section-heading">
         <div class="section-kicker">Your current position</div>
         <h2>Know where you stand.</h2>
@@ -1780,7 +1799,7 @@ header, main, footer {
     </section>
 
     <!-- TODAY / NEXT ACTION -->
-    <section class="section">
+    <section class="section" id="todayActionSection">
       <div class="section-heading">
         <div class="section-kicker">Today</div>
         <h2>What deserves your attention?</h2>
@@ -1820,7 +1839,7 @@ header, main, footer {
     </section>
 
     <!-- PERFORMANCE -->
-    <section class="section">
+    <section class="section" id="performanceSection">
       <div class="section-heading">
         <div class="section-kicker">Performance</div>
         <h2>Look beyond one test.</h2>
@@ -1858,7 +1877,7 @@ header, main, footer {
     </section>
 
     <!-- SUBJECT PERFORMANCE -->
-    <section class="section">
+    <section class="section" id="subjectPerformanceSection">
       <div class="section-heading">
         <div class="section-kicker">Subject intelligence</div>
         <h2>Where is your preparation strongest?</h2>
@@ -1873,7 +1892,7 @@ header, main, footer {
     </section>
 
     <!-- TEST HISTORY -->
-    <section class="section">
+    <section class="section" id="testHistorySection">
       <div class="section-heading">
         <div class="section-kicker">Your journey</div>
         <h2>Test History</h2>
@@ -2034,7 +2053,7 @@ header, main, footer {
 
     <!-- WEEKLY REVIEW -->
 
-    <section class="section">
+    <section class="section" id="weeklyTeacherReview">
 
       <div class="section-heading">
 
@@ -5320,6 +5339,11 @@ dspDateEl.value = dspToday;
     const scrim = document.getElementById("studentNavScrim");
     if (!toggle || !drawer || !close || !scrim) return;
 
+    const main = document.querySelector("main");
+    if (main) {
+      main.querySelectorAll(".section").forEach(section => section.classList.remove("student-view-active"));
+      main.classList.remove("student-feed-mode");
+    }
     function setOpen(open) {
       drawer.classList.toggle("open", open);
       document.body.classList.toggle("student-nav-open", open);
@@ -5337,8 +5361,20 @@ dspDateEl.value = dspToday;
         const target = targetId ? document.querySelector(targetId) : null;
         if (!target) { event.preventDefault(); return; }
         setOpen(false);
-        if (targetId === "#testsList") target.scrollIntoView({ behavior: "smooth", block: "start" });
-        else target.scrollIntoView({ behavior: "smooth", block: "start" });
+        const main = document.querySelector("main");
+        const sections = Array.from(main.querySelectorAll(".section"));
+        sections.forEach(section => section.classList.remove("student-view-active"));
+        drawer.querySelectorAll("[data-student-nav]").forEach(item => item.removeAttribute("aria-current"));
+        link.setAttribute("aria-current", "page");
+        if (targetId === "#studentOverview") {
+          main.classList.remove("student-feed-mode");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          const section = target.matches("section") ? target : target.closest("section");
+          if (section) section.classList.add("student-view-active");
+          main.classList.add("student-feed-mode");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       });
     });
     document.addEventListener("keydown", event => {
