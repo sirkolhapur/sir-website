@@ -1643,6 +1643,33 @@
       margin-top: 3px;
     }
 
+    .dsp-subject-inactive {
+      opacity: 0.72;
+      border-color: rgba(148, 163, 184, 0.24);
+    }
+    .dsp-subject-status-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .dsp-subject-status-control input {
+      width: 17px;
+      height: 17px;
+      accent-color: #22c55e;
+      cursor: pointer;
+    }
+    .dsp-subject-status-control input:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+    .dsp-inactive {
+      color: #f87171;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
     .dsp-active {
       color: #69d391;
       font-size: 10px;
@@ -7669,10 +7696,11 @@ if(teacherSetting?.is_enabled===false){
       if (insertError) throw insertError;
     }
 
+    // Keep ALL subjects in memory so the admin can enable/disable each one.
+    // Filtering to active rows here made inactive subjects disappear from the UI.
     const { data: finalData, error: finalError } = await supabaseClient
       .from("dsp_subjects")
       .select("id,name,code,is_active")
-      .eq("is_active", true)
       .order("name", { ascending: true });
 
     if (finalError) throw finalError;
@@ -7702,28 +7730,81 @@ if(teacherSetting?.is_enabled===false){
     dspTeacherAssignments = data || [];
   }
 
+  async function setDspSubjectActive(subjectId, enabled, control) {
+    const previous = !enabled;
+    if (control) control.disabled = true;
+
+    try {
+      const { error } = await supabaseClient
+        .from("dsp_subjects")
+        .update({ is_active: enabled })
+        .eq("id", subjectId);
+
+      if (error) throw error;
+
+      const subject = dspSubjects.find(item => String(item.id) === String(subjectId));
+      if (subject) subject.is_active = enabled;
+
+      // Do not erase teacher mappings when a subject is disabled. They remain
+      // saved and become selectable again if the subject is re-enabled.
+      renderDspSubjects();
+      renderDspTeachers();
+      showDspMessage(
+        `${subject?.name || "DSP subject"} ${enabled ? "enabled" : "disabled"} successfully.`,
+        "success"
+      );
+    } catch (error) {
+      console.error("DSP subject status update failed:", error);
+      if (control) control.checked = previous;
+      showDspMessage(
+        error?.message || "Unable to update DSP subject status. Check Supabase UPDATE permissions/RLS.",
+        "error"
+      );
+    } finally {
+      if (control) control.disabled = false;
+    }
+  }
+
   function renderDspSubjects() {
     const box = document.getElementById("dspSubjectList");
     const count = document.getElementById("dspSubjectCount");
 
     if (!box) return;
 
-    count.textContent = `${dspSubjects.length} active`;
+    const activeCount = dspSubjects.filter(subject => subject.is_active === true).length;
+    if (count) count.textContent = `${activeCount} of ${dspSubjects.length} active`;
 
     if (!dspSubjects.length) {
       box.innerHTML = `<div class="dsp-empty">No DSP subjects found.</div>`;
       return;
     }
 
-    box.innerHTML = dspSubjects.map(subject => `
-      <div class="dsp-subject-card">
-        <div>
-          <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
-          <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+    box.innerHTML = dspSubjects.map(subject => {
+      const active = subject.is_active === true;
+      return `
+        <div class="dsp-subject-card ${active ? "" : "dsp-subject-inactive"}">
+          <div>
+            <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
+            <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+          </div>
+          <label class="dsp-subject-status-control" title="Enable or disable ${escapeHtml(subject.name)} for the DSP programme">
+            <span class="${active ? "dsp-active" : "dsp-inactive"}">${active ? "ACTIVE" : "INACTIVE"}</span>
+            <input
+              type="checkbox"
+              data-dsp-subject-active="${escapeHtml(subject.id)}"
+              ${active ? "checked" : ""}
+              aria-label="${active ? "Disable" : "Enable"} ${escapeHtml(subject.name)} DSP"
+            >
+          </label>
         </div>
-        <span class="dsp-active">ACTIVE</span>
-      </div>
-    `).join("");
+      `;
+    }).join("");
+
+    box.querySelectorAll("[data-dsp-subject-active]").forEach(control => {
+      control.addEventListener("change", () => {
+        setDspSubjectActive(control.dataset.dspSubjectActive, control.checked, control);
+      });
+    });
   }
 
   function teacherHasSubject(teacherId, subjectId) {
@@ -7765,6 +7846,7 @@ if(teacherSetting?.is_enabled===false){
     }
 
     return dspSubjects.filter(subject =>
+      subject.is_active === true &&
       allowedNames.some(
         name => String(subject.name || "").toLowerCase() === name.toLowerCase()
       )
@@ -7910,6 +7992,19 @@ if(teacherSetting?.is_enabled===false){
       row.querySelectorAll('.dsp-subject-toggle.selected')
     ).map(button => button.dataset.dspSubjectId);
 
+    // Preserve any existing mappings to institute-disabled subjects. Those
+    // subjects are hidden from the selectable teacher UI while inactive, but
+    // must not be silently deleted when an admin saves another assignment.
+    const inactiveSubjectIds = dspTeacherAssignments
+      .filter(assignment =>
+        String(assignment.teacher_id) === String(teacherId) &&
+        dspSubjects.some(subject =>
+          String(subject.id) === String(assignment.subject_id) && subject.is_active !== true
+        )
+      )
+      .map(assignment => String(assignment.subject_id));
+    const finalSubjectIds = Array.from(new Set([...selectedSubjectIds, ...inactiveSubjectIds]));
+
     button.disabled = true;
     button.textContent = "Saving...";
 
@@ -7926,8 +8021,8 @@ if(teacherSetting?.is_enabled===false){
 
       if (deleteError) throw deleteError;
 
-      if (selectedSubjectIds.length) {
-        const rowsToInsert = selectedSubjectIds.map(subjectId => ({
+      if (finalSubjectIds.length) {
+        const rowsToInsert = finalSubjectIds.map(subjectId => ({
           teacher_id: teacherId,
           subject_id: subjectId
         }));
