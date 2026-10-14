@@ -1971,7 +1971,7 @@ header, main, footer {
             <div class="dsp-rule-grid">
               <div class="dsp-rule"><small>PER QUESTION</small><strong>3 min</strong></div>
               <div class="dsp-rule"><small>DAILY QUESTIONS</small><strong>3 / subject</strong></div>
-              <div class="dsp-rule"><small>PROGRAMME</small><strong>2:30–5:30 PM</strong></div>
+              <div class="dsp-rule"><small>TEACHER AVAILABILITY</small><strong id="dspAvailabilitySummary">Select a teacher</strong></div>
             </div>
 
             <form class="dsp-form" id="dspForm">
@@ -3196,8 +3196,6 @@ header, main, footer {
   const DSP_MAX_QUESTIONS = 3;
   const DSP_SLOT_MINUTES = 3;
   const DSP_MAX_MINUTES = DSP_MAX_QUESTIONS * DSP_SLOT_MINUTES;
-  const DSP_START_MINUTES = 14 * 60 + 30;
-  const DSP_END_MINUTES = 17 * 60 + 30;
 
   let currentStudentForDSP = null;
   let dspSubjects = [];
@@ -3485,14 +3483,46 @@ function dspDateIsWithinWindow(dateValue) {
     });
 
     renderDspSlots();
+    renderDSPAvailabilitySummary();
+  }
+
+  function renderDSPAvailabilitySummary() {
+    const summaryEl = document.getElementById("dspAvailabilitySummary");
+    if (!summaryEl) return;
+
+    const teacherId = dspTeacherEl.value;
+    if (!teacherId) {
+      summaryEl.textContent = "Select a teacher";
+      return;
+    }
+
+    const availableSlots = dspSlots
+      .filter(slot => slot.teacher_id === teacherId && String(slot.status || "available").toLowerCase() === "available")
+      .sort((a, b) => String(a.start_time || "").localeCompare(String(b.start_time || "")));
+
+    if (!availableSlots.length) {
+      summaryEl.textContent = "No slots available";
+      return;
+    }
+
+    const first = availableSlots[0];
+    const last = availableSlots[availableSlots.length - 1];
+    summaryEl.textContent = `${availableSlots.length} slots · ${dspFormatTime(first.start_time)}–${dspFormatTime(last.end_time)}`;
   }
 
   function renderDspSlots() {
     const teacherId = dspTeacherEl.value;
-    const slots = teacherId ? dspSlots.filter(s => s.teacher_id === teacherId) : dspSlots;
+    renderDSPAvailabilitySummary();
+
+    if (!teacherId) {
+      dspSlotsEl.innerHTML = `<div class="dsp-empty">Select a teacher to view their Admin-allocated 3-minute slots.</div>`;
+      return;
+    }
+
+    const slots = dspSlots.filter(s => s.teacher_id === teacherId);
 
     if (!slots.length) {
-      dspSlotsEl.innerHTML = `<div class="dsp-empty">No 3-minute slots are available for this selection.</div>`;
+      dspSlotsEl.innerHTML = `<div class="dsp-empty">No DSP slots have been allocated for this teacher on the selected date.</div>`;
       return;
     }
 
