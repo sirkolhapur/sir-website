@@ -2870,6 +2870,16 @@
           <p>Control DSP teacher assignments for the Doubt Solving Programme.</p>
         </div>
 
+        <div class="dsp-control-panel" id="dspTeacherQuickPanel" style="margin:16px 0 20px">
+          <div class="dsp-panel-head">
+            <div><h3>Choose a Teacher</h3><span>Select a teacher to open their availability and daily slots.</span></div>
+            <button type="button" class="secondary-btn" id="dspQuickRefreshBtn">Refresh Teachers</button>
+          </div>
+          <div id="dspTeacherQuickList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+            <div class="dsp-empty">Loading teachers...</div>
+          </div>
+        </div>
+
         <div class="dsp-intro">
           <h3>DSP — Teacher Assignment</h3>
           <p>
@@ -7285,6 +7295,41 @@ document
     return `${hour}:${minute} ${suffix}`;
   }
 
+  function renderDspTeacherQuickList() {
+    const host = document.getElementById("dspTeacherQuickList");
+    if (!host) return;
+    if (!Array.isArray(dspTeachers) || !dspTeachers.length) {
+      host.innerHTML = '<div class="dsp-empty">No active teachers are available. Refresh or check teacher assignments.</div>';
+      return;
+    }
+    const selectedId = document.getElementById("dspScheduleTeacher")?.value || "";
+    host.innerHTML = dspTeachers.map(teacher => {
+      const active = String(teacher.id) === String(selectedId);
+      return `<button type="button" class="dsp-quick-teacher" data-dsp-quick-teacher="${escapeHtml(teacher.id)}" style="text-align:left;padding:14px 16px;border:1px solid ${active ? '#f0c75e' : 'rgba(255,255,255,.12)'};border-radius:12px;background:${active ? 'rgba(240,199,94,.12)' : 'rgba(255,255,255,.035)'};color:#fff;cursor:pointer;min-height:74px">
+        <strong style="display:block;font-size:14px;margin-bottom:6px">${escapeHtml(teacher.full_name || 'Unnamed Teacher')}</strong>
+        <span style="display:block;color:#9fb5d0;font-size:12px">${escapeHtml(teacher.subject || 'DSP Faculty')} · Open slots ↗</span>
+      </button>`;
+    }).join("");
+  }
+
+  document.getElementById("dspTeacherQuickList")?.addEventListener("click", async event => {
+    const button = event.target.closest("[data-dsp-quick-teacher]");
+    if (!button) return;
+    const select = document.getElementById("dspScheduleTeacher");
+    if (!select) return;
+    select.value = button.dataset.dspQuickTeacher;
+    if (!select.value) return;
+    renderDspTeacherQuickList();
+    await loadDspAvailability();
+    await loadDspSlots();
+    document.getElementById("dspAvailabilityRanges")?.scrollIntoView({behavior:"smooth",block:"center"});
+  });
+
+  document.getElementById("dspQuickRefreshBtn")?.addEventListener("click", async () => {
+    await loadDspData();
+    renderDspTeacherQuickList();
+  });
+
   function populateDspScheduleTeachers() {
     const select = document.getElementById("dspScheduleTeacher");
     if (!select) return;
@@ -7674,6 +7719,7 @@ document
   document
     .getElementById("dspScheduleTeacher")
     ?.addEventListener("change", async () => {
+      renderDspTeacherQuickList();
       await loadDspAvailability();
       await loadDspSlots();
     });
@@ -8126,6 +8172,7 @@ document
       renderDspTeachers();
 
       populateDspScheduleTeachers();
+      renderDspTeacherQuickList();
 
       const dateInput = document.getElementById("dspScheduleDate");
       if (dateInput && !dateInput.value) dateInput.value = getTodayIso();
