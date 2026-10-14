@@ -1554,6 +1554,39 @@ header, main, footer {
       }
     }
 
+
+
+    /* SLIDING STUDENT NAVIGATION — premium SIR navy/gold */
+    .student-menu-toggle{position:fixed;left:18px;top:92px;z-index:80;display:flex;align-items:center;gap:9px;padding:12px 15px;border:1px solid rgba(217,170,69,.55);border-radius:999px;background:rgba(7,20,38,.94);color:var(--gold-light);font-size:11px;font-weight:800;letter-spacing:1.2px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+    .menu-toggle-icon{font-size:18px;line-height:1}
+    .student-nav-scrim{position:fixed;inset:0;z-index:89;background:rgba(1,8,18,.66);backdrop-filter:blur(3px)}
+    .student-nav-drawer{position:fixed;inset:0 auto 0 0;z-index:90;width:min(330px,86vw);padding:24px 18px;display:flex;flex-direction:column;background:linear-gradient(165deg,#102844 0%,#071426 68%);border-right:1px solid rgba(217,170,69,.28);box-shadow:24px 0 60px rgba(0,0,0,.35);transform:translateX(-105%);transition:transform .28s ease;visibility:hidden;overflow-y:auto}
+    .student-nav-drawer.open{transform:translateX(0);visibility:visible}
+    .student-nav-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 22px;border-bottom:1px solid var(--line)}
+    .student-nav-head small{display:block;color:var(--gold-light);font-size:9px;letter-spacing:1.7px;margin-bottom:7px}
+    .student-nav-head strong{font-size:23px;font-family:Georgia,serif;font-weight:600}
+    .student-nav-head button{border:1px solid var(--line);background:rgba(255,255,255,.04);color:white;width:36px;height:36px;border-radius:50%;font-size:25px;cursor:pointer}
+    .student-nav-links{display:grid;gap:7px;padding:20px 0}
+    .student-nav-links a{display:flex;align-items:center;gap:13px;padding:13px 12px;border:1px solid transparent;border-radius:12px;color:#eaf0f7;text-decoration:none;font-size:13px;transition:background .18s,border-color .18s}
+    .student-nav-links a span{width:24px;color:var(--gold-light);font-size:19px;text-align:center}
+    .student-nav-links a:hover,.student-nav-links a:focus-visible{background:rgba(217,170,69,.1);border-color:rgba(217,170,69,.32);outline:none}
+    .student-nav-foot{margin-top:auto;padding:15px 10px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.6}
+    body.student-nav-open{overflow:hidden}
+    #studentOverview,#sirJourney,#doubtSolvingProgramme,#gameZone,#lecturesZone{scroll-margin-top:95px}
+    .portal-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:20px}
+    .portal-feature-card{min-width:0;padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));}
+    .portal-feature-card .feature-symbol{font-size:25px;color:var(--gold-light);margin-bottom:12px}
+    .portal-feature-card h3{font-size:15px;margin-bottom:8px}
+    .portal-feature-card p{font-size:12px;line-height:1.65;color:var(--muted);margin-bottom:13px}
+    .feature-status{display:inline-flex;padding:6px 9px;border:1px solid rgba(217,170,69,.25);border-radius:999px;color:var(--gold-light);font-size:9px;font-weight:800;letter-spacing:.7px}
+    .portal-note{margin-top:16px;padding:13px 15px;border-left:3px solid var(--gold);background:rgba(217,170,69,.06);color:var(--muted);font-size:12px;line-height:1.65;border-radius:0 10px 10px 0}
+    .lecture-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+    .lecture-path label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
+    .lecture-path select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d1f36;color:white}
+    .lecture-empty{margin-top:16px;padding:20px;border:1px dashed rgba(217,170,69,.3);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.7}
+    @media(max-width:900px){.portal-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){.student-menu-toggle{top:84px;left:10px;padding:10px 12px}.portal-feature-grid{grid-template-columns:1fr}.lecture-path{grid-template-columns:1fr}.student-nav-drawer{padding:20px 14px}}
+
 </style>
 </head>
 
@@ -1610,6 +1643,24 @@ header, main, footer {
 
 </header>
 
+<!-- SIR STUDENT SLIDING NAVIGATION: additive only; existing academic IDs remain intact -->
+<button class="student-menu-toggle" id="studentMenuToggle" type="button" aria-controls="studentNavDrawer" aria-expanded="false" aria-label="Open dashboard navigation">
+  <span class="menu-toggle-icon" aria-hidden="true">☰</span><span>MENU</span>
+</button>
+<div class="student-nav-scrim" id="studentNavScrim" hidden></div>
+<aside class="student-nav-drawer" id="studentNavDrawer" aria-label="Student dashboard navigation" aria-hidden="true">
+  <div class="student-nav-head"><div><small>SIR STUDENT PORTAL</small><strong>Your Journey</strong></div><button type="button" id="studentNavClose" aria-label="Close navigation">×</button></div>
+  <nav class="student-nav-links">
+    <a href="#studentOverview" data-student-nav><span>⌂</span> Overview</a>
+    <a href="#sirJourney" data-student-nav><span>↗</span> Academic Journey</a>
+    <a href="#testsList" data-student-nav><span>▤</span> Test History</a>
+    <a href="#gameZone" data-student-nav><span>♜</span> SIR Rankers Quest</a>
+    <a href="#lecturesZone" data-student-nav><span>▷</span> Lectures</a>
+    <a href="#doubtSolvingProgramme" data-student-nav><span>✦</span> Doubt Solving Programme</a>
+    <a href="#reviewContainer" data-student-nav><span>✓</span> Weekly Teacher Review</a>
+  </nav>
+  <div class="student-nav-foot">Be consistent. Learn deeply. Move forward.</div>
+</aside>
 
 <main>
 
@@ -1650,7 +1701,7 @@ header, main, footer {
          Existing IDs retained where academic JS depends on them.
          ===================================================== -->
 
-    <section class="dashboard-hero">
+    <section class="dashboard-hero" id="studentOverview">
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="eyebrow">Student Command Center</div>
@@ -1834,6 +1885,37 @@ header, main, footer {
           <div class="empty">No test data available yet.</div>
         </div>
       </div>
+    </section>
+
+    <!-- SIR RANKERS QUEST: locked gamification framework; functionality will be connected step-by-step -->
+    <section class="section" id="gameZone">
+      <div class="section-heading">
+        <div class="section-kicker">SIR Rankers Quest</div>
+        <h2>Make every learning step count.</h2>
+        <p>Challenge yourself, practise consistently and build mastery. Game progress will remain separate from official academic marks and ranks.</p>
+      </div>
+      <div class="portal-feature-grid">
+        <article class="portal-feature-card"><div class="feature-symbol" aria-hidden="true">⚛</div><h3>NEET Challenge</h3><p>Biology, Physics and Chemistry practice rounds designed around NEET preparation.</p><span class="feature-status">QUEST FRAMEWORK READY</span></article>
+        <article class="portal-feature-card"><div class="feature-symbol" aria-hidden="true">∑</div><h3>JEE Challenge</h3><p>Physics, Chemistry and Mathematics problem-solving challenges.</p><span class="feature-status">QUEST FRAMEWORK READY</span></article>
+        <article class="portal-feature-card"><div class="feature-symbol" aria-hidden="true">◈</div><h3>Aptitude Arena</h3><p>Reasoning, patterns and problem-solving practice for sharper thinking.</p><span class="feature-status">QUEST FRAMEWORK READY</span></article>
+        <article class="portal-feature-card"><div class="feature-symbol" aria-hidden="true">✦</div><h3>GK Sprint</h3><p>Short general-knowledge rounds with real-world and science connections.</p><span class="feature-status">QUEST FRAMEWORK READY</span></article>
+      </div>
+      <div class="portal-note"><strong>Planned progression:</strong> questions → instant feedback → round summary → verified XP → levels, missions and badges. Scores, streaks and achievements will not be fabricated; saving progress and validation will be implemented in a later step.</div>
+    </section>
+
+    <!-- LECTURES: navigation and course path scaffold; real teacher video links will be added in a later step -->
+    <section class="section" id="lecturesZone">
+      <div class="section-heading">
+        <div class="section-kicker">Learn from your teachers</div>
+        <h2>Lectures</h2>
+        <p>Choose your preparation stream and move from subject to chapter and topic.</p>
+      </div>
+      <div class="lecture-path">
+        <div><label for="lectureCourse">Preparation stream</label><select id="lectureCourse"><option value="">Choose stream</option><option value="JEE">JEE</option><option value="NEET">NEET</option></select></div>
+        <div><label for="lectureSubject">Subject</label><select id="lectureSubject" disabled><option value="">Choose stream first</option></select></div>
+        <div><label for="lectureChapter">Chapter / topic</label><select id="lectureChapter" disabled><option value="">Choose subject first</option></select></div>
+      </div>
+      <div class="lecture-empty" id="lectureContentState">The lecture navigation is prepared. Teacher-approved YouTube links and topic lists will be connected here next; no unverified videos are being shown as official SIR content.</div>
     </section>
 
     <!-- DOUBT SOLVING PROGRAMME -->
@@ -5224,6 +5306,75 @@ dspDateEl.value = dspToday;
      ===================================================== */
 
   initDashboard();
+
+
+
+  /* =====================================================
+     STUDENT DRAWER NAVIGATION + SAFE MODULE SCAFFOLDS
+     Additive code: does not replace authentication, academic queries or DSP.
+     ===================================================== */
+  (function initStudentNavigation() {
+    const toggle = document.getElementById("studentMenuToggle");
+    const drawer = document.getElementById("studentNavDrawer");
+    const close = document.getElementById("studentNavClose");
+    const scrim = document.getElementById("studentNavScrim");
+    if (!toggle || !drawer || !close || !scrim) return;
+
+    function setOpen(open) {
+      drawer.classList.toggle("open", open);
+      document.body.classList.toggle("student-nav-open", open);
+      scrim.hidden = !open;
+      drawer.setAttribute("aria-hidden", String(!open));
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Close dashboard navigation" : "Open dashboard navigation");
+    }
+    toggle.addEventListener("click", () => setOpen(!drawer.classList.contains("open")));
+    close.addEventListener("click", () => setOpen(false));
+    scrim.addEventListener("click", () => setOpen(false));
+    drawer.querySelectorAll("[data-student-nav]").forEach(link => {
+      link.addEventListener("click", event => {
+        const targetId = link.getAttribute("href");
+        const target = targetId ? document.querySelector(targetId) : null;
+        if (!target) { event.preventDefault(); return; }
+        setOpen(false);
+        if (targetId === "#testsList") target.scrollIntoView({ behavior: "smooth", block: "start" });
+        else target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && drawer.classList.contains("open")) setOpen(false);
+    });
+  })();
+
+  (function initLecturePathScaffold() {
+    const course = document.getElementById("lectureCourse");
+    const subject = document.getElementById("lectureSubject");
+    const chapter = document.getElementById("lectureChapter");
+    const state = document.getElementById("lectureContentState");
+    if (!course || !subject || !chapter || !state) return;
+    const subjectOptions = {
+      JEE: ["Physics", "Chemistry", "Mathematics"],
+      NEET: ["Physics", "Chemistry", "Biology"]
+    };
+    function fill(select, values, placeholder) {
+      select.replaceChildren(new Option(placeholder, ""));
+      values.forEach(value => select.add(new Option(value, value)));
+      select.disabled = values.length === 0;
+    }
+    course.addEventListener("change", () => {
+      fill(subject, subjectOptions[course.value] || [], course.value ? "Choose subject" : "Choose stream first");
+      fill(chapter, [], "Choose subject first");
+      state.textContent = course.value
+        ? `${course.value} stream selected. Subject/topic lists and approved teacher video links will be connected in the next implementation step.`
+        : "The lecture navigation is prepared. Teacher-approved YouTube links and topic lists will be connected here next; no unverified videos are being shown as official SIR content.";
+    });
+    subject.addEventListener("change", () => {
+      fill(chapter, [], subject.value ? "Topics will be added next" : "Choose subject first");
+      state.textContent = subject.value
+        ? `${subject.value} selected. Chapter/topic mapping and teacher-approved video links are the next step.`
+        : "Choose a subject to continue.";
+    });
+  })();
 
 </script>
 
