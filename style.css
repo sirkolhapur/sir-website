@@ -467,60 +467,6 @@ backdrop-filter: blur(18px);
 
 
 /* =========================================================
-   LANGUAGE
-   ========================================================= */
-
-.language-switcher {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    margin-left: 5px;
-}
-
-
-.language-btn {
-
-    border: 0;
-
-    background: transparent;
-
-    color:
-        rgba(255,255,255,.48);
-
-    cursor: pointer;
-
-    font-size: 11px;
-
-    font-weight: 700;
-
-    padding: 4px 2px;
-
-    transition:
-        color var(--transition);
-}
-
-
-.language-btn:hover,
-.language-btn.active {
-
-    color: var(--sir-gold-light);
-}
-
-
-.language-switcher > span {
-
-    color:
-        rgba(255,255,255,.22);
-
-    font-size: 11px;
-}
-
-
-/* =========================================================
    MOBILE MENU BUTTON
    ========================================================= */
 
@@ -2237,23 +2183,16 @@ body.menu-open
 
     .main-nav {
 
-        gap: 17px;
+        gap: 12px;
     }
 
 
     .nav-link {
 
-        font-size: 9px;
+        font-size: 8px;
+        letter-spacing: .09em;
     }
-
-
-    .language-switcher {
-
-        gap: 4px;
-    }
-
-
-    .brand {
+.brand {
 
         width: 76px;
         height: 68px;
@@ -2348,8 +2287,7 @@ body.menu-open
     }
 
 
-    .main-nav,
-    .language-switcher {
+    .main-nav {
 
         display: none;
     }
@@ -3007,3 +2945,352 @@ body.menu-open
     }
 
 }
+
+/* =========================================================
+   20 — SIR BULLETIN / WHAT'S HAPPENING
+   Matches the existing bulletin HTML in index.html.
+   ========================================================= */
+
+.sir-bulletin-section {
+    min-height: auto;
+    padding: 112px 0;
+    background:
+        radial-gradient(circle at 82% 20%, rgba(215,166,42,.09), transparent 30%),
+        linear-gradient(135deg, var(--sir-blue), var(--sir-blue-2));
+}
+
+.sir-bulletin-section .story-inner {
+    width: min(calc(100% - 48px), var(--max-width));
+}
+
+.sir-bulletin-section h2 {
+    margin-bottom: 22px;
+    font-size: clamp(42px, 5.5vw, 72px);
+    line-height: 1.03;
+}
+
+.sir-bulletin-section .story-copy {
+    max-width: 650px;
+}
+
+.bulletin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 44px;
+    align-items: stretch;
+}
+
+.bulletin-card {
+    min-width: 0;
+    min-height: 255px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 4px;
+    background: rgba(255,255,255,.035);
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        background var(--transition);
+}
+
+.bulletin-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(215,166,42,.55);
+    background: rgba(255,255,255,.055);
+}
+
+.bulletin-featured {
+    border-color: rgba(215,166,42,.42);
+    background: linear-gradient(145deg, rgba(215,166,42,.12), rgba(255,255,255,.025));
+}
+
+.bulletin-holiday {
+    background: rgba(255,255,255,.025);
+}
+
+.bulletin-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.bulletin-category,
+.bulletin-status,
+.bulletin-date {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.bulletin-category {
+    color: var(--sir-gold-light);
+}
+
+.bulletin-status {
+    padding: 6px 9px;
+    color: var(--sir-blue);
+    background: var(--sir-gold);
+    border-radius: 2px;
+}
+
+.bulletin-date {
+    color: rgba(255,255,255,.48);
+}
+
+.bulletin-card h3 {
+    max-width: 520px;
+    margin-bottom: 13px;
+    color: var(--white);
+    font-size: clamp(23px, 2.6vw, 32px);
+    font-weight: 600;
+    letter-spacing: -.025em;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+}
+
+.bulletin-card p {
+    max-width: 520px;
+    color: rgba(255,255,255,.66);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.bulletin-card a,
+.bulletin-note {
+    display: inline-block;
+    margin-top: auto;
+    padding-top: 24px;
+    color: var(--sir-gold-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    line-height: 1.5;
+}
+
+.bulletin-note {
+    color: rgba(255,255,255,.48);
+}
+
+.bulletin-card a:hover,
+.bulletin-footer a:hover {
+    color: var(--white);
+}
+
+.bulletin-footer {
+    margin-top: 28px;
+    text-align: right;
+}
+
+.bulletin-footer a {
+    color: var(--sir-gold-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    transition: color var(--transition);
+}
+
+/* =========================================================
+   21 — EXPANDED SIR FOOTER
+   ========================================================= */
+
+.footer-inner {
+    grid-template-columns: 1.25fr 1fr 1fr 1.35fr;
+    gap: clamp(22px, 3vw, 42px);
+    align-items: start;
+}
+
+.footer-links > strong,
+.footer-login > strong,
+.footer-connect > strong {
+    display: block;
+    color: var(--sir-gold-light);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    line-height: 1.5;
+}
+
+.footer-links > strong,
+.footer-login > strong,
+.footer-connect > strong {
+    margin-bottom: 7px;
+}
+
+.footer-login .footer-section-title,
+.footer-connect .footer-section-title {
+    margin-top: 22px;
+}
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 3px;
+    color: rgba(255,255,255,.72);
+    font-size: 11px;
+    font-weight: 600;
+    transition:
+        color var(--transition),
+        border-color var(--transition),
+        background var(--transition);
+}
+
+.social-links a:hover {
+    color: var(--sir-gold-light);
+    border-color: rgba(215,166,42,.55);
+    background: rgba(215,166,42,.06);
+}
+
+.footer-connect {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.footer-connect address {
+    color: rgba(255,255,255,.58);
+    font-size: 12px;
+    font-style: normal;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.footer-connect > a {
+    color: rgba(255,255,255,.58);
+    font-size: 12px;
+    line-height: 1.5;
+    transition: color var(--transition);
+}
+
+.footer-connect > a:hover {
+    color: var(--sir-gold-light);
+}
+
+/* =========================================================
+   22 — RESPONSIVE OVERRIDES FOR THE REVISED HEADER/FOOTER
+   ========================================================= */
+
+@media (max-width: 1050px) {
+    .footer-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 34px 28px;
+    }
+}
+
+@media (max-width: 780px) {
+    .sir-bulletin-section {
+        padding: 82px 0;
+    }
+
+    .sir-bulletin-section .story-inner {
+        width: calc(100% - 36px);
+    }
+
+    .sir-bulletin-section h2 {
+        font-size: clamp(38px, 10vw, 52px);
+    }
+
+    .bulletin-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+        margin-top: 32px;
+    }
+
+    .bulletin-card {
+        min-height: 0;
+        padding: 25px 22px;
+    }
+
+    .bulletin-top {
+        margin-bottom: 20px;
+    }
+
+    .bulletin-card h3 {
+        font-size: clamp(23px, 6vw, 28px);
+    }
+
+    .bulletin-card a,
+    .bulletin-note {
+        margin-top: 20px;
+        padding-top: 0;
+    }
+
+    .bulletin-footer {
+        text-align: left;
+    }
+
+    .footer-inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+    }
+
+    .footer-brand p {
+        max-width: 100%;
+    }
+
+    .footer-connect {
+        max-width: 420px;
+    }
+
+    .social-links {
+        gap: 8px;
+    }
+
+    .footer-bottom {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 420px) {
+    .sir-bulletin-section {
+        padding: 70px 0;
+    }
+
+    .bulletin-card {
+        padding: 22px 18px;
+    }
+
+    .bulletin-category,
+    .bulletin-status,
+    .bulletin-date {
+        font-size: 8px;
+        letter-spacing: .1em;
+    }
+
+    .social-links a {
+        padding-inline: 9px;
+    }
+}
+
+/* Keep mobile navigation links clear and comfortably tappable. */
+@media (max-width: 780px) {
+    .mobile-nav > a {
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* =========================================================
+   END — SIR STYLE.CSS ADDITIONS
+   ========================================================= */
