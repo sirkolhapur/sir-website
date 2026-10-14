@@ -7326,6 +7326,53 @@ document
     renderDspRangeRows(ranges);updateDspAvailabilityUI();
   }
 
+  async function getTeacherActiveDspSubjects(teacherId) {
+    const teacher = dspTeachers.find(item => String(item.id) === String(teacherId));
+    if (!teacher) {
+      const { data, error } = await supabaseClient
+        .from("teachers")
+        .select("id,subject")
+        .eq("id", teacherId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error("Selected teacher was not found.");
+      const { data: subjects, error: subjectError } = await supabaseClient
+        .from("dsp_subjects")
+        .select("id,name,code,is_active");
+      if (subjectError) throw subjectError;
+      const fallbackTeacher = data;
+      const eligibleNames = getEligibleDspSubjectNames(fallbackTeacher.subject);
+      return (subjects || []).filter(subject =>
+        subject.is_active === true &&
+        eligibleNames.some(name => name.toLowerCase() === String(subject.name || "").toLowerCase())
+      );
+    }
+
+    // Always re-read subject status from Supabase; do not trust only the
+    // in-memory UI state when generating or reconciling slots.
+    const { data: subjects, error } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active");
+    if (error) throw error;
+
+    const eligibleNames = getEligibleDspSubjectNames(teacher.subject);
+    return (subjects || []).filter(subject =>
+      subject.is_active === true &&
+      eligibleNames.some(name => name.toLowerCase() === String(subject.name || "").toLowerCase())
+    );
+  }
+
+  function getEligibleDspSubjectNames(rawSubject) {
+    const raw = String(rawSubject || "").trim().toLowerCase();
+    if (raw.includes("biology") || raw === "bio" || raw.includes("bio teacher")) return ["Zoology", "Botany"];
+    if (raw.includes("physics")) return ["Physics"];
+    if (raw.includes("chemistry")) return ["Chemistry"];
+    if (raw.includes("math")) return ["Maths"];
+    if (raw.includes("zoology")) return ["Zoology"];
+    if (raw.includes("botany")) return ["Botany"];
+    return [];
+  }
+
   async function saveDspAvailability() {
     const teacherId=document.getElementById("dspScheduleTeacher")?.value;
     const date=document.getElementById("dspScheduleDate")?.value;
@@ -7345,8 +7392,14 @@ document
       let error;if(existing?.id)({error}=await supabaseClient.from("dsp_teacher_availability").update(payload).eq("id",existing.id));else({error}=await supabaseClient.from("dsp_teacher_availability").insert(payload));if(error)throw error;
       const {error:deleteError}=await supabaseClient.from("dsp_teacher_availability_ranges").delete().eq("teacher_id",teacherId).eq("availability_date",date);if(deleteError)throw deleteError;
       if(isAvailable){const rangePayload=ranges.map((r,i)=>({teacher_id:teacherId,availability_date:date,start_time:r.from,end_time:r.till,sort_order:i}));const {error:insertError}=await supabaseClient.from("dsp_teacher_availability_ranges").insert(rangePayload);if(insertError)throw insertError;}
-      await reconcileDspSlotsForRanges(teacherId,date,isAvailable?ranges:[],isAvailable);
-      showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
+      const activeSubjects = isAvailable ? await getTeacherActiveDspSubjects(teacherId) : [];
+      const canGenerateSlots = isAvailable && activeSubjects.length > 0;
+      await reconcileDspSlotsForRanges(teacherId,date,canGenerateSlots?ranges:[],canGenerateSlots);
+      if (isAvailable && !canGenerateSlots) {
+        showDspMessage(`Availability saved, but no slots were made available because ${dspTeachers.find(t=>String(t.id)===String(teacherId))?.subject || "this teacher's"} DSP subject is INACTIVE. Existing bookings are preserved.`, "error");
+      } else {
+        showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
+      }
       await loadDspSlots();
     }catch(error){console.error("Save DSP availability error:",error);showDspMessage(error?.message||"Unable to save availability. Ensure the multiple-range SQL migration has been applied.","error");}
     finally{button.disabled=false;button.textContent="Save Availability";}
@@ -7420,6 +7473,13 @@ if(teacherSetting?.is_enabled===false){
     if(!document.getElementById("dspTeacherAvailable")?.checked)return showDspMessage("Teacher is unavailable for this date. Slots will not be generated.","error");
     button.disabled=true;button.textContent="Generating...";
     try{
+      const activeSubjects = await getTeacherActiveDspSubjects(teacherId);
+      if (!activeSubjects.length) {
+        await reconcileDspSlotsForRanges(teacherId,date,[],false);
+        await loadDspSlots();
+        showDspMessage("Slots not generated: this teacher's DSP subject is INACTIVE. Existing bookings are preserved; unbooked slots are blocked.", "error");
+        return;
+      }
       const {data:offDay,error:offDayError}=await supabaseClient.from("dsp_off_days").select("id,off_date,reason").eq("off_date",date).maybeSingle();
       if(offDayError)throw offDayError;
       if(offDay){showDspMessage(`Institute DSP is OFF on ${formatDspDate(date)}${offDay.reason?`: ${offDay.reason}`:"."}`,"error");await loadDspSlots();return;}
@@ -7829,21 +7889,7 @@ if(teacherSetting?.is_enabled===false){
 
     if (!raw) return [];
 
-    let allowedNames = [];
-
-    if (raw.includes("biology") || raw.includes("bio")) {
-      allowedNames = ["Zoology", "Botany"];
-    } else if (raw.includes("physics")) {
-      allowedNames = ["Physics"];
-    } else if (raw.includes("chemistry")) {
-      allowedNames = ["Chemistry"];
-    } else if (raw.includes("math")) {
-      allowedNames = ["Maths"];
-    } else if (raw.includes("zoology")) {
-      allowedNames = ["Zoology"];
-    } else if (raw.includes("botany")) {
-      allowedNames = ["Botany"];
-    }
+    const allowedNames = getEligibleDspSubjectNames(raw);
 
     return dspSubjects.filter(subject =>
       subject.is_active === true &&
