@@ -1643,6 +1643,33 @@
       margin-top: 3px;
     }
 
+    .dsp-subject-inactive {
+      opacity: 0.72;
+      border-color: rgba(148, 163, 184, 0.24);
+    }
+    .dsp-subject-status-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .dsp-subject-status-control input {
+      width: 17px;
+      height: 17px;
+      accent-color: #22c55e;
+      cursor: pointer;
+    }
+    .dsp-subject-status-control input:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+    .dsp-inactive {
+      color: #f87171;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
     .dsp-active {
       color: #69d391;
       font-size: 10px;
@@ -2150,6 +2177,23 @@
 .dsp-slot-booking span {
   opacity: .82;
 }
+.dsp-range-list { display:flex; flex-direction:column; gap:6px; }
+    .dsp-range-row label { display:flex; flex-direction:column; gap:5px; }
+    @media(max-width:600px){.dsp-range-row{grid-template-columns:1fr 1fr!important}.dsp-range-row button{grid-column:1/-1;width:100%}}
+
+/* SIR V2 dashboard home refresh — additive styles only */
+.dashboard-welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px!important}
+.dashboard-eyebrow,.panel-kicker{font-size:11px;letter-spacing:1.7px;color:#e6b94f;font-weight:800;margin-bottom:9px}
+.dashboard-welcome h1{margin-bottom:8px}.dashboard-welcome p,.section-subtitle{color:#91a6c1;line-height:1.55}.dashboard-date{border:1px solid rgba(230,185,79,.28);background:rgba(230,185,79,.07);border-radius:12px;padding:12px 15px;color:#eac45d;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.dashboard-four-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.dashboard-feature-card{appearance:none;text-align:left;position:relative;min-height:228px;padding:22px 21px 18px;border:1px solid rgba(151,177,209,.14);border-radius:18px;background:linear-gradient(145deg,#10243e,#0b1a2e);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;transition:transform .18s,border-color .18s,box-shadow .18s;overflow:hidden}
+.dashboard-feature-card:after{content:"";position:absolute;width:125px;height:125px;border-radius:50%;right:-50px;top:-48px;background:rgba(229,185,79,.055);pointer-events:none}
+.dashboard-feature-card:hover{transform:translateY(-3px);border-color:rgba(230,185,79,.48);box-shadow:0 14px 32px rgba(0,0,0,.18)}
+.feature-icon{width:42px;height:42px;border-radius:13px;background:rgba(230,185,79,.12);color:#efc75e;display:grid;place-items:center;font-size:24px;margin-bottom:19px}.feature-label{font-size:10px;letter-spacing:1.45px;color:#91a6c1;font-weight:800;margin-bottom:7px}.dashboard-feature-card>strong{font-size:17px;line-height:1.35;min-height:44px}.feature-number{font-size:33px;font-weight:800;letter-spacing:-1px;margin:7px 0 11px;color:#f4f7fb}.feature-word{font-size:27px;color:#eac45d}.feature-foot{width:100%;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.08);padding-top:13px;margin-top:auto;font-size:11px;color:#9db0c8;gap:8px}.feature-foot b{font-size:17px;color:#eac45d}
+.dashboard-lower-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin-top:18px}.dashboard-note-panel,.dashboard-collection-panel{border:1px solid rgba(151,177,209,.13);background:#0c1c30;border-radius:18px;padding:23px}.dashboard-note-panel h3,.dashboard-collection-panel h3{font-size:19px;margin:3px 0 10px}.dashboard-note-panel p{font-size:13px;line-height:1.7;color:#92a7c1;max-width:520px}.collection-head{display:flex;align-items:center;justify-content:space-between}.collection-mark{width:38px;height:38px;border-radius:12px;background:rgba(230,185,79,.12);display:grid;place-items:center;color:#edc35c;font-size:21px;font-weight:800}.collection-metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}.collection-metrics>div+div{border-left:1px solid rgba(255,255,255,.1);padding-left:20px}.collection-metrics span,.fees-summary-card span{display:block;color:#8fa5c0;font-size:12px;margin-bottom:9px}.collection-metrics strong{font-size:24px;color:#f3f6fb}.text-action{background:transparent;border:0;color:#eac45d;font-size:12px;font-weight:700;cursor:pointer;padding:0}.text-action b{font-size:17px;margin-left:6px}.data-connection-note{font-size:10px;line-height:1.5;color:#7188a4;margin-top:12px}.fees-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0}.fees-summary-card{border:1px solid rgba(151,177,209,.14);border-radius:16px;padding:22px;background:#0e2036}.fees-summary-card strong{display:block;font-size:29px;color:#f5f7fa;margin-bottom:8px}.fees-summary-card small{color:#8198b4;font-size:11px}.fees-connection-card{display:flex;align-items:flex-start;gap:16px;padding:22px}.fees-connection-icon{flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:rgba(230,185,79,.12);display:grid;place-items:center;color:#eac45d;font-size:23px}.fees-connection-card h3{margin:2px 0 8px}.fees-connection-card p{font-size:13px;color:#91a6c1;line-height:1.65}
+@media(max-width:1200px){.dashboard-four-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-feature-card{min-height:210px}}
+@media(max-width:700px){.dashboard-welcome{align-items:flex-start;flex-direction:column}.dashboard-four-grid,.dashboard-lower-grid,.fees-summary-grid{grid-template-columns:1fr}.dashboard-feature-card{min-height:190px}.dashboard-date{align-self:flex-start}.collection-metrics strong{font-size:21px}}
+
 </style>
 </head>
 
@@ -2237,6 +2281,22 @@
       Batches
     </button>
 
+    <button class="nav-btn" data-section="fees">
+      Fees
+    </button>
+
+    <button class="nav-btn" data-section="attendance">
+      Attendance
+    </button>
+
+    <button class="nav-btn" data-section="lectures">
+      Lectures
+    </button>
+
+    <button class="nav-btn" data-section="absentStudents">
+      Absent Students
+    </button>
+
     <button class="nav-btn" data-section="tests">
       Tests
     </button>
@@ -2265,38 +2325,69 @@
     <!-- OVERVIEW -->
 
     <section class="section active" id="overview">
-
-      <div class="page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage the academic system of Suryavanshi Institute for Rankers.</p>
+      <div class="page-header dashboard-welcome">
+        <div><div class="dashboard-eyebrow">SIR • COMMAND CENTRE</div><h1>Good day, Admin</h1><p>Your institute at a glance. Choose a section to manage today's priorities.</p></div>
+        <div class="dashboard-date" id="dashboardTodayLabel">TODAY</div>
       </div>
 
-      <div class="stats">
-
-        <div class="stat-card">
-          <span>Total Students</span>
-          <strong id="totalStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Active Students</span>
-          <strong id="activeStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Total Tests</span>
-          <strong id="totalTests">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Notices</span>
-          <strong id="totalNotices">—</strong>
-        </div>
-
+      <div class="dashboard-four-grid">
+        <button type="button" class="dashboard-feature-card batches-feature" data-open-section="batches">
+          <span class="feature-icon">▦</span><span class="feature-label">ACADEMICS</span><strong>Active Batches</strong>
+          <span class="feature-number" id="activeBatchesCount">—</span><span class="feature-foot">View batches and student strength <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card absent-feature" data-open-section="absentStudents">
+          <span class="feature-icon">◷</span><span class="feature-label">ATTENDANCE</span><strong>Absent Students</strong>
+          <span class="feature-number" id="dashboardAbsentCount">—</span><span class="feature-foot">Check today's attendance <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card dsp-feature" data-open-section="dsp">
+          <span class="feature-icon">✦</span><span class="feature-label">FACULTY SUPPORT</span><strong>Doubt Solving Programme</strong>
+          <span class="feature-number feature-word">DSP</span><span class="feature-foot">Select a teacher to inspect slots <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card fees-feature" data-open-section="fees">
+          <span class="feature-icon">₹</span><span class="feature-label">FINANCE</span><strong>Fees & Collection</strong>
+          <span class="feature-number feature-word">₹ <span id="dashboardTodayCollection">—</span></span><span class="feature-foot">Today's and monthly collection <b>↗</b></span>
+        </button>
       </div>
 
+      <div class="dashboard-lower-grid">
+        <div class="dashboard-note-panel"><div class="panel-kicker">DAILY SNAPSHOT</div><h3>Keep the essentials in focus.</h3><p>Quick access to batches, attendance, teacher-wise DSP slots and fee collection — without crowding the home screen.</p></div>
+        <div class="dashboard-collection-panel"><div class="collection-head"><div><span class="panel-kicker">COLLECTION OVERVIEW</span><h3>Fees at a glance</h3></div><span class="collection-mark">₹</span></div><div class="collection-metrics"><div><span>Today's collection</span><strong id="dashboardTodayCollectionSmall">—</strong></div><div><span>This month's collection</span><strong id="dashboardMonthCollection">—</strong></div></div><button type="button" class="text-action" data-open-section="fees">Open fees dashboard <b>→</b></button><p class="data-connection-note" id="dashboardFeesConnectionNote">Collection figures will appear here once payment records are connected.</p></div>
+      </div>
     </section>
 
+
+    <!-- ABSENT STUDENTS -->
+    <section class="section" id="absentStudents">
+      <div class="section-head"><h2>Absent Students</h2></div>
+      <div class="dsp-control-panel" style="margin-bottom:16px">
+        <div class="dsp-schedule-controls">
+          <div><label class="dsp-field-label" for="absenceDate">Date</label><input class="dsp-input" type="date" id="absenceDate"></div>
+          <div><label class="dsp-field-label" for="absenceBatch">Batch (optional)</label><select class="dsp-select" id="absenceBatch"><option value="">All batches</option></select></div>
+          <div class="dsp-schedule-actions"><button type="button" class="dsp-save" id="loadAbsentStudentsBtn">Load Absent Students</button></div>
+        </div>
+        <p class="dsp-schedule-note">This list uses the additive <code>student_attendance</code> table. Run the supplied SQL migration before using it.</p>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Student</th><th>Student UID</th><th>Batch</th><th>Date</th><th>Status</th></tr></thead><tbody id="absentStudentsBody"><tr><td colspan="5" class="empty">Choose a date and load records.</td></tr></tbody></table></div>
+    </section>
+
+    <!-- FEES -->
+    <section class="section" id="fees">
+      <div class="section-head"><div><h2>Fees & Collection</h2><p class="section-subtitle">Track daily receipts and month-to-date collections.</p></div></div>
+      <div class="fees-summary-grid"><div class="fees-summary-card"><span>Today's Collection</span><strong id="feesTodayCollection">—</strong><small>Payments received today</small></div><div class="fees-summary-card"><span>This Month</span><strong id="feesMonthCollection">—</strong><small>Month-to-date collection</small></div><div class="fees-summary-card"><span>Pending Fees</span><strong id="feesPendingTotal">—</strong><small>Outstanding student dues</small></div></div>
+      <div class="table-card fees-connection-card"><div class="fees-connection-icon">₹</div><div><h3>Collection data connection</h3><p id="feesConnectionMessage">This V2 source does not yet identify a verified fee-payment table. No amounts are fabricated; connect the existing payment records before displaying live totals.</p></div></div>
+    </section>
+
+    <!-- ATTENDANCE -->
+    <section class="section" id="attendance">
+      <div class="section-head"><h2>Attendance Management</h2></div>
+      <div class="table-card"><div class="empty">Attendance dashboard option added. The existing Absent Students section remains available separately; full attendance entry and reporting are not connected here yet.</div></div>
+    </section>
+
+    <!-- LECTURES -->
+    <section class="section" id="lectures">
+      <div class="section-head"><h2>Lectures</h2></div>
+      <div class="table-card"><div class="empty">Lectures dashboard option added. Lecture scheduling and records are not connected in this Admin V2 source yet.</div></div>
+    </section>
 
     <!-- STUDENTS -->
 
@@ -2526,6 +2617,7 @@
           <div class="build-marker">SIR EXCEL RESULT MANAGEMENT</div>
         </div>
         <div class="results-head-actions">
+          <button class="excel-btn" id="repairMissingSubjectsBtn" type="button">Repair Missing Subject Marks</button>
           <button class="excel-btn" id="openExcelImportBtn">↑ Excel Import</button>
         </div>
       </div>
@@ -2778,6 +2870,16 @@
           <p>Control DSP teacher assignments for the Doubt Solving Programme.</p>
         </div>
 
+        <div class="dsp-control-panel" id="dspTeacherQuickPanel" style="margin:16px 0 20px">
+          <div class="dsp-panel-head">
+            <div><h3>Choose a Teacher</h3><span>Select a teacher to open their availability and daily slots.</span></div>
+            <button type="button" class="secondary-btn" id="dspQuickRefreshBtn">Refresh Teachers</button>
+          </div>
+          <div id="dspTeacherQuickList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+            <div class="dsp-empty">Loading teachers...</div>
+          </div>
+        </div>
+
         <div class="dsp-intro">
           <h3>DSP — Teacher Assignment</h3>
           <p>
@@ -2850,14 +2952,11 @@
               <input id="dspScheduleDate" class="dsp-input" type="date">
             </div>
 
-            <div>
-              <label class="dsp-field-label">Available From</label>
-              <input id="dspAvailableFrom" class="dsp-input" type="time" min="14:30" max="17:30" value="14:30">
-            </div>
-
-            <div>
-              <label class="dsp-field-label">Available Till</label>
-              <input id="dspAvailableTill" class="dsp-input" type="time" min="14:30" max="17:30" value="17:30">
+            <div style="grid-column:1/-1">
+              <label class="dsp-field-label">Availability ranges (24-hour clock)</label>
+              <div id="dspAvailabilityRanges" class="dsp-range-list"></div>
+              <button type="button" class="secondary-btn" id="addDspRangeBtn" style="margin-top:8px">+ Add time range</button>
+              <small style="display:block;margin-top:6px;opacity:.8">Example: 14:00–15:00 and 16:00–17:00. Each range generates 3-minute slots. Ranges must not overlap.</small>
             </div>
 
             <div class="dsp-availability-box">
@@ -2886,7 +2985,7 @@
           </div>
 
           <div class="dsp-schedule-note">
-            <strong>DSP window:</strong> 2:30 PM – 5:30 PM &nbsp;•&nbsp;
+            <strong>DSP window:</strong> 24 hours (00:00–23:59) &nbsp;•&nbsp;
             <strong>Slot:</strong> 3 minutes &nbsp;•&nbsp;
             <strong>Quota:</strong> NEET 3+3+3 · JEE 3+3+3 &nbsp;•&nbsp; <strong>Total:</strong> 9 questions / 27 minutes / student / day
           </div>
@@ -2900,6 +2999,11 @@
 
           <div id="dspSlotsList" class="dsp-slots-list">
             <div class="dsp-empty">Select a teacher and date to view slots.</div>
+          </div>
+
+          <div class="dsp-control-panel" style="margin-top:18px">
+            <div class="dsp-panel-head"><div><h3>Teacher-wise DSP Bookings</h3><span>Select a teacher to review their bookings across dates</span></div><button type="button" class="secondary-btn" id="loadTeacherDspBookingsBtn">View Teacher Bookings</button></div>
+            <div id="teacherDspBookingsList" class="dsp-slots-list"><div class="dsp-empty">Choose a teacher above and click View Teacher Bookings.</div></div>
           </div>
         </div>
 
@@ -3990,6 +4094,36 @@ supabaseClient.auth.onAuthStateChange(
    NAVIGATION
 -------------------------------- */
 
+// Dashboard feature cards reuse the existing section navigation; all original sidebar links remain intact.
+document.querySelectorAll("[data-open-section]").forEach(card => {
+  card.addEventListener("click", () => {
+    const targetId = card.dataset.openSection;
+    const navButton = document.querySelector(`.nav-btn[data-section="${targetId}"]`);
+    if (navButton) navButton.click();
+    else {
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+      const target = document.getElementById(targetId);
+      if (target) target.classList.add("active");
+    }
+    if (targetId === "dsp") {
+      const teacherList = document.getElementById("dspTeacherList");
+      if (teacherList && (!teacherList.children.length || /Loading teachers/i.test(teacherList.textContent))) {
+        if (typeof loadDspData === "function") loadDspData();
+      }
+    }
+    if (targetId === "absentStudents") {
+      const dateInput = document.getElementById("absenceDate");
+      if (dateInput && !dateInput.value) {
+        const now = new Date();
+        dateInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      }
+    }
+  });
+});
+const dashboardDateLabel = document.getElementById("dashboardTodayLabel");
+if (dashboardDateLabel) dashboardDateLabel.textContent = new Intl.DateTimeFormat("en-IN", {weekday:"short", day:"2-digit", month:"short", year:"numeric"}).format(new Date()).toUpperCase();
+
 document.querySelectorAll(".nav-btn")
   .forEach(button => {
 
@@ -4188,6 +4322,25 @@ function closeStudentResults() {
   document.getElementById("studentResultsModal")?.classList.remove("show");
 }
 
+// Official score percentage is marks obtained / maximum marks * 100.
+// Accuracy and percentile are separate metrics and must never be substituted here.
+function resultScorePercentage(result) {
+  if (!result || String(result.status || "").trim().toUpperCase() === "AB") return null;
+  const obtained = Number(result.marks_obtained);
+  const maximum = Number(result.max_marks);
+  if (result.marks_obtained !== null && result.marks_obtained !== undefined &&
+      result.max_marks !== null && result.max_marks !== undefined &&
+      String(result.marks_obtained).trim() !== "" &&
+      String(result.max_marks).trim() !== "" &&
+      Number.isFinite(obtained) && Number.isFinite(maximum) && maximum > 0) {
+    return Number(((obtained / maximum) * 100).toFixed(2));
+  }
+  const stored = result.percentage;
+  if (stored === null || stored === undefined || String(stored).trim() === "") return null;
+  const parsed = Number(stored);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function studentResultMarks(result) {
   if (String(result?.status || "").toUpperCase() === "AB") return "AB";
   return `${result?.marks_obtained ?? "—"} / ${result?.max_marks ?? "—"}`;
@@ -4205,7 +4358,7 @@ function renderStudentResults(student, results, subjectRows) {
   if (!summary || !body) return;
 
   const appeared = (results || []).filter(r => String(r.status || "").toUpperCase() !== "AB");
-  const percentages = appeared.map(r => Number(r.percentage)).filter(Number.isFinite);
+  const percentages = appeared.map(resultScorePercentage).filter(v => v !== null);
   const latest = results?.[0];
   const average = percentages.length
     ? `${(percentages.reduce((a, b) => a + b, 0) / percentages.length).toFixed(2)}%`
@@ -4218,7 +4371,7 @@ function renderStudentResults(student, results, subjectRows) {
     </div>
     <div class="student-results-summary-card">
       <span>Latest Percentage</span>
-      <strong>${latest?.percentage == null ? "—" : `${escapeHtml(latest.percentage)}%`}</strong>
+      <strong>${resultScorePercentage(latest) == null ? "—" : `${resultScorePercentage(latest).toFixed(2)}%`}</strong>
     </div>
     <div class="student-results-summary-card">
       <span>Average Percentage</span>
@@ -4265,7 +4418,7 @@ function renderStudentResults(student, results, subjectRows) {
 
         <div class="student-result-metrics">
           <div class="student-result-metric"><span>Marks</span><strong>${escapeHtml(studentResultMarks(result))}</strong></div>
-          <div class="student-result-metric"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+          <div class="student-result-metric"><span>Percentage</span><strong>${resultScorePercentage(result) == null ? "—" : `${resultScorePercentage(result).toFixed(2)}%`}</strong></div>
           <div class="student-result-metric"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
           <div class="student-result-metric"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>
         </div>
@@ -4353,7 +4506,7 @@ async function openStudentResultDetails(resultId) {
   document.getElementById("questionAnalysisSubtitle").textContent = `${student?.full_name || "Student"} • ${result.test_date || "—"} • ${result.mode || "—"}`;
   document.getElementById("questionAnalysisSummary").innerHTML = `
     <div class="question-summary-card"><span>Marks</span><strong>${String(result.status || "").toUpperCase() === "AB" ? "AB" : `${escapeHtml(result.marks_obtained ?? "—")}/${escapeHtml(result.max_marks ?? "—")}`}</strong></div>
-    <div class="question-summary-card"><span>Percentage</span><strong>${result.percentage == null ? "—" : `${escapeHtml(result.percentage)}%`}</strong></div>
+    <div class="question-summary-card"><span>Percentage</span><strong>${resultScorePercentage(result) == null ? "—" : `${resultScorePercentage(result).toFixed(2)}%`}</strong></div>
     <div class="question-summary-card"><span>Percentile</span><strong>${result.percentile == null ? "—" : escapeHtml(result.percentile)}</strong></div>
     <div class="question-summary-card"><span>Ranks</span><strong>${escapeHtml(result.batch_rank ?? "—")} / ${escapeHtml(result.overall_rank ?? "—")}</strong></div>`;
   document.getElementById("questionAnalysisBody").innerHTML = '<div class="question-empty">Loading question responses...</div>';
@@ -4787,6 +4940,9 @@ async function loadBatches() {
   }
 
   allActiveBatches = data || [];
+  populateAbsenceBatchFilter?.();
+  const activeBatchCounter=document.getElementById("activeBatchesCount");
+  if(activeBatchCounter)activeBatchCounter.textContent=allActiveBatches.length;
 
   const select =
     document.getElementById(
@@ -6880,6 +7036,31 @@ document.getElementById("archivedTeachersBtn").addEventListener("click", () => {
   renderTeacherSearch();
 });
 
+
+/* --------------------------------
+   ABSENT STUDENTS (requires student_attendance migration)
+-------------------------------- */
+async function loadAbsentStudents(){
+  const body=document.getElementById("absentStudentsBody");
+  const date=document.getElementById("absenceDate")?.value;
+  const batchId=document.getElementById("absenceBatch")?.value;
+  if(!date){body.innerHTML='<tr><td colspan="5" class="empty">Choose a date first.</td></tr>';return;}
+  body.innerHTML='<tr><td colspan="5" class="empty">Loading…</td></tr>';
+  const {data,error}=await supabaseClient.from("student_attendance").select("student_id,attendance_date,status").eq("attendance_date",date).eq("status","absent");
+  if(error){console.error("Absent students load error:",error);body.innerHTML='<tr><td colspan="5" class="empty">Unable to load absences. Check the supplied SQL migration and Supabase policies.</td></tr>';return;}
+  const attendance=data||[];const studentIds=[...new Set(attendance.map(r=>r.student_id).filter(Boolean))];
+  let students=[];
+  if(studentIds.length){const result=await supabaseClient.from("students").select("id,student_uid,full_name,batch_id").in("id",studentIds);if(result.error){console.error(result.error);body.innerHTML='<tr><td colspan="5" class="empty">Attendance loaded, but student details could not be loaded.</td></tr>';return;}students=result.data||[];}
+  const studentMap=new Map(students.map(st=>[String(st.id),st]));
+  const rows=attendance.map(r=>({...r,student:studentMap.get(String(r.student_id))})).filter(r=>r.student&&(!batchId||String(r.student.batch_id)===String(batchId)));
+  const batchMap=new Map((allActiveBatches||[]).map(b=>[String(b.id),b.name]));
+  body.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.student.full_name||"Student")}</td><td>${escapeHtml(r.student.student_uid||"—")}</td><td>${escapeHtml(batchMap.get(String(r.student.batch_id))||"—")}</td><td>${escapeHtml(r.attendance_date||date)}</td><td>Absent</td></tr>`).join(""):'<tr><td colspan="5" class="empty">No absent students recorded for this date.</td></tr>';
+}
+function populateAbsenceBatchFilter(){const select=document.getElementById("absenceBatch");if(!select)return;select.innerHTML='<option value="">All batches</option>'+((allActiveBatches||[]).map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(b.name)}</option>`).join(""));}
+document.getElementById("loadAbsentStudentsBtn")?.addEventListener("click",loadAbsentStudents);
+document.getElementById("absenceDate")?.setAttribute("value",getTodayIso());
+document.getElementById("absenceDate")?.addEventListener("change",()=>{});
+
 /* --------------------------------
    COUNTERS
 -------------------------------- */
@@ -6987,8 +7168,8 @@ document
      DSP — LOCKED ARCHITECTURE
   ========================= */
 
-  const DSP_WINDOW_START = "14:30";
-  const DSP_WINDOW_END = "17:30";
+  const DSP_WINDOW_START = "00:00";
+  const DSP_WINDOW_END = "23:59";
   const DSP_SLOT_MINUTES = 3;
   const DSP_MANAGE_DAYS = 7;
 
@@ -7114,6 +7295,41 @@ document
     return `${hour}:${minute} ${suffix}`;
   }
 
+  function renderDspTeacherQuickList() {
+    const host = document.getElementById("dspTeacherQuickList");
+    if (!host) return;
+    if (!Array.isArray(dspTeachers) || !dspTeachers.length) {
+      host.innerHTML = '<div class="dsp-empty">No active teachers are available. Refresh or check teacher assignments.</div>';
+      return;
+    }
+    const selectedId = document.getElementById("dspScheduleTeacher")?.value || "";
+    host.innerHTML = dspTeachers.map(teacher => {
+      const active = String(teacher.id) === String(selectedId);
+      return `<button type="button" class="dsp-quick-teacher" data-dsp-quick-teacher="${escapeHtml(teacher.id)}" style="text-align:left;padding:14px 16px;border:1px solid ${active ? '#f0c75e' : 'rgba(255,255,255,.12)'};border-radius:12px;background:${active ? 'rgba(240,199,94,.12)' : 'rgba(255,255,255,.035)'};color:#fff;cursor:pointer;min-height:74px">
+        <strong style="display:block;font-size:14px;margin-bottom:6px">${escapeHtml(teacher.full_name || 'Unnamed Teacher')}</strong>
+        <span style="display:block;color:#9fb5d0;font-size:12px">${escapeHtml(teacher.subject || 'DSP Faculty')} · Open slots ↗</span>
+      </button>`;
+    }).join("");
+  }
+
+  document.getElementById("dspTeacherQuickList")?.addEventListener("click", async event => {
+    const button = event.target.closest("[data-dsp-quick-teacher]");
+    if (!button) return;
+    const select = document.getElementById("dspScheduleTeacher");
+    if (!select) return;
+    select.value = button.dataset.dspQuickTeacher;
+    if (!select.value) return;
+    renderDspTeacherQuickList();
+    await loadDspAvailability();
+    await loadDspSlots();
+    document.getElementById("dspAvailabilityRanges")?.scrollIntoView({behavior:"smooth",block:"center"});
+  });
+
+  document.getElementById("dspQuickRefreshBtn")?.addEventListener("click", async () => {
+    await loadDspData();
+    renderDspTeacherQuickList();
+  });
+
   function populateDspScheduleTeachers() {
     const select = document.getElementById("dspScheduleTeacher");
     if (!select) return;
@@ -7144,28 +7360,100 @@ document
     text.style.color = available ? "#69d391" : "#ff9292";
   }
 
+  function getDspRangeRows() {
+    const host=document.getElementById("dspAvailabilityRanges");
+    return [...(host?.querySelectorAll(".dsp-range-row")||[])].map(row=>({
+      from:row.querySelector("[data-range-from]")?.value||"",
+      till:row.querySelector("[data-range-till]")?.value||""
+    }));
+  }
+
+  function renderDspRangeRows(ranges=[{from:"14:30",till:"17:30"}]) {
+    const host=document.getElementById("dspAvailabilityRanges"); if(!host)return;
+    host.innerHTML=ranges.map((r,i)=>`<div class="dsp-range-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:6px 0;align-items:end">
+      <label class="dsp-field-label">From<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-from value="${escapeHtml(r.from||"")}" required></label>
+      <label class="dsp-field-label">Till<input class="dsp-input" type="time" min="00:00" max="23:59" data-range-till value="${escapeHtml(r.till||"")}" required></label>
+      <button type="button" class="secondary-btn" data-remove-range="${i}" aria-label="Remove range">Remove</button></div>`).join("");
+    host.querySelectorAll("[data-remove-range]").forEach(btn=>btn.addEventListener("click",()=>{const rows=getDspRangeRows();rows.splice(Number(btn.dataset.removeRange),1);renderDspRangeRows(rows);}));
+  }
+
+  function validateDspRanges(ranges) {
+    if(!ranges.length) return "Add at least one availability range.";
+    const normalized=[];
+    for(const r of ranges){const a=timeToMinutes(r.from),b=timeToMinutes(r.till);if(!Number.isFinite(a)||!Number.isFinite(b)||a<0||b>1439||a>=b)return "Each range must have a valid From time earlier than Till (00:00–23:59).";normalized.push({start:a,end:b,from:r.from,till:r.till});}
+    normalized.sort((a,b)=>a.start-b.start);
+    for(let i=1;i<normalized.length;i++)if(normalized[i].start<normalized[i-1].end)return "Availability ranges overlap. Adjust them before saving.";
+    return null;
+  }
+
   async function loadDspAvailability() {
-    const teacherId = document.getElementById("dspScheduleTeacher")?.value;
-    const date = document.getElementById("dspScheduleDate")?.value;
-    if (!teacherId || !date) return;
-    if (!isDspManageDate(date)) { setDspDateLimits(); return; }
-    const { data, error } = await supabaseClient.from("dsp_teacher_availability")
+    const teacherId=document.getElementById("dspScheduleTeacher")?.value;
+    const date=document.getElementById("dspScheduleDate")?.value;
+    if(!teacherId||!date)return;
+    if(!isDspManageDate(date)){setDspDateLimits();return;}
+    const {data,error}=await supabaseClient.from("dsp_teacher_availability")
       .select("id,teacher_id,availability_date,is_available,reason,available_from,available_till")
       .eq("teacher_id",teacherId).eq("availability_date",date).maybeSingle();
-    if (error) { console.error("DSP availability error:",error); showDspMessage(error.message||"Unable to load teacher availability.","error"); return; }
+    if(error){console.error("DSP availability error:",error);showDspMessage(error.message||"Unable to load teacher availability.","error");return;}
     const availableInput=document.getElementById("dspTeacherAvailable");
     const reasonInput=document.getElementById("dspUnavailableReason");
-    const fromInput=document.getElementById("dspAvailableFrom");
-    const tillInput=document.getElementById("dspAvailableTill");
-    if(data){
-      availableInput.checked=data.is_available!==false;
-      reasonInput.value=data.reason||"";
-      fromInput.value=data.available_from?.slice(0,5)||DSP_WINDOW_START;
-      tillInput.value=data.available_till?.slice(0,5)||DSP_WINDOW_END;
-    } else {
-      availableInput.checked=true; reasonInput.value=""; fromInput.value=DSP_WINDOW_START; tillInput.value=DSP_WINDOW_END;
+    if(data){availableInput.checked=data.is_available!==false;reasonInput.value=data.reason||"";}
+    else{availableInput.checked=true;reasonInput.value="";}
+    let ranges=[];
+    const {data:rangeRows,error:rangeError}=await supabaseClient.from("dsp_teacher_availability_ranges")
+      .select("id,start_time,end_time,sort_order").eq("teacher_id",teacherId).eq("availability_date",date).order("sort_order",{ascending:true});
+    if(rangeError && rangeError.code!=="42P01"){console.error("DSP ranges load error:",rangeError);showDspMessage("Could not load multiple ranges. Run the provided SQL migration.","error");}
+    if(rangeRows?.length)ranges=rangeRows.map(r=>({from:String(r.start_time).slice(0,5),till:String(r.end_time).slice(0,5)}));
+    else if(data?.available_from&&data?.available_till)ranges=[{from:String(data.available_from).slice(0,5),till:String(data.available_till).slice(0,5)}];
+    if(!ranges.length)ranges=[{from:"14:30",till:"17:30"}];
+    renderDspRangeRows(ranges);updateDspAvailabilityUI();
+  }
+
+  async function getTeacherActiveDspSubjects(teacherId) {
+    const teacher = dspTeachers.find(item => String(item.id) === String(teacherId));
+    if (!teacher) {
+      const { data, error } = await supabaseClient
+        .from("teachers")
+        .select("id,subject")
+        .eq("id", teacherId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error("Selected teacher was not found.");
+      const { data: subjects, error: subjectError } = await supabaseClient
+        .from("dsp_subjects")
+        .select("id,name,code,is_active");
+      if (subjectError) throw subjectError;
+      const fallbackTeacher = data;
+      const eligibleNames = getEligibleDspSubjectNames(fallbackTeacher.subject);
+      return (subjects || []).filter(subject =>
+        subject.is_active === true &&
+        eligibleNames.some(name => name.toLowerCase() === String(subject.name || "").toLowerCase())
+      );
     }
-    updateDspAvailabilityUI();
+
+    // Always re-read subject status from Supabase; do not trust only the
+    // in-memory UI state when generating or reconciling slots.
+    const { data: subjects, error } = await supabaseClient
+      .from("dsp_subjects")
+      .select("id,name,code,is_active");
+    if (error) throw error;
+
+    const eligibleNames = getEligibleDspSubjectNames(teacher.subject);
+    return (subjects || []).filter(subject =>
+      subject.is_active === true &&
+      eligibleNames.some(name => name.toLowerCase() === String(subject.name || "").toLowerCase())
+    );
+  }
+
+  function getEligibleDspSubjectNames(rawSubject) {
+    const raw = String(rawSubject || "").trim().toLowerCase();
+    if (raw.includes("biology") || raw === "bio" || raw.includes("bio teacher")) return ["Zoology", "Botany"];
+    if (raw.includes("physics")) return ["Physics"];
+    if (raw.includes("chemistry")) return ["Chemistry"];
+    if (raw.includes("math")) return ["Maths"];
+    if (raw.includes("zoology")) return ["Zoology"];
+    if (raw.includes("botany")) return ["Botany"];
+    return [];
   }
 
   async function saveDspAvailability() {
@@ -7173,27 +7461,30 @@ document
     const date=document.getElementById("dspScheduleDate")?.value;
     const isAvailable=document.getElementById("dspTeacherAvailable")?.checked;
     const reason=document.getElementById("dspUnavailableReason")?.value.trim()||null;
-    const from=document.getElementById("dspAvailableFrom")?.value||DSP_WINDOW_START;
-    const till=document.getElementById("dspAvailableTill")?.value||DSP_WINDOW_END;
     const button=document.getElementById("saveDspAvailabilityBtn");
-    if(!teacherId||!date) return showDspMessage("Select a teacher and date first.","error");
-    if(!isDspManageDate(date)) return showDspMessage("Select a date within the 7-day DSP management window.","error");
-    if(!isAvailable&&!reason) return showDspMessage("Add a message/reason when marking a teacher unavailable.","error");
-    const fromMin=timeToMinutes(from), tillMin=timeToMinutes(till), winStart=timeToMinutes(DSP_WINDOW_START), winEnd=timeToMinutes(DSP_WINDOW_END);
-    if(isAvailable && (!Number.isFinite(fromMin)||!Number.isFinite(tillMin)||fromMin<winStart||tillMin>winEnd||fromMin>=tillMin)) return showDspMessage("Teacher custom hours must stay within 2:30 PM–5:30 PM and From must be before Till.","error");
-    button.disabled=true; button.textContent="Saving...";
+    if(!teacherId||!date)return showDspMessage("Select a teacher and date first.","error");
+    if(!isDspManageDate(date))return showDspMessage("Select a date within the 7-day DSP management window.","error");
+    if(!isAvailable&&!reason)return showDspMessage("Add a message/reason when marking a teacher unavailable.","error");
+    const ranges=getDspRangeRows();
+    if(isAvailable){const rangeError=validateDspRanges(ranges);if(rangeError)return showDspMessage(rangeError,"error");}
+    button.disabled=true;button.textContent="Saving...";
     try{
-      const payload={teacher_id:teacherId,availability_date:date,is_available:isAvailable,reason:isAvailable?null:reason,available_from:isAvailable?from:null,available_till:isAvailable?till:null};
+      const payload={teacher_id:teacherId,availability_date:date,is_available:isAvailable,reason:isAvailable?null:reason,available_from:isAvailable?ranges[0].from:null,available_till:isAvailable?ranges[ranges.length-1].till:null};
       const {data:existing,error:findError}=await supabaseClient.from("dsp_teacher_availability").select("id").eq("teacher_id",teacherId).eq("availability_date",date).maybeSingle();
       if(findError)throw findError;
-      let error;
-      if(existing?.id)({error}=await supabaseClient.from("dsp_teacher_availability").update(payload).eq("id",existing.id));
-      else({error}=await supabaseClient.from("dsp_teacher_availability").insert(payload));
-      if(error)throw error;
-      await reconcileDspSlots(teacherId,date,isAvailable?from:DSP_WINDOW_START,isAvailable?till:DSP_WINDOW_START,isAvailable);
-      showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)}. Booked slots are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
+      let error;if(existing?.id)({error}=await supabaseClient.from("dsp_teacher_availability").update(payload).eq("id",existing.id));else({error}=await supabaseClient.from("dsp_teacher_availability").insert(payload));if(error)throw error;
+      const {error:deleteError}=await supabaseClient.from("dsp_teacher_availability_ranges").delete().eq("teacher_id",teacherId).eq("availability_date",date);if(deleteError)throw deleteError;
+      if(isAvailable){const rangePayload=ranges.map((r,i)=>({teacher_id:teacherId,availability_date:date,start_time:r.from,end_time:r.till,sort_order:i}));const {error:insertError}=await supabaseClient.from("dsp_teacher_availability_ranges").insert(rangePayload);if(insertError)throw insertError;}
+      const activeSubjects = isAvailable ? await getTeacherActiveDspSubjects(teacherId) : [];
+      const canGenerateSlots = isAvailable && activeSubjects.length > 0;
+      await reconcileDspSlotsForRanges(teacherId,date,canGenerateSlots?ranges:[],canGenerateSlots);
+      if (isAvailable && !canGenerateSlots) {
+        showDspMessage(`Availability saved, but no slots were made available because ${dspTeachers.find(t=>String(t.id)===String(teacherId))?.subject || "this teacher's"} DSP subject is INACTIVE. Existing bookings are preserved.`, "error");
+      } else {
+        showDspMessage(isAvailable?`Availability saved for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings are preserved.`:`Teacher marked unavailable for ${formatDspDate(date)}. Existing bookings are preserved.`);
+      }
       await loadDspSlots();
-    }catch(error){console.error("Save DSP availability error:",error);showDspMessage(error?.message||"Unable to save availability.","error");}
+    }catch(error){console.error("Save DSP availability error:",error);showDspMessage(error?.message||"Unable to save availability. Ensure the multiple-range SQL migration has been applied.","error");}
     finally{button.disabled=false;button.textContent="Save Availability";}
   }
 
@@ -7230,36 +7521,41 @@ document
     if(missing.length){const {error:e}=await supabaseClient.from("dsp_slots").insert(missing);if(e)throw e;}
   }
 
+  async function reconcileDspSlotsForRanges(teacherId,date,ranges,isAvailable=true){
+    const {data:existingSlots,error}=await supabaseClient.from("dsp_slots").select("id,start_time,end_time,status").eq("teacher_id",teacherId).eq("slot_date",date).order("start_time",{ascending:true});
+    if(error)throw error;
+    const desired=ranges.flatMap(r=>generateDspSlotRows(r.from,r.till));
+    const keyOf=s=>`${String(s.start_time).slice(0,8)}|${String(s.end_time).slice(0,8)}`;
+    const desiredKeys=new Set(isAvailable?desired.map(keyOf):[]);
+    for(const slot of (existingSlots||[])){if(String(slot.status).toLowerCase()==="booked")continue;const target=desiredKeys.has(keyOf(slot))?"available":"blocked";if(slot.status!==target){const {error:e}=await supabaseClient.from("dsp_slots").update({status:target}).eq("id",slot.id);if(e)throw e;}}
+    const existingKeys=new Set((existingSlots||[]).map(keyOf));
+    const missing=desired.filter(slot=>!existingKeys.has(keyOf(slot))).map(slot=>({teacher_id:teacherId,slot_date:date,start_time:slot.start_time,end_time:slot.end_time,status:"available"}));
+    if(missing.length){const {error:e}=await supabaseClient.from("dsp_slots").insert(missing);if(e)throw e;}
+  }
+
   async function generateDspSlots() {
     const teacherId=document.getElementById("dspScheduleTeacher")?.value;
     const date=document.getElementById("dspScheduleDate")?.value;
     const button=document.getElementById("generateDspSlotsBtn");
     if(!teacherId||!date)return showDspMessage("Select a teacher and date first.","error");
     if(!isDspManageDate(date))return showDspMessage("Select a date within the 7-day DSP management window.","error");
-    const {data:teacherSetting,error:teacherSettingError}=await supabaseClient
-  .from("dsp_teacher_settings")
-  .select("is_enabled")
-  .eq("teacher_id",teacherId)
-  .maybeSingle();
-
-if(teacherSettingError)throw teacherSettingError;
-
-if(teacherSetting?.is_enabled===false){
-  return showDspMessage(
-    "DSP is disabled for this teacher. Enable DSP from the Teachers section before generating slots.",
-    "error"
-  );
-}
     if(!document.getElementById("dspTeacherAvailable")?.checked)return showDspMessage("Teacher is unavailable for this date. Slots will not be generated.","error");
     button.disabled=true;button.textContent="Generating...";
     try{
+      const activeSubjects = await getTeacherActiveDspSubjects(teacherId);
+      if (!activeSubjects.length) {
+        await reconcileDspSlotsForRanges(teacherId,date,[],false);
+        await loadDspSlots();
+        showDspMessage("Slots not generated: this teacher's DSP subject is INACTIVE. Existing bookings are preserved; unbooked slots are blocked.", "error");
+        return;
+      }
       const {data:offDay,error:offDayError}=await supabaseClient.from("dsp_off_days").select("id,off_date,reason").eq("off_date",date).maybeSingle();
       if(offDayError)throw offDayError;
       if(offDay){showDspMessage(`Institute DSP is OFF on ${formatDspDate(date)}${offDay.reason?`: ${offDay.reason}`:"."}`,"error");await loadDspSlots();return;}
-      const from=document.getElementById("dspAvailableFrom")?.value||DSP_WINDOW_START;
-      const till=document.getElementById("dspAvailableTill")?.value||DSP_WINDOW_END;
-      await reconcileDspSlots(teacherId,date,from,till,true);
-      showDspMessage(`DSP slots reconciled for ${formatDspDate(date)}. Existing bookings were preserved.`);
+      const ranges=getDspRangeRows();
+      const rangeError=validateDspRanges(ranges);if(rangeError)throw new Error(rangeError);
+      await reconcileDspSlotsForRanges(teacherId,date,ranges,true);
+      showDspMessage(`DSP slots reconciled for ${formatDspDate(date)} across ${ranges.length} range(s). Existing bookings were preserved.`);
       await loadDspSlots();
     }catch(error){console.error("Generate DSP slots error:",error);showDspMessage(error?.message||"Unable to generate DSP slots.","error");}
     finally{button.disabled=false;button.textContent="Generate Slots";}
@@ -7385,6 +7681,27 @@ if(teacherSetting?.is_enabled===false){
     }).join("");
   }
 
+  async function loadTeacherDspBookings(){
+    const teacherId=document.getElementById("dspScheduleTeacher")?.value;
+    const host=document.getElementById("teacherDspBookingsList");
+    if(!teacherId){host.innerHTML='<div class="dsp-empty">Select a teacher first.</div>';return;}
+    host.innerHTML='<div class="dsp-empty">Loading teacher bookings…</div>';
+    const {data:slots,error:slotError}=await supabaseClient.from("dsp_slots").select("id,slot_date,start_time,end_time,status").eq("teacher_id",teacherId).order("slot_date",{ascending:false}).order("start_time",{ascending:true});
+    if(slotError){console.error(slotError);host.innerHTML='<div class="dsp-empty">Unable to load slots for this teacher.</div>';return;}
+    const bookedSlots=(slots||[]).filter(s=>String(s.status).toLowerCase()==="booked");
+    if(!bookedSlots.length){host.innerHTML='<div class="dsp-empty">No booked DSP slots found for this teacher.</div>';return;}
+    const ids=bookedSlots.map(s=>s.id);
+    const {data:bookings,error:bookingError}=await supabaseClient.from("dsp_bookings").select("id,student_id,teacher_id,question_id,slot_id,booking_date,start_time,end_time,status").in("slot_id",ids).eq("teacher_id",teacherId);
+    if(bookingError){console.error(bookingError);host.innerHTML='<div class="dsp-empty">Slots are booked, but booking details could not be loaded.</div>';return;}
+    const rows=bookings||[];const studentIds=[...new Set(rows.map(b=>b.student_id).filter(Boolean))];const questionIds=[...new Set(rows.map(b=>b.question_id).filter(Boolean))];
+    let students=[],questions=[];
+    if(studentIds.length){const r=await supabaseClient.from("students").select("id,student_uid,full_name").in("id",studentIds);if(r.error)console.error(r.error);students=r.data||[];}
+    if(questionIds.length){const r=await supabaseClient.from("dsp_questions").select("id,question_text").in("id",questionIds);if(r.error)console.error(r.error);questions=r.data||[];}
+    const studentMap=new Map(students.map(x=>[x.id,x])),questionMap=new Map(questions.map(x=>[x.id,x])),slotMap=new Map(bookedSlots.map(x=>[x.id,x]));
+    host.innerHTML=rows.length?rows.map(b=>{const slot=slotMap.get(b.slot_id)||{};const student=studentMap.get(b.student_id)||{};const q=questionMap.get(b.question_id)||{};return `<div class="dsp-slot booked"><div class="dsp-slot-time">${escapeHtml(b.booking_date||slot.slot_date||"Date not set")} · ${formatDspTime(b.start_time||slot.start_time)} – ${formatDspTime(b.end_time||slot.end_time)}</div><div class="dsp-slot-booking"><strong>${escapeHtml(student.full_name||"Student")}</strong>${student.student_uid?`<span>UID: ${escapeHtml(student.student_uid)}</span>`:""}<span>Status: ${escapeHtml(b.status||"booked")}</span>${q.question_text?`<span>${escapeHtml(q.question_text)}</span>`:""}</div></div>`;}).join(""):'<div class="dsp-empty">No booking records matched the booked slots.</div>';
+  }
+  document.getElementById("loadTeacherDspBookingsBtn")?.addEventListener("click",loadTeacherDspBookings);
+
   document.getElementById("dspInstituteEnabled")?.addEventListener("change", () => {
     const enabled = document.getElementById("dspInstituteEnabled")?.checked;
     document.getElementById("dspInstituteStatusText").textContent = enabled ? "DSP ON" : "DSP OFF";
@@ -7402,6 +7719,7 @@ if(teacherSetting?.is_enabled===false){
   document
     .getElementById("dspScheduleTeacher")
     ?.addEventListener("change", async () => {
+      renderDspTeacherQuickList();
       await loadDspAvailability();
       await loadDspSlots();
     });
@@ -7418,16 +7736,18 @@ if(teacherSetting?.is_enabled===false){
       await loadDspSlots();
     });
 
-  document.getElementById("dspAvailableFrom")?.addEventListener("change", () => {
-    const from = document.getElementById("dspAvailableFrom");
-    if (timeToMinutes(from?.value) < timeToMinutes(DSP_WINDOW_START)) from.value = DSP_WINDOW_START;
-    if (timeToMinutes(from?.value) > timeToMinutes(DSP_WINDOW_END)) from.value = DSP_WINDOW_END;
+  document.getElementById("addDspRangeBtn")?.addEventListener("click",()=>{
+    const ranges=getDspRangeRows();
+    const last=ranges[ranges.length-1];
+    const start=last?.till||"14:30";
+    const startMin=timeToMinutes(start);
+    const endMin=Math.min(1439,startMin+60);
+    const pad=n=>String(n).padStart(2,"0");
+    ranges.push({from:start,till:`${pad(Math.floor(endMin/60))}:${pad(endMin%60)}`});
+    renderDspRangeRows(ranges);
   });
-  document.getElementById("dspAvailableTill")?.addEventListener("change", () => {
-    const till = document.getElementById("dspAvailableTill");
-    if (timeToMinutes(till?.value) < timeToMinutes(DSP_WINDOW_START)) till.value = DSP_WINDOW_START;
-    if (timeToMinutes(till?.value) > timeToMinutes(DSP_WINDOW_END)) till.value = DSP_WINDOW_END;
-  });
+  renderDspRangeRows();
+
 
   document
     .getElementById("saveDspAvailabilityBtn")
@@ -7506,10 +7826,11 @@ if(teacherSetting?.is_enabled===false){
       if (insertError) throw insertError;
     }
 
+    // Keep ALL subjects in memory so the admin can enable/disable each one.
+    // Filtering to active rows here made inactive subjects disappear from the UI.
     const { data: finalData, error: finalError } = await supabaseClient
       .from("dsp_subjects")
       .select("id,name,code,is_active")
-      .eq("is_active", true)
       .order("name", { ascending: true });
 
     if (finalError) throw finalError;
@@ -7539,28 +7860,81 @@ if(teacherSetting?.is_enabled===false){
     dspTeacherAssignments = data || [];
   }
 
+  async function setDspSubjectActive(subjectId, enabled, control) {
+    const previous = !enabled;
+    if (control) control.disabled = true;
+
+    try {
+      const { error } = await supabaseClient
+        .from("dsp_subjects")
+        .update({ is_active: enabled })
+        .eq("id", subjectId);
+
+      if (error) throw error;
+
+      const subject = dspSubjects.find(item => String(item.id) === String(subjectId));
+      if (subject) subject.is_active = enabled;
+
+      // Do not erase teacher mappings when a subject is disabled. They remain
+      // saved and become selectable again if the subject is re-enabled.
+      renderDspSubjects();
+      renderDspTeachers();
+      showDspMessage(
+        `${subject?.name || "DSP subject"} ${enabled ? "enabled" : "disabled"} successfully.`,
+        "success"
+      );
+    } catch (error) {
+      console.error("DSP subject status update failed:", error);
+      if (control) control.checked = previous;
+      showDspMessage(
+        error?.message || "Unable to update DSP subject status. Check Supabase UPDATE permissions/RLS.",
+        "error"
+      );
+    } finally {
+      if (control) control.disabled = false;
+    }
+  }
+
   function renderDspSubjects() {
     const box = document.getElementById("dspSubjectList");
     const count = document.getElementById("dspSubjectCount");
 
     if (!box) return;
 
-    count.textContent = `${dspSubjects.length} active`;
+    const activeCount = dspSubjects.filter(subject => subject.is_active === true).length;
+    if (count) count.textContent = `${activeCount} of ${dspSubjects.length} active`;
 
     if (!dspSubjects.length) {
       box.innerHTML = `<div class="dsp-empty">No DSP subjects found.</div>`;
       return;
     }
 
-    box.innerHTML = dspSubjects.map(subject => `
-      <div class="dsp-subject-card">
-        <div>
-          <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
-          <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+    box.innerHTML = dspSubjects.map(subject => {
+      const active = subject.is_active === true;
+      return `
+        <div class="dsp-subject-card ${active ? "" : "dsp-subject-inactive"}">
+          <div>
+            <div class="dsp-subject-name">${escapeHtml(subject.name)}</div>
+            <div class="dsp-subject-code">${escapeHtml(subject.code || "")}</div>
+          </div>
+          <label class="dsp-subject-status-control" title="Enable or disable ${escapeHtml(subject.name)} for the DSP programme">
+            <span class="${active ? "dsp-active" : "dsp-inactive"}">${active ? "ACTIVE" : "INACTIVE"}</span>
+            <input
+              type="checkbox"
+              data-dsp-subject-active="${escapeHtml(subject.id)}"
+              ${active ? "checked" : ""}
+              aria-label="${active ? "Disable" : "Enable"} ${escapeHtml(subject.name)} DSP"
+            >
+          </label>
         </div>
-        <span class="dsp-active">ACTIVE</span>
-      </div>
-    `).join("");
+      `;
+    }).join("");
+
+    box.querySelectorAll("[data-dsp-subject-active]").forEach(control => {
+      control.addEventListener("change", () => {
+        setDspSubjectActive(control.dataset.dspSubjectActive, control.checked, control);
+      });
+    });
   }
 
   function teacherHasSubject(teacherId, subjectId) {
@@ -7585,23 +7959,10 @@ if(teacherSetting?.is_enabled===false){
 
     if (!raw) return [];
 
-    let allowedNames = [];
-
-    if (raw.includes("biology") || raw.includes("bio")) {
-      allowedNames = ["Zoology", "Botany"];
-    } else if (raw.includes("physics")) {
-      allowedNames = ["Physics"];
-    } else if (raw.includes("chemistry")) {
-      allowedNames = ["Chemistry"];
-    } else if (raw.includes("math")) {
-      allowedNames = ["Maths"];
-    } else if (raw.includes("zoology")) {
-      allowedNames = ["Zoology"];
-    } else if (raw.includes("botany")) {
-      allowedNames = ["Botany"];
-    }
+    const allowedNames = getEligibleDspSubjectNames(raw);
 
     return dspSubjects.filter(subject =>
+      subject.is_active === true &&
       allowedNames.some(
         name => String(subject.name || "").toLowerCase() === name.toLowerCase()
       )
@@ -7621,15 +7982,6 @@ if(teacherSetting?.is_enabled===false){
     return row ? row.is_enabled!==false : true;
   }
 
-  async function setDspTeacherEnabled(teacherId,enabled){
-    if(!dspTeacherSettingsAvailable)return showDspMessage("Independent faculty DSP status needs the DSP migration SQL first.","error");
-    const payload={teacher_id:teacherId,is_enabled:enabled,updated_at:new Date().toISOString()};
-    const {data:existing,error:findError}=await supabaseClient.from("dsp_teacher_settings").select("id").eq("teacher_id",teacherId).maybeSingle();
-    if(findError)throw findError;
-    if(existing?.id){const {error}=await supabaseClient.from("dsp_teacher_settings").update({is_enabled:enabled,updated_at:payload.updated_at}).eq("id",existing.id);if(error)throw error;}
-    else{const {error}=await supabaseClient.from("dsp_teacher_settings").insert(payload);if(error)throw error;}
-    await loadDspTeacherSettings(); renderDspTeachers();
-  }
 
   function renderDspTeachers() {
     const box = document.getElementById("dspTeacherList");
@@ -7687,17 +8039,12 @@ if(teacherSetting?.is_enabled===false){
           </div>
 
           <div class="dsp-teacher-actions">
-            <label class="dsp-mini-toggle">
-              <input type="checkbox" data-dsp-teacher-enabled="${escapeHtml(teacher.id)}" ${dspEnabled ? "checked" : ""}>
-              <span></span>
-              <strong>${dspEnabled ? "DSP ON" : "DSP OFF"}</strong>
-            </label>
             <button
               type="button"
               class="dsp-save"
               data-save-dsp-teacher="${escapeHtml(teacher.id)}"
             >
-              Save
+              Save Subjects
             </button>
           </div>
         </div>
@@ -7721,17 +8068,6 @@ if(teacherSetting?.is_enabled===false){
         });
       });
 
-    document.querySelectorAll("[data-dsp-teacher-enabled]").forEach(input => {
-      input.addEventListener("change", async () => {
-        try {
-          await setDspTeacherEnabled(input.dataset.dspTeacherEnabled, input.checked);
-        } catch (error) {
-          console.error("DSP teacher status error:", error);
-          input.checked = !input.checked;
-          showDspMessage(error?.message || "Unable to update faculty DSP status.", "error");
-        }
-      });
-    });
   }
 
   async function saveDspTeacherAssignments(teacherId, button) {
@@ -7746,6 +8082,19 @@ if(teacherSetting?.is_enabled===false){
     const selectedSubjectIds = Array.from(
       row.querySelectorAll('.dsp-subject-toggle.selected')
     ).map(button => button.dataset.dspSubjectId);
+
+    // Preserve any existing mappings to institute-disabled subjects. Those
+    // subjects are hidden from the selectable teacher UI while inactive, but
+    // must not be silently deleted when an admin saves another assignment.
+    const inactiveSubjectIds = dspTeacherAssignments
+      .filter(assignment =>
+        String(assignment.teacher_id) === String(teacherId) &&
+        dspSubjects.some(subject =>
+          String(subject.id) === String(assignment.subject_id) && subject.is_active !== true
+        )
+      )
+      .map(assignment => String(assignment.subject_id));
+    const finalSubjectIds = Array.from(new Set([...selectedSubjectIds, ...inactiveSubjectIds]));
 
     button.disabled = true;
     button.textContent = "Saving...";
@@ -7763,8 +8112,8 @@ if(teacherSetting?.is_enabled===false){
 
       if (deleteError) throw deleteError;
 
-      if (selectedSubjectIds.length) {
-        const rowsToInsert = selectedSubjectIds.map(subjectId => ({
+      if (finalSubjectIds.length) {
+        const rowsToInsert = finalSubjectIds.map(subjectId => ({
           teacher_id: teacherId,
           subject_id: subjectId
         }));
@@ -7823,6 +8172,7 @@ if(teacherSetting?.is_enabled===false){
       renderDspTeachers();
 
       populateDspScheduleTeachers();
+      renderDspTeacherQuickList();
 
       const dateInput = document.getElementById("dspScheduleDate");
       if (dateInput && !dateInput.value) dateInput.value = getTodayIso();
@@ -8389,6 +8739,7 @@ let excelImportRows = [];
 let excelValidRows = [];
 let excelQuestionRows = [];
 let excelFileHash = "";
+let excelExistingBatch = null;
 
 function normalizeExcelHeader(value) {
   return String(value || "").trim().toLowerCase().replace(/[\s_\-\/]+/g, " ").replace(/\s+/g," ");
@@ -8438,8 +8789,20 @@ function parseSubjectCell(value) {
   if (!text || text === "-" || /^ab$/i.test(text)) return null;
   const first = text.match(/^\s*(-?\d+(?:\.\d+)?)/);
   const marks = first ? Number(first[1]) : null;
-  const get = key => { const m=text.match(new RegExp(`(?:^|[^A-Z])${key}\\s*[:=]?\\s*(\\d+)`,`i`)); return m?Number(m[1]):null; };
-  return {marks_obtained:marks,attempted:get("A"),correct:get("C"),wrong:get("W"),skipped:get("S"),raw_data:{source_cell:text}};
+  // Source reports sometimes omit commas, e.g. "61 A:24,C:17 W:7,S:6".
+  // Parse each labelled count independently rather than requiring punctuation.
+  const get = key => {
+    const m = text.match(new RegExp(`(?:^|[^A-Z])${key}\\s*[:=]\\s*(\\d+)`, "i"));
+    return m ? Number(m[1]) : null;
+  };
+  return {
+    marks_obtained: marks,
+    attempted: get("A"),
+    correct: get("C"),
+    wrong: get("W"),
+    skipped: get("S"),
+    raw_data: { source_cell: text }
+  };
 }
 function deriveStream(row) {
   const explicit = String(excelValue(row,["Stream"]) || "").trim().toUpperCase();
@@ -8480,8 +8843,11 @@ function parseSirExcelRow(row,index){
   const maxExplicit=cleanNumber(excelValue(row,["Max Marks","Maximum Marks"]));
   const maxMarks=marksPair.max ?? maxExplicit;
   const obtained=marksPair.obtained;
-  let percentage=cleanNumber(excelValue(row,["%TAGE","Percentage","%","Percent"]));
-  if(percentage===null && obtained!==null && maxMarks!==null && maxMarks>0) percentage=Number(((obtained/maxMarks)*100).toFixed(2));
+  const importedPercentage=cleanNumber(excelValue(row,["%TAGE","Percentage","%","Percent"]));
+  // Recalculate score percentage from marks whenever possible; do not trust a stale/mis-mapped Excel %.
+  let percentage=(obtained!==null && maxMarks!==null && maxMarks>0)
+    ? Number(((obtained/maxMarks)*100).toFixed(2))
+    : importedPercentage;
   const percentile=cleanNumber(excelValue(row,["%TILE","Percentile"]));
   const batchRankRaw=excelValue(row,["Batch Rank"]), overallRankRaw=excelValue(row,["Overall Rank","Rank"]);
   const batchRank=/^ab$/i.test(String(batchRankRaw).trim())?null:cleanNumber(batchRankRaw);
@@ -8497,15 +8863,59 @@ function parseSirExcelRow(row,index){
   return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,mode:dateMode.mode,test_type:String(excelValue(row,["Exam Type","Test Type","Category"] )||"").trim()||null,stream:deriveStream(row),max_marks:maxMarks,marks_obtained:obtained,percentage,percentile,batch_rank:batchRank,overall_rank:overallRank,status,subjects,raw_data:row};
 }
 
-async function loadResults(){
-  const tbody=document.getElementById("resultsTableBody"); if(!tbody)return;
-  tbody.innerHTML='<tr><td colspan="11" class="empty">Loading results...</td></tr>';
-  const [r1,r2]=await Promise.all([
-    supabaseClient.from("student_test_results").select("*").order("test_date",{ascending:false}).order("created_at",{ascending:false}),
-    supabaseClient.from("student_test_subject_results").select("*")
-  ]);
-  if(r1.error){ console.error("Results load error",r1.error); tbody.innerHTML=`<tr><td colspan="11" class="empty">Unable to load results: ${escapeHtml(r1.error.message||"Unknown error")}</td></tr>`; return; }
-  adminResults=r1.data||[]; adminResultSubjects=r2.data||[]; populateResultTestSelect(); renderResults();
+// Supabase/PostgREST commonly caps a response at 1,000 rows. Fetch pages
+// explicitly so the Results screen never silently omits later subject rows.
+async function fetchAllResultRows(tableName, selectColumns, configureQuery) {
+  const pageSize = 1000;
+  const rows = [];
+  for (let from = 0; ; from += pageSize) {
+    let query = supabaseClient.from(tableName).select(selectColumns);
+    if (typeof configureQuery === "function") query = configureQuery(query);
+    const { data, error } = await query.range(from, from + pageSize - 1);
+    if (error) throw error;
+    const page = data || [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
+async function loadResults() {
+  const tbody = document.getElementById("resultsTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML =
+    '<tr><td colspan="11" class="empty">Loading results...</td></tr>';
+
+  try {
+    const [results, subjects] = await Promise.all([
+      fetchAllResultRows("student_test_results", "*", query =>
+        query.order("test_date", { ascending: false })
+             .order("created_at", { ascending: false })
+             .order("id", { ascending: true })
+      ),
+      fetchAllResultRows("student_test_subject_results", "*", query =>
+        query.order("id", { ascending: true })
+      )
+    ]);
+
+    adminResults = results;
+    adminResultSubjects = subjects;
+    console.info(
+      `Results loaded: ${adminResults.length} test records; ` +
+      `${adminResultSubjects.length} subject records.`
+    );
+
+    populateResultTestSelect();
+    renderResults();
+  } catch (error) {
+    console.error("Results load error:", error);
+    tbody.innerHTML =
+      '<tr><td colspan="11" class="empty">' +
+      'Unable to load results: ' +
+      escapeHtml(error.message || "Unknown database error") +
+      '</td></tr>';
+  }
 }
 function populateResultTestSelect(){
   const sel=document.getElementById("resultTestFilter"); if(!sel)return;
@@ -8517,15 +8927,22 @@ function renderResults(){
   const studentMap=Object.fromEntries((allStudents||[]).map(s=>[s.id,s]));
   const search=(document.getElementById("resultSearch")?.value||"").trim().toLowerCase();
   const testFilter=document.getElementById("resultTestFilter")?.value||""; const subjectFilter=document.getElementById("resultSubjectFilter")?.value||"";
-  const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
+  const subjectsByResultId = new Map();
+  adminResultSubjects.forEach(subjectRow => {
+    const key = String(subjectRow.result_id);
+    if (!subjectsByResultId.has(key)) subjectsByResultId.set(key, []);
+    subjectsByResultId.get(key).push(subjectRow);
+  });
+  const getSubjects = resultId => subjectsByResultId.get(String(resultId)) || [];
+  const filtered=adminResults.filter(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const hay=`${r.exam_name||""} ${st?.full_name||""} ${st?.student_uid||""}`.toLowerCase(); if(search&&!hay.includes(search))return false; if(testFilter&&r.exam_name!==testFilter)return false; if(subjectFilter&&!subs.some(x=>x.subject===subjectFilter))return false; return true; });
   const appeared=adminResults.filter(r=>String(r.status||"").trim().toUpperCase()!=="AB");
-  const pcts=appeared.map(r=>r.percentage===null||r.percentage===undefined||String(r.percentage).trim()===""?null:Number(r.percentage)).filter(v=>v!==null&&Number.isFinite(v));
+  const pcts=appeared.map(resultScorePercentage).filter(v=>v!==null);
   document.getElementById("totalResults").textContent=adminResults.length;
   document.getElementById("resultStudents").textContent=new Set(appeared.map(r=>r.student_id).filter(Boolean)).size;
   document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"—";
   document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"—";
   if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty">No SIR results found.</td></tr>'; return; }
-  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=adminResultSubjects.filter(x=>x.result_id===r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${r.percentage==null?"—":escapeHtml(r.percentage)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
+  tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${resultScorePercentage(r)==null?"—":resultScorePercentage(r).toFixed(2)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
 }
 
 function questionResultClass(result){
@@ -8549,7 +8966,7 @@ async function openQuestionAnalysis(resultId){
   const modal=document.getElementById("questionAnalysisModal");
   document.getElementById("questionAnalysisTitle").textContent=`Question-wise Analysis — ${result.exam_name||"Test"}`;
   document.getElementById("questionAnalysisSubtitle").textContent=`${student?.full_name||"Student"} • ${result.test_date||"—"} • ${result.mode||"—"}`;
-  document.getElementById("questionAnalysisSummary").innerHTML=`<div class="question-summary-card"><span>Marks</span><strong>${String(result.status||"").toUpperCase()==="AB"?"AB":`${escapeHtml(result.marks_obtained??"—")}/${escapeHtml(result.max_marks??"—")}`}</strong></div><div class="question-summary-card"><span>Percentage</span><strong>${result.percentage==null?"—":escapeHtml(result.percentage)+"%"}</strong></div><div class="question-summary-card"><span>Percentile</span><strong>${result.percentile==null?"—":escapeHtml(result.percentile)}</strong></div><div class="question-summary-card"><span>Ranks</span><strong>${result.batch_rank??"—"} / ${result.overall_rank??"—"}</strong></div>`;
+  document.getElementById("questionAnalysisSummary").innerHTML=`<div class="question-summary-card"><span>Marks</span><strong>${String(result.status||"").toUpperCase()==="AB"?"AB":`${escapeHtml(result.marks_obtained??"—")}/${escapeHtml(result.max_marks??"—")}`}</strong></div><div class="question-summary-card"><span>Percentage</span><strong>${resultScorePercentage(result)==null?"—":resultScorePercentage(result).toFixed(2)+"%"}</strong></div><div class="question-summary-card"><span>Percentile</span><strong>${result.percentile==null?"—":escapeHtml(result.percentile)}</strong></div><div class="question-summary-card"><span>Ranks</span><strong>${result.batch_rank??"—"} / ${result.overall_rank??"—"}</strong></div>`;
   document.getElementById("questionAnalysisBody").innerHTML='<div class="question-empty">Loading question responses...</div>'; modal.classList.add("show");
   const {data,error}=await supabaseClient.from("student_question_results").select("*").eq("result_id",resultId).order("subject").order("question_number");
   if(error){
@@ -8566,7 +8983,7 @@ async function openQuestionAnalysis(resultId){
 }
 function closeQuestionAnalysis(){document.getElementById("questionAnalysisModal")?.classList.remove("show");}
 
-function openExcelImportModal(){ excelImportRows=[];excelValidRows=[];excelQuestionRows=[];excelFileHash="";document.getElementById("resultExcelFile").value="";document.getElementById("excelFileName").textContent="No file selected";document.getElementById("excelPreviewWrap").style.display="none";document.getElementById("excelPreviewWrap").innerHTML="";document.getElementById("excelImportSummary").innerHTML="";document.getElementById("importExcelRowsBtn").disabled=true;hideExcelImportMessage();document.getElementById("excelResultModal").classList.add("show"); }
+function openExcelImportModal(){ excelImportRows=[];excelValidRows=[];excelQuestionRows=[];excelFileHash="";excelExistingBatch=null;document.getElementById("resultExcelFile").value="";document.getElementById("excelFileName").textContent="No file selected";document.getElementById("excelPreviewWrap").style.display="none";document.getElementById("excelPreviewWrap").innerHTML="";document.getElementById("excelImportSummary").innerHTML="";document.getElementById("importExcelRowsBtn").disabled=true;hideExcelImportMessage();document.getElementById("excelResultModal").classList.add("show"); }
 
 async function sha256Hex(buffer){
   const digest=await crypto.subtle.digest("SHA-256",buffer);
@@ -8584,7 +9001,7 @@ function isQuestionSheetName(name){return /question|response|answer/i.test(Strin
 function parseQuestionExcelRow(row,index){
   const uid=String(excelValue(row,["Student UID","Student ID","UID","Roll Number","Roll No","Roll"])||"").trim();
   const name=String(excelValue(row,["Student Name","Name"])||"").trim();
-  const maps=resultStudentMaps(); const student=maps.byUid[uid.toLowerCase()]||maps.byName[name.toLowerCase()]||null;
+  const student=findResultStudent(uid,name);
   const examName=String(excelValue(row,["Exam Name","Test Name","Test","Exam"])||"").trim();
   const dateValue=excelValue(row,["Date","Test Date","Date/Mode"]);
   const dateMode=parseDateMode(dateValue,row);
@@ -8601,129 +9018,308 @@ function parseQuestionExcelRow(row,index){
   else if(!examName) error="Exam name missing";
   else if(!subject) error="Subject missing";
   else if(questionNumber===null) error="Question number missing";
-  return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,subject,question_number:questionNumber,student_answer:studentAnswer||null,correct_answer:correctAnswer||null,result,marks_obtained:marks,raw_data:row};
+  return {rowNumber:index+2,error,student_id:student?.id||null,student_uid:student?.student_uid||uid,student_name:student?.full_name||name,exam_name:examName,test_date:dateMode.date||null,mode:dateMode.mode,test_type:String(excelValue(row,["Exam Type","Test Type","Category"])||"").trim()||null,stream:String(excelValue(row,["Stream"])||"").trim()||null,subject,question_number:questionNumber,student_answer:studentAnswer||null,correct_answer:correctAnswer||null,result,marks_obtained:marks,raw_data:row};
 }
-async function handleResultExcelFile(event){ const file=event.target.files?.[0];if(!file)return;document.getElementById("excelFileName").textContent=file.name;hideExcelImportMessage();document.getElementById("importExcelRowsBtn").disabled=true;excelFileHash=""; try{const buffer=await file.arrayBuffer();excelFileHash=await sha256Hex(buffer);const {data:existingHash,error:hashError}=await supabaseClient.from("result_import_batches").select("id,file_name,status,imported_at").eq("file_hash",excelFileHash).limit(1);if(hashError)throw hashError;if(existingHash?.length){const old=existingHash[0];throw new Error(`This Excel file has already been imported${old.file_name?` as ${old.file_name}`:""}. Duplicate import blocked.`);}const wb=XLSX.read(buffer,{type:"array",cellDates:true});const firstName=wb.SheetNames[0];const sh=wb.Sheets[firstName];const rows=XLSX.utils.sheet_to_json(sh,{defval:"",raw:false});if(!rows.length)throw new Error("The selected first sheet is empty.");const {data:importStudents,error:importStudentsError}=await supabaseClient.from("students").select("id,student_uid,full_name,email,phone,is_active,course_id,batch_id");if(importStudentsError)throw importStudentsError;allStudents=importStudents||[];excelImportRows=rows;excelValidRows=rows.map(parseSirExcelRow);excelQuestionRows=[];const qSheetName=wb.SheetNames.find(isQuestionSheetName);if(qSheetName){const qRows=XLSX.utils.sheet_to_json(wb.Sheets[qSheetName],{defval:"",raw:false});excelQuestionRows=qRows.map(parseQuestionExcelRow);}
-renderExcelPreview(excelValidRows);if(excelQuestionRows.length){const qValid=excelQuestionRows.filter(q=>!q.error).length;showExcelImportMessage(`${excelValidRows.length} test row(s) ready. ${excelQuestionRows.length} question response row(s) detected; ${qValid} valid.`,excelQuestionRows.some(q=>q.error)?"error":"success");}}catch(e){console.error(e);excelFileHash="";document.getElementById("excelPreviewWrap").style.display="none";document.getElementById("excelPreviewWrap").innerHTML="";document.getElementById("excelImportSummary").innerHTML="";showExcelImportMessage(e.message||"Unable to read Excel.","error");} }
+async function handleResultExcelFile(event){
+  const file=event.target.files?.[0];
+  if(!file)return;
+  document.getElementById("excelFileName").textContent=file.name;
+  hideExcelImportMessage();
+  document.getElementById("importExcelRowsBtn").disabled=true;
+  excelFileHash="";
+  excelExistingBatch=null;
+  try{
+    const buffer=await file.arrayBuffer();
+    excelFileHash=await sha256Hex(buffer);
+    const {data:existingHash,error:hashError}=await supabaseClient
+      .from("result_import_batches")
+      .select("id,file_name,status,imported_at,raw_metadata")
+      .eq("file_hash",excelFileHash)
+      .limit(1);
+    if(hashError)throw hashError;
+    if(existingHash?.length)excelExistingBatch=existingHash[0];
+
+    const wb=XLSX.read(buffer,{type:"array",cellDates:true});
+    const firstName=wb.SheetNames[0];
+    const sh=wb.Sheets[firstName];
+    const rows=XLSX.utils.sheet_to_json(sh,{defval:"",raw:false});
+    if(!rows.length)throw new Error("The selected first sheet is empty.");
+    const {data:importStudents,error:importStudentsError}=await supabaseClient
+      .from("students")
+      .select("id,student_uid,full_name,email,phone,is_active,course_id,batch_id");
+    if(importStudentsError)throw importStudentsError;
+    allStudents=importStudents||[];
+    excelImportRows=rows;
+    excelValidRows=rows.map(parseSirExcelRow);
+    excelQuestionRows=[];
+    const qSheetName=wb.SheetNames.find(isQuestionSheetName);
+    if(qSheetName){
+      const qRows=XLSX.utils.sheet_to_json(wb.Sheets[qSheetName],{defval:"",raw:false});
+      excelQuestionRows=qRows.map(parseQuestionExcelRow);
+    }
+    renderExcelPreview(excelValidRows);
+    const validQ=excelQuestionRows.filter(q=>!q.error).length;
+    if(excelExistingBatch){
+      showExcelImportMessage(
+        `This file has a previous import batch (status: ${excelExistingBatch.status}). Safe retry mode is enabled: existing result rows will be preserved, missing subject rows can be recovered, and duplicate question rows will be skipped.`,
+        "success"
+      );
+    }else if(excelQuestionRows.length){
+      showExcelImportMessage(`${excelValidRows.length} test row(s) ready. ${excelQuestionRows.length} question response row(s) detected; ${validQ} valid.`,excelQuestionRows.some(q=>q.error)?"error":"success");
+    }
+  }catch(e){
+    console.error(e);
+    excelFileHash="";
+    excelExistingBatch=null;
+    document.getElementById("excelPreviewWrap").style.display="none";
+    document.getElementById("excelPreviewWrap").innerHTML="";
+    document.getElementById("excelImportSummary").innerHTML="";
+    showExcelImportMessage(e.message||"Unable to read Excel.","error");
+  }
+}
 
 function renderExcelPreview(rows){ const valid=rows.filter(r=>!r.error), invalid=rows.length-valid.length; excelValidRows=valid; document.getElementById("excelImportSummary").innerHTML=`<div class="excel-chip">Rows: <strong>${rows.length}</strong></div><div class="excel-chip excel-valid">Valid: <strong>${valid.length}</strong></div><div class="excel-chip ${invalid?"excel-invalid":"excel-valid"}">Invalid: <strong>${invalid}</strong></div>`; document.getElementById("importExcelRowsBtn").disabled=!valid.length; const wrap=document.getElementById("excelPreviewWrap");wrap.style.display=rows.length?"block":"none";wrap.innerHTML=`<table><thead><tr><th>Row</th><th>Status</th><th>Student</th><th>Exam</th><th>Date/Mode</th><th>Marks</th><th>Subjects</th><th>%</th><th>%tile</th><th>Ranks</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.rowNumber}</td><td class="${r.error?"excel-invalid":"excel-valid"}">${escapeHtml(r.error||"Ready")}</td><td>${escapeHtml(r.student_name||r.student_uid||"—")}</td><td>${escapeHtml(r.exam_name||"—")}</td><td>${escapeHtml(r.test_date||"—")} ${escapeHtml(r.mode||"")}</td><td>${r.status==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")}/${escapeHtml(r.max_marks??"—")}`}</td><td>${r.subjects.map(s=>`${escapeHtml(s.subject)}:${escapeHtml(s.marks_obtained??"—")}`).join(" | ")||"—"}</td><td>${r.percentage??"—"}</td><td>${r.percentile??"—"}</td><td>${r.batch_rank??"—"} / ${r.overall_rank??"—"}</td></tr>`).join("")}</tbody></table>`; if(invalid)showExcelImportMessage("Some rows need correction. Only valid rows will be imported.","error");else showExcelImportMessage("All rows are valid and ready to import.","success"); }
 async function importValidExcelRows(){
   if(!excelValidRows.length)return;
   if(!excelFileHash){showExcelImportMessage("Please select the Excel file again before importing.","error");return;}
-  const btn=document.getElementById("importExcelRowsBtn");btn.disabled=true;btn.textContent="Checking duplicates...";
+  const btn=document.getElementById("importExcelRowsBtn");
+  btn.disabled=true;
+  btn.textContent="Checking duplicates...";
+  let activeBatchId=excelExistingBatch?.id||null;
   try{
-    const sourceKeys=excelValidRows.map(buildResultSourceKey);
     const seenKeys=new Set();
     const duplicateInFile=[];
     const uniqueRows=[];
-
-    excelValidRows.forEach((row,index)=>{
-      const key=sourceKeys[index];
-      if(seenKeys.has(key)){
-        duplicateInFile.push(row);
-      }else{
-        seenKeys.add(key);
-        uniqueRows.push(row);
-      }
+    excelValidRows.forEach(row=>{
+      const key=buildResultSourceKey(row);
+      if(seenKeys.has(key))duplicateInFile.push(row);
+      else{seenKeys.add(key);uniqueRows.push(row);}
     });
 
+    const uniqueSourceKeys=[...new Set(uniqueRows.map(buildResultSourceKey))];
     const existingKeys=new Set();
-    // Keep database duplicate protection, but avoid making hundreds of
-    // duplicate-check requests one after another. Each request stays small
-    // enough for PostgREST, while up to 5 requests are checked in parallel.
-    const uniqueSourceKeys=[...new Set(sourceKeys)];
-    const duplicateCheckChunks=[];
     for(let i=0;i<uniqueSourceKeys.length;i+=50){
       const chunk=uniqueSourceKeys.slice(i,i+50);
-      if(chunk.length)duplicateCheckChunks.push(chunk);
+      const {data,error}=await supabaseClient.from("student_test_results").select("id,source_key").in("source_key",chunk);
+      if(error)throw error;
+      (data||[]).forEach(r=>{if(r.source_key)existingKeys.add(r.source_key);});
     }
-
-    for(let i=0;i<duplicateCheckChunks.length;i+=5){
-      const requestBatch=duplicateCheckChunks.slice(i,i+5);
-      const responses=await Promise.all(requestBatch.map(chunk=>
-        supabaseClient
-          .from("student_test_results")
-          .select("id,source_key")
-          .in("source_key",chunk)
-      ));
-
-      for(const response of responses){
-        if(response.error)throw response.error;
-        (response.data||[]).forEach(row=>{
-          if(row.source_key)existingKeys.add(row.source_key);
-        });
-      }
-    }
-
     const rowsToImport=uniqueRows.filter(row=>!existingKeys.has(buildResultSourceKey(row)));
     const skippedExisting=uniqueRows.length-rowsToImport.length;
     const skippedTotal=duplicateInFile.length+skippedExisting;
+    const validQuestions=excelQuestionRows.filter(q=>!q.error);
 
-    if(!rowsToImport.length){
-      const detail=[];
-      if(duplicateInFile.length)detail.push(`${duplicateInFile.length} duplicate row(s) inside the Excel`);
-      if(skippedExisting)detail.push(`${skippedExisting} result(s) already present in SIR Results`);
-      showExcelImportMessage(`Nothing new to import. ${detail.join("; ")||"All valid rows were duplicates."}. Existing data was preserved.` ,"error");
-      btn.disabled=false;
-      btn.textContent="Import Valid Rows";
+    // A results-only retry may have nothing new to insert, but question rows or
+    // missing subject rows can still need recovery from the same workbook.
+    if(!rowsToImport.length && !uniqueRows.some(r=>r.subjects?.length) && !validQuestions.length){
+      showExcelImportMessage(`Nothing new to import. ${skippedTotal} duplicate/existing result row(s) were preserved.`,"error");
       return;
     }
 
-    btn.textContent="Importing...";
-    const fileName=document.getElementById("excelFileName").textContent||"result.xlsx";
-    const {data:batch,error:be}=await supabaseClient.from("result_import_batches").insert({
-      file_name:fileName,
-      file_hash:excelFileHash,
-      status:"processing",
-      total_rows:excelImportRows.length,
-      valid_rows:rowsToImport.length,
-      invalid_rows:excelImportRows.length-excelValidRows.length,
-      raw_metadata:{format:"SIR_RESULT_V2",question_sheet_rows:excelQuestionRows.length,duplicate_rows_skipped:skippedTotal,duplicate_rows_inside_file:duplicateInFile.length,existing_results_skipped:skippedExisting}
-    }).select().single();
-    if(be)throw be;
+    btn.textContent="Preparing import batch...";
+    let batch=excelExistingBatch;
+    if(!batch){
+      const fileName=document.getElementById("excelFileName").textContent||"result.xlsx";
+      const {data,error}=await supabaseClient.from("result_import_batches").insert({
+        file_name:fileName,
+        file_hash:excelFileHash,
+        status:"processing",
+        total_rows:excelImportRows.length,
+        valid_rows:rowsToImport.length,
+        invalid_rows:excelImportRows.length-excelValidRows.length,
+        raw_metadata:{format:"SIR_RESULT_V2",question_sheet_rows:excelQuestionRows.length,duplicate_rows_skipped:skippedTotal,duplicate_rows_inside_file:duplicateInFile.length,existing_results_skipped:skippedExisting}
+      }).select().single();
+      if(error)throw error;
+      batch=data;
+      activeBatchId=batch.id;
+      excelExistingBatch=batch;
+    }else{
+      const {error}=await supabaseClient.from("result_import_batches").update({
+        status:"processing",
+        total_rows:excelImportRows.length,
+        valid_rows:rowsToImport.length,
+        invalid_rows:excelImportRows.length-excelValidRows.length,
+        raw_metadata:{...(batch.raw_metadata||{}),format:"SIR_RESULT_V2",retry_attempted_at:new Date().toISOString(),question_sheet_rows:excelQuestionRows.length,duplicate_rows_skipped:skippedTotal,duplicate_rows_inside_file:duplicateInFile.length,existing_results_skipped:skippedExisting}
+      }).eq("id",batch.id);
+      if(error)throw error;
+    }
 
     const resultMap=new Map();
+    const rowByKey=new Map(uniqueRows.map(row=>[buildResultSourceKey(row),row]));
     for(const row of rowsToImport){
       const payload={student_id:row.student_id,import_batch_id:batch.id,exam_name:row.exam_name,test_date:row.test_date,mode:row.mode,test_type:row.test_type,stream:row.stream,max_marks:row.max_marks,marks_obtained:row.marks_obtained,percentage:row.percentage,percentile:row.percentile,batch_rank:row.batch_rank,overall_rank:row.overall_rank,status:row.status,source_row_number:row.rowNumber,source_key:buildResultSourceKey(row),raw_data:row.raw_data};
       const {data:res,error:re}=await supabaseClient.from("student_test_results").insert(payload).select().single();
       if(re)throw re;
-      resultMap.set(`${row.student_id}|${row.exam_name}|${row.test_date||""}`,res.id);
-      if(row.subjects.length){
-        const sp=row.subjects.map(x=>({result_id:res.id,subject:x.subject,marks_obtained:x.marks_obtained,attempted:x.attempted,correct:x.correct,wrong:x.wrong,skipped:x.skipped,raw_data:x.raw_data}));
-        const {error:se}=await supabaseClient.from("student_test_subject_results").insert(sp);
-        if(se)throw se;
-      }
+      resultMap.set(buildResultSourceKey(row),res.id);
     }
 
-    const validQuestions=excelQuestionRows.filter(q=>!q.error);
+    // Fetch existing results for all students represented in this workbook.
+    // This lets question responses link to already-imported results on retries.
+    const studentIds=[...new Set(uniqueRows.map(r=>r.student_id).concat(validQuestions.map(q=>q.student_id)).filter(Boolean))];
+    const dbResults=[];
+    for(let i=0;i<studentIds.length;i+=100){
+      const ids=studentIds.slice(i,i+100);
+      const pageRows=await fetchAllResultRows("student_test_results","id,student_id,exam_name,test_date,mode,test_type,stream,source_key",query=>query.in("student_id",ids).order("id",{ascending:true}));
+      dbResults.push(...pageRows);
+    }
+    const dbByKey=new Map();
+    dbResults.forEach(r=>{if(r.source_key)dbByKey.set(r.source_key,r.id);});
+    resultMap.forEach((id,key)=>dbByKey.set(key,id));
+    // Include matching existing result IDs even when their source key is absent.
+    const getResultIdForRow=row=>{
+      const key=buildResultSourceKey(row);
+      if(dbByKey.has(key))return dbByKey.get(key);
+      const matches=dbResults.filter(r=>r.student_id===row.student_id && String(r.exam_name||"").trim().toLowerCase()===String(row.exam_name||"").trim().toLowerCase() && String(r.test_date||"")===String(row.test_date||"") && String(r.mode||"").trim().toLowerCase()===String(row.mode||"").trim().toLowerCase() && String(r.test_type||"").trim().toLowerCase()===String(row.test_type||"").trim().toLowerCase() && String(r.stream||"").trim().toLowerCase()===String(row.stream||"").trim().toLowerCase());
+      return matches.length===1?matches[0].id:null;
+    };
+
+    // Idempotently restore missing subject rows for both newly inserted and
+    // previously imported results. Existing subject values are never overwritten.
+    const subjectPayload=[];
+    for(const row of uniqueRows){
+      const resultId=getResultIdForRow(row);
+      if(!resultId||!row.subjects?.length)continue;
+      row.subjects.forEach(x=>subjectPayload.push({result_id:resultId,subject:x.subject,marks_obtained:x.marks_obtained,attempted:x.attempted,correct:x.correct,wrong:x.wrong,skipped:x.skipped,raw_data:x.raw_data}));
+    }
+    if(subjectPayload.length){
+      const {error:se}=await supabaseClient.from("student_test_subject_results").upsert(subjectPayload,{onConflict:"result_id,subject",ignoreDuplicates:true});
+      if(se)throw se;
+    }
+
+    let matchedQuestionCount=0;
     if(validQuestions.length){
       const qPayload=[];
+      let ambiguousOrMissing=0;
       for(const q of validQuestions){
-        const resultId=resultMap.get(`${q.student_id}|${q.exam_name}|${q.test_date||""}`);
-        if(resultId)qPayload.push({result_id:resultId,student_id:q.student_id,subject:q.subject,question_number:q.question_number,student_answer:q.student_answer,correct_answer:q.correct_answer,result:q.result,is_correct:q.result.toLowerCase()==="correct",is_skipped:q.result.toLowerCase()==="skipped",marks_obtained:q.marks_obtained,raw_data:q.raw_data});
+        const candidates=dbResults.filter(row=>
+          row.student_id===q.student_id &&
+          String(row.exam_name||"").trim().toLowerCase()===String(q.exam_name||"").trim().toLowerCase() &&
+          String(row.test_date||"")===String(q.test_date||"") &&
+          (!q.mode||String(row.mode||"").trim().toLowerCase()===String(q.mode).trim().toLowerCase()) &&
+          (!q.test_type||String(row.test_type||"").trim().toLowerCase()===String(q.test_type).trim().toLowerCase()) &&
+          (!q.stream||String(row.stream||"").trim().toLowerCase()===String(q.stream).trim().toLowerCase())
+        );
+        const resultId=candidates.length===1?candidates[0].id:null;
+        if(!resultId){ambiguousOrMissing++;continue;}
+        qPayload.push({result_id:resultId,student_id:q.student_id,subject:q.subject,question_number:q.question_number,student_answer:q.student_answer,correct_answer:q.correct_answer,result:q.result,is_correct:q.result.toLowerCase()==="correct",is_skipped:q.result.toLowerCase()==="skipped",marks_obtained:q.marks_obtained,raw_data:q.raw_data});
       }
       if(qPayload.length){
-        const {error:qe}=await supabaseClient.from("student_question_results").insert(qPayload);
+        const {error:qe}=await supabaseClient.from("student_question_results").upsert(qPayload,{onConflict:"result_id,subject,question_number",ignoreDuplicates:true});
         if(qe)throw qe;
+        matchedQuestionCount=qPayload.length;
       }
-    }
+      var unmatchedQuestionCount=ambiguousOrMissing;
+    }else var unmatchedQuestionCount=0;
 
-    const allGood=excelImportRows.length===excelValidRows.length && excelQuestionRows.every(q=>!q.error);
-    await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors"),imported_at:new Date().toISOString()}).eq("id",batch.id);
-    const qmsg=validQuestions.length?` ${validQuestions.length} question response(s) detected.`:"";
-    const skipMsg=skippedTotal?` ${skippedTotal} duplicate row(s) skipped; existing data was not overwritten.`:"";
-    showExcelImportMessage(`${rowsToImport.length} SIR result row(s) imported successfully.${skipMsg}${qmsg}`,"success");
+    const allGood=excelImportRows.length===excelValidRows.length && excelQuestionRows.every(q=>!q.error) && unmatchedQuestionCount===0;
+    const {error:batchUpdateError}=await supabaseClient.from("result_import_batches").update({status:(allGood?"completed":"completed_with_errors"),imported_at:new Date().toISOString()}).eq("id",batch.id);
+    if(batchUpdateError)throw batchUpdateError;
+    if(excelExistingBatch)excelExistingBatch={...excelExistingBatch,status:allGood?"completed":"completed_with_errors",imported_at:new Date().toISOString()};
+    const qmsg=validQuestions.length?` ${matchedQuestionCount} question response row(s) matched to a result; ${unmatchedQuestionCount} were missing/ambiguous. Duplicate question keys were safely skipped.`:"";
+    const skipMsg=skippedTotal?` ${skippedTotal} duplicate/existing result row(s) skipped; existing results were preserved.`:"";
+    showExcelImportMessage(`${rowsToImport.length} new result row(s) imported. Missing subject rows were recovered where possible.${skipMsg}${qmsg}`,allGood?"success":"error");
     await loadResults();
-    setTimeout(closeExcelImportModal,1300);
   }catch(e){
     console.error("SIR result import error",e);
+    if(activeBatchId){
+      try{
+        await supabaseClient.from("result_import_batches").update({status:"completed_with_errors",imported_at:new Date().toISOString()}).eq("id",activeBatchId);
+      }catch(statusError){console.error("Could not mark import batch as failed:",statusError);}
+    }
     const duplicate=e?.code==="23505"||/duplicate key|unique constraint/i.test(String(e?.message||""));
-    showExcelImportMessage(duplicate?"A duplicate result was detected during import. Existing data was protected; please retry the remaining new rows.":(e.message||"Unable to import SIR results."),"error");
+    showExcelImportMessage(duplicate?"A duplicate key was detected. Existing data was preserved; retry is safe, and duplicate question/subject keys will be skipped.":(e.message||"Unable to import SIR results."),"error");
   }finally{
     btn.disabled=excelValidRows.length===0;
     btn.textContent="Import Valid Rows";
   }
 }
+
+async function repairMissingResultSubjects() {
+  const btn = document.getElementById("repairMissingSubjectsBtn");
+  if (!btn) return;
+  if (!adminResults.length) {
+    alert("Load Results first. No result rows are currently available.");
+    return;
+  }
+  const proceed = window.confirm(
+    "This will only add subject rows for results that currently have ZERO subject rows, using the saved raw Excel row. Existing subject rows will not be changed or deleted. Continue?"
+  );
+  if (!proceed) return;
+
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Checking subject rows...";
+  try {
+    const existing = await fetchAllResultRows(
+      "student_test_subject_results",
+      "result_id,subject",
+      query => query.order("id", { ascending: true })
+    );
+
+    const resultIdsWithSubjects = new Set(existing.map(x => x.result_id));
+    const candidates = adminResults.filter(r =>
+      !resultIdsWithSubjects.has(r.id) &&
+      String(r.status || "").trim().toUpperCase() !== "AB" &&
+      r.raw_data && typeof r.raw_data === "object"
+    );
+
+    const payload = [];
+    let noSubjectSource = 0;
+    for (const result of candidates) {
+      const raw = result.raw_data;
+      const definitions = [
+        ["Physics", ["PHY", "Physics"]],
+        ["Chemistry", ["CHEM", "Chemistry"]],
+        ["Mathematics", ["MATH", "Math", "Mathematics"]],
+        ["Biology", ["BIO", "Biology"]]
+      ];
+      const parsed = [];
+      for (const [subject, aliases] of definitions) {
+        const value = excelValue(raw, aliases);
+        const item = parseSubjectCell(value);
+        if (item) parsed.push({
+          result_id: result.id,
+          subject,
+          marks_obtained: item.marks_obtained,
+          attempted: item.attempted,
+          correct: item.correct,
+          wrong: item.wrong,
+          skipped: item.skipped,
+          raw_data: item.raw_data
+        });
+      }
+      if (parsed.length) payload.push(...parsed);
+      else noSubjectSource++;
+    }
+
+    if (!payload.length) {
+      alert(`No repairable subject rows found. Checked ${candidates.length} result(s); ${noSubjectSource} had no usable subject cells in saved raw data.`);
+      return;
+    }
+
+    btn.textContent = `Adding ${payload.length} subject rows...`;
+    // Small chunks avoid oversized PostgREST requests.
+    let inserted = 0;
+    for (let i = 0; i < payload.length; i += 100) {
+      const { error } = await supabaseClient
+        .from("student_test_subject_results")
+        .insert(payload.slice(i, i + 100));
+      if (error) throw error;
+      inserted += Math.min(100, payload.length - i);
+    }
+
+    await loadResults();
+    alert(`Repair complete: added ${inserted} subject row(s) for results that had no subject rows. Existing subject rows were not modified.`);
+  } catch (error) {
+    console.error("Missing subject repair failed:", error);
+    alert("Repair stopped: " + (error.message || "Unknown error") + ". No existing subject rows were intentionally overwritten. Check Supabase permissions and refresh Results before retrying.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+document.getElementById("repairMissingSubjectsBtn")?.addEventListener("click", repairMissingResultSubjects);
 
 document.getElementById("resultSearch")?.addEventListener("input",renderResults);
 document.getElementById("resultTestFilter")?.addEventListener("change",renderResults);
