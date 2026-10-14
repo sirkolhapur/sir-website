@@ -7456,20 +7456,6 @@ document
     const button=document.getElementById("generateDspSlotsBtn");
     if(!teacherId||!date)return showDspMessage("Select a teacher and date first.","error");
     if(!isDspManageDate(date))return showDspMessage("Select a date within the 7-day DSP management window.","error");
-    const {data:teacherSetting,error:teacherSettingError}=await supabaseClient
-  .from("dsp_teacher_settings")
-  .select("is_enabled")
-  .eq("teacher_id",teacherId)
-  .maybeSingle();
-
-if(teacherSettingError)throw teacherSettingError;
-
-if(teacherSetting?.is_enabled===false){
-  return showDspMessage(
-    "DSP is disabled for this teacher. Enable DSP from the Teachers section before generating slots.",
-    "error"
-  );
-}
     if(!document.getElementById("dspTeacherAvailable")?.checked)return showDspMessage("Teacher is unavailable for this date. Slots will not be generated.","error");
     button.disabled=true;button.textContent="Generating...";
     try{
@@ -7912,115 +7898,6 @@ if(teacherSetting?.is_enabled===false){
     return row ? row.is_enabled!==false : true;
   }
 
-  async function setDspTeacherEnabled(teacherId, enabled) {
-    if (!dspTeacherSettingsAvailable) {
-      throw new Error("Independent faculty DSP status needs the DSP migration SQL first.");
-    }
-
-    const payload = {
-      teacher_id: teacherId,
-      is_enabled: enabled,
-      updated_at: new Date().toISOString()
-    };
-
-    const { data: existing, error: findError } = await supabaseClient
-      .from("dsp_teacher_settings")
-      .select("id")
-      .eq("teacher_id", teacherId)
-      .maybeSingle();
-    if (findError) throw findError;
-
-    if (existing?.id) {
-      const { error } = await supabaseClient
-        .from("dsp_teacher_settings")
-        .update({ is_enabled: enabled, updated_at: payload.updated_at })
-        .eq("id", existing.id);
-      if (error) throw error;
-    } else {
-      const { error } = await supabaseClient
-        .from("dsp_teacher_settings")
-        .insert(payload);
-      if (error) throw error;
-    }
-
-    // Make the switch operational, not merely a saved label:
-    // OFF blocks every unbooked slot for this teacher and preserves bookings.
-    const { data: slots, error: slotsError } = await supabaseClient
-      .from("dsp_slots")
-      .select("id,slot_date,status")
-      .eq("teacher_id", teacherId);
-    if (slotsError) throw slotsError;
-
-    if (!enabled) {
-      const freeSlotIds = (slots || [])
-        .filter(slot => String(slot.status || "").toLowerCase() === "available")
-        .map(slot => slot.id);
-
-      // Batch updates in chunks to avoid excessively long IN filters.
-      for (let i = 0; i < freeSlotIds.length; i += 100) {
-        const ids = freeSlotIds.slice(i, i + 100);
-        if (!ids.length) continue;
-        const { error } = await supabaseClient
-          .from("dsp_slots")
-          .update({ status: "blocked" })
-          .in("id", ids);
-        if (error) throw error;
-      }
-    } else {
-      // ON only restores unbooked slots where the teacher has saved availability
-      // and at least one mapped subject is still active.
-      const activeSubjects = await getTeacherActiveDspSubjects(teacherId);
-      if (activeSubjects.length) {
-        const uniqueDates = Array.from(new Set((slots || []).map(slot => slot.slot_date).filter(Boolean)));
-        for (const date of uniqueDates) {
-          const { data: availability, error: availabilityError } = await supabaseClient
-            .from("dsp_teacher_availability")
-            .select("is_available,available_from,available_till")
-            .eq("teacher_id", teacherId)
-            .eq("availability_date", date)
-            .maybeSingle();
-          if (availabilityError) throw availabilityError;
-          if (availability?.is_available === false) continue;
-
-          const { data: ranges, error: rangesError } = await supabaseClient
-            .from("dsp_teacher_availability_ranges")
-            .select("start_time,end_time,sort_order")
-            .eq("teacher_id", teacherId)
-            .eq("availability_date", date)
-            .order("sort_order", { ascending: true });
-
-          if (rangesError && rangesError.code !== "42P01") throw rangesError;
-
-          const usableRanges = (ranges || []).map(range => ({
-            from: String(range.start_time || "").slice(0, 5),
-            till: String(range.end_time || "").slice(0, 5)
-          })).filter(range => range.from && range.till);
-
-          // Compatibility with installations still using a single saved range.
-          if (!usableRanges.length && availability?.available_from && availability?.available_till) {
-            usableRanges.push({
-              from: String(availability.available_from).slice(0, 5),
-              till: String(availability.available_till).slice(0, 5)
-            });
-          }
-
-          if (usableRanges.length) {
-            await reconcileDspSlotsForRanges(teacherId, date, usableRanges, true);
-          }
-        }
-      }
-    }
-
-    await loadDspTeacherSettings();
-    await loadDspSlots();
-    renderDspTeachers();
-    showDspMessage(
-      enabled
-        ? "Teacher DSP enabled. Eligible unbooked slots restored; existing bookings preserved."
-        : "Teacher DSP disabled. Unbooked slots blocked; existing bookings preserved.",
-      "success"
-    );
-  }
 
   function renderDspTeachers() {
     const box = document.getElementById("dspTeacherList");
@@ -8078,17 +7955,12 @@ if(teacherSetting?.is_enabled===false){
           </div>
 
           <div class="dsp-teacher-actions">
-            <label class="dsp-mini-toggle">
-              <input type="checkbox" data-dsp-teacher-enabled="${escapeHtml(teacher.id)}" ${dspEnabled ? "checked" : ""}>
-              <span></span>
-              <strong>${dspEnabled ? "DSP ON" : "DSP OFF"}</strong>
-            </label>
             <button
               type="button"
               class="dsp-save"
               data-save-dsp-teacher="${escapeHtml(teacher.id)}"
             >
-              Save
+              Save Subjects
             </button>
           </div>
         </div>
@@ -8112,17 +7984,6 @@ if(teacherSetting?.is_enabled===false){
         });
       });
 
-    document.querySelectorAll("[data-dsp-teacher-enabled]").forEach(input => {
-      input.addEventListener("change", async () => {
-        try {
-          await setDspTeacherEnabled(input.dataset.dspTeacherEnabled, input.checked);
-        } catch (error) {
-          console.error("DSP teacher status error:", error);
-          input.checked = !input.checked;
-          showDspMessage(error?.message || "Unable to update faculty DSP status.", "error");
-        }
-      });
-    });
   }
 
   async function saveDspTeacherAssignments(teacherId, button) {
