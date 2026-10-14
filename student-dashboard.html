@@ -3334,6 +3334,12 @@ function dspDateIsWithinWindow(dateValue) {
   // changing the existing student lookup/schema. Unknown values are not guessed.
   function dspStudentStream() {
     const student = currentStudentForDSP || {};
+    // The verified source of truth is students.course_id -> courses.id.
+    const courseId = String(student.course_id || "").toLowerCase();
+    if (courseId === "f5c1f95a-b27c-4db1-a96c-f3511877f89c") return "JEE";
+    if (courseId === "59a4e7a4-9c13-4ebd-831c-42432a0aafd9") return "NEET";
+
+    // Compatibility fallback for profiles that expose an exam label.
     const candidates = [
       student.stream, student.course, student.target_exam, student.exam,
       student.exam_type, student.program, student.program_name,
@@ -3369,8 +3375,9 @@ function dspDateIsWithinWindow(dateValue) {
     }
 
     const stream = dspStudentStream();
-    dspSubjects = (data || []).filter(subject => dspSubjectAllowedForStream(subject, stream));
-    dspSubjectEl.innerHTML = `<option value="">${stream ? `Select ${stream} subject` : "Select subject"}</option>`;
+    // Fail closed if the student's course cannot be identified.
+    dspSubjects = stream ? (data || []).filter(subject => dspSubjectAllowedForStream(subject, stream)) : [];
+    dspSubjectEl.innerHTML = `<option value="">${stream ? `Select ${stream} subject` : "Course not identified — DSP unavailable"}</option>`;
     dspSubjects.forEach(subject => {
       const option = document.createElement("option");
       option.value = subject.id;
@@ -3681,6 +3688,10 @@ function dspDateIsWithinWindow(dateValue) {
 
     if (!currentStudentForDSP) {
       dspShowMessage("Student account is not ready yet.", "error");
+      return;
+    }
+    if (!dspStudentStream()) {
+      dspShowMessage("Your JEE/NEET course could not be verified. Please contact SIR admin before booking DSP.", "error");
       return;
     }
 
