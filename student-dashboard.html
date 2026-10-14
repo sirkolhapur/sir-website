@@ -3330,6 +3330,31 @@ function dspDateIsWithinWindow(dateValue) {
     }
   }
 
+  // Resolve the student's preparation stream from the profile row without
+  // changing the existing student lookup/schema. Unknown values are not guessed.
+  function dspStudentStream() {
+    const student = currentStudentForDSP || {};
+    const candidates = [
+      student.stream, student.course, student.target_exam, student.exam,
+      student.exam_type, student.program, student.program_name,
+      student.preparation_stream, student.course_type, student.batch_name
+    ].filter(value => value !== null && value !== undefined && String(value).trim());
+    const text = candidates.join(" ").toLowerCase().replace(/[^a-z0-9]+/g, " ");
+    if (/\bneet\b|medical|pcb/.test(text)) return "NEET";
+    if (/\bjee\b|engineering|pcm/.test(text)) return "JEE";
+    return null;
+  }
+
+  function dspSubjectAllowedForStream(subject, stream = dspStudentStream()) {
+    if (!stream) return true; // Do not incorrectly lock a student whose profile has no recognised stream.
+    const label = `${subject?.name || ""} ${subject?.code || ""}`.toLowerCase();
+    const isMaths = /\bmaths?\b|mathematics|\bmath\b/.test(label);
+    const isBiology = /\bbiology\b|\bbio\b|botany|zoology/.test(label);
+    if (stream === "NEET" && isMaths) return false;
+    if (stream === "JEE" && isBiology) return false;
+    return true;
+  }
+
   async function loadDSPSubjects() {
     const { data, error } = await supabaseClient
       .from("dsp_subjects")
@@ -3343,14 +3368,23 @@ function dspDateIsWithinWindow(dateValue) {
       return;
     }
 
-    dspSubjects = data || [];
-    dspSubjectEl.innerHTML = `<option value="">Select subject</option>`;
+    const stream = dspStudentStream();
+    dspSubjects = (data || []).filter(subject => dspSubjectAllowedForStream(subject, stream));
+    dspSubjectEl.innerHTML = `<option value="">${stream ? `Select ${stream} subject` : "Select subject"}</option>`;
     dspSubjects.forEach(subject => {
       const option = document.createElement("option");
       option.value = subject.id;
       option.textContent = subject.name;
       dspSubjectEl.appendChild(option);
     });
+
+    // Explain the stream-specific subject lock to the student.
+    const streamNote = stream === "NEET"
+      ? "NEET DSP subjects: Physics, Chemistry and Biology. Maths is locked for NEET."
+      : stream === "JEE"
+        ? "JEE DSP subjects: Physics, Chemistry and Maths. Biology is locked for JEE."
+        : "Your profile stream could not be identified, so subject options have not been stream-locked.";
+    if (typeof dspShowMessage === "function") dspShowMessage(streamNote, stream ? "info" : "info");
   }
 
   async function loadDSPTopics(subjectId) {
@@ -3651,6 +3685,14 @@ function dspDateIsWithinWindow(dateValue) {
     }
 
     const subjectId = dspSubjectEl.value;
+    const selectedSubject = dspSubjects.find(subject => String(subject.id) === String(subjectId));
+    const studentStream = dspStudentStream();
+    if (selectedSubject && !dspSubjectAllowedForStream(selectedSubject, studentStream)) {
+      dspShowMessage(studentStream === "NEET"
+        ? "Maths DSP is not available for NEET students. Choose Physics, Chemistry or Biology."
+        : "Biology DSP is not available for JEE students. Choose Physics, Chemistry or Maths.", "error");
+      return;
+    }
 const topicId = dspTopicEl.value;
 const teacherId = dspTeacherEl.value;
 const slotId = dspSlotIdEl.value;
