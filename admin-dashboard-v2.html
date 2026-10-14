@@ -2180,6 +2180,20 @@
 .dsp-range-list { display:flex; flex-direction:column; gap:6px; }
     .dsp-range-row label { display:flex; flex-direction:column; gap:5px; }
     @media(max-width:600px){.dsp-range-row{grid-template-columns:1fr 1fr!important}.dsp-range-row button{grid-column:1/-1;width:100%}}
+
+/* SIR V2 dashboard home refresh — additive styles only */
+.dashboard-welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px!important}
+.dashboard-eyebrow,.panel-kicker{font-size:11px;letter-spacing:1.7px;color:#e6b94f;font-weight:800;margin-bottom:9px}
+.dashboard-welcome h1{margin-bottom:8px}.dashboard-welcome p,.section-subtitle{color:#91a6c1;line-height:1.55}.dashboard-date{border:1px solid rgba(230,185,79,.28);background:rgba(230,185,79,.07);border-radius:12px;padding:12px 15px;color:#eac45d;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.dashboard-four-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.dashboard-feature-card{appearance:none;text-align:left;position:relative;min-height:228px;padding:22px 21px 18px;border:1px solid rgba(151,177,209,.14);border-radius:18px;background:linear-gradient(145deg,#10243e,#0b1a2e);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;transition:transform .18s,border-color .18s,box-shadow .18s;overflow:hidden}
+.dashboard-feature-card:after{content:"";position:absolute;width:125px;height:125px;border-radius:50%;right:-50px;top:-48px;background:rgba(229,185,79,.055);pointer-events:none}
+.dashboard-feature-card:hover{transform:translateY(-3px);border-color:rgba(230,185,79,.48);box-shadow:0 14px 32px rgba(0,0,0,.18)}
+.feature-icon{width:42px;height:42px;border-radius:13px;background:rgba(230,185,79,.12);color:#efc75e;display:grid;place-items:center;font-size:24px;margin-bottom:19px}.feature-label{font-size:10px;letter-spacing:1.45px;color:#91a6c1;font-weight:800;margin-bottom:7px}.dashboard-feature-card>strong{font-size:17px;line-height:1.35;min-height:44px}.feature-number{font-size:33px;font-weight:800;letter-spacing:-1px;margin:7px 0 11px;color:#f4f7fb}.feature-word{font-size:27px;color:#eac45d}.feature-foot{width:100%;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.08);padding-top:13px;margin-top:auto;font-size:11px;color:#9db0c8;gap:8px}.feature-foot b{font-size:17px;color:#eac45d}
+.dashboard-lower-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin-top:18px}.dashboard-note-panel,.dashboard-collection-panel{border:1px solid rgba(151,177,209,.13);background:#0c1c30;border-radius:18px;padding:23px}.dashboard-note-panel h3,.dashboard-collection-panel h3{font-size:19px;margin:3px 0 10px}.dashboard-note-panel p{font-size:13px;line-height:1.7;color:#92a7c1;max-width:520px}.collection-head{display:flex;align-items:center;justify-content:space-between}.collection-mark{width:38px;height:38px;border-radius:12px;background:rgba(230,185,79,.12);display:grid;place-items:center;color:#edc35c;font-size:21px;font-weight:800}.collection-metrics{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}.collection-metrics>div+div{border-left:1px solid rgba(255,255,255,.1);padding-left:20px}.collection-metrics span,.fees-summary-card span{display:block;color:#8fa5c0;font-size:12px;margin-bottom:9px}.collection-metrics strong{font-size:24px;color:#f3f6fb}.text-action{background:transparent;border:0;color:#eac45d;font-size:12px;font-weight:700;cursor:pointer;padding:0}.text-action b{font-size:17px;margin-left:6px}.data-connection-note{font-size:10px;line-height:1.5;color:#7188a4;margin-top:12px}.fees-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:18px 0}.fees-summary-card{border:1px solid rgba(151,177,209,.14);border-radius:16px;padding:22px;background:#0e2036}.fees-summary-card strong{display:block;font-size:29px;color:#f5f7fa;margin-bottom:8px}.fees-summary-card small{color:#8198b4;font-size:11px}.fees-connection-card{display:flex;align-items:flex-start;gap:16px;padding:22px}.fees-connection-icon{flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:rgba(230,185,79,.12);display:grid;place-items:center;color:#eac45d;font-size:23px}.fees-connection-card h3{margin:2px 0 8px}.fees-connection-card p{font-size:13px;color:#91a6c1;line-height:1.65}
+@media(max-width:1200px){.dashboard-four-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-feature-card{min-height:210px}}
+@media(max-width:700px){.dashboard-welcome{align-items:flex-start;flex-direction:column}.dashboard-four-grid,.dashboard-lower-grid,.fees-summary-grid{grid-template-columns:1fr}.dashboard-feature-card{min-height:190px}.dashboard-date{align-self:flex-start}.collection-metrics strong{font-size:21px}}
+
 </style>
 </head>
 
@@ -2311,41 +2325,34 @@
     <!-- OVERVIEW -->
 
     <section class="section active" id="overview">
-
-      <div class="page-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage the academic system of Suryavanshi Institute for Rankers.</p>
+      <div class="page-header dashboard-welcome">
+        <div><div class="dashboard-eyebrow">SIR • COMMAND CENTRE</div><h1>Good day, Admin</h1><p>Your institute at a glance. Choose a section to manage today's priorities.</p></div>
+        <div class="dashboard-date" id="dashboardTodayLabel">TODAY</div>
       </div>
 
-      <div class="stats">
-
-        <div class="stat-card">
-          <span>Total Students</span>
-          <strong id="totalStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Active Students</span>
-          <strong id="activeStudents">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Active Batches</span>
-          <strong id="activeBatchesCount">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Total Tests</span>
-          <strong id="totalTests">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Notices</span>
-          <strong id="totalNotices">—</strong>
-        </div>
-
+      <div class="dashboard-four-grid">
+        <button type="button" class="dashboard-feature-card batches-feature" data-open-section="batches">
+          <span class="feature-icon">▦</span><span class="feature-label">ACADEMICS</span><strong>Active Batches</strong>
+          <span class="feature-number" id="activeBatchesCount">—</span><span class="feature-foot">View batches and student strength <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card absent-feature" data-open-section="absentStudents">
+          <span class="feature-icon">◷</span><span class="feature-label">ATTENDANCE</span><strong>Absent Students</strong>
+          <span class="feature-number" id="dashboardAbsentCount">—</span><span class="feature-foot">Check today's attendance <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card dsp-feature" data-open-section="dsp">
+          <span class="feature-icon">✦</span><span class="feature-label">FACULTY SUPPORT</span><strong>Doubt Solving Programme</strong>
+          <span class="feature-number feature-word">DSP</span><span class="feature-foot">Select a teacher to inspect slots <b>↗</b></span>
+        </button>
+        <button type="button" class="dashboard-feature-card fees-feature" data-open-section="fees">
+          <span class="feature-icon">₹</span><span class="feature-label">FINANCE</span><strong>Fees & Collection</strong>
+          <span class="feature-number feature-word">₹ <span id="dashboardTodayCollection">—</span></span><span class="feature-foot">Today's and monthly collection <b>↗</b></span>
+        </button>
       </div>
 
+      <div class="dashboard-lower-grid">
+        <div class="dashboard-note-panel"><div class="panel-kicker">DAILY SNAPSHOT</div><h3>Keep the essentials in focus.</h3><p>Quick access to batches, attendance, teacher-wise DSP slots and fee collection — without crowding the home screen.</p></div>
+        <div class="dashboard-collection-panel"><div class="collection-head"><div><span class="panel-kicker">COLLECTION OVERVIEW</span><h3>Fees at a glance</h3></div><span class="collection-mark">₹</span></div><div class="collection-metrics"><div><span>Today's collection</span><strong id="dashboardTodayCollectionSmall">—</strong></div><div><span>This month's collection</span><strong id="dashboardMonthCollection">—</strong></div></div><button type="button" class="text-action" data-open-section="fees">Open fees dashboard <b>→</b></button><p class="data-connection-note" id="dashboardFeesConnectionNote">Collection figures will appear here once payment records are connected.</p></div>
+      </div>
     </section>
 
 
@@ -2365,8 +2372,9 @@
 
     <!-- FEES -->
     <section class="section" id="fees">
-      <div class="section-head"><h2>Fees Management</h2></div>
-      <div class="table-card"><div class="empty">Fees management dashboard option added. Fee records and payment actions are not connected in this Admin V2 source yet.</div></div>
+      <div class="section-head"><div><h2>Fees & Collection</h2><p class="section-subtitle">Track daily receipts and month-to-date collections.</p></div></div>
+      <div class="fees-summary-grid"><div class="fees-summary-card"><span>Today's Collection</span><strong id="feesTodayCollection">—</strong><small>Payments received today</small></div><div class="fees-summary-card"><span>This Month</span><strong id="feesMonthCollection">—</strong><small>Month-to-date collection</small></div><div class="fees-summary-card"><span>Pending Fees</span><strong id="feesPendingTotal">—</strong><small>Outstanding student dues</small></div></div>
+      <div class="table-card fees-connection-card"><div class="fees-connection-icon">₹</div><div><h3>Collection data connection</h3><p id="feesConnectionMessage">This V2 source does not yet identify a verified fee-payment table. No amounts are fabricated; connect the existing payment records before displaying live totals.</p></div></div>
     </section>
 
     <!-- ATTENDANCE -->
@@ -4075,6 +4083,36 @@ supabaseClient.auth.onAuthStateChange(
 /* --------------------------------
    NAVIGATION
 -------------------------------- */
+
+// Dashboard feature cards reuse the existing section navigation; all original sidebar links remain intact.
+document.querySelectorAll("[data-open-section]").forEach(card => {
+  card.addEventListener("click", () => {
+    const targetId = card.dataset.openSection;
+    const navButton = document.querySelector(`.nav-btn[data-section="${targetId}"]`);
+    if (navButton) navButton.click();
+    else {
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+      const target = document.getElementById(targetId);
+      if (target) target.classList.add("active");
+    }
+    if (targetId === "dsp") {
+      const teacherList = document.getElementById("dspTeacherList");
+      if (teacherList && (!teacherList.children.length || /Loading teachers/i.test(teacherList.textContent))) {
+        if (typeof loadDspData === "function") loadDspData();
+      }
+    }
+    if (targetId === "absentStudents") {
+      const dateInput = document.getElementById("absenceDate");
+      if (dateInput && !dateInput.value) {
+        const now = new Date();
+        dateInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      }
+    }
+  });
+});
+const dashboardDateLabel = document.getElementById("dashboardTodayLabel");
+if (dashboardDateLabel) dashboardDateLabel.textContent = new Intl.DateTimeFormat("en-IN", {weekday:"short", day:"2-digit", month:"short", year:"numeric"}).format(new Date()).toUpperCase();
 
 document.querySelectorAll(".nav-btn")
   .forEach(button => {
