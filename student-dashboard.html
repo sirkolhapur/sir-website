@@ -1970,7 +1970,7 @@ header, main, footer {
 
             <div class="dsp-rule-grid">
               <div class="dsp-rule"><small>PER QUESTION</small><strong>3 min</strong></div>
-              <div class="dsp-rule"><small>DAILY QUESTIONS</small><strong>3 max</strong></div>
+              <div class="dsp-rule"><small>DAILY QUESTIONS</small><strong>3 / subject</strong></div>
               <div class="dsp-rule"><small>PROGRAMME</small><strong>2:30–5:30 PM</strong></div>
             </div>
 
@@ -3191,6 +3191,8 @@ header, main, footer {
      DOUBT SOLVING PROGRAMME
      ===================================================== */
 
+  // DSP quota is subject-wise: 3 Physics, 3 Chemistry, 3 Maths, and
+  // 3 Biology questions combined across Botany + Zoology per date.
   const DSP_MAX_QUESTIONS = 3;
   const DSP_SLOT_MINUTES = 3;
   const DSP_MAX_MINUTES = DSP_MAX_QUESTIONS * DSP_SLOT_MINUTES;
@@ -3265,23 +3267,68 @@ function dspDateIsWithinWindow(dateValue) {
     return `${h}:${m} ${suffix}`;
   }
 
-  function dspTodayBookingCount() {
-    return dspBookings.filter(b => {
-      const date = b.slot?.date || b.date || b.booking_date;
-      return date === dspDateEl.value && ["booked","confirmed","scheduled","pending"].includes(String(b.status || "booked").toLowerCase());
+  function dspActiveBooking(booking) {
+    return ["booked", "confirmed", "scheduled", "pending"].includes(
+      String(booking?.status || "booked").toLowerCase()
+    );
+  }
+
+  function dspSubjectGroup(subjectId) {
+    const subject = dspSubjects.find(item => String(item.id) === String(subjectId));
+    const label = `${subject?.name || ""} ${subject?.code || ""}`.toLowerCase();
+    if (label.includes("botany") || label.includes("zoology") || label.includes("biology") || label === "bio") return "biology";
+    if (label.includes("physics") || label.trim() === "phy" || label.includes(" phy ")) return "physics";
+    if (label.includes("chemistry") || label.trim() === "chem" || label.includes(" chem ")) return "chemistry";
+    if (label.includes("mathematics") || label.includes("maths") || label.includes("math") || label.trim() === "mat") return "maths";
+    return `subject:${subjectId}`;
+  }
+
+  function dspBookingDate(booking) {
+    return booking?.slot?.slot_date || booking?.slot?.date || booking?.slot_date || booking?.date || booking?.booking_date || null;
+  }
+
+  function dspBookingSubjectId(booking) {
+    return booking?.question?.subject_id || booking?.subject_id || null;
+  }
+
+  function dspTodayBookingCount(subjectId = dspSubjectEl.value) {
+    const selectedGroup = subjectId ? dspSubjectGroup(subjectId) : null;
+    return dspBookings.filter(booking => {
+      if (!dspActiveBooking(booking) || dspBookingDate(booking) !== dspDateEl.value) return false;
+      if (!selectedGroup) return true;
+      const bookedSubjectId = dspBookingSubjectId(booking);
+      return bookedSubjectId && dspSubjectGroup(bookedSubjectId) === selectedGroup;
     }).length;
   }
 
   function renderDSPDailyLimit() {
-    const count = dspTodayBookingCount();
-    const minutes = count * DSP_SLOT_MINUTES;
-    dspDailyLimitEl.innerHTML = `Today: <strong>${count}/${DSP_MAX_QUESTIONS} questions</strong> booked · ${minutes}/${DSP_MAX_MINUTES} minutes used. Each question gets one 3-minute slot.`;
+    const selectedSubjectId = dspSubjectEl.value;
+    const count = dspTodayBookingCount(selectedSubjectId || null);
+    const subjectGroup = selectedSubjectId ? dspSubjectGroup(selectedSubjectId) : null;
+    const label = subjectGroup === "biology" ? "Biology (Botany + Zoology)" : (dspSubjects.find(item => String(item.id) === String(selectedSubjectId))?.name || "selected subject");
+
+    if (selectedSubjectId) {
+      const minutes = count * DSP_SLOT_MINUTES;
+      dspDailyLimitEl.innerHTML = `Today for <strong>${escapeHTML(label)}</strong>: <strong>${count}/${DSP_MAX_QUESTIONS} questions</strong> booked · ${minutes}/${DSP_MAX_MINUTES} minutes used. Maximum 3 questions per subject per day; Botany + Zoology share one Biology quota.`;
+    } else {
+      const groups = [
+        { key: "physics", label: "Physics" },
+        { key: "chemistry", label: "Chemistry" },
+        { key: "biology", label: "Biology (Botany + Zoology)" },
+        { key: "maths", label: "Maths" }
+      ];
+      const summary = groups.map(group => {
+        const n = dspBookings.filter(booking => dspActiveBooking(booking) && dspBookingDate(booking) === dspDateEl.value && dspBookingSubjectId(booking) && dspSubjectGroup(dspBookingSubjectId(booking)) === group.key).length;
+        return `${group.label}: ${n}/${DSP_MAX_QUESTIONS}`;
+      }).join(" · ");
+      dspDailyLimitEl.innerHTML = `Daily DSP quota: <strong>${summary}</strong>. Each question gets one 3-minute slot.`;
+    }
+
     const quickStatus = document.getElementById("dspQuickStatus");
     if (quickStatus) {
-      quickStatus.textContent =
-        count >= DSP_MAX_QUESTIONS
-          ? "Today's 3 doubt slots are fully used."
-          : `${DSP_MAX_QUESTIONS - count} doubt slot${DSP_MAX_QUESTIONS - count === 1 ? "" : "s"} available today.`;
+      quickStatus.textContent = selectedSubjectId
+        ? (count >= DSP_MAX_QUESTIONS ? `${label} daily quota is fully used.` : `${DSP_MAX_QUESTIONS - count} ${label} doubt slot${DSP_MAX_QUESTIONS - count === 1 ? "" : "s"} available for this date.`)
+        : "Up to 3 questions per subject per day; Biology combines Botany and Zoology.";
     }
   }
 
@@ -3497,6 +3544,44 @@ function dspDateIsWithinWindow(dateValue) {
     }
 
     dspBookings = data || [];
+
+    // Enrich bookings with their slot date and question subject using separate
+    // reads. This avoids depending on PostgREST relationship-alias naming.
+    const slotIds = [...new Set(dspBookings.map(booking => booking.slot_id).filter(Boolean))];
+    const questionIds = [...new Set(dspBookings.map(booking => booking.question_id).filter(Boolean))];
+
+    if (slotIds.length) {
+      const { data: slotRows, error: slotLookupError } = await supabaseClient
+        .from("dsp_slots")
+        .select("id,slot_date,start_time,end_time")
+        .in("id", slotIds);
+      if (slotLookupError) {
+        console.warn("DSP booking slot-date lookup failed:", slotLookupError);
+      } else {
+        const slotsById = new Map((slotRows || []).map(slot => [String(slot.id), slot]));
+        dspBookings = dspBookings.map(booking => ({
+          ...booking,
+          slot: slotsById.get(String(booking.slot_id)) || booking.slot || null
+        }));
+      }
+    }
+
+    if (questionIds.length) {
+      const { data: questionRows, error: questionLookupError } = await supabaseClient
+        .from("dsp_questions")
+        .select("id,subject_id")
+        .in("id", questionIds);
+      if (questionLookupError) {
+        console.warn("DSP booking subject lookup failed:", questionLookupError);
+      } else {
+        const questionsById = new Map((questionRows || []).map(question => [String(question.id), question]));
+        dspBookings = dspBookings.map(booking => ({
+          ...booking,
+          question: questionsById.get(String(booking.question_id)) || booking.question || null
+        }));
+      }
+    }
+
     renderDSPBookings();
     renderDSPDailyLimit();
   }
@@ -3555,9 +3640,13 @@ if (!subjectId || !topicId || !teacherId || !slotId || (!questionText && !dspSel
       return;
     }
 
-    const count = dspTodayBookingCount();
+    const count = dspTodayBookingCount(subjectId);
+    const subjectGroup = dspSubjectGroup(subjectId);
+    const subjectLabel = subjectGroup === "biology"
+      ? "Biology (Botany + Zoology)"
+      : (dspSubjects.find(item => String(item.id) === String(subjectId))?.name || "this subject");
     if (count >= DSP_MAX_QUESTIONS) {
-      dspShowMessage("You have reached today's 3-question DSP limit.", "error");
+      dspShowMessage(`You have reached the daily limit of 3 questions for ${subjectLabel}.`, "error");
       return;
     }
 
