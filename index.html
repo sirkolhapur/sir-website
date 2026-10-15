@@ -233,6 +233,57 @@
         .footer-grid-balanced { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 34px; }
         .footer-grid-balanced .footer-brand { grid-column: span 1; }
       }
+
+      /* Restore the SIR navy-and-gold footer, independent of conflicting site-wide rules. */
+      footer.site-footer {
+        background: #07152f !important;
+        background-color: #07152f !important;
+        color: #f5f7fb !important;
+        border-top: 1px solid rgba(215, 166, 42, .42);
+      }
+      footer.site-footer .footer-inner,
+      footer.site-footer .footer-bottom {
+        color: #f5f7fb !important;
+      }
+      footer.site-footer .footer-brand p,
+      footer.site-footer address,
+      footer.site-footer .footer-bottom p {
+        color: rgba(245, 247, 251, .82) !important;
+      }
+      footer.site-footer .footer-section-title,
+      footer.site-footer .footer-links > strong {
+        color: #f0c75e !important;
+        font-weight: 700;
+        letter-spacing: .08em;
+      }
+      footer.site-footer a {
+        color: #f5f7fb !important;
+        text-decoration: none;
+        transition: color .2s ease;
+      }
+      footer.site-footer a:hover,
+      footer.site-footer a:focus-visible {
+        color: #f0c75e !important;
+      }
+      footer.site-footer .social-icon-links a {
+        color: #f0c75e !important;
+        border-color: rgba(215, 166, 42, .55) !important;
+        background: rgba(255, 255, 255, .025) !important;
+      }
+      footer.site-footer .social-icon-links a:hover,
+      footer.site-footer .social-icon-links a:focus-visible {
+        color: #07152f !important;
+        background: #f0c75e !important;
+      }
+      footer.site-footer .footer-bottom {
+        border-top: 1px solid rgba(245, 247, 251, .15);
+        padding-top: 20px;
+      }
+      footer.site-footer .footer-grid-balanced {
+        padding-top: clamp(38px, 5vw, 64px);
+        padding-bottom: clamp(30px, 4vw, 48px);
+      }
+
       @media (max-width: 640px) {
         .classroom-photo-block .story-photo { min-height: 0; height: auto; aspect-ratio: 4 / 3; object-position: center 65%; }
         .score-section {
@@ -792,7 +843,7 @@
             </div>
 
             <div class="story-photo-block classroom-photo-block">
-                <img class="story-photo" src="sir-classroom.jpg"
+                <img class="story-photo" src="sir-classroom.png"
                      alt="Students learning together in the Suryawanshi Institute for Rankers classroom."
                      loading="lazy" decoding="async">
             </div>
