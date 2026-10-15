@@ -111,6 +111,155 @@
         href="style.css"
     >
 
+    <!-- SIR homepage layout refinements: image crops, dashboard story and responsive footer -->
+    <style>
+      /* Classroom photo: crop out the baked-in top-left wordmark without stretching the photo. */
+      .classroom-photo-block {
+        overflow: hidden;
+        border-radius: 12px;
+        background: #e9edf3;
+      }
+      .classroom-photo-block .story-photo {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 340px;
+        object-fit: cover;
+        object-position: center 62%;
+      }
+
+      /* Beyond the Score: message, clear dashboard image, then the 72 visual. */
+      .score-section {
+        display: grid !important;
+        grid-template-columns: minmax(260px, .95fr) minmax(360px, 1.65fr) minmax(130px, .62fr);
+        grid-template-areas: "copy photo visual";
+        align-items: center;
+        gap: clamp(22px, 3vw, 48px);
+        padding: clamp(48px, 6vw, 92px) clamp(24px, 4.5vw, 80px);
+        overflow: hidden;
+      }
+      .score-section .score-content { grid-area: copy; min-width: 0; }
+      .score-section .score-photo-block {
+        grid-area: photo;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        align-self: center;
+      }
+      .score-section .score-photo-block .story-photo {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 12px;
+        box-shadow: 0 18px 44px rgba(5, 18, 43, .18);
+      }
+      .score-section .score-photo-caption {
+        margin: 14px 2px 0;
+        color: #66758c;
+        font-size: clamp(12px, .9vw, 15px);
+        line-height: 1.55;
+        text-align: left;
+      }
+      .score-section .score-visual {
+        grid-area: visual;
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        align-self: center;
+      }
+      .score-section .score-number {
+        font-size: clamp(110px, 13vw, 230px);
+        line-height: .85;
+        letter-spacing: -.09em;
+        text-align: center;
+        color: rgba(215, 166, 42, .34);
+      }
+      .score-section .score-details {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .score-section .score-details span {
+        font-size: 9px;
+        letter-spacing: .1em;
+        padding: 7px 9px;
+        background: rgba(255,255,255,.8);
+        border: 1px solid rgba(7,21,47,.09);
+        color: #07152f;
+      }
+
+      /* Balanced footer columns on desktop. */
+      .footer-grid-balanced {
+        display: grid !important;
+        grid-template-columns: 1.1fr 1fr .8fr .9fr 1.35fr;
+        gap: clamp(22px, 3vw, 52px);
+        align-items: start;
+      }
+      .footer-grid-balanced > * { min-width: 0; }
+      .footer-grid-balanced .footer-brand img { max-width: 160px; width: 100%; height: auto; object-fit: contain; }
+      .footer-grid-balanced .footer-links,
+      .footer-grid-balanced .footer-portals,
+      .footer-grid-balanced .footer-connect,
+      .footer-grid-balanced .footer-visit-legal {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 13px;
+      }
+      .footer-grid-balanced .footer-section-title,
+      .footer-grid-balanced .footer-links > strong {
+        display: block;
+        margin: 0 0 8px;
+      }
+      .footer-grid-balanced .social-icon-links { display: flex; flex-direction: row; gap: 12px; margin: 2px 0 0; }
+      .footer-grid-balanced .social-icon-links a { flex: 0 0 auto; }
+      .footer-grid-balanced address { font-style: normal; line-height: 1.65; overflow-wrap: anywhere; }
+      .footer-grid-balanced .legal-title { margin-top: 20px; }
+
+      @media (max-width: 1000px) {
+        .score-section {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+          grid-template-areas: "copy copy" "photo visual";
+          gap: 28px;
+        }
+        .score-section .score-content { max-width: 720px; }
+        .score-section .score-number { font-size: clamp(100px, 17vw, 170px); }
+        .footer-grid-balanced { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 34px; }
+        .footer-grid-balanced .footer-brand { grid-column: span 1; }
+      }
+      @media (max-width: 640px) {
+        .classroom-photo-block .story-photo { min-height: 0; height: auto; aspect-ratio: 4 / 3; object-position: center 65%; }
+        .score-section {
+          display: flex !important;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 24px;
+          padding: 48px 20px;
+        }
+        .score-section .score-content { order: 1; }
+        .score-section .score-photo-block { order: 2; width: 100%; }
+        .score-section .score-photo-block .story-photo { aspect-ratio: 4 / 3; object-fit: cover; object-position: center; }
+        .score-section .score-photo-caption { font-size: 13px; }
+        .score-section .score-visual { order: 3; width: 100%; padding: 8px 0; }
+        .score-section .score-number { font-size: clamp(110px, 38vw, 170px); }
+        .score-section .score-details { gap: 6px; }
+        .score-section .score-details span { font-size: 8px; padding: 6px 7px; }
+        .footer-grid-balanced { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 22px; }
+        .footer-grid-balanced .footer-brand { grid-column: 1 / -1; }
+        .footer-grid-balanced .footer-visit-legal { grid-column: 1 / -1; }
+        .footer-grid-balanced .footer-brand img { max-width: 140px; }
+        .footer-grid-balanced .social-icon-links { gap: 10px; }
+        .footer-grid-balanced address { max-width: 100%; }
+        .footer-bottom { display: flex; flex-direction: column; gap: 8px; text-align: center; }
+      }
+    </style>
+
 
     <!-- =====================================================
          STRUCTURED DATA
@@ -643,7 +792,7 @@
             </div>
 
             <div class="story-photo-block classroom-photo-block">
-                <img class="story-photo" src="sir-classroom.png"
+                <img class="story-photo" src="sir-classroom.jpg"
                      alt="Students learning together in the Suryawanshi Institute for Rankers classroom."
                      loading="lazy" decoding="async">
             </div>
@@ -1146,98 +1295,51 @@
 
     <footer class="site-footer">
 
-        <div class="footer-inner">
-
+        <div class="footer-inner footer-grid-balanced">
 
             <div class="footer-brand">
-
-                <img
-                    src="sir-logo.png"
-                    alt="Suryawanshi Institute for Rankers"
-                >
-
-                <p>
-                    Where Potential Finds Direction.
-                </p>
-
+                <img src="sir-logo.png" alt="Suryawanshi Institute for Rankers" loading="lazy">
+                <p>Where Potential Finds Direction.</p>
             </div>
 
+            <nav class="footer-links" aria-label="Quick links">
+                <strong class="footer-section-title">QUICK LINKS</strong>
+                <a href="#top">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="https://sir.net.in/talent-hunt/registration.html">SAGE Programme</a>
+                <a href="student-guide.html">Student Guide</a>
+                <a href="notice-board.html">Notice Board</a>
+                <a href="admission.html">Admission</a>
+                <a href="contact.html">Contact</a>
+            </nav>
 
-            <div class="footer-links">
-
-                <strong>
-                    QUICK LINKS
-                </strong>
-
-                <a href="#top">
-                    Home
-                </a>
-
-                <a href="about.html">
-                    About Us
-                </a>
-
-                <a href="https://sir.net.in/talent-hunt/registration.html">
-                    SAGE Programme
-                </a>
-
-                <a href="student-guide.html">
-                    Student Guide
-                </a>
-
-                <a href="notice-board.html">
-                    Notice Board
-                </a>
-
-                <a href="admission.html">
-                    Admission
-                </a>
-
-                <a href="contact.html">
-                    Contact
-                </a>
-
-            </div>
-
-
-            <div class="footer-login">
-
+            <div class="footer-portals">
                 <strong class="footer-section-title">PORTALS</strong>
                 <a href="student-login.html">Student Login</a>
                 <a href="teacher-login.html">Teacher Login</a>
+            </div>
 
+            <div class="footer-connect">
                 <strong class="footer-section-title">CONNECT WITH SIR</strong>
                 <div class="social-links social-icon-links" aria-label="Connect with SIR on social media">
                     <a href="https://www.instagram.com/sirkolhapur/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — SIR Kolhapur" title="Instagram">
-                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="17.5" cy="6.7" r="1.2" fill="currentColor"/>
-                        </svg>
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.7" r="1.2" fill="currentColor"/></svg>
                     </a>
                     <a href="https://www.facebook.com/sirkolhapur" target="_blank" rel="noopener noreferrer" aria-label="Facebook — SIR Kolhapur" title="Facebook">
-                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill="currentColor" d="M13.6 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.4V13h2.8v8h3.4z"/>
-                        </svg>
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.4V13h2.8v8h3.4z"/></svg>
                     </a>
                     <a href="https://www.youtube.com/@SIRkolhapur" target="_blank" rel="noopener noreferrer" aria-label="YouTube — SIR Kolhapur" title="YouTube">
-                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/>
-                        </svg>
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
                     </a>
                 </div>
+            </div>
 
+            <div class="footer-visit-legal">
                 <strong class="footer-section-title">VISIT SIR</strong>
-                <address>
-                    Collector Office Rd, near SBI treasure Bank,
-                    in front of Hotel Pavilion, Shahupuri,
-                    Kolhapur, Maharashtra 416001
-                </address>
-
-                <strong class="footer-section-title">LEGAL</strong>
+                <address>Collector Office Rd, near SBI Treasure Bank, in front of Hotel Pavilion, Shahupuri, Kolhapur, Maharashtra 416001</address>
+                <strong class="footer-section-title legal-title">LEGAL</strong>
                 <a href="privacy-policy.html">Privacy Policy</a>
                 <a href="terms-conditions.html">Terms &amp; Conditions</a>
-
             </div>
 
         </div>
