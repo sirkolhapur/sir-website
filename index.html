@@ -156,13 +156,17 @@
         border-radius: 12px;
         box-shadow: 0 18px 44px rgba(5, 18, 43, .18);
       }
-      .score-section .score-photo-caption {
-        margin: 14px 2px 0;
-        color: #66758c;
-        font-size: clamp(12px, .9vw, 15px);
-        line-height: 1.55;
-        text-align: left;
-      }
+     .score-section .score-caption-highlight {
+    display: block;
+    padding: 14px 18px;
+    background: #fff3cd;
+    color: #07152f;
+    border-left: 4px solid #d7a62a;
+    border-radius: 8px;
+    font-weight: 600;
+    line-height: 1.7;
+    box-shadow: 0 5px 16px rgba(7, 21, 47, 0.08);
+}
       .score-section .score-visual {
         grid-area: visual;
         position: relative;
@@ -1008,10 +1012,12 @@
                 <img class="story-photo" src="student-dashboard-story.png"
                      alt="Harshada Santosh Shinde's personal SIR student dashboard showing performance trends, test scores and the Ask a Doubt feature."
                      loading="lazy" decoding="async">
-                <p class="score-photo-caption">
-                    Every student gets a personal dashboard to track progress,
-                    understand strengths and weak areas, and raise doubts when guidance is needed.
-                </p>
+               <div class="score-photo-caption">
+    <span class="score-caption-highlight">
+        Every student gets a personal dashboard to track progress,
+        understand strengths and weak areas, and raise doubts when guidance is needed.
+    </span>
+</div>
             </div>
 
         </section>
@@ -1405,11 +1411,10 @@
 
             <p>
                 A
-                <a href="https://brandivadigital.com/"
-                   target="_blank"
-                   rel="noopener">
-                    BrandiVa Digital
-                </a>
+               <a href="https://brandivadigital.com/"
+   target="_blank"
+   rel="noopener"
+   class="brandiva-highlight">BrandiVa Digital</a>
                 Project
             </p>
 
