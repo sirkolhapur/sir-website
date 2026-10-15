@@ -145,6 +145,23 @@
 
     </script>
 
+
+    <style>
+        .story-photo-block{width:min(100% - 40px,1180px);margin:0 auto;padding:0 0 clamp(48px,7vw,92px)}
+        .story-photo{display:block;width:100%;height:auto;max-height:620px;object-fit:cover;border:1px solid rgba(215,166,42,.22);border-radius:14px;box-shadow:0 18px 48px rgba(0,0,0,.22)}
+        .question-photo-block,.classroom-photo-block{max-width:1120px;padding-top:8px}
+        .score-photo-block{width:min(100% - 40px,1240px);padding-top:28px;padding-bottom:clamp(50px,7vw,90px)}
+        .score-photo-caption{margin:16px 0 0;color:rgba(255,255,255,.72);font-size:.95rem;line-height:1.7;text-align:center}
+        .footer-login .footer-section-title{display:block;margin-top:28px;margin-bottom:14px}
+        .footer-login .footer-section-title:first-of-type{margin-top:0}
+        .footer-login .social-icon-links{display:flex;align-items:center;gap:12px;margin:0 0 20px}
+        .footer-login .social-icon-links a{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;flex:0 0 48px;border:1px solid rgba(215,166,42,.45);border-radius:50%;color:#f0c75e;background:rgba(255,255,255,.015);transition:background .2s ease,color .2s ease,transform .2s ease}
+        .footer-login .social-icon-links a:hover,.footer-login .social-icon-links a:focus-visible{color:#07152f;background:#f0c75e;transform:translateY(-2px)}
+        .footer-login .social-icon{display:block;width:21px;height:21px}
+        .footer-login address{margin:0 0 4px;max-width:330px;font-style:normal;line-height:1.75;overflow-wrap:anywhere}
+        @media(max-width:700px){.story-photo-block,.score-photo-block{width:calc(100% - 32px);padding-bottom:48px}.story-photo{max-height:none;border-radius:10px}.question-photo-block,.classroom-photo-block{padding-top:0}.footer-login .social-icon-links{gap:10px}.footer-login .social-icon-links a{width:44px;height:44px;flex-basis:44px}}
+    </style>
+
 </head>
 
 
@@ -507,6 +524,12 @@
 
             </div>
 
+            <div class="story-photo-block question-photo-block">
+                <img class="story-photo" src="choosing-your-path.png"
+                     alt="A student reflecting on future options in engineering and medicine."
+                     loading="lazy" decoding="async">
+            </div>
+
         </section>
 
 
@@ -617,6 +640,12 @@
 
                 </div>
 
+            </div>
+
+            <div class="story-photo-block classroom-photo-block">
+                <img class="story-photo" src="sir-classroom.jpg"
+                     alt="Students learning together in the Suryawanshi Institute for Rankers classroom."
+                     loading="lazy" decoding="async">
             </div>
 
         </section>
@@ -773,6 +802,16 @@
 
                 </p>
 
+            </div>
+
+            <div class="story-photo-block score-photo-block">
+                <img class="story-photo" src="student-dashboard-story.png"
+                     alt="Harshada Santosh Shinde's personal SIR student dashboard showing performance trends, test scores and the Ask a Doubt feature."
+                     loading="lazy" decoding="async">
+                <p class="score-photo-caption">
+                    Every student gets a personal dashboard to track progress,
+                    understand strengths and weak areas, and raise doubts when guidance is needed.
+                </p>
             </div>
 
         </section>
@@ -1163,88 +1202,41 @@
 
             <div class="footer-login">
 
-                <strong>
-                    PORTALS
-                </strong>
+                <strong class="footer-section-title">PORTALS</strong>
+                <a href="student-login.html">Student Login</a>
+                <a href="teacher-login.html">Teacher Login</a>
 
-                <a href="student-login.html">
-                    Student Login
-                </a>
+                <strong class="footer-section-title">CONNECT WITH SIR</strong>
+                <div class="social-links social-icon-links" aria-label="Connect with SIR on social media">
+                    <a href="https://www.instagram.com/sirkolhapur/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — SIR Kolhapur" title="Instagram">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="17.5" cy="6.7" r="1.2" fill="currentColor"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/sirkolhapur" target="_blank" rel="noopener noreferrer" aria-label="Facebook — SIR Kolhapur" title="Facebook">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M13.6 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.4V13h2.8v8h3.4z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.youtube.com/@SIRkolhapur" target="_blank" rel="noopener noreferrer" aria-label="YouTube — SIR Kolhapur" title="YouTube">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/>
+                        </svg>
+                    </a>
+                </div>
 
-                <a href="teacher-login.html">
-                    Teacher Login
-                </a>
-
-
-                <strong class="footer-section-title">
-                  
-<div class="social-links social-icon-links" aria-label="Connect with SIR on social media">
-
-    <!-- Instagram -->
-    <a href="https://www.instagram.com/sirkolhapur/"
-       target="_blank"
-       rel="noopener noreferrer"
-       aria-label="Instagram — SIR Kolhapur"
-       title="Instagram">
-
-        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5"
-                  fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="12" cy="12" r="4"
-                    fill="none" stroke="currentColor" stroke-width="2"/>
-            <circle cx="17.5" cy="6.7" r="1.2" fill="currentColor"/>
-        </svg>
-    </a>
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/sirkolhapur"
-       target="_blank"
-       rel="noopener noreferrer"
-       aria-label="Facebook — SIR Kolhapur"
-       title="Facebook">
-
-        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor"
-                  d="M13.6 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.4V13h2.8v8h3.4z"/>
-        </svg>
-    </a>
-
-    <!-- YouTube -->
-    <a href="https://www.youtube.com/@SIRkolhapur"
-       target="_blank"
-       rel="noopener noreferrer"
-       aria-label="YouTube — SIR Kolhapur"
-       title="YouTube">
-
-        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor"
-                  d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/>
-        </svg>
-    </a>
-
-</div>
-
-                    VISIT SIR
-                </strong>
-
+                <strong class="footer-section-title">VISIT SIR</strong>
                 <address>
                     Collector Office Rd, near SBI treasure Bank,
                     in front of Hotel Pavilion, Shahupuri,
                     Kolhapur, Maharashtra 416001
                 </address>
 
-
-                <strong class="footer-section-title">
-                    LEGAL
-                </strong>
-
-                <a href="privacy-policy.html">
-                    Privacy Policy
-                </a>
-
-                <a href="terms-conditions.html">
-                    Terms &amp; Conditions
-                </a>
+                <strong class="footer-section-title">LEGAL</strong>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms-conditions.html">Terms &amp; Conditions</a>
 
             </div>
 
