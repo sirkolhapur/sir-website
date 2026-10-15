@@ -156,17 +156,13 @@
         border-radius: 12px;
         box-shadow: 0 18px 44px rgba(5, 18, 43, .18);
       }
-     .score-section .score-caption-highlight {
-    display: block;
-    padding: 14px 18px;
-    background: #fff3cd;
-    color: #07152f;
-    border-left: 4px solid #d7a62a;
-    border-radius: 8px;
-    font-weight: 600;
-    line-height: 1.7;
-    box-shadow: 0 5px 16px rgba(7, 21, 47, 0.08);
-}
+      .score-section .score-photo-caption {
+        margin: 14px 2px 0;
+        color: #66758c;
+        font-size: clamp(12px, .9vw, 15px);
+        line-height: 1.55;
+        text-align: left;
+      }
       .score-section .score-visual {
         grid-area: visual;
         position: relative;
@@ -313,6 +309,161 @@
         .footer-grid-balanced address { max-width: 100%; }
         .footer-bottom { display: flex; flex-direction: column; gap: 8px; text-align: center; }
       }
+
+      /* Mobile-only layout repair: keep desktop composition untouched. */
+      @media (max-width: 700px) {
+        /* The Question: remove the oversized empty area and stack copy above image. */
+        .story-section.question {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          justify-content: flex-start !important;
+          min-height: 0 !important;
+          height: auto !important;
+          padding: 54px 20px 56px !important;
+          gap: 22px !important;
+          overflow: hidden;
+        }
+        .story-section.question .story-inner {
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          align-self: stretch !important;
+        }
+        .story-section.question .chapter-label {
+          margin-top: 0 !important;
+          font-size: clamp(11px, 3vw, 14px) !important;
+          letter-spacing: .16em;
+          line-height: 1.5;
+        }
+        .story-section.question h2 {
+          max-width: 100% !important;
+          font-size: clamp(34px, 9.2vw, 48px) !important;
+          line-height: 1.08 !important;
+          overflow-wrap: normal;
+          word-break: normal;
+        }
+        .story-section.question .story-copy {
+          max-width: 100% !important;
+          margin-top: 8px !important;
+          font-size: clamp(16px, 4.5vw, 20px) !important;
+          line-height: 1.65 !important;
+        }
+        .story-section.question .question-photo-block {
+          display: block !important;
+          position: relative !important;
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          align-self: stretch !important;
+        }
+        .story-section.question .question-photo-block .story-photo {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          max-height: none !important;
+          aspect-ratio: 16 / 9;
+          object-fit: cover;
+          object-position: center;
+          border-radius: 12px;
+        }
+
+        /* The Classroom: single-column cards, followed by a full-width photo. */
+        .story-section.teaching-section {
+          display: block !important;
+          position: relative !important;
+          min-height: 0 !important;
+          height: auto !important;
+          padding: 54px 0 48px !important;
+          overflow: hidden;
+        }
+        .story-section.teaching-section > .story-inner {
+          display: block !important;
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 16px !important;
+        }
+        .story-section.teaching-section .chapter-label {
+          margin: 0 4px 24px !important;
+          font-size: 12px !important;
+          letter-spacing: .15em;
+          line-height: 1.5;
+        }
+        .story-section.teaching-section .teaching-story {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          width: 100% !important;
+          gap: 16px !important;
+          margin: 0 !important;
+        }
+        .story-section.teaching-section .teaching-block {
+          display: block !important;
+          position: relative !important;
+          width: 100% !important;
+          max-width: none !important;
+          min-width: 0 !important;
+          margin: 0 !important;
+          padding: 28px 24px 30px !important;
+          box-sizing: border-box !important;
+          border-radius: 12px;
+        }
+        .story-section.teaching-section .teaching-block h2 {
+          font-size: clamp(32px, 8.5vw, 42px) !important;
+          line-height: 1.12 !important;
+          margin: 12px 0 22px !important;
+        }
+        .story-section.teaching-section .teaching-block .large-line {
+          font-size: clamp(21px, 5.5vw, 27px) !important;
+          line-height: 1.45 !important;
+        }
+        .story-section.teaching-section .teaching-block > p:not(.large-line) {
+          font-size: 16px !important;
+          line-height: 1.7 !important;
+        }
+        .story-section.teaching-section .story-transition {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 14px !important;
+          width: 100% !important;
+          min-height: 54px !important;
+          height: auto !important;
+          margin: 0 !important;
+          padding: 8px 0 !important;
+        }
+        .story-section.teaching-section .classroom-photo-block {
+          display: block !important;
+          position: relative !important;
+          width: calc(100% - 32px) !important;
+          max-width: none !important;
+          height: auto !important;
+          margin: 26px auto 0 !important;
+          padding: 0 !important;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .story-section.teaching-section .classroom-photo-block .story-photo {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          aspect-ratio: 4 / 3;
+          object-fit: cover;
+          object-position: center 62%;
+          border-radius: 12px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        .story-section.question { padding-left: 16px !important; padding-right: 16px !important; }
+        .story-section.question h2 { font-size: 33px !important; }
+        .story-section.teaching-section .teaching-block { padding: 24px 20px 26px !important; }
+      }
     </style>
 
 
@@ -348,14 +499,7 @@
     }
 
     </script>
-footer.site-footer .footer-bottom a.brandiva-highlight {
-    color: #f0c75e !important;
-    font-weight: 700;
-}
 
-footer.site-footer .footer-bottom a.brandiva-highlight:hover {
-    color: #ffffff !important;
-}
 
     <style>
         .story-photo-block{width:min(100% - 40px,1180px);margin:0 auto;padding:0 0 clamp(48px,7vw,92px)}
@@ -1019,12 +1163,10 @@ footer.site-footer .footer-bottom a.brandiva-highlight:hover {
                 <img class="story-photo" src="student-dashboard-story.png"
                      alt="Harshada Santosh Shinde's personal SIR student dashboard showing performance trends, test scores and the Ask a Doubt feature."
                      loading="lazy" decoding="async">
-               <div class="score-photo-caption">
-    <span class="score-caption-highlight">
-        Every student gets a personal dashboard to track progress,
-        understand strengths and weak areas, and raise doubts when guidance is needed.
-    </span>
-</div>
+                <p class="score-photo-caption">
+                    Every student gets a personal dashboard to track progress,
+                    understand strengths and weak areas, and raise doubts when guidance is needed.
+                </p>
             </div>
 
         </section>
@@ -1418,10 +1560,11 @@ footer.site-footer .footer-bottom a.brandiva-highlight:hover {
 
             <p>
                 A
-               <a href="https://brandivadigital.com/"
-   target="_blank"
-   rel="noopener"
-   class="brandiva-highlight">BrandiVa Digital</a>
+                <a href="https://brandivadigital.com/"
+                   target="_blank"
+                   rel="noopener">
+                    BrandiVa Digital
+                </a>
                 Project
             </p>
 
