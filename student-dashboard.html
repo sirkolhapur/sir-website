@@ -1927,7 +1927,7 @@ header, main, footer {
       <div class="section-heading">
         <div class="section-kicker">Learn from your teachers</div>
         <h2>Lectures</h2>
-        <p>Follow your stream from subject to chapter and topic. Teacher-approved lecture links will be added after the syllabus is verified.</p>
+        <p>Follow your stream from subject to chapter and topic. C.K. Sir’s supplied Physics lectures are available for both JEE and NEET.</p>
       </div>
       <div class="lecture-path">
         <div><label for="lectureCourse">Preparation stream</label><select id="lectureCourse"><option value="">Choose stream</option><option value="JEE">JEE · PCM</option><option value="NEET">NEET · PCB</option></select></div>
@@ -1935,7 +1935,7 @@ header, main, footer {
         <div><label for="lectureChapter">Chapter</label><select id="lectureChapter" disabled><option value="">Choose subject first</option></select></div>
         <div><label for="lectureTopic">Topic</label><select id="lectureTopic" disabled><option value="">Choose chapter first</option></select></div>
       </div>
-      <div class="lecture-empty" id="lectureContentState" role="status" aria-live="polite">Standard JEE/NEET chapter and topic lists are being prepared for review. No unverified YouTube links are presented as official SIR content.</div>
+      <div class="lecture-empty" id="lectureContentState" role="status" aria-live="polite">C.K. Sir Physics lectures have been added for JEE and NEET. Choose a stream, Physics, a chapter, and a topic to open a lecture.</div>
     </section>
 
     <!-- DOUBT SOLVING PROGRAMME -->
@@ -5568,6 +5568,13 @@ dspDateEl.value = dspToday;
     // the institute module will be checked separately and SIR teacher links added only when supplied.
     const lectureSyllabus = {
       Physics: [
+        // C.K. Sir lecture chapters supplied by the institute. These entries are shared by JEE and NEET.
+        ["Class 11 · Vectors", "Introduction of Vectors", "Unit Vector, Subtraction of Vector and Component of Vector", "Understanding Position Vector", "Dot Product of Vectors", "Application of Dot Product", "Cross Product", "Vector Operations"],
+        ["Class 12 · Electrostatics", "Introduction to Electrodynamics", "Electric Field Due to a Disc and Hemisphere", "Problems on Coulomb's Law, Stable and Unstable Equilibrium", "Electric Field and its application", "Cases on Electric Field due to Charged Wire", "Electric Field due to uniformly charged ring and arc"],
+        ["Class 12 · Modern Physics", "Bohr's Atomic Model", "Relations in Atomic Structure", "Hydrogen Spectrum I", "Hydrogen Spectrum II", "Photon Touches Electron.", "Photo Electric Experiment and Graphs", "Previous Year Questions || Modern Physics", "Nuclear Structure in Modern Physics", "Binding Energy and Stability of Nucleus", "Types of Decay: Alpha, Beta, and Gamma", "Radioactivity and Half-Life | Modern Physics"],
+        ["Class 11 · Work, Energy and Power (C.K. Sir lectures)", "Calculation of Work- 01", "Calculation of Work- 02", "Potential Energy", "Conservative Force", "Gravitational & Spring Potential Energy", "Problems on Work Energy Theorem"],
+        ["Class 11 · Fluid Statics", "Archimedes Principle", "Problems on Archimedes' Principle", "Pascal's Law and Hydrostatics Paradox", "Understanding the Concept of Pressure in Fluid Statics"],
+        ["Class 11 · Fluid Dynamics", "Applications of Bernoulli's Theorem", "Equation of Continuity and Bernoulli's Theorem"],
         ["Physics and Measurement", "Units and dimensions", "Dimensional analysis", "Significant figures and errors"],
         ["Mathematical Tools", "Vectors and vector resolution", "Basic differentiation and integration", "Graphs and proportionality"],
         ["Kinematics", "Motion in a straight line", "Position, velocity and acceleration graphs", "Projectile motion", "Relative velocity"],
@@ -5674,11 +5681,62 @@ dspDateEl.value = dspToday;
       ]
     };
 
+    const lectureVideos = {
+      "Class 11 · Vectors": [
+        { topic: "Introduction of Vectors", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=7gpF0fB9kl4&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq" },
+        { topic: "Unit Vector, Subtraction of Vector and Component of Vector", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=GxwL8-rAYc4&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=2" },
+        { topic: "Understanding Position Vector", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=EP6yZ3Iciag&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=3" },
+        { topic: "Dot Product of Vectors", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=u2ge8r82TKk&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=4" },
+        { topic: "Application of Dot Product", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=GKfAGvRVTtk&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=5" },
+        { topic: "Cross Product", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=vNjFIkdHWGg&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=6" },
+        { topic: "Vector Operations", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=WD14xAuketM&list=PLVyvh6KkxG-CGQd7XYxIjzzS9qxse6Exq&index=7" }
+      ],
+      "Class 12 · Electrostatics": [
+        { topic: "Introduction to Electrodynamics", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=FZ0zdIaMVc8&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=2" },
+        { topic: "Electric Field Due to a Disc and Hemisphere", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=oyjhiu7fcsQ&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=1" },
+        { topic: "Problems on Coulomb's Law, Stable and Unstable Equilibrium", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=l1eW-_ZXu3Y&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=3" },
+        { topic: "Electric Field and its application", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=9D1GmDf2WXA&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=4" },
+        { topic: "Cases on Electric Field due to Charged Wire", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=-NQslDV_gzA&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=5" },
+        { topic: "Electric Field due to uniformly charged ring and arc", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=5I7fvj5Vd20&list=PLVyvh6KkxG-CxADD2vz1-u9V-P2PLtMHA&index=6" }
+      ],
+      "Class 12 · Modern Physics": [
+        { topic: "Bohr's Atomic Model", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=PCgjfZZOuyg&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9" },
+        { topic: "Relations in Atomic Structure", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=hjlEWl0rau0&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=2" },
+        { topic: "Hydrogen Spectrum I", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=v_Gdhm4yHEA&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=3" },
+        { topic: "Hydrogen Spectrum II", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=_5T9ip8YQcA&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=4" },
+        { topic: "Photon Touches Electron.", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=6cD7Skp1-Xo&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=5" },
+        { topic: "Photo Electric Experiment and Graphs", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=xIgH1dzYvMM&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=6" },
+        { topic: "Previous Year Questions || Modern Physics", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=flpDEUDy6AU&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=7" },
+        { topic: "Nuclear Structure in Modern Physics", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=kzptQEevjCY&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=8" },
+        { topic: "Binding Energy and Stability of Nucleus", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=zL-J70ofkqs&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=9" },
+        { topic: "Types of Decay: Alpha, Beta, and Gamma", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=Yo4iLQCRRUk&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=10" },
+        { topic: "Radioactivity and Half-Life | Modern Physics", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=APzqp35G4TE&list=PLVyvh6KkxG-CLYLNug9iqesKZUG-KZIM9&index=11" }
+      ],
+      "Class 11 · Work, Energy and Power (C.K. Sir lectures)": [
+        { topic: "Calculation of Work- 01", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=WPpRare9MS0&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF" },
+        { topic: "Calculation of Work- 02", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=ZQYdPmZkiSw&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF&index=2" },
+        { topic: "Potential Energy", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=pdFVz0YNq4o&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF&index=3" },
+        { topic: "Conservative Force", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=5wGWj4be_q0&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF&index=4" },
+        { topic: "Gravitational & Spring Potential Energy", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=PhJji4FVsO4&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF&index=5" },
+        { topic: "Problems on Work Energy Theorem", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=YmrTlCg51-o&list=PLVyvh6KkxG-DXjowz44rBsWM8Kk63oGhF&index=6" }
+      ],
+      "Class 11 · Fluid Statics": [
+        { topic: "Archimedes Principle", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=G4J2_AfRP2g&list=PLVyvh6KkxG-AH0b0sM-N_pDkWwifsbOe5&index=2" },
+        { topic: "Problems on Archimedes' Principle", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=JydVcvcuJno&list=PLVyvh6KkxG-AH0b0sM-N_pDkWwifsbOe5&index=1" },
+        { topic: "Pascal's Law and Hydrostatics Paradox", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=JhfImXLbz08&list=PLVyvh6KkxG-AH0b0sM-N_pDkWwifsbOe5&index=3" },
+        { topic: "Understanding the Concept of Pressure in Fluid Statics", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=cOkXaoJrlFo&list=PLVyvh6KkxG-AH0b0sM-N_pDkWwifsbOe5&index=4" }
+      ],
+      "Class 11 · Fluid Dynamics": [
+        { topic: "Applications of Bernoulli's Theorem", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=BIVdAyqug20&list=PLVyvh6KkxG-D4wRp2P03aYdWOa8PGqtKt" },
+        { topic: "Equation of Continuity and Bernoulli's Theorem", teacher: "C.K. Sir", url: "https://www.youtube.com/watch?v=Ul5lN97xyHQ&list=PLVyvh6KkxG-D4wRp2P03aYdWOa8PGqtKt&index=2" }
+      ]
+    };
+
     const subjectOptions = {
       JEE: ["Physics", "Chemistry", "Mathematics"],
       NEET: ["Physics", "Chemistry", "Biology"]
     };
-    const defaultState = "Select your preparation stream to browse the standard chapter/topic map. No teacher video links have been added yet.";
+    const defaultState = "Select JEE or NEET, then choose Physics → chapter → topic to open the supplied C.K. Sir lecture.";
 
     function fill(select, values, placeholder, disabledWhenEmpty = true) {
       select.replaceChildren(new Option(placeholder, ""));
@@ -5695,7 +5753,7 @@ dspDateEl.value = dspToday;
       fill(chapter, [], "Choose subject first");
       fill(topic, [], "Choose chapter first");
       state.textContent = course.value
-        ? `${course.value} stream selected. ${course.value === "JEE" ? "Physics, Chemistry and Mathematics (PCM)" : "Physics, Chemistry and Biology (PCB)"} are available. Choose a subject to continue. Standard syllabus map pending SIR module verification; teacher links are not added yet.`
+        ? `${course.value} stream selected. ${course.value === "JEE" ? "Physics, Chemistry and Mathematics (PCM)" : "Physics, Chemistry and Biology (PCB)"} are available. Choose a subject to continue. C.K. Sir Physics lecture links are available for the supplied chapters.`
         : defaultState;
     }
     function renderChapters() {
@@ -5711,7 +5769,7 @@ dspDateEl.value = dspToday;
       const topics = selected ? selected.slice(1) : [];
       fill(topic, topics, "Choose topic");
       state.textContent = selected
-        ? `${chapter.value}: ${topics.length} starter topics listed. This is a standard syllabus draft, not yet verified against the SIR module. Official SIR video links will appear here after they are supplied and mapped.`
+        ? `${chapter.value}: ${topics.length} topics listed. Choose a topic to view the lecture link when one has been supplied.`
         : "Choose a chapter to continue.";
     }
     function applyRecognizedStudentStream() {
@@ -5731,8 +5789,20 @@ dspDateEl.value = dspToday;
     subject.addEventListener("change", renderChapters);
     chapter.addEventListener("change", renderTopics);
     topic.addEventListener("change", () => {
-      if (topic.value) state.textContent = `${topic.value} selected under ${chapter.value}. SIR-approved video links will be connected after the institute syllabus is verified and links are provided.`;
+      if (!topic.value) {
+        state.textContent = "Choose a topic to continue.";
+        return;
+      }
+      const videos = (lectureVideos[chapter.value] || []).filter(video => video.topic === topic.value);
+      if (videos.length) {
+        state.innerHTML = `<strong>${escapeLectureText(topic.value)}</strong><br><span style="color:var(--muted)">Teacher: C.K. Sir · Available for JEE and NEET</span><br><a href="${videos[0].url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:11px 15px;border-radius:10px;background:var(--gold);color:#101a2a;font-weight:700;text-decoration:none">▶ Watch lecture on YouTube</a>`;
+      } else {
+        state.textContent = `${topic.value} selected under ${chapter.value}. A teacher video link has not been supplied for this topic yet.`;
+      }
     });
+    function escapeLectureText(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
+    }
     // Student profile is loaded asynchronously. Lock the stream when the existing profile resolver can identify it.
     document.addEventListener("sir:student-ready", applyRecognizedStudentStream);
     applyRecognizedStudentStream();
