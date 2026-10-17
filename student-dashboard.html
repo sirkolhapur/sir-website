@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
+  <!-- Google Analytics 4 (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4ZCZP0DS9T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4ZCZP0DS9T');
+  </script>
+
   <title>Student Dashboard | SIR Kolhapur</title>
 
   <meta
@@ -1594,6 +1604,12 @@ header, main, footer {
     .lecture-path label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
     .lecture-path select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d1f36;color:white}
     .lecture-empty{margin-top:16px;padding:20px;border:1px dashed rgba(217,170,69,.3);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.7}
+    .lecture-player-shell{margin-top:16px;overflow:hidden;border:1px solid rgba(217,170,69,.28);border-radius:16px;background:#071426}
+    .lecture-player-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+    .lecture-player-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .lecture-player-meta{padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+    .lecture-player-meta strong{color:var(--text,#fff)}
+    .lecture-fallback-link{color:var(--gold-light);font-size:12px;text-decoration:underline}
     @media(max-width:900px){.portal-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:600px){.student-menu-toggle{top:84px;left:10px;padding:10px 12px}.portal-feature-grid{grid-template-columns:1fr}.lecture-path{grid-template-columns:1fr}.student-nav-drawer{padding:20px 14px}}
 
@@ -5795,7 +5811,15 @@ dspDateEl.value = dspToday;
       }
       const videos = (lectureVideos[chapter.value] || []).filter(video => video.topic === topic.value);
       if (videos.length) {
-        state.innerHTML = `<strong>${escapeLectureText(topic.value)}</strong><br><span style="color:var(--muted)">Teacher: C.K. Sir · Available for JEE and NEET</span><br><a href="${videos[0].url}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:11px 15px;border-radius:10px;background:var(--gold);color:#101a2a;font-weight:700;text-decoration:none">▶ Watch lecture on YouTube</a>`;
+        const video = videos[0];
+        let videoId = "";
+        try { videoId = new URL(video.url).searchParams.get("v") || ""; } catch (_) {}
+        if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
+          state.textContent = `${topic.value} is listed, but its video link could not be embedded. Please ask the administrator to check the link.`;
+          return;
+        }
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&playsinline=1`;
+        state.innerHTML = `<div class="lecture-player-shell"><div class="lecture-player-frame"><iframe src="${embedUrl}" title="${escapeLectureText(topic.value)} — C.K. Sir" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><div class="lecture-player-meta"><div><strong>${escapeLectureText(topic.value)}</strong><br><span style="color:var(--muted);font-size:12px">Teacher: C.K. Sir · Available for JEE and NEET</span></div><a class="lecture-fallback-link" href="${video.url}" target="_blank" rel="noopener noreferrer">Playback issue? Open on YouTube</a></div></div>`;
       } else {
         state.textContent = `${topic.value} selected under ${chapter.value}. A teacher video link has not been supplied for this topic yet.`;
       }
