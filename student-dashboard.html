@@ -1590,7 +1590,7 @@ header, main, footer {
     .portal-feature-card p{font-size:12px;line-height:1.65;color:var(--muted);margin-bottom:13px}
     .feature-status{display:inline-flex;padding:6px 9px;border:1px solid rgba(217,170,69,.25);border-radius:999px;color:var(--gold-light);font-size:9px;font-weight:800;letter-spacing:.7px}
     .portal-note{margin-top:16px;padding:13px 15px;border-left:3px solid var(--gold);background:rgba(217,170,69,.06);color:var(--muted);font-size:12px;line-height:1.65;border-radius:0 10px 10px 0}
-    .lecture-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+    .lecture-path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
     .lecture-path label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}
     .lecture-path select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d1f36;color:white}
     .lecture-empty{margin-top:16px;padding:20px;border:1px dashed rgba(217,170,69,.3);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.7}
@@ -1922,19 +1922,20 @@ header, main, footer {
       <div class="portal-note"><strong>Planned progression:</strong> questions → instant feedback → round summary → verified XP → levels, missions and badges. Scores, streaks and achievements will not be fabricated; saving progress and validation will be implemented in a later step.</div>
     </section>
 
-    <!-- LECTURES: navigation and course path scaffold; real teacher video links will be added in a later step -->
+    <!-- LECTURES: standard JEE/NEET syllabus map; institute verification and teacher links are separate next steps -->
     <section class="section" id="lecturesZone">
       <div class="section-heading">
         <div class="section-kicker">Learn from your teachers</div>
         <h2>Lectures</h2>
-        <p>Choose your preparation stream and move from subject to chapter and topic.</p>
+        <p>Follow your stream from subject to chapter and topic. Teacher-approved lecture links will be added after the syllabus is verified.</p>
       </div>
       <div class="lecture-path">
-        <div><label for="lectureCourse">Preparation stream</label><select id="lectureCourse"><option value="">Choose stream</option><option value="JEE">JEE</option><option value="NEET">NEET</option></select></div>
+        <div><label for="lectureCourse">Preparation stream</label><select id="lectureCourse"><option value="">Choose stream</option><option value="JEE">JEE · PCM</option><option value="NEET">NEET · PCB</option></select></div>
         <div><label for="lectureSubject">Subject</label><select id="lectureSubject" disabled><option value="">Choose stream first</option></select></div>
-        <div><label for="lectureChapter">Chapter / topic</label><select id="lectureChapter" disabled><option value="">Choose subject first</option></select></div>
+        <div><label for="lectureChapter">Chapter</label><select id="lectureChapter" disabled><option value="">Choose subject first</option></select></div>
+        <div><label for="lectureTopic">Topic</label><select id="lectureTopic" disabled><option value="">Choose chapter first</option></select></div>
       </div>
-      <div class="lecture-empty" id="lectureContentState">The lecture navigation is prepared. Teacher-approved YouTube links and topic lists will be connected here next; no unverified videos are being shown as official SIR content.</div>
+      <div class="lecture-empty" id="lectureContentState" role="status" aria-live="polite">Standard JEE/NEET chapter and topic lists are being prepared for review. No unverified YouTube links are presented as official SIR content.</div>
     </section>
 
     <!-- DOUBT SOLVING PROGRAMME -->
@@ -3847,6 +3848,7 @@ if (!subjectId || !topicId || !teacherId || !slotId || (!questionText && !dspSel
 
   function initDSP(student) {
     currentStudentForDSP = student;
+    document.dispatchEvent(new Event("sir:student-ready"));
     const dspToday = dspTodayISO();
 
 dspDateEl.min = dspToday;
@@ -5554,34 +5556,187 @@ dspDateEl.value = dspToday;
     });
   })();
 
-  (function initLecturePathScaffold() {
+  (function initLecturePath() {
     const course = document.getElementById("lectureCourse");
     const subject = document.getElementById("lectureSubject");
     const chapter = document.getElementById("lectureChapter");
+    const topic = document.getElementById("lectureTopic");
     const state = document.getElementById("lectureContentState");
-    if (!course || !subject || !chapter || !state) return;
+    if (!course || !subject || !chapter || !topic || !state) return;
+
+    // Standard JEE/NEET syllabus starter map. This is intentionally link-free:
+    // the institute module will be checked separately and SIR teacher links added only when supplied.
+    const lectureSyllabus = {
+      Physics: [
+        ["Physics and Measurement", "Units and dimensions", "Dimensional analysis", "Significant figures and errors"],
+        ["Mathematical Tools", "Vectors and vector resolution", "Basic differentiation and integration", "Graphs and proportionality"],
+        ["Kinematics", "Motion in a straight line", "Position, velocity and acceleration graphs", "Projectile motion", "Relative velocity"],
+        ["Laws of Motion", "Newton’s laws", "Free-body diagrams", "Friction", "Circular motion and banking"],
+        ["Work, Energy and Power", "Work by constant and variable force", "Work-energy theorem", "Conservation of mechanical energy", "Power", "Elastic and inelastic collisions"],
+        ["System of Particles and Rotational Motion", "Centre of mass", "Torque and angular momentum", "Moment of inertia", "Rolling motion", "Conservation of angular momentum"],
+        ["Gravitation", "Newton’s law of gravitation", "Variation of g", "Gravitational potential and energy", "Satellites and escape velocity"],
+        ["Properties of Solids and Fluids", "Elasticity and stress-strain", "Pressure and buoyancy", "Continuity equation and Bernoulli principle", "Viscosity and surface tension"],
+        ["Thermal Properties of Matter", "Thermal expansion", "Calorimetry and latent heat", "Heat transfer"],
+        ["Thermodynamics", "Zeroth and first laws", "Work done by a gas", "Isothermal and adiabatic processes", "Second law and heat engines"],
+        ["Kinetic Theory of Gases", "Ideal gas equation", "Kinetic interpretation of temperature", "Degrees of freedom and equipartition", "Mean free path"],
+        ["Oscillations", "Simple harmonic motion", "Energy in SHM", "Spring-mass systems", "Simple pendulum"],
+        ["Waves", "Wave equation and superposition", "Standing waves", "Strings and organ pipes", "Beats and Doppler effect"],
+        ["Electrostatics", "Coulomb’s law and electric field", "Electric dipole", "Electric flux and Gauss’s law", "Electric potential", "Capacitance and dielectrics"],
+        ["Current Electricity", "Current density and drift velocity", "Ohm’s law and resistivity", "Cells and internal resistance", "Kirchhoff’s laws", "Wheatstone bridge and metre bridge"],
+        ["Magnetic Effects of Current and Magnetism", "Biot-Savart and Ampere laws", "Force on a charge and current-carrying wire", "Motion in a magnetic field", "Torque on a current loop", "Magnetic materials"],
+        ["Electromagnetic Induction", "Magnetic flux", "Faraday and Lenz laws", "Self and mutual inductance", "Eddy currents"],
+        ["Alternating Current", "AC voltage and current", "Reactance and impedance", "LCR circuits and resonance", "Transformer"],
+        ["Electromagnetic Waves", "Displacement current", "Electromagnetic spectrum", "Properties and applications of EM waves"],
+        ["Optics", "Reflection and refraction", "Mirrors and lenses", "Prism and dispersion", "Optical instruments", "Huygens principle", "Interference and Young’s double-slit experiment", "Diffraction and polarisation"],
+        ["Dual Nature of Matter and Radiation", "Photoelectric effect", "Einstein’s equation", "de Broglie wavelength", "Matter waves"],
+        ["Atoms and Nuclei", "Rutherford and Bohr models", "Atomic spectra", "Mass defect and binding energy", "Radioactivity and nuclear reactions"],
+        ["Electronic Devices", "Semiconductors and doping", "p-n junction diode", "Rectifiers", "Logic gates"],
+        ["Experimental Skills", "Measurement instruments", "Error analysis", "Graph-based experiments", "Common practical observations"]
+      ],
+      Chemistry: [
+        ["Some Basic Concepts of Chemistry", "Laws of chemical combination", "Atomic and molecular masses", "Mole concept and stoichiometry", "Concentration terms"],
+        ["Atomic Structure", "Electromagnetic radiation and spectra", "Bohr model", "Quantum numbers and orbitals", "Electronic configuration"],
+        ["Classification of Elements and Periodicity", "Modern periodic law", "Periodic trends", "Effective nuclear charge", "Anomalous periodic properties"],
+        ["Chemical Bonding and Molecular Structure", "Ionic and covalent bonding", "Lewis structures and formal charge", "VSEPR and molecular shapes", "Hybridisation", "Molecular orbital theory", "Hydrogen bonding"],
+        ["Chemical Thermodynamics", "System, surroundings and state functions", "First law and enthalpy", "Hess law", "Entropy and spontaneity", "Gibbs energy"],
+        ["Chemical and Ionic Equilibrium", "Equilibrium constant and reaction quotient", "Le Chatelier principle", "Acids, bases and pH", "Buffers", "Solubility product and common-ion effect"],
+        ["Redox Reactions", "Oxidation number", "Balancing redox equations", "Disproportionation and comproportionation"],
+        ["Solutions", "Concentration of solutions", "Raoult law", "Ideal and non-ideal solutions", "Colligative properties", "Abnormal molar mass"],
+        ["Electrochemistry", "Conductance and molar conductivity", "Electrochemical cells", "Nernst equation", "Electrolysis and Faraday laws", "Batteries and corrosion"],
+        ["Chemical Kinetics", "Rate law and order", "Integrated rate equations", "Half-life", "Arrhenius equation and activation energy"],
+        ["Periodic Table: p-Block Elements", "Group 13 and 14 trends", "Group 15 and 16 trends", "Group 17 and 18 trends", "Important compounds and reactions"],
+        ["d- and f-Block Elements", "Transition-metal trends", "Oxidation states and colour", "Coordination and catalytic properties", "Lanthanides and actinides"],
+        ["Coordination Compounds", "Nomenclature and isomerism", "Werner theory", "Valence bond theory", "Crystal field theory", "Magnetic properties and applications"],
+        ["Purification and Characterisation of Organic Compounds", "Purification methods", "Qualitative analysis", "Quantitative analysis", "Empirical and molecular formula"],
+        ["Basic Principles of Organic Chemistry", "IUPAC nomenclature", "Structural and stereoisomerism", "Inductive and resonance effects", "Hyperconjugation", "Reaction intermediates", "Acidity and basicity"],
+        ["Hydrocarbons", "Alkanes and conformations", "Alkenes and addition reactions", "Alkynes", "Aromaticity and benzene reactions"],
+        ["Organic Compounds Containing Halogens", "Nomenclature and preparation", "Nucleophilic substitution", "Elimination reactions", "Environmental effects of halogen compounds"],
+        ["Organic Compounds Containing Oxygen", "Alcohols and phenols", "Ethers", "Aldehydes and ketones", "Carboxylic acids and derivatives"],
+        ["Organic Compounds Containing Nitrogen", "Amines and nomenclature", "Preparation and reactions of amines", "Basicity of amines", "Diazonium salts"],
+        ["Biomolecules", "Carbohydrates", "Amino acids and proteins", "Enzymes", "Vitamins", "Nucleic acids"],
+        ["Principles Related to Practical Chemistry", "Salt analysis", "Functional-group tests", "Titrations", "Preparation of inorganic compounds", "Chemistry in everyday life and laboratory safety"]
+      ],
+      Mathematics: [
+        ["Sets, Relations and Functions", "Set operations", "Relations and their properties", "Types of functions", "Composition and inverse of functions"],
+        ["Complex Numbers and Quadratic Equations", "Algebra of complex numbers", "Argand plane and modulus-argument", "Quadratic roots and nature", "Geometric interpretation"],
+        ["Matrices and Determinants", "Matrix operations and inverse", "Determinants and properties", "Adjoint and inverse", "Linear equations using matrices"],
+        ["Permutations and Combinations", "Fundamental counting principle", "Permutations with restrictions", "Combinations and selections", "Distribution problems"],
+        ["Binomial Theorem", "General and middle terms", "Binomial coefficients", "Approximation and identities"],
+        ["Sequences and Series", "Arithmetic progression", "Geometric progression", "Arithmetic-geometric series", "Special sums and telescoping"],
+        ["Trigonometry", "Identities and transformations", "Trigonometric equations", "Inverse trigonometric functions", "Heights and distances"],
+        ["Straight Lines", "Slope and forms of a line", "Angle between lines", "Distance of a point from a line", "Family of lines"],
+        ["Conic Sections", "Circle", "Parabola", "Ellipse", "Hyperbola", "Tangents and normals"],
+        ["Three-Dimensional Geometry", "Direction ratios and cosines", "Line in 3D", "Angle between lines", "Distance and shortest distance"],
+        ["Limits, Continuity and Differentiability", "Standard limits", "Continuity", "Differentiability", "Chain rule and implicit differentiation"],
+        ["Applications of Derivatives", "Rate of change", "Increasing and decreasing functions", "Tangents and normals", "Maxima and minima"],
+        ["Integral Calculus", "Indefinite integration", "Substitution and parts", "Partial fractions", "Definite integrals and properties", "Area under curves"],
+        ["Differential Equations", "Order and degree", "Formation of differential equations", "Variable-separable equations", "First-order linear equations"],
+        ["Vector Algebra", "Vector operations", "Dot and cross products", "Projection and angle", "Scalar and vector triple products"],
+        ["Probability", "Conditional probability", "Bayes theorem", "Independent events", "Random variables and distributions"],
+        ["Statistics", "Mean, variance and standard deviation", "Grouped data", "Variance properties"],
+        ["Mathematical Reasoning", "Statements and logical connectives", "Implications and equivalence", "Quantifiers and validity"],
+        ["Mathematical Induction", "Principle of induction", "Induction-based inequalities and sums"]
+      ],
+      Biology: [
+        ["The Living World", "Characteristics of living organisms", "Taxonomy and systematics", "Taxonomic hierarchy", "Binomial nomenclature"],
+        ["Biological Classification", "Five-kingdom classification", "Monera and Protista", "Fungi", "Lichens, viruses and viroids"],
+        ["Plant Kingdom", "Algae and bryophytes", "Pteridophytes", "Gymnosperms", "Alternation of generations"],
+        ["Animal Kingdom", "Basis of classification", "Non-chordate phyla", "Chordate classes", "Examples and distinguishing features"],
+        ["Morphology of Flowering Plants", "Root, stem and leaf", "Inflorescence and flowers", "Fruits and seeds", "Plant families and floral formulae"],
+        ["Anatomy of Flowering Plants", "Plant tissues", "Root, stem and leaf anatomy", "Secondary growth", "Monocot and dicot anatomy"],
+        ["Structural Organisation in Animals", "Animal tissues", "Earthworm and cockroach organisation", "Frog systems and anatomy"],
+        ["Cell: The Unit of Life", "Cell theory and cell types", "Cell membrane and cell wall", "Cell organelles", "Nucleus and chromosomes"],
+        ["Biomolecules", "Carbohydrates and lipids", "Proteins and amino acids", "Nucleic acids", "Enzymes and metabolism"],
+        ["Cell Cycle and Cell Division", "Cell cycle phases", "Mitosis", "Meiosis", "Significance and comparison"],
+        ["Transport in Plants", "Diffusion and osmosis", "Water potential", "Xylem transport", "Phloem translocation"],
+        ["Mineral Nutrition", "Essential elements", "Deficiency symptoms", "Nitrogen cycle and fixation", "Hydroponics"],
+        ["Photosynthesis in Higher Plants", "Photosynthetic pigments and light reaction", "Photophosphorylation", "Calvin cycle", "C4 pathway and photorespiration"],
+        ["Respiration in Plants", "Glycolysis", "Fermentation", "Krebs cycle", "Electron transport and ATP yield"],
+        ["Plant Growth and Development", "Plant growth regulators", "Growth phases", "Photoperiodism and vernalisation", "Seed dormancy and germination"],
+        ["Digestion and Absorption", "Human digestive system", "Digestive enzymes", "Absorption and assimilation", "Digestive disorders"],
+        ["Breathing and Exchange of Gases", "Respiratory organs and mechanism", "Gas transport", "Regulation of respiration", "Respiratory disorders"],
+        ["Body Fluids and Circulation", "Blood and lymph", "Heart and cardiac cycle", "ECG and double circulation", "Blood groups and disorders"],
+        ["Excretory Products and their Elimination", "Nephron and urine formation", "Osmoregulation", "Counter-current mechanism", "Kidney disorders and dialysis"],
+        ["Locomotion and Movement", "Skeletal and muscular systems", "Muscle contraction", "Joints", "Movement disorders"],
+        ["Neural Control and Coordination", "Neuron and nerve impulse", "Central and peripheral nervous systems", "Synapse and reflex action", "Sense organs"],
+        ["Chemical Coordination and Integration", "Endocrine glands and hormones", "Hormone mechanisms", "Feedback regulation", "Endocrine disorders"],
+        ["Reproduction", "Asexual and sexual reproduction", "Flowering plant reproduction", "Human reproductive systems", "Gametogenesis, menstrual cycle and fertilisation", "Pregnancy and reproductive health"],
+        ["Principles of Inheritance and Variation", "Mendelian inheritance", "Incomplete dominance and codominance", "Multiple alleles and blood groups", "Linkage and sex determination", "Chromosomal and gene disorders"],
+        ["Molecular Basis of Inheritance", "DNA and RNA structure", "DNA replication", "Transcription and translation", "Genetic code and regulation", "Human Genome Project and DNA fingerprinting"],
+        ["Evolution", "Origin of life", "Evidence for evolution", "Natural selection and Hardy-Weinberg principle", "Human evolution"],
+        ["Human Health and Disease", "Pathogens and common diseases", "Innate and acquired immunity", "Vaccination and immune disorders", "Cancer, AIDS and substance abuse"],
+        ["Microbes in Human Welfare", "Household and industrial products", "Sewage treatment", "Biogas and biofertilisers", "Antibiotics and microbial products"],
+        ["Biotechnology: Principles and Processes", "Restriction enzymes and cloning vectors", "PCR and gel electrophoresis", "Recombinant DNA technology", "Bioreactors and downstream processing"],
+        ["Biotechnology and its Applications", "Insulin and gene therapy", "Bt crops and GM organisms", "Molecular diagnosis", "Ethical issues and biopiracy"],
+        ["Organisms and Populations", "Population attributes", "Growth curves", "Species interactions", "Adaptations"],
+        ["Ecosystem", "Energy flow and productivity", "Food chains and ecological pyramids", "Decomposition and nutrient cycling", "Ecological succession"],
+        ["Biodiversity and Conservation", "Levels and patterns of biodiversity", "Biodiversity loss", "Hotspots and protected areas", "In-situ and ex-situ conservation"]
+      ]
+    };
+
     const subjectOptions = {
       JEE: ["Physics", "Chemistry", "Mathematics"],
       NEET: ["Physics", "Chemistry", "Biology"]
     };
-    function fill(select, values, placeholder) {
+    const defaultState = "Select your preparation stream to browse the standard chapter/topic map. No teacher video links have been added yet.";
+
+    function fill(select, values, placeholder, disabledWhenEmpty = true) {
       select.replaceChildren(new Option(placeholder, ""));
       values.forEach(value => select.add(new Option(value, value)));
-      select.disabled = values.length === 0;
+      select.disabled = disabledWhenEmpty ? values.length === 0 : false;
     }
-    course.addEventListener("change", () => {
+    function resetBelowStream() {
+      fill(subject, [], "Choose stream first");
+      fill(chapter, [], "Choose subject first");
+      fill(topic, [], "Choose chapter first");
+    }
+    function renderSubjects() {
       fill(subject, subjectOptions[course.value] || [], course.value ? "Choose subject" : "Choose stream first");
       fill(chapter, [], "Choose subject first");
+      fill(topic, [], "Choose chapter first");
       state.textContent = course.value
-        ? `${course.value} stream selected. Subject/topic lists and approved teacher video links will be connected in the next implementation step.`
-        : "The lecture navigation is prepared. Teacher-approved YouTube links and topic lists will be connected here next; no unverified videos are being shown as official SIR content.";
-    });
-    subject.addEventListener("change", () => {
-      fill(chapter, [], subject.value ? "Topics will be added next" : "Choose subject first");
+        ? `${course.value} stream selected. ${course.value === "JEE" ? "Physics, Chemistry and Mathematics (PCM)" : "Physics, Chemistry and Biology (PCB)"} are available. Choose a subject to continue. Standard syllabus map pending SIR module verification; teacher links are not added yet.`
+        : defaultState;
+    }
+    function renderChapters() {
+      const chapters = lectureSyllabus[subject.value] || [];
+      fill(chapter, chapters.map(item => item[0]), "Choose chapter");
+      fill(topic, [], "Choose chapter first");
       state.textContent = subject.value
-        ? `${subject.value} selected. Chapter/topic mapping and teacher-approved video links are the next step.`
+        ? `${subject.value}: ${chapters.length} standard syllabus chapters listed. Choose a chapter to view its topics. SIR module comparison is still required.`
         : "Choose a subject to continue.";
+    }
+    function renderTopics() {
+      const selected = (lectureSyllabus[subject.value] || []).find(item => item[0] === chapter.value);
+      const topics = selected ? selected.slice(1) : [];
+      fill(topic, topics, "Choose topic");
+      state.textContent = selected
+        ? `${chapter.value}: ${topics.length} starter topics listed. This is a standard syllabus draft, not yet verified against the SIR module. Official SIR video links will appear here after they are supplied and mapped.`
+        : "Choose a chapter to continue.";
+    }
+    function applyRecognizedStudentStream() {
+      if (typeof dspStudentStream !== "function") return;
+      const stream = dspStudentStream();
+      if (stream && subjectOptions[stream]) {
+        course.value = stream;
+        course.disabled = true;
+        renderSubjects();
+      }
+    }
+
+    course.addEventListener("change", () => {
+      course.disabled = false;
+      renderSubjects();
     });
+    subject.addEventListener("change", renderChapters);
+    chapter.addEventListener("change", renderTopics);
+    topic.addEventListener("change", () => {
+      if (topic.value) state.textContent = `${topic.value} selected under ${chapter.value}. SIR-approved video links will be connected after the institute syllabus is verified and links are provided.`;
+    });
+    // Student profile is loaded asynchronously. Lock the stream when the existing profile resolver can identify it.
+    document.addEventListener("sir:student-ready", applyRecognizedStudentStream);
+    applyRecognizedStudentStream();
+    if (!course.value) resetBelowStream();
   })();
 
 </script>
