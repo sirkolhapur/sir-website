@@ -3179,7 +3179,10 @@
         <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">The login email is generated from the Employee ID using the @sir.net.in domain. Personal/work email is stored separately as contact information. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
         <form id="staffForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
           <label>Full name *<input id="staffFullName" required maxlength="150" autocomplete="name"></label>
-          <label>Personal/work email (contact only) *<input id="staffEmail" type="email" required maxlength="254" autocomplete="email"></label>
+          
+<label>Login username *<input id="staffLoginUsername" type="text" required maxlength="64" pattern="[a-zA-Z0-9][a-zA-Z0-9._-]*" placeholder="e.g. test" autocomplete="off"></label>
+<label>Personal/work email *<input id="staffEmail" type="email" required maxlength="254" autocomplete="email"></label>
+
           <label>Mobile<input id="staffPhone" type="tel" maxlength="30" autocomplete="tel"></label>
           <label>Employee ID<input id="staffEmployeeId" maxlength="50" placeholder="e.g. SIR-0001; blank = auto-generate" pattern="[A-Za-z0-9][A-Za-z0-9-]{0,49}" title="Use letters, numbers and hyphens only."></label>
           <label>Designation *<select id="staffDesignation" required><option value="">Load designations first</option></select></label>
@@ -8982,7 +8985,7 @@ async function createStaffAccount(event){
  event.preventDefault();const btn=document.getElementById("createStaffBtn");btn.disabled=true;btn.textContent="Creating account…";
  try{
   const session=await staffRequireAdmin();
-  const payload={full_name:document.getElementById("staffFullName").value.trim(),email:document.getElementById("staffEmail").value.trim().toLowerCase(),phone:document.getElementById("staffPhone").value.trim()||null,employee_id:document.getElementById("staffEmployeeId").value.trim()||null,designation_id:document.getElementById("staffDesignation").value,department:document.getElementById("staffDepartment").value,branch_id:document.getElementById("staffBranch").value,reporting_manager_id:document.getElementById("staffManager").value||null,password:document.getElementById("staffTempPassword").value,is_active:document.getElementById("staffActive").checked};
+  const payload={full_name:document.getElementById("staffFullName").value.trim(),login_username:document.getElementById("staffLoginUsername").value.trim().toLowerCase(),phone:document.getElementById("staffPhone").value.trim()||null,employee_id:document.getElementById("staffEmployeeId").value.trim()||null,designation_id:document.getElementById("staffDesignation").value,department:document.getElementById("staffDepartment").value,branch_id:document.getElementById("staffBranch").value,reporting_manager_id:document.getElementById("staffManager").value||null,password:document.getElementById("staffTempPassword").value,is_active:document.getElementById("staffActive").checked};
   const {data,error}=await supabaseClient.functions.invoke("admin-create-staff",{body:payload,headers:{Authorization:`Bearer ${session.access_token}`}});
   if(error)throw error;if(!data?.success)throw new Error(data?.error||"Staff account creation failed.");
   document.getElementById("staffForm").reset();document.getElementById("staffActive").checked=true;
