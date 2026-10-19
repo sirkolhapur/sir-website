@@ -2237,7 +2237,58 @@
     @media(max-width:900px) { #staff .panel, #staffAccess .panel { padding:18px !important; } #staffAccess #designationForm { grid-template-columns:repeat(2,minmax(0,1fr)) !important; } #staffAccess #designationForm > div { grid-column:1/-1; } }
     @media(max-width:560px) { #staff .page-header h1, #staffAccess .page-header h1 { font-size:25px; } #staff .panel, #staffAccess .panel { padding:15px !important; border-radius:12px; } #staffAccess #designationForm { grid-template-columns:1fr !important; } #staffAccess #designationForm > div { grid-column:auto; } #staff .data-table th, #staffAccess .data-table th { padding:12px; } #staff .data-table td, #staffAccess .data-table td { padding:12px; } }
 
-  </style>
+  
+    /* Branch Management: aligned with the SIR navy-and-gold admin UI */
+    #branches .branch-single-setup {
+      display:flex; align-items:center; gap:16px;
+      background:linear-gradient(135deg, rgba(20,43,68,.88), rgba(10,27,45,.96));
+      border:1px solid rgba(201,168,78,.24); border-radius:16px;
+    }
+    #branches .branch-single-icon {
+      width:48px; height:48px; flex:0 0 48px; display:grid; place-items:center;
+      border-radius:13px; background:rgba(201,168,78,.13); color:#e2c15f;
+      border:1px solid rgba(201,168,78,.28); font-size:27px;
+    }
+    #branches .branch-single-copy { flex:1; min-width:0; }
+    #branches .branch-single-copy h3, #branches .branch-list-heading h3 { margin:0 0 6px; }
+    #branches .branch-single-copy p, #branches .branch-list-heading p { margin:0; color:var(--muted,#8fa8c4); line-height:1.55; }
+    #branches .branch-setup-tag { white-space:nowrap; padding:7px 11px; border-radius:999px; color:#e2c15f; background:rgba(201,168,78,.10); border:1px solid rgba(201,168,78,.25); font-size:12px; font-weight:800; }
+    #branches .branch-list-panel { background:linear-gradient(145deg, rgba(15,35,57,.96), rgba(8,25,43,.98)); border:1px solid rgba(201,168,78,.18); border-radius:16px; }
+    #branches .branch-list-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+    #branches .branch-list-heading .secondary-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; }
+    #branches .branch-table-wrap { border:1px solid rgba(91,124,157,.22); border-radius:12px; overflow:auto; }
+    #branches .branch-table-wrap table { width:100%; min-width:760px; border-collapse:separate !important; border-spacing:0; }
+    #branches .branch-table-wrap thead th { background:#112942; color:#9bb9d9; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; padding:14px 16px; border-bottom:1px solid rgba(91,124,157,.24); text-align:left; }
+    #branches .branch-table-wrap thead th:first-child { border-top-left-radius:10px; }
+    #branches .branch-table-wrap thead th:last-child { border-top-right-radius:10px; }
+    #branches .branch-table-wrap tbody td { padding:16px; border-bottom:1px solid rgba(91,124,157,.17); color:#e8eef6; vertical-align:middle; line-height:1.5; }
+    #branches .branch-table-wrap tbody tr:last-child td { border-bottom:0; }
+    #branches .branch-table-wrap tbody tr:hover td { background:rgba(42,73,103,.18); }
+    #branches .branch-name-cell { font-weight:800; color:#fff !important; }
+    #branches .branch-code-cell { font-weight:700; color:#d9bb62 !important; white-space:nowrap; }
+    #branches .branch-location-cell { min-width:260px; color:#b7c7d9 !important; }
+    #branches .branch-status-badge { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap; }
+    #branches .branch-status-badge::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+    #branches .branch-status-badge.is-active { color:#5fe0a2; background:rgba(22,163,94,.13); border:1px solid rgba(22,163,94,.34); }
+    #branches .branch-status-badge.is-inactive { color:#ff8d98; background:rgba(220,53,69,.13); border:1px solid rgba(220,53,69,.34); }
+    #branches .branch-action-btn { min-height:38px; padding:8px 13px; border-radius:9px; font-weight:750; background:transparent; cursor:pointer; transition:background .15s ease,border-color .15s ease; }
+    #branches .branch-action-btn.is-deactivate { color:#ff9aa3; background:rgba(220,53,69,.12); border:1px solid rgba(220,53,69,.4); }
+    #branches .branch-action-btn.is-deactivate:hover { background:rgba(220,53,69,.2); }
+    #branches .branch-action-btn.is-activate { color:#62e3a4; background:rgba(22,163,94,.12); border:1px solid rgba(22,163,94,.4); }
+    #branches .branch-action-btn.is-activate:hover { background:rgba(22,163,94,.2); }
+    #branches .branch-action-btn:disabled { opacity:.48; cursor:not-allowed; }
+    #branches .branch-message:empty { display:none; }
+    #branches .branch-message { margin:0 0 12px; }
+    #branches .branch-loading, #branches .branch-empty { padding:18px; color:var(--muted,#8fa8c4); margin:0; }
+    @media (max-width:700px) {
+      #branches .branch-single-setup { align-items:flex-start; flex-wrap:wrap; padding:16px !important; }
+      #branches .branch-single-copy { flex-basis:calc(100% - 68px); }
+      #branches .branch-setup-tag { margin-left:64px; }
+      #branches .branch-list-panel { padding:14px !important; }
+      #branches .branch-list-heading { align-items:flex-start; }
+    }
+
+</style>
 </head>
 
 <body>
@@ -3094,20 +3145,31 @@
 
     <!-- BRANCH MANAGEMENT -->
     <section class="section" id="branches">
-      <div class="page-header"><div><h1>Branch Management</h1><p>Create and manage institute branches from the central Admin Dashboard.</p></div></div>
-      <div class="panel" style="padding:20px;margin-bottom:18px">
-        <h3>Create Branch</h3><div id="branchMessage" role="status" style="margin:10px 0"></div>
-        <form id="branchForm" class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-          <label>Branch name *<input id="branchName" required maxlength="120" placeholder="e.g. Kolhapur Main"></label>
-          <label>Branch code *<input id="branchCode" required maxlength="30" placeholder="e.g. KOP-001"></label>
-          <label>Address<input id="branchAddress" maxlength="300" placeholder="Branch address"></label>
-          <label>City<input id="branchCity" maxlength="100" placeholder="City"></label>
-          <label>State<input id="branchState" maxlength="100" value="Maharashtra"></label>
-          <label>Status<select id="branchStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
-          <div><button class="primary-btn" type="submit" id="saveBranchBtn">Create Branch</button></div>
-        </form>
+      <div class="page-header">
+        <div>
+          <h1>Branch Management</h1>
+          <p>Manage the institute's existing branch and its active status.</p>
+        </div>
       </div>
-      <div class="panel" style="padding:20px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>All Branches</h3><button class="secondary-btn" type="button" id="refreshBranchesBtn">Refresh</button></div><div id="branchesTableWrap" style="overflow:auto"><p>Open this section to load branches.</p></div></div>
+      <div class="panel branch-single-setup" style="padding:20px;margin-bottom:18px">
+        <div class="branch-single-icon" aria-hidden="true">⌂</div>
+        <div class="branch-single-copy">
+          <h3>Single-branch setup</h3>
+          <p>SIR currently operates from one branch. The existing Kolhapur Main branch is preserved; creating additional branches is disabled in this dashboard.</p>
+        </div>
+        <span class="branch-setup-tag">One branch</span>
+      </div>
+      <div class="panel branch-list-panel" style="padding:20px">
+        <div class="branch-list-heading">
+          <div>
+            <h3>Institute Branch</h3>
+            <p>Review the saved branch details and current status.</p>
+          </div>
+          <button class="secondary-btn" type="button" id="refreshBranchesBtn"><span aria-hidden="true">↻</span> Refresh</button>
+        </div>
+        <div id="branchMessage" role="status" aria-live="polite" class="branch-message"></div>
+        <div id="branchesTableWrap" class="branch-table-wrap" style="overflow:auto"><p class="branch-loading">Loading branch details...</p></div>
+      </div>
     </section>
 
     <!-- STAFF DIRECTORY -->
@@ -8852,9 +8914,22 @@ async function loadStaffBranches() {
 }
 function renderBranches(){
  const wrap=document.getElementById("branchesTableWrap"); if(!wrap)return;
- if(!staffBranchesCache.length){wrap.innerHTML="<p>No branches yet. Create the first branch above.</p>";return;}
- wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Branch</th><th>Code</th><th>Location</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffBranchesCache.map(b=>`<tr><td>${staffEsc(b.name)}</td><td>${staffEsc(b.branch_code)}</td><td>${staffEsc([b.address,b.city,b.state].filter(Boolean).join(", ")||"—")}</td><td>${staffEsc(b.status)}</td><td><button class="secondary-btn" data-branch-toggle="${staffEsc(b.id)}" data-status="${b.status==="active"?"inactive":"active"}">${b.status==="active"?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
- wrap.querySelectorAll("[data-branch-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("organization_branches").update({status:btn.dataset.status,updated_at:new Date().toISOString()}).eq("id",btn.dataset.branchToggle);if(error)throw error;staffNotice("branchMessage","Branch status updated.");await loadStaffBranches();await populateStaffManagers();}catch(e){staffNotice("branchMessage",e.message||"Unable to update branch.",true);}}));
+ if(!staffBranchesCache.length){wrap.innerHTML='<p class="branch-empty">No branch record was returned. The expected SIR branch is Kolhapur Main (KOP-001). Check the existing database record before creating anything new.</p>';return;}
+ const activeBranches=staffBranchesCache.filter(b=>String(b.status||"").toLowerCase()==="active");
+ wrap.innerHTML='<table class="data-table"><thead><tr><th>Branch</th><th>Code</th><th>Location</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffBranchesCache.map(b=>{
+   const isActive=String(b.status||"").toLowerCase()==="active";
+   const isOnlyActiveBranch=isActive&&activeBranches.length===1&&staffBranchesCache.length===1;
+   const location=[b.address,b.city,b.state].filter(Boolean).join(", ")||"—";
+   const buttonLabel=isActive?"Deactivate":"Activate";
+   const buttonClass=isActive?"is-deactivate":"is-activate";
+   const disabled=isOnlyActiveBranch?' disabled title="Keep the only SIR branch active so staff assignment remains available"':'';
+   return `<tr><td class="branch-name-cell">${staffEsc(b.name)}</td><td class="branch-code-cell">${staffEsc(b.branch_code)}</td><td class="branch-location-cell">${staffEsc(location)}</td><td><span class="branch-status-badge ${isActive?'is-active':'is-inactive'}">${isActive?'Active':'Inactive'}</span></td><td><button class="branch-action-btn ${buttonClass}" data-branch-toggle="${staffEsc(b.id)}" data-status="${isActive?'inactive':'active'}"${disabled}>${buttonLabel}</button></td></tr>`;
+ }).join("")+'</tbody></table>';
+ wrap.querySelectorAll("[data-branch-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{
+   if(btn.disabled)return;
+   if(btn.dataset.status==="inactive"&&staffBranchesCache.length===1){staffNotice("branchMessage","SIR has only one branch. Keep Kolhapur Main active so staff accounts can be assigned correctly.",true);return;}
+   try{await staffRequireAdmin();btn.disabled=true;const {error}=await supabaseClient.from("organization_branches").update({status:btn.dataset.status,updated_at:new Date().toISOString()}).eq("id",btn.dataset.branchToggle);if(error)throw error;staffNotice("branchMessage","Branch status updated.");await loadStaffBranches();await populateStaffManagers();}catch(e){staffNotice("branchMessage",e.message||"Unable to update branch.",true);btn.disabled=false;}
+ }));
 }
 async function loadStaffDesignations(){
  await staffRequireAdmin();
@@ -8940,7 +9015,6 @@ async function loadStaffManagement(){
  try{await Promise.all([loadStaffBranches(),loadStaffDesignations()]);await loadStaffMembers();}
  catch(e){console.error("Staff/branch management load failed:",e);staffNotice("staffMessage",`Unable to load management data: ${e.message||e}. Apply the SQL migration and deploy the Edge Function first.`,true);}
 }
-document.getElementById("branchForm")?.addEventListener("submit",saveBranch);
 document.getElementById("designationForm")?.addEventListener("submit",saveDesignation);
 document.getElementById("staffForm")?.addEventListener("submit",createStaffAccount);
 document.getElementById("staffBranch")?.addEventListener("change",()=>populateStaffManagers().catch(e=>staffNotice("staffMessage",e.message,true)));
