@@ -2194,7 +2194,50 @@
 @media(max-width:1200px){.dashboard-four-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-feature-card{min-height:210px}}
 @media(max-width:700px){.dashboard-welcome{align-items:flex-start;flex-direction:column}.dashboard-four-grid,.dashboard-lower-grid,.fees-summary-grid{grid-template-columns:1fr}.dashboard-feature-card{min-height:190px}.dashboard-date{align-self:flex-start}.collection-metrics strong{font-size:21px}}
 
-</style>
+
+    /* Staff management UI polish — additive; existing dashboard styles/modules preserved */
+    #staff .page-header, #staffAccess .page-header { margin-bottom:24px; }
+    #staff .page-header h1, #staffAccess .page-header h1 { color:#f7f9fc; letter-spacing:-.5px; }
+    #staff .page-header p, #staffAccess .page-header p { color:#9aaec7; line-height:1.6; max-width:850px; }
+    #staff .panel, #staffAccess .panel { background:linear-gradient(145deg,rgba(15,35,59,.98),rgba(9,25,44,.98)); border:1px solid rgba(201,168,78,.18); border-radius:16px; padding:24px !important; box-shadow:0 12px 28px rgba(0,0,0,.12); min-width:0; }
+    #staff h3, #staffAccess h3 { color:#f4f7fb; font-size:18px; font-weight:700; letter-spacing:-.2px; }
+    #staff .panel > p, #staffAccess .panel > p { color:#9aacc2 !important; line-height:1.55; margin-top:7px; }
+    #staff form, #staffAccess form { margin-top:20px; gap:18px 20px !important; }
+    #staff label, #staffAccess label { display:flex; flex-direction:column; gap:8px; color:#d8e1ed; font-size:13px; font-weight:650; min-width:0; }
+    #staff input:not([type=checkbox]), #staff select, #staffAccess input:not([type=checkbox]), #staffAccess select { display:block; width:100%; min-width:0; min-height:44px; padding:11px 12px; color:#f7f9fc; background:#071629; border:1px solid #29415e; border-radius:9px; font:inherit; font-size:14px; outline:none; transition:border-color .18s,box-shadow .18s; }
+    #staff input::placeholder, #staffAccess input::placeholder { color:#71849c; }
+    #staff input:focus, #staff select:focus, #staffAccess input:focus, #staffAccess select:focus { border-color:#d2b052; box-shadow:0 0 0 3px rgba(210,176,82,.14); }
+    #staff input[type=checkbox], #staffAccess input[type=checkbox] { accent-color:#d4b354; width:17px; height:17px; }
+    #staff #staffForm label:has(#staffActive) { flex-direction:row; align-items:center; align-self:center; padding-top:12px; }
+    #staff .primary-btn, #staffAccess .primary-btn { min-height:44px; padding:12px 20px; border-radius:10px; background:linear-gradient(135deg,#e0c46a,#c9a342); color:#09182b; box-shadow:0 5px 14px rgba(201,168,78,.12); }
+    #staff .primary-btn:hover, #staffAccess .primary-btn:hover { filter:brightness(1.06); transform:translateY(-1px); }
+    #staff .primary-btn:disabled, #staffAccess .primary-btn:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+    #staff .secondary-btn, #staffAccess .secondary-btn { min-height:40px; padding:9px 15px; border-radius:9px; border-color:#30445d; color:#e6edf6; white-space:nowrap; }
+    #staff .secondary-btn:hover, #staffAccess .secondary-btn:hover { background:#142b45; }
+    #staff #staffTableWrap, #staffAccess #designationsTableWrap, #staffAccess #permissionMatrixWrap { margin-top:18px; overflow:auto; border:1px solid #1b3049; border-radius:11px; }
+    #staff .data-table, #staffAccess .data-table { width:100%; border:0; border-collapse:separate !important; border-spacing:0; background:#091a2e; color:#e7edf6; border-radius:0; }
+    #staff .data-table th, #staffAccess .data-table th { padding:14px 16px; background:#102640; color:#9fb3cb; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; text-align:left; white-space:nowrap; border-bottom:1px solid #263c55; }
+    #staff .data-table td, #staffAccess .data-table td { padding:15px 16px; border-bottom:1px solid rgba(126,151,180,.13); vertical-align:middle; font-size:13px; line-height:1.5; }
+    #staff .data-table tbody tr:last-child td, #staffAccess .data-table tbody tr:last-child td { border-bottom:0; }
+    #staff .data-table tbody tr:hover, #staffAccess .data-table tbody tr:hover { background:rgba(201,168,78,.045); }
+    #staff .data-table td strong { color:#fff; font-size:14px; }
+    #staff .data-table td small { display:inline-block; margin-top:3px; color:#93a7bf; overflow-wrap:anywhere; }
+    .sir-status-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border-radius:999px; font-size:12px; line-height:1; font-weight:750; white-space:nowrap; }
+    .sir-status-pill::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+    .sir-status-pill.is-active { color:#65e0a0; background:rgba(30,190,110,.12); border:1px solid rgba(65,220,140,.22); }
+    .sir-status-pill.is-inactive { color:#ff9299; background:rgba(239,68,68,.11); border:1px solid rgba(255,100,110,.22); }
+    #staff button[data-staff-toggle][data-active="true"], #staffAccess button[data-designation-toggle][data-active="true"] { background:rgba(22,163,74,.14); color:#7be6a5; border:1px solid rgba(74,222,128,.35); }
+    #staff button[data-staff-toggle][data-active="false"], #staffAccess button[data-designation-toggle][data-active="false"] { background:rgba(220,38,38,.13); color:#ff9a9f; border:1px solid rgba(248,113,113,.35); }
+    #staff button[data-staff-toggle]:hover, #staffAccess button[data-designation-toggle]:hover { filter:brightness(1.18); }
+    #staff #staffMessage, #staffAccess #designationMessage, #staffAccess #permissionMessage { padding:0; font-size:13px; line-height:1.5; }
+    #staffAccess #designationForm { grid-template-columns:repeat(3,minmax(180px,1fr)) minmax(150px,auto) !important; align-items:end; }
+    #staffAccess #designationForm > div { display:flex; align-items:end; }
+    #staffAccess #designationForm .primary-btn { width:100%; }
+    #staffAccess #permissionMatrixWrap input { accent-color:#d4b354; }
+    @media(max-width:900px) { #staff .panel, #staffAccess .panel { padding:18px !important; } #staffAccess #designationForm { grid-template-columns:repeat(2,minmax(0,1fr)) !important; } #staffAccess #designationForm > div { grid-column:1/-1; } }
+    @media(max-width:560px) { #staff .page-header h1, #staffAccess .page-header h1 { font-size:25px; } #staff .panel, #staffAccess .panel { padding:15px !important; border-radius:12px; } #staffAccess #designationForm { grid-template-columns:1fr !important; } #staffAccess #designationForm > div { grid-column:auto; } #staff .data-table th, #staffAccess .data-table th { padding:12px; } #staff .data-table td, #staffAccess .data-table td { padding:12px; } }
+
+  </style>
 </head>
 
 <body>
@@ -4219,6 +4262,9 @@ let allStudents = [];
 
 async function loadStudents() {
 
+  const studentsTableBody = document.getElementById("studentsTableBody");
+  if (studentsTableBody) studentsTableBody.innerHTML = '<tr><td colspan="7" class="empty">Loading students...</td></tr>';
+
   const {
     data,
     error
@@ -4242,9 +4288,7 @@ async function loadStudents() {
 
     console.error("Students error:", error);
 
-    document.getElementById(
-      "studentsTableBody"
-    ).innerHTML = `
+    if (studentsTableBody) studentsTableBody.innerHTML = `
       <tr>
         <td colspan="6" class="empty">
           Unable to load students.
@@ -4260,14 +4304,11 @@ async function loadStudents() {
 
   renderStudents(allStudents);
 
-  document.getElementById(
-    "totalStudents"
-  ).textContent = allStudents.length;
+  const totalStudentsEl = document.getElementById("totalStudents");
+  if (totalStudentsEl) totalStudentsEl.textContent = allStudents.length;
 
-  document.getElementById(
-    "activeStudents"
-  ).textContent =
-    allStudents.filter(s => s.is_active).length;
+  const activeStudentsEl = document.getElementById("activeStudents");
+  if (activeStudentsEl) activeStudentsEl.textContent = allStudents.filter(s => s.is_active).length;
 
 }
 
@@ -4945,6 +4986,10 @@ async function loadCourses() {
   if (error) {
 
     console.error("Courses error:", error);
+    const courseSelect = document.getElementById("studentCourse");
+    if (courseSelect) courseSelect.innerHTML = '<option value="">Unable to load courses</option>';
+    const managedCoursesBody = document.getElementById("coursesTableBody");
+    if (managedCoursesBody) managedCoursesBody.innerHTML = `<tr><td colspan="4" class="empty">Unable to load courses: ${escapeHtml(error.message || "Unknown error")}</td></tr>`;
     return;
 
   }
@@ -4956,6 +5001,7 @@ async function loadCourses() {
       "studentCourse"
     );
 
+  if (!select) return;
   select.innerHTML =
     `<option value="">Select Course</option>`;
 
@@ -4994,6 +5040,10 @@ async function loadBatches() {
   if (error) {
 
     console.error("Batches error:", error);
+    const batchSelect = document.getElementById("studentBatch");
+    if (batchSelect) batchSelect.innerHTML = '<option value="">Unable to load batches</option>';
+    const managedBatchesBody = document.getElementById("batchesTableBody");
+    if (managedBatchesBody) managedBatchesBody.innerHTML = `<tr><td colspan="4" class="empty">Unable to load batches: ${escapeHtml(error.message || "Unknown error")}</td></tr>`;
     return;
 
   }
@@ -5008,6 +5058,7 @@ async function loadBatches() {
       "studentBatch"
     );
 
+  if (!select) return;
   select.innerHTML =
     `<option value="">Select Batch</option>`;
 
@@ -5052,6 +5103,10 @@ async function loadAdminBatches() {
 
   if (error) {
     console.error("Admin test batches error:", error);
+    const testBatchSelect = document.getElementById("testBatch");
+    if (testBatchSelect) testBatchSelect.innerHTML = '<option value="">Unable to load batches</option>';
+    const testList = document.getElementById("testList");
+    if (testList) testList.innerHTML = `<div class="test-empty">Unable to load test batches: ${escapeHtml(error.message || "Unknown error")}</div>`;
     return;
   }
 
@@ -5109,11 +5164,8 @@ async function loadAdminTests() {
 
     console.error("Admin tests error:", error);
 
-    document.getElementById("testList").innerHTML = `
-      <div class="test-empty">
-        Unable to load tests. Check Admin access to the tests table.
-      </div>
-    `;
+    const testList = document.getElementById("testList");
+    if (testList) testList.innerHTML = `<div class="test-empty">Unable to load tests: ${escapeHtml(error.message || "Check Admin access to the tests table.")}</div>`;
 
     return;
   }
@@ -5122,8 +5174,8 @@ async function loadAdminTests() {
 
   renderAdminTests(adminTests);
 
-  document.getElementById("totalTests").textContent =
-    adminTests.length;
+  const totalTestsEl = document.getElementById("totalTests");
+  if (totalTestsEl) totalTestsEl.textContent = adminTests.length;
 
 }
 
@@ -6597,8 +6649,8 @@ async function loadTeachers() {
 
   if (error) {
     console.error("Teachers error:", error);
-    document.getElementById("teachersTableBody").innerHTML =
-      `<tr><td colspan="7" class="empty">Unable to load teachers.</td></tr>`;
+    const teachersBody = document.getElementById("teachersTableBody");
+    if (teachersBody) teachersBody.innerHTML = `<tr><td colspan="7" class="empty">Unable to load teachers: ${escapeHtml(error.message || "Unknown error")}</td></tr>`;
     return;
   }
 
@@ -7144,15 +7196,11 @@ async function loadCounters() {
       head: true
     });
 
-  document.getElementById(
-    "totalTests"
-  ).textContent =
-    testCount ?? 0;
+  const totalTestsCounter = document.getElementById("totalTests");
+  if (totalTestsCounter) totalTestsCounter.textContent = testCount ?? 0;
 
-  document.getElementById(
-    "totalNotices"
-  ).textContent =
-    noticeCount ?? 0;
+  const totalNoticesCounter = document.getElementById("totalNotices");
+  if (totalNoticesCounter) totalNoticesCounter.textContent = noticeCount ?? 0;
 
 }
 
@@ -8820,7 +8868,7 @@ async function loadStaffDesignations(){
 function renderDesignations(){
  const wrap=document.getElementById("designationsTableWrap");if(!wrap)return;
  if(!staffDesignationsCache.length){wrap.innerHTML="<p>No designations found. Add one above or run the provided migration seed.</p>";return;}
- wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Designation</th><th>Department</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffDesignationsCache.map(d=>`<tr><td>${staffEsc(d.name)}</td><td>${staffEsc(d.department)}</td><td>${staffEsc(d.description||"—")}</td><td>${d.is_active?"Active":"Inactive"}</td><td><button class="secondary-btn" data-designation-toggle="${staffEsc(d.id)}" data-active="${d.is_active?"false":"true"}">${d.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Designation</th><th>Department</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffDesignationsCache.map(d=>`<tr><td>${staffEsc(d.name)}</td><td>${staffEsc(d.department)}</td><td>${staffEsc(d.description||"—")}</td><td><span class="sir-status-pill ${d.is_active?"is-active":"is-inactive"}">${d.is_active?"Active":"Inactive"}</span></td><td><button class="secondary-btn" data-designation-toggle="${staffEsc(d.id)}" data-active="${d.is_active?"false":"true"}">${d.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
  wrap.querySelectorAll("[data-designation-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("staff_designations").update({is_active:btn.dataset.active==="true",updated_at:new Date().toISOString()}).eq("id",btn.dataset.designationToggle);if(error)throw error;staffNotice("designationMessage","Designation status updated.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to update designation.",true);}}));
 }
 async function populateStaffManagers(){
@@ -8837,12 +8885,20 @@ async function loadStaffMembers(){
 function renderStaffMembers(){
  const wrap=document.getElementById("staffTableWrap");if(!wrap)return;
  if(!staffMembersCache.length){wrap.innerHTML="<p>No staff accounts yet. Use the form above to create the first account.</p>";return;}
- wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Employee</th><th>Designation</th><th>Department</th><th>Branch</th><th>Manager</th><th>Login</th><th>Action</th></tr></thead><tbody>'+staffMembersCache.map(m=>`<tr><td><strong>${staffEsc(m.full_name)}</strong><br><small>${staffEsc(m.employee_id||"No ID")} · ${staffEsc(m.email)}</small></td><td>${staffEsc(m.staff_designations?.name||"—")}</td><td>${staffEsc(m.department)}</td><td>${staffEsc(m.organization_branches?.name||"—")}</td><td>${staffEsc(staffMembersCache.find(x=>x.id===m.reporting_manager_id)?.full_name||"—")}</td><td>${m.is_active?"Active":"Inactive"}</td><td><button class="secondary-btn" data-staff-toggle="${staffEsc(m.id)}" data-active="${m.is_active?"false":"true"}">${m.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Employee</th><th>Designation</th><th>Department</th><th>Branch</th><th>Manager</th><th>Login</th><th>Action</th></tr></thead><tbody>'+staffMembersCache.map(m=>`<tr><td><strong>${staffEsc(m.full_name)}</strong><br><small>${staffEsc(m.employee_id||"No ID")} · ${staffEsc(m.email)}</small></td><td>${staffEsc(m.staff_designations?.name||"—")}</td><td>${staffEsc(m.department)}</td><td>${staffEsc(m.organization_branches?.name||"—")}</td><td>${staffEsc(staffMembersCache.find(x=>x.id===m.reporting_manager_id)?.full_name||"—")}</td><td><span class="sir-status-pill ${m.is_active?"is-active":"is-inactive"}">${m.is_active?"Active":"Inactive"}</span></td><td><button class="secondary-btn" data-staff-toggle="${staffEsc(m.id)}" data-active="${m.is_active?"false":"true"}">${m.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
  wrap.querySelectorAll("[data-staff-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{const nextActive=btn.dataset.active==="true";if(!confirm(`${nextActive?"Activate":"Deactivate"} this staff login?`))return;try{const session=await staffRequireAdmin();const {data,error}=await supabaseClient.functions.invoke("admin-set-staff-status",{body:{staff_member_id:btn.dataset.staffToggle,is_active:nextActive},headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw error;if(!data?.success)throw new Error(data?.error||"Unable to update staff status.");staffNotice("staffMessage",`Staff account ${nextActive?"activated":"deactivated"}.`);await loadStaffMembers();}catch(e){staffNotice("staffMessage",e.message||"Unable to update staff status.",true);}}));
 }
 async function saveBranch(event){
- event.preventDefault();const btn=document.getElementById("saveBranchBtn");btn.disabled=true;
- try{await staffRequireAdmin();const payload={name:document.getElementById("branchName").value.trim(),branch_code:document.getElementById("branchCode").value.trim().toUpperCase(),address:document.getElementById("branchAddress").value.trim()||null,city:document.getElementById("branchCity").value.trim()||null,state:document.getElementById("branchState").value.trim()||null,status:document.getElementById("branchStatus").value};const {error}=await supabaseClient.from("organization_branches").insert(payload);if(error)throw error;document.getElementById("branchForm").reset();document.getElementById("branchState").value="Maharashtra";staffNotice("branchMessage","Branch created successfully.");await loadStaffBranches();await populateStaffManagers();}catch(e){staffNotice("branchMessage",e.message||"Unable to create branch.",true);}finally{btn.disabled=false;}
+ event.preventDefault();const btn=document.getElementById("saveBranchBtn");if(!btn)return;btn.disabled=true;
+ try{
+  await staffRequireAdmin();
+  const {data:existing,error:checkError}=await supabaseClient.from("organization_branches").select("id").limit(1);
+  if(checkError)throw checkError;
+  if(existing&&existing.length)throw new Error("SIR is configured for one branch only. An additional branch cannot be created.");
+  const payload={name:document.getElementById("branchName").value.trim(),branch_code:document.getElementById("branchCode").value.trim().toUpperCase(),address:document.getElementById("branchAddress").value.trim()||null,city:document.getElementById("branchCity").value.trim()||null,state:document.getElementById("branchState").value.trim()||null,status:document.getElementById("branchStatus").value};
+  const {error}=await supabaseClient.from("organization_branches").insert(payload);if(error)throw error;
+  document.getElementById("branchForm").reset();document.getElementById("branchState").value="Maharashtra";staffNotice("branchMessage","Institute branch saved successfully.");await loadStaffBranches();await populateStaffManagers();
+ }catch(e){staffNotice("branchMessage",e.message||"Unable to save institute branch.",true);}finally{btn.disabled=false;}
 }
 async function saveDesignation(event){
  event.preventDefault();try{await staffRequireAdmin();const payload={name:document.getElementById("designationName").value.trim(),department:document.getElementById("designationDepartment").value,description:document.getElementById("designationDescription").value.trim()||null,is_active:true};const {error}=await supabaseClient.from("staff_designations").insert(payload);if(error)throw error;document.getElementById("designationForm").reset();staffNotice("designationMessage","Designation added.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to add designation.",true);}
@@ -8901,37 +8957,30 @@ document.querySelectorAll('[data-section="branches"],[data-section="staff"],[dat
 -------------------------------- */
 
 (async function init() {
-
   showLogin();
-
-  const session =
-    await checkAdmin();
-
-  if (!session) {
-    return;
-  }
-
+  let session;
+  try { session = await checkAdmin(); }
+  catch (error) { console.error("Admin session check failed:", error); return; }
+  if (!session) return;
   showDashboard();
 
-  await loadCourses();
-  await loadBatches();
-  await loadStudents();
-
-  await loadTeachers();
-
-  await loadManagedCourses();
-
-  await loadManagedBatches();
-
-  await loadBatches();
-
-  await loadAdminBatches();
-
-  await loadAdminTests();
-
-  await loadCounters();
-  await loadNotices();
-
+  // Load modules independently: one failed request must not leave all later sections at Loading.
+  const startupTasks = [
+    ["student course options", loadCourses],
+    ["student batch options", loadBatches],
+    ["students", loadStudents],
+    ["teachers", loadTeachers],
+    ["course management", loadManagedCourses],
+    ["batch management", loadManagedBatches],
+    ["test batch options", loadAdminBatches],
+    ["tests", loadAdminTests],
+    ["dashboard counters", loadCounters],
+    ["notices", loadNotices]
+  ];
+  for (const [moduleName, loader] of startupTasks) {
+    try { await loader(); }
+    catch (error) { console.error(`Admin startup failed for ${moduleName}:`, error); }
+  }
 })();
 
 
