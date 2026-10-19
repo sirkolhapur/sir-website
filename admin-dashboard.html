@@ -3091,7 +3091,7 @@
 
     <!-- DESIGNATIONS AND ACCESS -->
     <section class="section" id="staffAccess">
-      <div class="page-header"><div><h1>Designations & Access</h1><p>Manage designations and configure module permissions. These settings are not enforced for staff until the staff-facing backend checks are implemented.</p></div></div>
+      <div class="page-header"><div><h1>Designations & Access</h1><p>Manage the designation list. Application permissions are enforced by backend policies, not only by the interface.</p></div></div>
       <div class="panel" style="padding:20px;margin-bottom:18px"><h3>Add Designation</h3><div id="designationMessage" role="status" style="margin:10px 0"></div>
         <form id="designationForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
           <label>Designation name *<input id="designationName" required maxlength="120" placeholder="e.g. Branch Head"></label>
@@ -4260,15 +4260,14 @@ async function loadStudents() {
 
   renderStudents(allStudents);
 
-  // Some dashboard layouts no longer render these optional counters.
-  // Guard them so a missing counter cannot abort init() after students load.
-  const totalStudentsEl = document.getElementById("totalStudents");
-  if (totalStudentsEl) totalStudentsEl.textContent = allStudents.length;
+  document.getElementById(
+    "totalStudents"
+  ).textContent = allStudents.length;
 
-  const activeStudentsEl = document.getElementById("activeStudents");
-  if (activeStudentsEl) {
-    activeStudentsEl.textContent = allStudents.filter(s => s.is_active).length;
-  }
+  document.getElementById(
+    "activeStudents"
+  ).textContent =
+    allStudents.filter(s => s.is_active).length;
 
 }
 
@@ -8815,7 +8814,6 @@ async function loadStaffDesignations(){
  if(error) throw error; staffDesignationsCache=data||[];
  const options='<option value="">Select designation</option>'+staffDesignationsCache.filter(d=>d.is_active).map(d=>`<option value="${staffEsc(d.id)}">${staffEsc(d.name)} — ${staffEsc(d.department)}</option>`).join("");
  const sel=document.getElementById("staffDesignation"); if(sel)sel.innerHTML=options;
- syncStaffDepartmentFromDesignation();
  const permSel=document.getElementById("permissionDesignation"); if(permSel){const previous=permSel.value;permSel.innerHTML=options;if(previous)permSel.value=previous;}
  renderDesignations();
 }
@@ -8825,34 +8823,11 @@ function renderDesignations(){
  wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Designation</th><th>Department</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffDesignationsCache.map(d=>`<tr><td>${staffEsc(d.name)}</td><td>${staffEsc(d.department)}</td><td>${staffEsc(d.description||"—")}</td><td>${d.is_active?"Active":"Inactive"}</td><td><button class="secondary-btn" data-designation-toggle="${staffEsc(d.id)}" data-active="${d.is_active?"false":"true"}">${d.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
  wrap.querySelectorAll("[data-designation-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("staff_designations").update({is_active:btn.dataset.active==="true",updated_at:new Date().toISOString()}).eq("id",btn.dataset.designationToggle);if(error)throw error;staffNotice("designationMessage","Designation status updated.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to update designation.",true);}}));
 }
-function syncStaffDepartmentFromDesignation(){
- const designationId=document.getElementById("staffDesignation")?.value||"";
- const departmentSelect=document.getElementById("staffDepartment");
- if(!designationId||!departmentSelect)return;
- const designation=staffDesignationsCache.find(d=>d.id===designationId);
- if(!designation)return;
- const matchingOption=[...departmentSelect.options].find(option=>option.value===designation.department||option.textContent.trim()===designation.department);
- if(matchingOption)departmentSelect.value=matchingOption.value;
-}
 async function populateStaffManagers(){
- const sel=document.getElementById("staffManager");
- const branchId=document.getElementById("staffBranch")?.value||"";
- if(!sel)return;
- if(!branchId){
-  sel.innerHTML='<option value="">Select a branch first</option>';
-  return;
- }
- const {data,error}=await supabaseClient.from("staff_members")
-  .select("id,employee_id,full_name,branch_id,is_active")
-  .eq("is_active",true)
-  .eq("branch_id",branchId)
-  .order("full_name");
- if(error)throw error;
- const managers=data||[];
- sel.innerHTML='<option value="">No reporting manager</option>'+managers.map(m=>{
-  const b=staffBranchesCache.find(x=>x.id===m.branch_id);
-  return `<option value="${staffEsc(m.id)}">${staffEsc(m.full_name)} — ${staffEsc(m.employee_id||"No ID")}${b?" / "+staffEsc(b.name):""}</option>`;
- }).join("");
+ const sel=document.getElementById("staffManager");if(!sel)return;
+ const {data,error}=await supabaseClient.from("staff_members").select("id,employee_id,full_name,branch_id,is_active").eq("is_active",true).order("full_name");
+ if(error)throw error;staffMembersCache=data||[];
+ sel.innerHTML='<option value="">No reporting manager</option>'+staffMembersCache.map(m=>{const b=staffBranchesCache.find(x=>x.id===m.branch_id);return `<option value="${staffEsc(m.id)}">${staffEsc(m.full_name)} — ${staffEsc(m.employee_id||"No ID")}${b?" / "+staffEsc(b.name):""}</option>`}).join("");
 }
 async function loadStaffMembers(){
  await staffRequireAdmin();
@@ -8913,7 +8888,6 @@ document.getElementById("branchForm")?.addEventListener("submit",saveBranch);
 document.getElementById("designationForm")?.addEventListener("submit",saveDesignation);
 document.getElementById("staffForm")?.addEventListener("submit",createStaffAccount);
 document.getElementById("staffBranch")?.addEventListener("change",()=>populateStaffManagers().catch(e=>staffNotice("staffMessage",e.message,true)));
-document.getElementById("staffDesignation")?.addEventListener("change",syncStaffDepartmentFromDesignation);
 document.getElementById("refreshBranchesBtn")?.addEventListener("click",()=>loadStaffBranches().catch(e=>staffNotice("branchMessage",e.message,true)));
 document.getElementById("refreshDesignationsBtn")?.addEventListener("click",()=>loadStaffDesignations().catch(e=>staffNotice("designationMessage",e.message,true)));
 document.getElementById("loadPermissionsBtn")?.addEventListener("click",loadDesignationPermissions);
