@@ -2261,6 +2261,10 @@
 
     <div class="nav-title">Management</div>
 
+    <button class="nav-btn" data-section="branches">Branches</button>
+    <button class="nav-btn" data-section="staff">Staff Directory</button>
+    <button class="nav-btn" data-section="staffAccess">Designations & Access</button>
+
     <button class="nav-btn active" data-section="overview">
       Dashboard
     </button>
@@ -3044,6 +3048,61 @@
         </div>
 
       </section>
+
+    <!-- BRANCH MANAGEMENT -->
+    <section class="section" id="branches">
+      <div class="page-header"><div><h1>Branch Management</h1><p>Create and manage institute branches from the central Admin Dashboard.</p></div></div>
+      <div class="panel" style="padding:20px;margin-bottom:18px">
+        <h3>Create Branch</h3><div id="branchMessage" role="status" style="margin:10px 0"></div>
+        <form id="branchForm" class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <label>Branch name *<input id="branchName" required maxlength="120" placeholder="e.g. Kolhapur Main"></label>
+          <label>Branch code *<input id="branchCode" required maxlength="30" placeholder="e.g. KOP-001"></label>
+          <label>Address<input id="branchAddress" maxlength="300" placeholder="Branch address"></label>
+          <label>City<input id="branchCity" maxlength="100" placeholder="City"></label>
+          <label>State<input id="branchState" maxlength="100" value="Maharashtra"></label>
+          <label>Status<select id="branchStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+          <div><button class="primary-btn" type="submit" id="saveBranchBtn">Create Branch</button></div>
+        </form>
+      </div>
+      <div class="panel" style="padding:20px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>All Branches</h3><button class="secondary-btn" type="button" id="refreshBranchesBtn">Refresh</button></div><div id="branchesTableWrap" style="overflow:auto"><p>Open this section to load branches.</p></div></div>
+    </section>
+
+    <!-- STAFF DIRECTORY -->
+    <section class="section" id="staff">
+      <div class="page-header"><div><h1>Staff Directory</h1><p>Create staff login accounts, assign designation, department, branch and reporting manager.</p></div></div>
+      <div class="panel" style="padding:20px;margin-bottom:18px">
+        <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">Account creation runs through a protected Supabase Edge Function. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
+        <form id="staffForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <label>Full name *<input id="staffFullName" required maxlength="150" autocomplete="name"></label>
+          <label>Work email *<input id="staffEmail" type="email" required maxlength="254" autocomplete="email"></label>
+          <label>Mobile<input id="staffPhone" type="tel" maxlength="30" autocomplete="tel"></label>
+          <label>Employee ID<input id="staffEmployeeId" maxlength="50" placeholder="Leave blank to auto-generate"></label>
+          <label>Designation *<select id="staffDesignation" required><option value="">Load designations first</option></select></label>
+          <label>Department *<select id="staffDepartment" required><option value="Academic">Academic</option><option value="Admissions & Student Relations">Admissions & Student Relations</option><option value="Marketing & Outreach">Marketing & Outreach</option><option value="Administration & Support">Administration & Support</option><option value="Leadership & Management">Leadership & Management</option><option value="Other">Other</option></select></label>
+          <label>Branch *<select id="staffBranch" required><option value="">Load branches first</option></select></label>
+          <label>Reporting manager<select id="staffManager"><option value="">No reporting manager</option></select></label>
+          <label>Temporary password *<input id="staffTempPassword" type="password" required minlength="12" autocomplete="new-password" placeholder="At least 12 characters"></label>
+          <label style="display:flex;align-items:center;gap:8px"><input id="staffActive" type="checkbox" checked style="width:auto"> Create as active staff</label>
+          <div style="grid-column:1/-1"><button class="primary-btn" type="submit" id="createStaffBtn">Create Staff Login</button></div>
+        </form>
+      </div>
+      <div class="panel" style="padding:20px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>Staff Members</h3><button class="secondary-btn" type="button" id="refreshStaffBtn">Refresh</button></div><div id="staffTableWrap" style="overflow:auto"><p>Open this section to load staff.</p></div></div>
+    </section>
+
+    <!-- DESIGNATIONS AND ACCESS -->
+    <section class="section" id="staffAccess">
+      <div class="page-header"><div><h1>Designations & Access</h1><p>Manage the designation list. Application permissions are enforced by backend policies, not only by the interface.</p></div></div>
+      <div class="panel" style="padding:20px;margin-bottom:18px"><h3>Add Designation</h3><div id="designationMessage" role="status" style="margin:10px 0"></div>
+        <form id="designationForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <label>Designation name *<input id="designationName" required maxlength="120" placeholder="e.g. Branch Head"></label>
+          <label>Department *<select id="designationDepartment" required><option>Leadership & Management</option><option>Academic</option><option>Admissions & Student Relations</option><option>Marketing & Outreach</option><option>Administration & Support</option><option>Other</option></select></label>
+          <label>Description<input id="designationDescription" maxlength="300" placeholder="Role purpose"></label>
+          <div><button class="primary-btn" type="submit">Add Designation</button></div>
+        </form></div>
+      <div class="panel" style="padding:20px;margin-bottom:18px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>Designation Catalogue</h3><button class="secondary-btn" type="button" id="refreshDesignationsBtn">Refresh</button></div><div id="designationsTableWrap" style="overflow:auto"><p>Open this section to load designations.</p></div></div>
+      <div class="panel" style="padding:20px"><h3>Module Permission Matrix</h3><p style="color:var(--muted,#64748b)">Set the permissions attached to each designation. Changes are stored in Supabase. These permissions are configuration data; server-side authorization for future staff-facing APIs must also enforce them.</p><div id="permissionMessage" role="status" style="margin:10px 0"></div><div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:14px"><label style="min-width:260px;flex:1">Designation<select id="permissionDesignation"><option value="">Select designation</option></select></label><button type="button" class="secondary-btn" id="loadPermissionsBtn">Load permissions</button></div><div id="permissionMatrixWrap" style="overflow:auto"><p>Select a designation to configure permissions.</p></div><div style="margin-top:14px"><button type="button" class="primary-btn" id="savePermissionsBtn">Save Permissions</button></div></div>
+      <p style="margin-top:14px;color:var(--muted,#64748b)"><strong>Security note:</strong> A designation describes the job. Permissions determine what that person can do. These settings do not grant staff access to the existing admin-only dashboard; the future staff interface and its server-side permission checks must use this matrix.</p>
+    </section>
 
   </main>
 
@@ -4094,67 +4153,62 @@ supabaseClient.auth.onAuthStateChange(
    NAVIGATION
 -------------------------------- */
 
-/* --------------------------------
-   NAVIGATION — SAFE DATA REFRESH
--------------------------------- */
-
-document.querySelectorAll(".nav-btn").forEach(button => {
-  button.addEventListener("click", async () => {
-    const sectionName = button.dataset.section;
-    const section = document.getElementById(sectionName);
-
-    if (!section) {
-      console.error("Dashboard section not found:", sectionName);
-      return;
+// Dashboard feature cards reuse the existing section navigation; all original sidebar links remain intact.
+document.querySelectorAll("[data-open-section]").forEach(card => {
+  card.addEventListener("click", () => {
+    const targetId = card.dataset.openSection;
+    const navButton = document.querySelector(`.nav-btn[data-section="${targetId}"]`);
+    if (navButton) navButton.click();
+    else {
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(section => section.classList.remove("active"));
+      const target = document.getElementById(targetId);
+      if (target) target.classList.add("active");
     }
-
-    document.querySelectorAll(".nav-btn")
-      .forEach(btn => btn.classList.remove("active"));
-
-    document.querySelectorAll(".section")
-      .forEach(item => item.classList.remove("active"));
-
-    button.classList.add("active");
-    section.classList.add("active");
-
-    // Refresh the selected section's data.
-    try {
-      switch (sectionName) {
-        case "students":
-          await loadStudents();
-          break;
-
-        case "teachers":
-          await loadTeachers();
-          break;
-
-        case "courses":
-          await loadManagedCourses();
-          break;
-
-        case "batches":
-          await loadManagedBatches();
-          break;
-
-        case "tests":
-          await loadAdminTests();
-          break;
-
-        case "notices":
-          await loadNotices();
-          break;
-
-        default:
-          break;
+    if (targetId === "dsp") {
+      const teacherList = document.getElementById("dspTeacherList");
+      if (teacherList && (!teacherList.children.length || /Loading teachers/i.test(teacherList.textContent))) {
+        if (typeof loadDspData === "function") loadDspData();
       }
-    } catch (error) {
-      console.error(
-        `Failed to load ${sectionName} section:`,
-        error
-      );
+    }
+    if (targetId === "absentStudents") {
+      const dateInput = document.getElementById("absenceDate");
+      if (dateInput && !dateInput.value) {
+        const now = new Date();
+        dateInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      }
     }
   });
 });
+const dashboardDateLabel = document.getElementById("dashboardTodayLabel");
+if (dashboardDateLabel) dashboardDateLabel.textContent = new Intl.DateTimeFormat("en-IN", {weekday:"short", day:"2-digit", month:"short", year:"numeric"}).format(new Date()).toUpperCase();
+
+document.querySelectorAll(".nav-btn")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+      document
+        .querySelectorAll(".section")
+        .forEach(section => section.classList.remove("active"));
+
+      button.classList.add("active");
+
+      const section =
+        document.getElementById(
+          button.dataset.section
+        );
+
+      section.classList.add("active");
+
+    });
+
+  });
+
 
 /* --------------------------------
    STUDENTS
@@ -8691,6 +8745,156 @@ document
     hideNoticeMessage();
     await loadNotices();
   });
+
+/* --------------------------------
+   BRANCH + STAFF MANAGEMENT (V2 ADDITION)
+   Uses additive tables from migration 20261019_staff_branch_management.sql.
+-------------------------------- */
+const STAFF_DESIGNATIONS = [
+  ["Branch Head","Leadership & Management"],
+  ["Deputy Branch Head / Operations Manager","Leadership & Management"],
+  ["Academic Head","Leadership & Management"],
+  ["Centre Coordinator","Leadership & Management"],
+  ["Academic Coordinator","Academic"],
+  ["Subject Teacher / Faculty","Academic"],
+  ["Doubt-Solving Faculty","Academic"],
+  ["Test & Assessment Coordinator","Academic"],
+  ["Study Material Coordinator","Academic"],
+  ["Academic Counsellor","Academic"],
+  ["Admission Counsellor","Admissions & Student Relations"],
+  ["Senior Counsellor / Counselling Team Lead","Admissions & Student Relations"],
+  ["Telecaller / Lead Executive","Admissions & Student Relations"],
+  ["Student Relationship Executive","Admissions & Student Relations"],
+  ["Parent Relationship Coordinator","Admissions & Student Relations"],
+  ["Receptionist / Front Desk Executive","Admissions & Student Relations"],
+  ["Marketing Manager","Marketing & Outreach"],
+  ["Digital Marketing Executive","Marketing & Outreach"],
+  ["School Outreach / Field Marketing Executive","Marketing & Outreach"],
+  ["Event & Talent Hunt Coordinator","Marketing & Outreach"],
+  ["Content & Social Media Executive","Marketing & Outreach"],
+  ["Floor Manager","Administration & Support"],
+  ["HR / Staff Coordinator","Administration & Support"],
+  ["Accountant / Fees Executive","Administration & Support"],
+  ["IT / ERP Support Executive","Administration & Support"],
+  ["Library / Study Material In-charge","Administration & Support"],
+  ["Office Assistant / Facility Support","Administration & Support"],
+  ["Other Staff","Other"]
+];
+let staffBranchesCache = [];
+let staffDesignationsCache = [];
+let staffMembersCache = [];
+const staffEsc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+function staffNotice(id, message, error=false) {
+  const el=document.getElementById(id); if(!el) return;
+  el.textContent=message; el.style.color=error?"#b91c1c":"#166534";
+}
+async function staffRequireAdmin() {
+  const {data:{session},error}=await supabaseClient.auth.getSession();
+  if(error || !session || !(await verifyAdmin(session))) throw new Error("Admin session required. Please sign in again.");
+  return session;
+}
+async function loadStaffBranches() {
+  await staffRequireAdmin();
+  const {data,error}=await supabaseClient.from("organization_branches").select("id,branch_code,name,address,city,state,status,created_at").order("name");
+  if(error) throw error;
+  staffBranchesCache=data||[];
+  const branchSelect=document.getElementById("staffBranch");
+  if(branchSelect) branchSelect.innerHTML='<option value="">Select branch</option>'+staffBranchesCache.filter(b=>b.status==="active").map(b=>`<option value="${staffEsc(b.id)}">${staffEsc(b.name)} (${staffEsc(b.branch_code)})</option>`).join("");
+  renderBranches();
+}
+function renderBranches(){
+ const wrap=document.getElementById("branchesTableWrap"); if(!wrap)return;
+ if(!staffBranchesCache.length){wrap.innerHTML="<p>No branches yet. Create the first branch above.</p>";return;}
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Branch</th><th>Code</th><th>Location</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffBranchesCache.map(b=>`<tr><td>${staffEsc(b.name)}</td><td>${staffEsc(b.branch_code)}</td><td>${staffEsc([b.address,b.city,b.state].filter(Boolean).join(", ")||"—")}</td><td>${staffEsc(b.status)}</td><td><button class="secondary-btn" data-branch-toggle="${staffEsc(b.id)}" data-status="${b.status==="active"?"inactive":"active"}">${b.status==="active"?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
+ wrap.querySelectorAll("[data-branch-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("organization_branches").update({status:btn.dataset.status,updated_at:new Date().toISOString()}).eq("id",btn.dataset.branchToggle);if(error)throw error;staffNotice("branchMessage","Branch status updated.");await loadStaffBranches();await populateStaffManagers();}catch(e){staffNotice("branchMessage",e.message||"Unable to update branch.",true);}}));
+}
+async function loadStaffDesignations(){
+ await staffRequireAdmin();
+ const {data,error}=await supabaseClient.from("staff_designations").select("id,name,department,description,is_active,created_at").order("department").order("name");
+ if(error) throw error; staffDesignationsCache=data||[];
+ const options='<option value="">Select designation</option>'+staffDesignationsCache.filter(d=>d.is_active).map(d=>`<option value="${staffEsc(d.id)}">${staffEsc(d.name)} — ${staffEsc(d.department)}</option>`).join("");
+ const sel=document.getElementById("staffDesignation"); if(sel)sel.innerHTML=options;
+ const permSel=document.getElementById("permissionDesignation"); if(permSel){const previous=permSel.value;permSel.innerHTML=options;if(previous)permSel.value=previous;}
+ renderDesignations();
+}
+function renderDesignations(){
+ const wrap=document.getElementById("designationsTableWrap");if(!wrap)return;
+ if(!staffDesignationsCache.length){wrap.innerHTML="<p>No designations found. Add one above or run the provided migration seed.</p>";return;}
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Designation</th><th>Department</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody>'+staffDesignationsCache.map(d=>`<tr><td>${staffEsc(d.name)}</td><td>${staffEsc(d.department)}</td><td>${staffEsc(d.description||"—")}</td><td>${d.is_active?"Active":"Inactive"}</td><td><button class="secondary-btn" data-designation-toggle="${staffEsc(d.id)}" data-active="${d.is_active?"false":"true"}">${d.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
+ wrap.querySelectorAll("[data-designation-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("staff_designations").update({is_active:btn.dataset.active==="true",updated_at:new Date().toISOString()}).eq("id",btn.dataset.designationToggle);if(error)throw error;staffNotice("designationMessage","Designation status updated.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to update designation.",true);}}));
+}
+async function populateStaffManagers(){
+ const sel=document.getElementById("staffManager");if(!sel)return;
+ const {data,error}=await supabaseClient.from("staff_members").select("id,employee_id,full_name,branch_id,is_active").eq("is_active",true).order("full_name");
+ if(error)throw error;staffMembersCache=data||[];
+ sel.innerHTML='<option value="">No reporting manager</option>'+staffMembersCache.map(m=>{const b=staffBranchesCache.find(x=>x.id===m.branch_id);return `<option value="${staffEsc(m.id)}">${staffEsc(m.full_name)} — ${staffEsc(m.employee_id||"No ID")}${b?" / "+staffEsc(b.name):""}</option>`}).join("");
+}
+async function loadStaffMembers(){
+ await staffRequireAdmin();
+ const {data,error}=await supabaseClient.from("staff_members").select("id,user_id,employee_id,full_name,email,phone,department,branch_id,designation_id,reporting_manager_id,is_active,created_at,organization_branches(name,branch_code),staff_designations(name)").order("created_at",{ascending:false});
+ if(error)throw error;staffMembersCache=data||[];renderStaffMembers();await populateStaffManagers();
+}
+function renderStaffMembers(){
+ const wrap=document.getElementById("staffTableWrap");if(!wrap)return;
+ if(!staffMembersCache.length){wrap.innerHTML="<p>No staff accounts yet. Use the form above to create the first account.</p>";return;}
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Employee</th><th>Designation</th><th>Department</th><th>Branch</th><th>Manager</th><th>Login</th><th>Action</th></tr></thead><tbody>'+staffMembersCache.map(m=>`<tr><td><strong>${staffEsc(m.full_name)}</strong><br><small>${staffEsc(m.employee_id||"No ID")} · ${staffEsc(m.email)}</small></td><td>${staffEsc(m.staff_designations?.name||"—")}</td><td>${staffEsc(m.department)}</td><td>${staffEsc(m.organization_branches?.name||"—")}</td><td>${staffEsc(staffMembersCache.find(x=>x.id===m.reporting_manager_id)?.full_name||"—")}</td><td>${m.is_active?"Active":"Inactive"}</td><td><button class="secondary-btn" data-staff-toggle="${staffEsc(m.id)}" data-active="${m.is_active?"false":"true"}">${m.is_active?"Deactivate":"Activate"}</button></td></tr>`).join("")+'</tbody></table>';
+ wrap.querySelectorAll("[data-staff-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{const nextActive=btn.dataset.active==="true";if(!confirm(`${nextActive?"Activate":"Deactivate"} this staff login?`))return;try{const session=await staffRequireAdmin();const {data,error}=await supabaseClient.functions.invoke("admin-set-staff-status",{body:{staff_member_id:btn.dataset.staffToggle,is_active:nextActive},headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw error;if(!data?.success)throw new Error(data?.error||"Unable to update staff status.");staffNotice("staffMessage",`Staff account ${nextActive?"activated":"deactivated"}.`);await loadStaffMembers();}catch(e){staffNotice("staffMessage",e.message||"Unable to update staff status.",true);}}));
+}
+async function saveBranch(event){
+ event.preventDefault();const btn=document.getElementById("saveBranchBtn");btn.disabled=true;
+ try{await staffRequireAdmin();const payload={name:document.getElementById("branchName").value.trim(),branch_code:document.getElementById("branchCode").value.trim().toUpperCase(),address:document.getElementById("branchAddress").value.trim()||null,city:document.getElementById("branchCity").value.trim()||null,state:document.getElementById("branchState").value.trim()||null,status:document.getElementById("branchStatus").value};const {error}=await supabaseClient.from("organization_branches").insert(payload);if(error)throw error;document.getElementById("branchForm").reset();document.getElementById("branchState").value="Maharashtra";staffNotice("branchMessage","Branch created successfully.");await loadStaffBranches();await populateStaffManagers();}catch(e){staffNotice("branchMessage",e.message||"Unable to create branch.",true);}finally{btn.disabled=false;}
+}
+async function saveDesignation(event){
+ event.preventDefault();try{await staffRequireAdmin();const payload={name:document.getElementById("designationName").value.trim(),department:document.getElementById("designationDepartment").value,description:document.getElementById("designationDescription").value.trim()||null,is_active:true};const {error}=await supabaseClient.from("staff_designations").insert(payload);if(error)throw error;document.getElementById("designationForm").reset();staffNotice("designationMessage","Designation added.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to add designation.",true);}
+}
+async function createStaffAccount(event){
+ event.preventDefault();const btn=document.getElementById("createStaffBtn");btn.disabled=true;btn.textContent="Creating account…";
+ try{const session=await staffRequireAdmin();const payload={full_name:document.getElementById("staffFullName").value.trim(),email:document.getElementById("staffEmail").value.trim().toLowerCase(),phone:document.getElementById("staffPhone").value.trim()||null,employee_id:document.getElementById("staffEmployeeId").value.trim()||null,designation_id:document.getElementById("staffDesignation").value,department:document.getElementById("staffDepartment").value,branch_id:document.getElementById("staffBranch").value,reporting_manager_id:document.getElementById("staffManager").value||null,password:document.getElementById("staffTempPassword").value,is_active:document.getElementById("staffActive").checked};const {data,error}=await supabaseClient.functions.invoke("admin-create-staff",{body:payload,headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw error;if(!data?.success)throw new Error(data?.error||"Staff account creation failed.");document.getElementById("staffForm").reset();document.getElementById("staffActive").checked=true;staffNotice("staffMessage",`Staff account created for ${payload.full_name}. Share temporary login credentials securely and ask the employee to change the password after first login.`);await loadStaffMembers();}catch(e){staffNotice("staffMessage",e.message||"Unable to create staff account.",true);}finally{btn.disabled=false;btn.textContent="Create Staff Login";}
+}
+const STAFF_PERMISSION_MODULES = [
+  ["overview","Dashboard"],["students","Students"],["teachers","Teachers"],["courses","Courses"],["batches","Batches"],
+  ["fees","Fees"],["attendance","Attendance"],["lectures","Lectures"],["absentStudents","Absent Students"],["tests","Tests & Questions"],
+  ["results","Results"],["reviews","Teacher Reviews"],["notices","Notices"],["dsp","Doubt Solving Programme"],
+  ["branches","Branches"],["staff","Staff Directory"],["staffAccess","Designations & Access"]
+];
+let loadedPermissionRows=[];
+async function loadDesignationPermissions(){
+ try{
+  await staffRequireAdmin();const designationId=document.getElementById("permissionDesignation")?.value;
+  if(!designationId){staffNotice("permissionMessage","Select a designation first.",true);return;}
+  const {data,error}=await supabaseClient.from("staff_role_permissions").select("module_key,can_view,can_create,can_edit,can_delete,can_approve").eq("designation_id",designationId);
+  if(error)throw error;loadedPermissionRows=data||[];
+  const byModule=new Map(loadedPermissionRows.map(r=>[r.module_key,r]));
+  const actions=[["can_view","View"],["can_create","Create"],["can_edit","Edit"],["can_delete","Delete"],["can_approve","Approve"]];
+  document.getElementById("permissionMatrixWrap").innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Module</th>'+actions.map(a=>`<th>${a[1]}</th>`).join("")+'</tr></thead><tbody>'+STAFF_PERMISSION_MODULES.map(([key,label])=>{const r=byModule.get(key)||{};return `<tr><td>${staffEsc(label)}</td>${actions.map(([field])=>`<td style="text-align:center"><input type="checkbox" data-permission-module="${key}" data-permission-field="${field}" ${r[field]===true?"checked":""} aria-label="${staffEsc(label)} ${field}"></td>`).join("")}</tr>`}).join("")+'</tbody></table>';
+  staffNotice("permissionMessage","Permission matrix loaded. Save changes to store them in Supabase.");
+ }catch(e){staffNotice("permissionMessage",e.message||"Unable to load permissions.",true);}
+}
+async function saveDesignationPermissions(){
+ try{
+  await staffRequireAdmin();const designationId=document.getElementById("permissionDesignation")?.value;
+  if(!designationId)throw new Error("Select a designation first.");
+  const payload=STAFF_PERMISSION_MODULES.map(([module_key])=>{const row={designation_id:designationId,module_key};for(const field of ["can_view","can_create","can_edit","can_delete","can_approve"]){row[field]=!!document.querySelector(`[data-permission-module="${module_key}"][data-permission-field="${field}"]`)?.checked;}return row;});
+  const {error}=await supabaseClient.from("staff_role_permissions").upsert(payload,{onConflict:"designation_id,module_key"});if(error)throw error;
+  await supabaseClient.from("staff_audit_logs").insert({action:"staff.permissions_updated",entity_type:"staff_designation",entity_id:designationId,details:{modules:payload.length}});
+  staffNotice("permissionMessage","Permissions saved to Supabase. Staff-facing backend routes must enforce these rules before those accounts are allowed to use modules.");
+ }catch(e){staffNotice("permissionMessage",e.message||"Unable to save permissions.",true);}
+}
+async function loadStaffManagement(){
+ try{await Promise.all([loadStaffBranches(),loadStaffDesignations()]);await loadStaffMembers();}
+ catch(e){console.error("Staff/branch management load failed:",e);staffNotice("staffMessage",`Unable to load management data: ${e.message||e}. Apply the SQL migration and deploy the Edge Function first.`,true);}
+}
+document.getElementById("branchForm")?.addEventListener("submit",saveBranch);
+document.getElementById("designationForm")?.addEventListener("submit",saveDesignation);
+document.getElementById("staffForm")?.addEventListener("submit",createStaffAccount);
+document.getElementById("staffBranch")?.addEventListener("change",()=>populateStaffManagers().catch(e=>staffNotice("staffMessage",e.message,true)));
+document.getElementById("refreshBranchesBtn")?.addEventListener("click",()=>loadStaffBranches().catch(e=>staffNotice("branchMessage",e.message,true)));
+document.getElementById("refreshDesignationsBtn")?.addEventListener("click",()=>loadStaffDesignations().catch(e=>staffNotice("designationMessage",e.message,true)));
+document.getElementById("loadPermissionsBtn")?.addEventListener("click",loadDesignationPermissions);
+document.getElementById("permissionDesignation")?.addEventListener("change",loadDesignationPermissions);
+document.getElementById("savePermissionsBtn")?.addEventListener("click",saveDesignationPermissions);
+document.getElementById("refreshStaffBtn")?.addEventListener("click",()=>loadStaffMembers().catch(e=>staffNotice("staffMessage",e.message,true)));
+document.querySelectorAll('[data-section="branches"],[data-section="staff"],[data-section="staffAccess"]').forEach(btn=>btn.addEventListener("click",()=>loadStaffManagement()));
 
 /* --------------------------------
    INIT
