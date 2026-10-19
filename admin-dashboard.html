@@ -8981,19 +8981,134 @@ async function saveBranch(event){
 async function saveDesignation(event){
  event.preventDefault();try{await staffRequireAdmin();const payload={name:document.getElementById("designationName").value.trim(),department:document.getElementById("designationDepartment").value,description:document.getElementById("designationDescription").value.trim()||null,is_active:true};const {error}=await supabaseClient.from("staff_designations").insert(payload);if(error)throw error;document.getElementById("designationForm").reset();staffNotice("designationMessage","Designation added.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to add designation.",true);}
 }
-async function createStaffAccount(event){
- event.preventDefault();const btn=document.getElementById("createStaffBtn");btn.disabled=true;btn.textContent="Creating account…";
- try{
-  const session=await staffRequireAdmin();
-  const payload={full_name:document.getElementById("staffFullName").value.trim(),login_username:document.getElementById("staffLoginUsername").value.trim().toLowerCase(),phone:document.getElementById("staffPhone").value.trim()||null,employee_id:document.getElementById("staffEmployeeId").value.trim()||null,designation_id:document.getElementById("staffDesignation").value,department:document.getElementById("staffDepartment").value,branch_id:document.getElementById("staffBranch").value,reporting_manager_id:document.getElementById("staffManager").value||null,password:document.getElementById("staffTempPassword").value,is_active:document.getElementById("staffActive").checked};
-  const {data,error}=await supabaseClient.functions.invoke("admin-create-staff",{body:payload,headers:{Authorization:`Bearer ${session.access_token}`}});
-  if(error)throw error;if(!data?.success)throw new Error(data?.error||"Staff account creation failed.");
-  document.getElementById("staffForm").reset();document.getElementById("staffActive").checked=true;
-  const loginId=data.login_email||data.staff?.login_email||(data.staff?.employee_id?`staff.${String(data.staff.employee_id).toLowerCase()}@sir.net.in`:"");
-  staffNotice("staffMessage",`Staff account created for ${payload.full_name}. Login ID: ${loginId}. Share the temporary password securely and ask the employee to change it after first login.`);
-  await loadStaffMembers();
- }catch(e){staffNotice("staffMessage",e.message||"Unable to create staff account.",true);}finally{btn.disabled=false;btn.textContent="Create Staff Login";}
+
+async function createStaffAccount(event) {
+  event.preventDefault();
+
+  const btn = document.getElementById("createStaffBtn");
+  btn.disabled = true;
+  btn.textContent = "Creating account…";
+
+  try {
+    const session = await staffRequireAdmin();
+
+    const payload = {
+      full_name: document.getElementById("staffFullName").value.trim(),
+
+      // Login username, e.g. "abhishek" (without @sir.net.in)
+      login_username: document
+        .getElementById("staffLoginUsername")
+        .value.trim()
+        .toLowerCase(),
+
+      // Required personal/work contact email
+      email: document
+        .getElementById("staffEmail")
+        .value.trim()
+        .toLowerCase(),
+
+      phone:
+        document.getElementById("staffPhone").value.trim() || null,
+
+      employee_id:
+        document.getElementById("staffEmployeeId").value.trim() || null,
+
+      designation_id:
+        document.getElementById("staffDesignation").value,
+
+      department:
+        document.getElementById("staffDepartment").value,
+
+      branch_id:
+        document.getElementById("staffBranch").value,
+
+      reporting_manager_id:
+        document.getElementById("staffManager").value || null,
+
+      password:
+        document.getElementById("staffTempPassword").value,
+
+      is_active:
+        document.getElementById("staffActive").checked
+    };
+
+    // Catch missing required fields before sending the request.
+    if (
+      !payload.full_name ||
+      !payload.login_username ||
+      !payload.email ||
+      !payload.department ||
+      !payload.branch_id ||
+      !payload.designation_id ||
+      payload.password.length < 12
+    ) {
+      throw new Error(
+        "Please complete all required fields. Password must be at least 12 characters."
+      );
+    }
+
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "admin-create-staff",
+        {
+          body: payload,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        }
+      );
+
+    if (error) {
+      // Supabase FunctionsHttpError may contain the real JSON response.
+      let message = error.message || "Staff account creation failed.";
+
+      try {
+        if (error.context && typeof error.context.json === "function") {
+          const responseBody = await error.context.json();
+          if (responseBody?.error) {
+            message = responseBody.error;
+          }
+        }
+      } catch {
+        // Keep the original error message if response parsing fails.
+      }
+
+      throw new Error(message);
+    }
+
+    if (!data?.success) {
+      throw new Error(
+        data?.error || "Staff account creation failed."
+      );
+    }
+
+    document.getElementById("staffForm").reset();
+    document.getElementById("staffActive").checked = true;
+
+    const loginId =
+      data.login_email ||
+      data.staff?.login_email ||
+      `${payload.login_username}@sir.net.in`;
+
+    staffNotice(
+      "staffMessage",
+      `Staff account created for ${payload.full_name}. Login ID: ${loginId}. Share the temporary password securely and ask the employee to change it after first login.`
+    );
+
+    await loadStaffMembers();
+
+  } catch (e) {
+    staffNotice(
+      "staffMessage",
+      e.message || "Unable to create staff account.",
+      true
+    );
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Create Staff Login";
+  }
 }
+
 const STAFF_PERMISSION_MODULES = [
   ["overview","Dashboard"],["students","Students"],["teachers","Teachers"],["courses","Courses"],["batches","Batches"],
   ["fees","Fees"],["attendance","Attendance"],["lectures","Lectures"],["absentStudents","Absent Students"],["tests","Tests & Questions"],
