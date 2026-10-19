@@ -8824,10 +8824,24 @@ function renderDesignations(){
  wrap.querySelectorAll("[data-designation-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{try{await staffRequireAdmin();const {error}=await supabaseClient.from("staff_designations").update({is_active:btn.dataset.active==="true",updated_at:new Date().toISOString()}).eq("id",btn.dataset.designationToggle);if(error)throw error;staffNotice("designationMessage","Designation status updated.");await loadStaffDesignations();}catch(e){staffNotice("designationMessage",e.message||"Unable to update designation.",true);}}));
 }
 async function populateStaffManagers(){
- const sel=document.getElementById("staffManager");if(!sel)return;
- const {data,error}=await supabaseClient.from("staff_members").select("id,employee_id,full_name,branch_id,is_active").eq("is_active",true).order("full_name");
- if(error)throw error;staffMembersCache=data||[];
- sel.innerHTML='<option value="">No reporting manager</option>'+staffMembersCache.map(m=>{const b=staffBranchesCache.find(x=>x.id===m.branch_id);return `<option value="${staffEsc(m.id)}">${staffEsc(m.full_name)} — ${staffEsc(m.employee_id||"No ID")}${b?" / "+staffEsc(b.name):""}</option>`}).join("");
+ const sel=document.getElementById("staffManager");
+ const branchId=document.getElementById("staffBranch")?.value||"";
+ if(!sel)return;
+ if(!branchId){
+  sel.innerHTML='<option value="">Select a branch first</option>';
+  return;
+ }
+ const {data,error}=await supabaseClient.from("staff_members")
+  .select("id,employee_id,full_name,branch_id,is_active")
+  .eq("is_active",true)
+  .eq("branch_id",branchId)
+  .order("full_name");
+ if(error)throw error;
+ const managers=data||[];
+ sel.innerHTML='<option value="">No reporting manager</option>'+managers.map(m=>{
+  const b=staffBranchesCache.find(x=>x.id===m.branch_id);
+  return `<option value="${staffEsc(m.id)}">${staffEsc(m.full_name)} — ${staffEsc(m.employee_id||"No ID")}${b?" / "+staffEsc(b.name):""}</option>`;
+ }).join("");
 }
 async function loadStaffMembers(){
  await staffRequireAdmin();
