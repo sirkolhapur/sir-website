@@ -138,7 +138,28 @@ async function submitDspQuestion(){
     const {data,error}=await supabaseClient.rpc('sir_coordinator_submit_dsp_booking',{p_student_uid:st.student_uid,p_teacher_id:slot.teacher_id,p_slot_id:slot.slot_id,p_subject_id:subjectId,p_topic_id:topicId,p_question_text:question||(imageFile?'Question submitted as photo.':'')});
     if(error)throw new Error(`Booking failed: ${error.message||error}`);if(!data?.success)throw new Error(data?.message||'Doubt was not submitted.');bookingSucceeded=true;
     let imageAttached=false;
-    if(uploadedPath&&data.question_id){const {data:attachData,error:attachError}=await supabaseClient.rpc('sir_coordinator_attach_dsp_image',{p_question_id:data.question_id,p_image_path:uploadedPath});if(attachError||!attachData?.success){console.error('DSP image attach failed:',attachError||attachData);try{await supabaseClient.storage.from('dsp-question-images').remove([uploadedPath]);}catch(_){}uploadedPath=null;msg.textContent='Doubt booked successfully, but the photo could not be attached. Please contact Admin before re-uploading.';}else{imageAttached=true;uploadedPath=null;}}
+    if(uploadedPath&&data.question_id){
+      // The configured attach RPC is absent from the live public schema.
+      // Attach the already-uploaded object directly to the question row instead.
+      const pathToAttach=uploadedPath;
+      const {data:updatedQuestion,error:attachError}=await supabaseClient
+        .from('dsp_questions')
+        .update({image_path:pathToAttach})
+        .eq('id',data.question_id)
+        .select('id,image_path')
+        .maybeSingle();
+      if(attachError||!updatedQuestion?.image_path){
+        console.error('DSP image path update failed:',{questionId:data.question_id,path:pathToAttach,error:attachError||'No question row returned. Check table UPDATE RLS/policy.'});
+        // Do not delete the uploaded file: preserve it for diagnosis/recovery.
+        msg.textContent=`Doubt booked, but photo path could not be saved. Question ID: ${data.question_id}. The photo remains in Storage; check dsp_questions UPDATE permissions.`;
+      }else{
+        imageAttached=true;
+        uploadedPath=null;
+      }
+    }else if(uploadedPath&&!data.question_id){
+      console.error('DSP booking returned no question_id; uploaded photo retained for recovery:',uploadedPath);
+      msg.textContent='Doubt booked, but the booking response had no question ID, so the photo path was not linked. Contact Admin before re-uploading.';
+    }
     if(!imageFile||imageAttached)msg.textContent=`Submitted successfully for ${data.student_name} (${data.student_uid}) on ${data.booking_date}.${imageAttached?' Question photo attached.':''} Question ID: ${data.question_id}`;
     toast(imageAttached?'DSP doubt and photo submitted.':'DSP doubt submitted and slot booked.');
     document.getElementById('dspQuestionText').value='';document.getElementById('dspIdentityConfirmed').checked=false;document.getElementById('dspRemovePhotoBtn').click();await findDspStudent();await loadDspQueue();
