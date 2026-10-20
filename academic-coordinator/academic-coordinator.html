@@ -139,19 +139,15 @@ async function submitDspQuestion(){
     if(error)throw new Error(`Booking failed: ${error.message||error}`);if(!data?.success)throw new Error(data?.message||'Doubt was not submitted.');bookingSucceeded=true;
     let imageAttached=false;
     if(uploadedPath&&data.question_id){
-      // The configured attach RPC is absent from the live public schema.
-      // Attach the already-uploaded object directly to the question row instead.
+      // Use the role-gated SECURITY DEFINER RPC to save the Storage path.
+      // Direct table UPDATE is intentionally avoided because Coordinator access
+      // should not require broad dsp_questions UPDATE RLS permissions.
       const pathToAttach=uploadedPath;
-      const {data:updatedQuestion,error:attachError}=await supabaseClient
-        .from('dsp_questions')
-        .update({image_path:pathToAttach})
-        .eq('id',data.question_id)
-        .select('id,image_path')
-        .maybeSingle();
-      if(attachError||!updatedQuestion?.image_path){
-        console.error('DSP image path update failed:',{questionId:data.question_id,path:pathToAttach,error:attachError||'No question row returned. Check table UPDATE RLS/policy.'});
-        // Do not delete the uploaded file: preserve it for diagnosis/recovery.
-        msg.textContent=`Doubt booked, but photo path could not be saved. Question ID: ${data.question_id}. The photo remains in Storage; check dsp_questions UPDATE permissions.`;
+      const {data:attachData,error:attachError}=await supabaseClient.rpc('sir_coordinator_attach_dsp_image',{p_question_id:data.question_id,p_image_path:pathToAttach});
+      if(attachError||!attachData?.success){
+        console.error('DSP image attach failed:',{questionId:data.question_id,path:pathToAttach,error:attachError||attachData});
+        // Keep the uploaded object so it can be recovered; do not silently delete it.
+        msg.textContent=`Doubt booked, but photo path could not be linked. Question ID: ${data.question_id}. ${attachData?.message||attachError?.message||'Attach RPC failed; activate the targeted photo-attach SQL.'}`;
       }else{
         imageAttached=true;
         uploadedPath=null;
