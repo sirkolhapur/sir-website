@@ -67,18 +67,25 @@ function showApp(user, staff) {
   go('overview');
 }
 async function verifyAcademicCoordinator(user) {
-  // Fail closed: authentication alone never grants dashboard access.
-  const { data: staff, error: staffError } = await supabaseClient.from('staff_members').select('*').eq('user_id', user.id).maybeSingle();
-  if (staffError) throw new Error('Signed in, but staff access could not be verified. Check staff_members RLS and staff setup with Admin.');
-  if (!staff) throw new Error('This login is not linked to an active SIR staff record. Ask Admin to link the account.');
-  if (staff.is_active === false || staff.active === false || staff.status === 'inactive' || staff.status === 'disabled') throw new Error('This SIR staff account is inactive. Contact Admin.');
-  const designationId = staff.designation_id;
-  if (!designationId) throw new Error('No designation is assigned to this staff account. Ask Admin to assign Academic Coordinator.');
-  const { data: designation, error: designationError } = await supabaseClient.from('staff_designations').select('*').eq('id', designationId).maybeSingle();
-  if (designationError) throw new Error('Could not verify your staff designation. Check staff_designations access with Admin.');
-  const designationName = String(designation?.name || designation?.title || designation?.designation_name || designation?.designation || '').trim().toLowerCase();
+  // Secure RPC verifies only auth.uid()'s own active staff record and designation.
+  // Direct table reads are intentionally avoided because staff tables are Admin-RLS protected.
+  const { data, error } = await supabaseClient.rpc('sir_verify_academic_coordinator');
+  if (error) {
+    console.error('Coordinator verification RPC failed:', error);
+    throw new Error('Signed in, but Coordinator access could not be verified. Please contact Admin.');
+  }
+  const staff = Array.isArray(data) ? data[0] : data;
+  if (!staff) throw new Error('This login is not linked to an active SIR Academic Coordinator record. Ask Admin to verify the account.');
+  const designationName = String(staff.designation || '').trim().toLowerCase();
   if (designationName !== 'academic coordinator') throw new Error('Access denied. This portal is only for staff designated as Academic Coordinator.');
-  return staff;
+  return {
+    id: staff.staff_id,
+    employee_id: staff.employee_id,
+    full_name: staff.full_name,
+    branch_id: staff.branch_id,
+    designation: staff.designation,
+    is_active: true
+  };
 }
 async function restoreCoordinatorSession() {
   try {
