@@ -5235,20 +5235,33 @@
                 if (result.error) throw new Error("Unable to load DSP questions.");
                 questions = result.data || [];
 
-                // Resolve private Storage paths into short-lived teacher-viewable URLs.
+                // Resolve the saved DSP image reference into a teacher-viewable URL.
+                // Older records may contain a full URL; new records store the Storage object path.
                 await Promise.all(questions.map(async question => {
                     question.photo_url = null;
-                    if (!question.image_path) return;
+                    const imageReference = String(question.image_path || "").trim();
+                    if (!imageReference) return;
 
+                    if (/^https?:\/\//i.test(imageReference)) {
+                        question.photo_url = imageReference;
+                        return;
+                    }
+
+                    // Normalize accidental leading slashes without changing the actual object path.
+                    const storagePath = imageReference.replace(/^\/+/, "");
                     const { data: signedImage, error: signedImageError } =
                         await supabaseClient.storage
                             .from("dsp-question-images")
-                            .createSignedUrl(question.image_path, 3600);
+                            .createSignedUrl(storagePath, 3600);
 
                     if (!signedImageError && signedImage?.signedUrl) {
                         question.photo_url = signedImage.signedUrl;
-                    } else if (signedImageError) {
-                        console.warn("DSP question photo URL could not be generated:", signedImageError);
+                    } else {
+                        console.warn("DSP question photo URL could not be generated:", {
+                            questionId: question.id,
+                            imagePath: storagePath,
+                            error: signedImageError
+                        });
                     }
                 }));
             }
@@ -5401,8 +5414,8 @@
 
                 const questionCell = escapeHtml(questionText);
                 const photoCell = question.photo_url
-                    ? `<a class="dsp-question-link" href="${escapeHtml(question.photo_url)}" target="_blank" rel="noopener">View Photo</a>`
-                    : "—";
+                    ? `<a class="dsp-question-link" href="${escapeHtml(question.photo_url)}" target="_blank" rel="noopener noreferrer" title="Open the attached question photo">View Photo ↗</a>`
+                    : (question.image_path ? `<span title="Image path is saved, but a view URL could not be generated">Photo unavailable</span>` : "—");
 
                 rows.push(`
                     <tr
