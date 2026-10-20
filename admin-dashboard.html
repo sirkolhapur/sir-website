@@ -2288,6 +2288,11 @@
       #branches .branch-list-heading { align-items:flex-start; }
     }
 
+
+    /* DSP question photo display — uses short-lived signed URLs from the private bucket. */
+    .dsp-question-photo-wrap { margin-top: 10px; }
+    .dsp-question-photo { display:block; max-width:100%; max-height:260px; width:auto; height:auto; object-fit:contain; border-radius:8px; border:1px solid rgba(201,168,78,.25); background:#071426; }
+    .dsp-question-photo-link { display:inline-block; color:#e1c86b; font-size:11px; margin-top:6px; text-decoration:underline; }
 </style>
 </head>
 
@@ -7733,6 +7738,23 @@ document
     finally{button.disabled=false;button.textContent="Generate Slots";}
   }
 
+  async function getDspQuestionPhotoUrl(imagePath) {
+    if (!imagePath || typeof imagePath !== "string") return null;
+    try {
+      const { data, error } = await supabaseClient.storage
+        .from("dsp-question-images")
+        .createSignedUrl(imagePath, 300);
+      if (error) {
+        console.warn("DSP question photo URL could not be created:", error);
+        return null;
+      }
+      return data?.signedUrl || null;
+    } catch (error) {
+      console.warn("DSP question photo URL error:", error);
+      return null;
+    }
+  }
+
   async function loadDspSlots() {
     const teacherId = document.getElementById("dspScheduleTeacher")?.value;
     const date = document.getElementById("dspScheduleDate")?.value;
@@ -7796,10 +7818,13 @@ document
         if (questionIds.length) {
           const { data: questionRows, error: questionError } = await supabaseClient
             .from("dsp_questions")
-            .select("id,question_text")
+            .select("id,question_text,image_path")
             .in("id", questionIds);
           if (questionError) console.error("DSP booking question details error:", questionError);
           questions = questionRows || [];
+          await Promise.all(questions.map(async question => {
+            question.image_url = await getDspQuestionPhotoUrl(question.image_path);
+          }));
         }
       }
     }
@@ -7846,6 +7871,7 @@ document
               <strong>${escapeHtml(student?.full_name || "Student")}</strong>
               ${student?.student_uid ? `<span>UID: ${escapeHtml(student.student_uid)}</span>` : ""}
               ${question?.question_text ? `<span>${escapeHtml(question.question_text)}</span>` : ""}
+              ${question?.image_url ? `<div class="dsp-question-photo-wrap"><a href="${escapeHtml(question.image_url)}" target="_blank" rel="noopener noreferrer"><img class="dsp-question-photo" src="${escapeHtml(question.image_url)}" alt="Student DSP question photo" loading="lazy"></a><a class="dsp-question-photo-link" href="${escapeHtml(question.image_url)}" target="_blank" rel="noopener noreferrer">Open question photo</a></div>` : question?.image_path ? `<span>Question photo is attached but could not be loaded. Check bucket access.</span>` : ""}
             </div>
           ` : ""}
         </div>
@@ -7868,9 +7894,9 @@ document
     const rows=bookings||[];const studentIds=[...new Set(rows.map(b=>b.student_id).filter(Boolean))];const questionIds=[...new Set(rows.map(b=>b.question_id).filter(Boolean))];
     let students=[],questions=[];
     if(studentIds.length){const r=await supabaseClient.from("students").select("id,student_uid,full_name").in("id",studentIds);if(r.error)console.error(r.error);students=r.data||[];}
-    if(questionIds.length){const r=await supabaseClient.from("dsp_questions").select("id,question_text").in("id",questionIds);if(r.error)console.error(r.error);questions=r.data||[];}
+    if(questionIds.length){const r=await supabaseClient.from("dsp_questions").select("id,question_text,image_path").in("id",questionIds);if(r.error)console.error(r.error);questions=r.data||[];await Promise.all(questions.map(async q=>{q.image_url=await getDspQuestionPhotoUrl(q.image_path);}));}
     const studentMap=new Map(students.map(x=>[x.id,x])),questionMap=new Map(questions.map(x=>[x.id,x])),slotMap=new Map(bookedSlots.map(x=>[x.id,x]));
-    host.innerHTML=rows.length?rows.map(b=>{const slot=slotMap.get(b.slot_id)||{};const student=studentMap.get(b.student_id)||{};const q=questionMap.get(b.question_id)||{};return `<div class="dsp-slot booked"><div class="dsp-slot-time">${escapeHtml(b.booking_date||slot.slot_date||"Date not set")} · ${formatDspTime(b.start_time||slot.start_time)} – ${formatDspTime(b.end_time||slot.end_time)}</div><div class="dsp-slot-booking"><strong>${escapeHtml(student.full_name||"Student")}</strong>${student.student_uid?`<span>UID: ${escapeHtml(student.student_uid)}</span>`:""}<span>Status: ${escapeHtml(b.status||"booked")}</span>${q.question_text?`<span>${escapeHtml(q.question_text)}</span>`:""}</div></div>`;}).join(""):'<div class="dsp-empty">No booking records matched the booked slots.</div>';
+    host.innerHTML=rows.length?rows.map(b=>{const slot=slotMap.get(b.slot_id)||{};const student=studentMap.get(b.student_id)||{};const q=questionMap.get(b.question_id)||{};return `<div class="dsp-slot booked"><div class="dsp-slot-time">${escapeHtml(b.booking_date||slot.slot_date||"Date not set")} · ${formatDspTime(b.start_time||slot.start_time)} – ${formatDspTime(b.end_time||slot.end_time)}</div><div class="dsp-slot-booking"><strong>${escapeHtml(student.full_name||"Student")}</strong>${student.student_uid?`<span>UID: ${escapeHtml(student.student_uid)}</span>`:""}<span>Status: ${escapeHtml(b.status||"booked")}</span>${q.question_text?`<span>${escapeHtml(q.question_text)}</span>`:""}${q.image_url?`<div class="dsp-question-photo-wrap"><a href="${escapeHtml(q.image_url)}" target="_blank" rel="noopener noreferrer"><img class="dsp-question-photo" src="${escapeHtml(q.image_url)}" alt="Student DSP question photo" loading="lazy"></a><a class="dsp-question-photo-link" href="${escapeHtml(q.image_url)}" target="_blank" rel="noopener noreferrer">Open question photo</a></div>`:q.image_path?`<span>Question photo is attached but could not be loaded. Check bucket access.</span>`:""}</div></div>`;}).join(""):'<div class="dsp-empty">No booking records matched the booked slots.</div>';
   }
   document.getElementById("loadTeacherDspBookingsBtn")?.addEventListener("click",loadTeacherDspBookings);
 
