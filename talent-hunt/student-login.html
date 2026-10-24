@@ -2358,20 +2358,22 @@
             <form id="loginForm">
 
 
-              <!-- EMAIL -->
+              <!-- TALENT HUNT LOGIN ID -->
 
               <div class="field">
 
-                <label for="email">
-                  STUDENT EMAIL / LOGIN ID
+                <label for="loginId">
+                  STUDENT LOGIN ID
                 </label>
 
-
                 <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your login email"
+                  id="loginId"
+                  type="text"
+                  placeholder="Enter your Login ID (e.g. SIR10245)"
                   autocomplete="username"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  maxlength="64"
                   required
                 >
 
@@ -2531,25 +2533,25 @@
 <script>
 
 /* =========================================================
-   SIR SAGE — STUDENT LOGIN
-   REAL SUPABASE AUTHENTICATION
+   SIR TALENT HUNT — STUDENT LOGIN
+   Targeted login corrections; preserve existing page layout.
    ========================================================= */
 
 const passwordInput = document.getElementById("password");
 const showPassword = document.getElementById("showPassword");
+const loginIdInput = document.getElementById("loginId");
 
 showPassword.addEventListener("click", function () {
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    showPassword.textContent = "Hide";
-  } else {
-    passwordInput.type = "password";
-    showPassword.textContent = "Show";
-  }
+  const show = passwordInput.type === "password";
+  passwordInput.type = show ? "text" : "password";
+  showPassword.textContent = show ? "Hide" : "Show";
+  showPassword.setAttribute("aria-pressed", String(show));
 });
 
 /* =========================================================
    SUPABASE CONFIG
+   Publishable key is browser-safe. Never put service-role keys
+   or any other server secret in this file.
    ========================================================= */
 
 const SUPABASE_URL =
@@ -2558,19 +2560,55 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
 
 /* =========================================================
-   LOGIN ELEMENTS
+   LOGIN ELEMENTS + LOGIN ID MAPPING
+
+   IMPORTANT BACKEND CONTRACT:
+   The Talent Hunt account-creation backend must use the exact
+   same mapping below for each Login ID. This frontend mapping
+   alone does NOT create accounts or grant access.
+   The account-creation backend MUST use this exact mapping. This domain is an internal synthetic identity, not a student email address.
    ========================================================= */
 
 const loginForm = document.getElementById("loginForm");
 const loginMessage = document.getElementById("loginMessage");
 const loginSubmit = document.getElementById("loginSubmit");
+const LOGIN_ID_EMAIL_DOMAIN = "talenthunt.sir.net.in";
+
+function normalizeLoginId(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function isValidLoginId(value) {
+  return /^SIR\d{7}$/.test(value);
+}
+
+function loginIdToAuthEmail(loginId) {
+  return `${loginId.toLowerCase()}@${LOGIN_ID_EMAIL_DOMAIN}`;
+}
+
+loginIdInput.addEventListener("input", function () {
+  const start = loginIdInput.selectionStart;
+  const end = loginIdInput.selectionEnd;
+  loginIdInput.value = loginIdInput.value.toUpperCase().replace(/\s+/g, "");
+  try {
+    loginIdInput.setSelectionRange(start, end);
+  } catch (_) {
+    /* Selection ranges may be unavailable in some browser states. */
+  }
+});
 
 /* =========================================================
    MESSAGE HANDLER
@@ -2595,207 +2633,154 @@ function showMessage(message, type = "info") {
   }
 }
 
+function setSubmitting(isSubmitting) {
+  loginSubmit.disabled = isSubmitting;
+  loginSubmit.textContent = isSubmitting
+    ? "CHECKING ACCESS..."
+    : "ENTER THE SAGE JOURNEY →";
+}
+
+function clearTalentHuntContext() {
+  [
+    "sage_student_id",
+    "sage_student_name",
+    "sage_student_school",
+    "sage_student_class",
+    "sage_student_whatsapp"
+  ].forEach(function (key) {
+    sessionStorage.removeItem(key);
+  });
+}
+
+function storeTalentHuntContext(student) {
+  sessionStorage.setItem("sage_student_id", student.id);
+  sessionStorage.setItem("sage_student_name", student.student_name || "");
+  sessionStorage.setItem("sage_student_school", student.school_name || "");
+  sessionStorage.setItem("sage_student_class", student.student_class || "");
+  sessionStorage.setItem("sage_student_whatsapp", student.whatsapp_number || "");
+}
+
+function isTalentHuntStudentVerified(student) {
+  const status = String(student && student.status || "").toLowerCase();
+  return Boolean(
+    student &&
+    student.auth_user_id &&
+    student.whatsapp_verified === true &&
+    (!status || status === "verified")
+  );
+}
+
+async function findTalentHuntStudent(authUserId) {
+  return await supabaseClient
+    .from("talent_hunt_registrations")
+    .select(`
+      id,
+      student_name,
+      school_name,
+      student_class,
+      whatsapp_number,
+      whatsapp_verified,
+      status,
+      auth_user_id
+    `)
+    .eq("auth_user_id", authUserId)
+    .maybeSingle();
+}
+
+async function signOutLocalSession() {
+  try {
+    await supabaseClient.auth.signOut({ scope: "local" });
+  } catch (_) {
+    /* Do not expose internal auth errors in the UI. */
+  }
+  clearTalentHuntContext();
+}
+
 /* =========================================================
-   REAL STUDENT LOGIN
+   REAL TALENT HUNT STUDENT LOGIN
    ========================================================= */
 
 loginForm.addEventListener("submit", async function (event) {
   event.preventDefault();
+  clearTalentHuntContext();
 
-  const email = document
-    .getElementById("email")
-    .value
-    .trim()
-    .toLowerCase();
+  const enteredId = normalizeLoginId(loginIdInput.value);
+  const password = passwordInput.value;
 
-  const password = document
-    .getElementById("password")
-    .value;
-
-  if (!email || !password) {
-    showMessage(
-      "Please enter your login details.",
-      "error"
-    );
+  if (!enteredId || !password) {
+    showMessage("Please enter your Login ID and password.", "error");
     return;
   }
 
-  loginSubmit.disabled = true;
-  loginSubmit.textContent = "CHECKING ACCESS...";
+  /* Login is by SIR ID only: SIR followed by 7 digits (2-digit year + 5-digit serial), e.g. SIR2600001. */
+  if (!isValidLoginId(enteredId)) {
+    showMessage("Enter your SIR Login ID, for example SIR2600001.", "error");
+    return;
+  }
 
-  showMessage(
-    "Verifying your SAGE student access...",
-    "info"
-  );
+  const authEmail = loginIdToAuthEmail(enteredId);
+
+  setSubmitting(true);
+  showMessage("Verifying your SIR Talent Hunt access...", "info");
 
   try {
-
-    /* =======================================================
-       STEP 1 — SUPABASE AUTH
-       ======================================================= */
-
     const { data: authData, error: authError } =
       await supabaseClient.auth.signInWithPassword({
-        email: email,
+        email: authEmail,
         password: password
       });
 
-    if (authError) {
-      throw authError;
-    }
+    if (authError) throw authError;
 
     if (!authData || !authData.user) {
-      throw new Error(
-        "Unable to create a student session."
-      );
+      throw new Error("Unable to establish a student session.");
     }
 
     const authenticatedUser = authData.user;
-
-    /* =======================================================
-       STEP 2 — FIND TALENT HUNT STUDENT
-       ======================================================= */
-
     const { data: student, error: studentError } =
-      await supabaseClient
-        .from("talent_hunt_registrations")
-        .select(`
-          id,
-          student_name,
-          school_name,
-          student_class,
-          whatsapp_number,
-          whatsapp_verified,
-          status,
-          auth_user_id
-        `)
-        .eq("auth_user_id", authenticatedUser.id)
-        .maybeSingle();
+      await findTalentHuntStudent(authenticatedUser.id);
 
     if (studentError) {
-      console.error(
-        "Talent Hunt student lookup error:",
-        studentError
-      );
-
-      await supabaseClient.auth.signOut({
-        scope: "local"
-      });
-
-      throw new Error(
-        "Student account verification could not be completed. Please try again."
-      );
+      await signOutLocalSession();
+      console.error("Talent Hunt student lookup failed.", studentError);
+      throw new Error("Student access could not be verified. Please try again.");
     }
 
     if (!student) {
-      await supabaseClient.auth.signOut({
-        scope: "local"
-      });
-
-      throw new Error(
-        "This login is not linked to an SIR Talent Hunt student account."
-      );
+      await signOutLocalSession();
+      throw new Error("This account is not linked to an SIR Talent Hunt student.");
     }
 
-    /* =======================================================
-       STEP 3 — VERIFY TALENT HUNT ACCOUNT
-       ======================================================= */
-
-    const whatsappVerified =
-      student.whatsapp_verified === true;
-
-    const statusVerified =
-      !student.status ||
-      student.status.toLowerCase() === "verified";
-
-    if (!whatsappVerified || !statusVerified) {
-      await supabaseClient.auth.signOut({
-        scope: "local"
-      });
-
-      throw new Error(
-        "Your Talent Hunt account is not verified yet."
-      );
+    if (!isTalentHuntStudentVerified(student)) {
+      await signOutLocalSession();
+      throw new Error("Your Talent Hunt account is not verified yet.");
     }
 
-    /* =======================================================
-       STEP 4 — STORE NON-SENSITIVE STUDENT CONTEXT
-       ======================================================= */
-
-    sessionStorage.setItem(
-      "sage_student_id",
-      student.id
-    );
-
-    sessionStorage.setItem(
-      "sage_student_name",
-      student.student_name || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_school",
-      student.school_name || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_class",
-      student.student_class || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_whatsapp",
-      student.whatsapp_number || ""
-    );
-
-    /* =======================================================
-       STEP 5 — ACCESS GRANTED
-       ======================================================= */
-
-    showMessage(
-      "Access verified. Opening your SAGE journey...",
-      "success"
-    );
-
+    storeTalentHuntContext(student);
+    showMessage("Access verified. Opening your SAGE journey...", "success");
     loginSubmit.textContent = "ACCESS GRANTED ✓";
 
-    /* =======================================================
-       STEP 6 — STUDENT DASHBOARD
-       ======================================================= */
-
-    setTimeout(function () {
+    window.setTimeout(function () {
       window.location.href = "student-dashboard.html";
     }, 600);
 
   } catch (error) {
+    console.error("SAGE Talent Hunt login failed.", error);
+    setSubmitting(false);
 
-    console.error("SAGE Login Error:", error);
+    let message = "Login failed. Please check your Login ID and password.";
+    const rawMessage = String(error && error.message || "").toLowerCase();
 
-    loginSubmit.disabled = false;
-    loginSubmit.textContent =
-      "ENTER THE SAGE JOURNEY →";
-
-    let message =
-      error && error.message
-        ? error.message
-        : "Login failed. Please check your details and try again.";
-
-    const lowerMessage = message.toLowerCase();
-
-    if (
-      lowerMessage.includes("invalid login credentials")
-    ) {
-      message =
-        "Login details are incorrect. Please check your email and password.";
-    } else if (
-      lowerMessage.includes("email not confirmed")
-    ) {
-      message =
-        "Your student account has not been confirmed yet.";
-    } else if (
-      lowerMessage.includes("too many requests")
-    ) {
-      message =
-        "Too many login attempts. Please wait a moment and try again.";
+    if (rawMessage.includes("email not confirmed")) {
+      message = "Your account is not ready for login. Please contact SIR support.";
+    } else if (rawMessage.includes("too many requests")) {
+      message = "Too many login attempts. Please wait a moment and try again.";
+    } else if (rawMessage.includes("student access could not be verified")) {
+      message = "Student access could not be verified. Please try again.";
+    } else if (rawMessage.includes("not linked to an sir talent hunt student")) {
+      message = "This account is not linked to an SIR Talent Hunt student.";
+    } else if (rawMessage.includes("not verified yet")) {
+      message = "Your Talent Hunt account is not verified yet.";
     }
 
     showMessage(message, "error");
@@ -2804,91 +2789,33 @@ loginForm.addEventListener("submit", async function (event) {
 
 /* =========================================================
    CHECK EXISTING SESSION
+   Preserve the existing behaviour: populate context only when
+   the current Auth session belongs to a verified Talent Hunt user.
    ========================================================= */
 
 async function checkExistingSession() {
   try {
+    const { data: { session }, error: sessionError } =
+      await supabaseClient.auth.getSession();
 
-    const {
-      data: { session }
-    } = await supabaseClient.auth.getSession();
-
-    if (!session) {
-      return;
-    }
+    if (sessionError || !session) return;
 
     const { data: student, error } =
-      await supabaseClient
-        .from("talent_hunt_registrations")
-        .select(`
-          id,
-          student_name,
-          school_name,
-          student_class,
-          whatsapp_number,
-          whatsapp_verified,
-          status,
-          auth_user_id
-        `)
-        .eq("auth_user_id", session.user.id)
-        .maybeSingle();
+      await findTalentHuntStudent(session.user.id);
 
-    if (error || !student) {
-      return;
-    }
+    if (error || !student || !isTalentHuntStudentVerified(student)) return;
 
-    if (student.whatsapp_verified !== true) {
-      return;
-    }
-
-    if (
-      student.status &&
-      student.status.toLowerCase() !== "verified"
-    ) {
-      return;
-    }
-
-    sessionStorage.setItem(
-      "sage_student_id",
-      student.id
-    );
-
-    sessionStorage.setItem(
-      "sage_student_name",
-      student.student_name || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_school",
-      student.school_name || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_class",
-      student.student_class || ""
-    );
-
-    sessionStorage.setItem(
-      "sage_student_whatsapp",
-      student.whatsapp_number || ""
-    );
-
+    storeTalentHuntContext(student);
   } catch (error) {
-    console.warn(
-      "Existing session check skipped:",
-      error
-    );
+    console.warn("Existing Talent Hunt session check skipped.");
   }
 }
 
 checkExistingSession();
 
-/* =========================================================
-   AUTH STATE LISTENER
-   ========================================================= */
-
-supabaseClient.auth.onAuthStateChange(function (event) {
-  console.log("SAGE Auth Event:", event);
+/* Avoid logging auth event details or user identifiers in production. */
+supabaseClient.auth.onAuthStateChange(function () {
+  /* Intentionally no-op. */
 });
 
 </script>
