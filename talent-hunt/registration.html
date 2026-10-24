@@ -639,7 +639,8 @@
       margin-bottom: 7px;
     }
 
-    .field input {
+    .field input,
+    .field select {
       width: 100%;
 
       height: 49px;
@@ -651,11 +652,13 @@
       padding: 0 14px;
 
       color: var(--dark);
+      background: #fff;
 
       outline: none;
     }
 
-    .field input:focus {
+    .field input:focus,
+    .field select:focus {
       border-color: #173f73;
 
       box-shadow:
@@ -1384,6 +1387,29 @@
 
           <div class="field">
 
+            <label for="studentClass">
+              CLASS
+            </label>
+
+
+            <select
+              id="studentClass"
+              name="studentClass"
+              required
+            >
+              <option value="">Select class</option>
+              <option value="6th">6th</option>
+              <option value="7th">7th</option>
+              <option value="8th">8th</option>
+              <option value="9th">9th</option>
+              <option value="10th">10th</option>
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
             <label for="schoolName">
               SCHOOL NAME
             </label>
@@ -1402,21 +1428,77 @@
 
           <div class="field">
 
-            <label for="studentClass">
-              CLASS
+            <label for="stateSelect">
+              STATE
             </label>
 
-
-            <input
-              id="studentClass"
-              name="studentClass"
-              type="text"
-              value="10th"
-              readonly
-              class="fixed"
-            >
+            <select id="stateSelect" name="state" required>
+              <option value="Maharashtra" selected>Maharashtra</option>
+            </select>
 
           </div>
+
+
+          <div class="field">
+
+            <label for="districtSelect">
+              DISTRICT
+            </label>
+
+            <select id="districtSelect" name="district" required disabled>
+              <option value="">Loading districts...</option>
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="talukaSelect">
+              TALUKA
+            </label>
+
+            <select id="talukaSelect" name="taluka" required disabled>
+              <option value="">Select district first</option>
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="boardSelect">
+              BOARD
+            </label>
+
+            <select id="boardSelect" name="board" required>
+              <option value="">Select board</option>
+              <option value="CBSE">CBSE</option>
+              <option value="ICSE">ICSE</option>
+              <option value="IB">IB</option>
+              <option value="State Board">State Board</option>
+            </select>
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="mediumSelect">
+              MEDIUM
+            </label>
+
+            <select id="mediumSelect" name="medium" required>
+              <option value="">Select medium</option>
+              <option value="English">English</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Semi English">Semi English</option>
+            </select>
+
+          </div>
+
+
+
 
 
           <div class="field">
@@ -1510,8 +1592,8 @@
 
         <p>
 
-          We've sent a verification code
-          to your WhatsApp number.
+          WhatsApp verification
+          will begin here.
 
           Enter it below to continue
           your Talent Hunt journey.
@@ -1546,8 +1628,7 @@
 
         <div class="hint">
 
-          OTP functionality will be connected
-          to WhatsApp in the next step.
+          Real OTP sending and verification are not connected in this preview.
 
         </div>
 
@@ -1723,114 +1804,315 @@
 
 
   /*
-    REGISTRATION FORM
+    SIR TALENT HUNT — FRONTEND INTEGRATION
+
+    BEFORE DEPLOYMENT:
+    1. Replace SUPABASE_URL and SUPABASE_ANON_KEY below.
+    2. Ensure all five Edge Functions are deployed and their request/response
+       contracts match the calls below.
+    3. Ensure create-account securely triggers credentials delivery server-side.
+    4. Do not place service-role keys or TALENT_HUNT_INTERNAL_SECRET in this file.
   */
 
-  document
-    .getElementById("registrationForm")
-    .addEventListener(
-      "submit",
-      function(event) {
+  const SUPABASE_URL = "REPLACE_WITH_YOUR_SUPABASE_PROJECT_URL";
+  const SUPABASE_ANON_KEY = "REPLACE_WITH_YOUR_SUPABASE_ANON_KEY";
 
-        event.preventDefault();
+  const GEO_API = "https://india-lgd-index-api.vercel.app/v1";
+  const MAHARASHTRA_LGD_STATE_CODE = "27";
 
+  const districtSelect = document.getElementById("districtSelect");
+  const talukaSelect = document.getElementById("talukaSelect");
+  const stateSelect = document.getElementById("stateSelect");
+  const registrationForm = document.getElementById("registrationForm");
+  const submitButton = registrationForm.querySelector('button[type="submit"]');
+  const otpInput = document.getElementById("otpInput");
+  const otpButton = document.querySelector('#scene5 button[onclick="verifyOtpDemo()"]');
 
-        const name =
-          document
-            .getElementById("studentName")
-            .value
-            .trim();
+  let currentRegistrationId = null;
+  let registrationInProgress = false;
+  let otpVerificationInProgress = false;
 
+  function setSelectOptions(select, placeholder, rows) {
+    select.replaceChildren();
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = placeholder;
+    select.appendChild(first);
 
-        const school =
-          document
-            .getElementById("schoolName")
-            .value
-            .trim();
+    rows.forEach((row) => {
+      const option = document.createElement("option");
+      option.value = String(row.code);
+      option.textContent = row.name;
+      option.dataset.name = row.name;
+      select.appendChild(option);
+    });
+  }
 
+  function normalizeGeoRows(payload) {
+    const rows = Array.isArray(payload?.data) ? payload.data : [];
+    return rows.map((item) => {
+      const name =
+        (typeof item.name === "string" ? item.name : item.name?.en) ||
+        item.district_name ||
+        item.subdistrict_name ||
+        item.taluka_name ||
+        "";
+      const code =
+        item.lgd_code ??
+        item.lgdCode ??
+        item.code ??
+        item.id ??
+        item.district_code ??
+        item.subdistrict_code;
+      return { name: String(name).trim(), code };
+    }).filter((item) => item.name && item.code !== undefined && item.code !== null);
+  }
 
-        const whatsapp =
-          document
-            .getElementById("whatsappNumber")
-            .value
-            .trim();
+  async function loadDistricts() {
+    districtSelect.disabled = true;
+    talukaSelect.disabled = true;
+    setSelectOptions(districtSelect, "Loading Maharashtra districts...", []);
+    setSelectOptions(talukaSelect, "Select district first", []);
 
+    try {
+      const response = await fetch(
+        `${GEO_API}/districts?state=${encodeURIComponent(MAHARASHTRA_LGD_STATE_CODE)}`,
+        { headers: { "Accept": "application/json" } }
+      );
+      if (!response.ok) throw new Error(`District API returned ${response.status}`);
+      const payload = await response.json();
+      const districts = normalizeGeoRows(payload).sort((a, b) => a.name.localeCompare(b.name));
+      if (!districts.length) throw new Error("No Maharashtra district records returned");
+      setSelectOptions(districtSelect, "Select district", districts);
+      districtSelect.disabled = false;
+    } catch (error) {
+      console.error("Could not load Maharashtra districts:", error);
+      setSelectOptions(districtSelect, "District list unavailable — reload to retry", []);
+      districtSelect.disabled = true;
+    }
+  }
 
-        if (!name || !school) {
+  async function loadTalukasForDistrict(districtCode) {
+    talukaSelect.disabled = true;
+    setSelectOptions(talukaSelect, "Loading talukas...", []);
+    if (!districtCode) {
+      setSelectOptions(talukaSelect, "Select district first", []);
+      return;
+    }
 
-          alert(
-            "Please enter your name and school."
-          );
+    try {
+      const response = await fetch(
+        `${GEO_API}/subdistricts?state=${encodeURIComponent(MAHARASHTRA_LGD_STATE_CODE)}&district=${encodeURIComponent(districtCode)}`,
+        { headers: { "Accept": "application/json" } }
+      );
+      if (!response.ok) throw new Error(`Taluka API returned ${response.status}`);
+      const payload = await response.json();
+      const talukas = normalizeGeoRows(payload).sort((a, b) => a.name.localeCompare(b.name));
+      if (!talukas.length) throw new Error("No taluka records returned");
+      setSelectOptions(talukaSelect, "Select taluka", talukas);
+      talukaSelect.disabled = false;
+    } catch (error) {
+      console.error("Could not load talukas:", error);
+      setSelectOptions(talukaSelect, "Taluka list unavailable — reselect district", []);
+      talukaSelect.disabled = true;
+    }
+  }
 
-          return;
+  districtSelect.addEventListener("change", () => {
+    loadTalukasForDistrict(districtSelect.value);
+  });
 
-        }
+  stateSelect.addEventListener("change", () => {
+    // Maharashtra is intentionally the only state in this launch.
+    districtSelect.value = "";
+    loadTalukasForDistrict("");
+    loadDistricts();
+  });
 
+  function backendConfigured() {
+    return (
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("REPLACE_WITH") &&
+      SUPABASE_ANON_KEY.length > 20 &&
+      !SUPABASE_ANON_KEY.includes("REPLACE_WITH")
+    );
+  }
 
-        if (
-          !/^[0-9]{10}$/.test(
-            whatsapp
-          )
-        ) {
+  async function invokeEdgeFunction(functionName, body) {
+    if (!backendConfigured()) {
+      throw new Error("Supabase frontend configuration is missing. Add the project URL and anon key in registration.html.");
+    }
 
-          alert(
-            "Please enter a valid 10-digit WhatsApp number."
-          );
-
-          return;
-
-        }
-
-
-        /*
-          DEMO TRANSITION
-
-          Real backend will be connected
-          in the next step.
-        */
-
-        goToScene(5);
-
+    const response = await fetch(
+      `${SUPABASE_URL.replace(/\/+$/, "")}/functions/v1/${functionName}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(body)
       }
     );
 
-
-  /*
-    OTP DEMO
-  */
-
-  function verifyOtpDemo() {
-
-    const otp =
-      document
-        .getElementById("otpInput")
-        .value
-        .trim();
-
-
-    if (
-      !/^[0-9]{6}$/.test(otp)
-    ) {
-
-      alert(
-        "Please enter the 6-digit OTP."
-      );
-
-      return;
-
+    let result = {};
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error(`${functionName} returned an unreadable response.`);
     }
 
-
-    /*
-      DEMO ONLY.
-
-      Real OTP verification will be
-      connected later.
-    */
-
-    goToScene(6);
-
+    if (!response.ok || result.success === false) {
+      throw new Error(result.message || `${functionName} failed (${response.status}).`);
+    }
+    return result;
   }
+
+  function selectedName(select) {
+    return select.selectedOptions[0]?.dataset.name ||
+      select.selectedOptions[0]?.textContent?.trim() || "";
+  }
+
+  function setBusy(button, busy, busyLabel, originalLabel) {
+    button.disabled = busy;
+    button.textContent = busy ? busyLabel : originalLabel;
+  }
+
+  /*
+    REGISTER → SAVE RECORD → SEND OTP
+    Expected register response: { success: true, registrationId: "uuid" }
+    Expected send-otp response: { success: true, ... }
+  */
+  registrationForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    if (registrationInProgress) return;
+
+    const studentName = document.getElementById("studentName").value.trim();
+    const schoolName = document.getElementById("schoolName").value.trim();
+    const studentClass = document.getElementById("studentClass").value;
+    const district = selectedName(districtSelect);
+    const taluka = selectedName(talukaSelect);
+    const board = document.getElementById("boardSelect").value;
+    const medium = document.getElementById("mediumSelect").value;
+    const whatsappNumber = document.getElementById("whatsappNumber").value.trim();
+
+    if (!studentName || !schoolName || !studentClass || !district || !taluka || !board || !medium) {
+      alert("Please complete all required registration fields.");
+      return;
+    }
+
+    if (districtSelect.disabled || talukaSelect.disabled) {
+      alert("District/taluka data is not available right now. Please reload and try again.");
+      return;
+    }
+
+    if (!/^[6-9][0-9]{9}$/.test(whatsappNumber)) {
+      alert("Enter a valid 10-digit Indian WhatsApp number starting with 6, 7, 8 or 9.");
+      return;
+    }
+
+    registrationInProgress = true;
+    const originalLabel = "VERIFY & ENTER THE HUNT →";
+    setBusy(submitButton, true, "SAVING & SENDING OTP...", originalLabel);
+
+    try {
+      const registration = await invokeEdgeFunction("talent-hunt-register", {
+        student_name: studentName,
+        school_name: schoolName,
+        student_class: studentClass,
+        state: "Maharashtra",
+        district,
+        district_code: districtSelect.value,
+        taluka,
+        taluka_code: talukaSelect.value,
+        board,
+        medium,
+        whatsapp_number: whatsappNumber
+      });
+
+      currentRegistrationId = registration.registrationId || registration.registration_id || registration.id;
+      if (!currentRegistrationId) {
+        throw new Error("Registration was saved but the API did not return a registration ID. Contact support before retrying.");
+      }
+
+      await invokeEdgeFunction("talent-hunt-send-otp", {
+        registrationId: currentRegistrationId
+      });
+
+      document.querySelector("#scene5 .otp-box p").textContent =
+        `A verification code has been requested for WhatsApp number ${whatsappNumber}. Enter the code received to continue.`;
+      document.querySelector("#scene5 .hint").textContent =
+        "OTP expires according to the server's configured expiry. Never share your OTP with anyone.";
+      goToScene(5);
+      otpInput.value = "";
+      otpInput.focus();
+    } catch (error) {
+      console.error("Registration/OTP request failed:", error);
+      alert(error instanceof Error ? error.message : "Registration could not be completed. Please try again.");
+    } finally {
+      registrationInProgress = false;
+      setBusy(submitButton, false, "", originalLabel);
+    }
+  });
+
+  /*
+    VERIFY OTP → CREATE ACCOUNT
+    Credentials must be sent from the trusted backend, not from browser code.
+    create-account should return credentialsDelivery status after server-side delivery.
+  */
+  async function verifyOtpDemo() {
+    if (otpVerificationInProgress) return;
+    if (!currentRegistrationId) {
+      alert("Your registration session is missing. Please register again.");
+      goToScene(4);
+      return;
+    }
+
+    const otp = otpInput.value.trim();
+    if (!/^[0-9]{6}$/.test(otp)) {
+      alert("Please enter the 6-digit OTP.");
+      return;
+    }
+
+    otpVerificationInProgress = true;
+    const originalLabel = "VERIFY & CONTINUE →";
+    if (otpButton) setBusy(otpButton, true, "VERIFYING...", originalLabel);
+
+    try {
+      await invokeEdgeFunction("talent-hunt-verify-otp", {
+        registrationId: currentRegistrationId,
+        otp
+      });
+
+      const account = await invokeEdgeFunction("talent-hunt-create-account", {
+        registrationId: currentRegistrationId
+      });
+
+      const loginId = account.loginId || account.login_id;
+      const deliveryStatus = String(account.credentialsDelivery || account.credentials_delivery || "").toUpperCase();
+
+      if (loginId) {
+        document.querySelector("#scene6 .success p").textContent =
+          deliveryStatus === "SENT" || deliveryStatus === "DELIVERED"
+            ? "Your WhatsApp number has been verified, your student account is ready, and your login credentials have been sent to WhatsApp."
+            : "Your WhatsApp number has been verified and your student account is ready. Credentials delivery is not confirmed yet. Please contact SIR before trying to register again.";
+      } else {
+        document.querySelector("#scene6 .success p").textContent =
+          "Your WhatsApp number was verified, but account creation could not be confirmed. Please contact SIR support.";
+      }
+
+      goToScene(6);
+    } catch (error) {
+      console.error("OTP verification/account creation failed:", error);
+      alert(error instanceof Error ? error.message : "OTP verification failed. Please check the code and try again.");
+    } finally {
+      otpVerificationInProgress = false;
+      if (otpButton) setBusy(otpButton, false, "", originalLabel);
+    }
+  }
+
+  loadDistricts();
 
 
   /*
