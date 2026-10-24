@@ -2293,6 +2293,28 @@
     .dsp-question-photo-wrap { margin-top: 10px; }
     .dsp-question-photo { display:block; max-width:100%; max-height:260px; width:auto; height:auto; object-fit:contain; border-radius:8px; border:1px solid rgba(201,168,78,.25); background:#071426; }
     .dsp-question-photo-link { display:inline-block; color:#e1c86b; font-size:11px; margin-top:6px; text-decoration:underline; }
+
+    /* SAGE programme shell — navigation only in this first phase */
+    .sage-overview-banner { background:linear-gradient(135deg,#102744,#0b1b31 68%,#302817); border:1px solid rgba(201,168,78,.35); border-radius:16px; padding:24px; margin-bottom:22px; }
+    .sage-overview-banner .eyebrow { color:#d9b75b; letter-spacing:1.8px; font-size:11px; font-weight:700; margin-bottom:9px; }
+    .sage-overview-banner h2 { font-size:27px; margin-bottom:8px; }
+    .sage-overview-banner p { color:#b8c4d4; line-height:1.6; max-width:760px; }
+    .sage-module-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .sage-module-card { text-align:left; width:100%; min-height:142px; padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,.09); background:#0d2038; color:#fff; cursor:pointer; transition:transform .15s ease,border-color .15s ease,background .15s ease; }
+    .sage-module-card:hover { transform:translateY(-2px); border-color:rgba(201,168,78,.65); background:#112945; }
+    .sage-module-icon { display:block; color:#d9b75b; font-size:23px; margin-bottom:12px; }
+    .sage-module-card strong { display:block; font-size:15px; margin-bottom:7px; }
+    .sage-module-card span:last-child { display:block; color:#93a4ba; font-size:12px; line-height:1.5; }
+    .sage-status-note { border:1px solid rgba(201,168,78,.22); background:rgba(201,168,78,.06); border-radius:10px; padding:14px 16px; color:#c5d0df; line-height:1.55; margin-top:20px; font-size:13px; }
+    .sage-module-view { display:none; }
+    .sage-module-view.active { display:block; }
+    .sage-back-btn { margin-bottom:18px; }
+    .sage-placeholder-panel { background:#0d2038; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:22px; }
+    .sage-placeholder-panel h3 { margin-bottom:9px; }
+    .sage-placeholder-panel p { color:#93a4ba; line-height:1.65; }
+    .sage-placeholder-tag { display:inline-block; margin-top:15px; padding:6px 9px; border-radius:20px; font-size:11px; color:#e5c96e; background:rgba(201,168,78,.1); border:1px solid rgba(201,168,78,.2); }
+    @media(max-width:1050px) { .sage-module-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:600px) { .sage-module-grid { grid-template-columns:1fr; } .sage-overview-banner { padding:18px; } .sage-overview-banner h2 { font-size:23px; } }
 </style>
 </head>
 
@@ -2419,6 +2441,9 @@
     <button class="nav-btn" data-section="dsp">
       Doubt Solving Programme
     </button>
+
+    <div class="nav-title sage-nav-title">Programme</div>
+    <button class="nav-btn sage-nav-btn" data-section="sageProgramme">✦ &nbsp; SAGE Programme</button>
 
   </aside>
 
@@ -3215,6 +3240,45 @@
       <div class="panel" style="padding:20px;margin-bottom:18px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>Designation Catalogue</h3><button class="secondary-btn" type="button" id="refreshDesignationsBtn">Refresh</button></div><div id="designationsTableWrap" style="overflow:auto"><p>Open this section to load designations.</p></div></div>
       <div class="panel" style="padding:20px"><h3>Module Permission Matrix</h3><p style="color:var(--muted,#64748b)">Set the permissions attached to each designation. Changes are stored in Supabase. These permissions are configuration data; server-side authorization for future staff-facing APIs must also enforce them.</p><div id="permissionMessage" role="status" style="margin:10px 0"></div><div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:14px"><label style="min-width:260px;flex:1">Designation<select id="permissionDesignation"><option value="">Select designation</option></select></label><button type="button" class="secondary-btn" id="loadPermissionsBtn">Load permissions</button></div><div id="permissionMatrixWrap" style="overflow:auto"><p>Select a designation to configure permissions.</p></div><div style="margin-top:14px"><button type="button" class="primary-btn" id="savePermissionsBtn">Save Permissions</button></div></div>
       <p style="margin-top:14px;color:var(--muted,#64748b)"><strong>Security note:</strong> A designation describes the job. Permissions determine what that person can do. These settings do not grant staff access to the existing admin-only dashboard; the future staff interface and its server-side permission checks must use this matrix.</p>
+    </section>
+
+
+    <!-- SAGE PROGRAMME CONTROL CENTRE: navigation shell only; features will be connected one by one -->
+    <section class="section" id="sageProgramme">
+      <div class="page-header">
+        <div><div class="dashboard-eyebrow">SIR • SCHOLARSHIP PROGRAMME</div><h1>SAGE Programme</h1><p>Central control centre for the SAGE student journey, academic stages, engagement and scholarship workflow.</p></div>
+      </div>
+      <div id="sageOverviewView" class="sage-module-view active">
+        <div class="sage-overview-banner">
+          <div class="eyebrow">SAGE CONTROL CENTRE</div>
+          <h2>Manage the complete SAGE journey</h2>
+          <p>Choose a module below. These sections are being added as a safe navigation framework first; each module will be connected to verified data and permissions in a separate implementation step.</p>
+        </div>
+        <div class="sage-module-grid">
+          <button type="button" class="sage-module-card" data-sage-module="overview"><span class="sage-module-icon">◈</span><strong>Programme Overview</strong><span>Programme health, milestones, pending actions and summary KPIs.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="registrations"><span class="sage-module-icon">♙</span><strong>Registrations & Students</strong><span>Student identity, school, taluka, acquisition channel and journey stage.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="sircet"><span class="sage-module-icon">▤</span><strong>SirCET Management</strong><span>Exam schedule, attendance, marks verification and overall merit workflow.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="talenthunt"><span class="sage-module-icon">✦</span><strong>SAGE Talent Hunt</strong><span>Eligibility, candidate access, examination operations and results.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="taluka"><span class="sage-module-icon">⌖</span><strong>Taluka Selection</strong><span>Taluka mapping, verified merit lists and selection approvals.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="learning"><span class="sage-module-icon">▶</span><strong>Learning & Engagement</strong><span>Videos, practice sets, weekly missions and student activity.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="mentoring"><span class="sage-module-icon">◎</span><strong>Mentoring & Doubts</strong><span>Mentor assignment, doubt status and academic support tracking.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="communication"><span class="sage-module-icon">✉</span><strong>Communication Hub</strong><span>Announcements, WhatsApp journeys, delivery logs and parent updates.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="finale"><span class="sage-module-icon">🏆</span><strong>SAGE Finale</strong><span>Written assessment, interview evaluation and final merit workflow.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="scholarships"><span class="sage-module-icon">★</span><strong>Scholarships & Awards</strong><span>Top 100 approval, award records and scholarship communication.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="analytics"><span class="sage-module-icon">▥</span><strong>Reports & Intelligence</strong><span>Programme funnel, school/digital performance and engagement insights.</span></button>
+          <button type="button" class="sage-module-card" data-sage-module="settings"><span class="sage-module-icon">⚙</span><strong>Programme Settings</strong><span>Dates, approved rules, role access and change history.</span></button>
+        </div>
+        <div class="sage-status-note"><strong>Implementation status:</strong> Navigation and placeholder screens only. No SAGE data is created, changed, published or sent by these buttons yet. Existing SIR modules remain separate and unchanged.</div>
+      </div>
+      <div id="sageModuleDetail" class="sage-module-view">
+        <button type="button" class="secondary-btn sage-back-btn" id="sageBackToOverview">← Back to SAGE Overview</button>
+        <div class="page-header"><div><div class="dashboard-eyebrow">SAGE PROGRAMME MODULE</div><h1 id="sageModuleTitle">Module</h1><p id="sageModuleDescription">Module description</p></div></div>
+        <div class="sage-placeholder-panel">
+          <h3 id="sageModulePanelTitle">Module setup</h3>
+          <p id="sageModulePanelDescription">This module is a navigation placeholder in this phase. Before connecting it, we will inspect the relevant existing tables, current workflows and access policies, then implement and test this module without disturbing working SIR functionality.</p>
+          <span class="sage-placeholder-tag">NOT CONNECTED YET</span>
+        </div>
+      </div>
     </section>
 
   </main>
@@ -4322,6 +4386,43 @@ document.querySelectorAll(".nav-btn")
 
   });
 
+
+/* --------------------------------
+   SAGE PROGRAMME NAVIGATION SHELL
+   This only switches placeholder views; it does not write to the database.
+-------------------------------- */
+const sageModuleInfo = {
+  overview: {title:"Programme Overview", description:"SAGE milestones, programme health and pending actions.", panel:"Programme overview setup"},
+  registrations: {title:"Registrations & Students", description:"Student identity, school mapping, acquisition channel and journey stage.", panel:"Student and registration mapping"},
+  sircet: {title:"SirCET Management", description:"Exam calendar, attendance, marks verification and combined merit workflow.", panel:"SirCET workflow setup"},
+  talenthunt: {title:"SAGE Talent Hunt", description:"Eligible candidates, exam operations, attendance and results.", panel:"Talent Hunt workflow setup"},
+  taluka: {title:"Taluka Selection", description:"Taluka mapping, merit lists, selection checks and approvals.", panel:"Taluka selection setup"},
+  learning: {title:"Learning & Engagement", description:"Video lessons, practice, weekly missions and student activity.", panel:"Learning and engagement setup"},
+  mentoring: {title:"Mentoring & Doubts", description:"Mentor assignment, academic support and doubt follow-up.", panel:"Mentoring workflow setup"},
+  communication: {title:"Communication Hub", description:"Announcements, WhatsApp journeys, delivery logs and parent updates.", panel:"Communication provider and template setup"},
+  finale: {title:"SAGE Finale", description:"Written assessment, interview evaluation and final merit workflow.", panel:"Finale assessment setup"},
+  scholarships: {title:"Scholarships & Awards", description:"Approved scholarship awards, student communication and follow-up.", panel:"Scholarship policy and award setup"},
+  analytics: {title:"Reports & Intelligence", description:"Programme funnel, school outreach, digital acquisition and engagement insights.", panel:"Reports and KPI setup"},
+  settings: {title:"Programme Settings", description:"Approved dates, rules, access configuration and change history.", panel:"Programme configuration setup"}
+};
+document.querySelectorAll("[data-sage-module]").forEach(button => {
+  button.addEventListener("click", () => {
+    const key = button.dataset.sageModule;
+    const info = sageModuleInfo[key];
+    if (!info) return;
+    document.getElementById("sageOverviewView").classList.remove("active");
+    document.getElementById("sageModuleDetail").classList.add("active");
+    document.getElementById("sageModuleTitle").textContent = info.title;
+    document.getElementById("sageModuleDescription").textContent = info.description;
+    document.getElementById("sageModulePanelTitle").textContent = info.panel;
+    document.getElementById("sageModulePanelDescription").textContent = "This module is a navigation placeholder in this phase. Before connecting it, we will inspect the relevant existing tables, current workflows and access policies, then implement and test this module without disturbing working SIR functionality.";
+  });
+});
+const sageBackButton = document.getElementById("sageBackToOverview");
+if (sageBackButton) sageBackButton.addEventListener("click", () => {
+  document.getElementById("sageModuleDetail").classList.remove("active");
+  document.getElementById("sageOverviewView").classList.add("active");
+});
 
 /* --------------------------------
    STUDENTS
