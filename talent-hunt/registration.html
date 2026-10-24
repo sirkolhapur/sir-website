@@ -1807,11 +1807,14 @@
     SIR TALENT HUNT — FRONTEND INTEGRATION
 
     BEFORE DEPLOYMENT:
-    1. Replace SUPABASE_URL and SUPABASE_ANON_KEY below.
-    2. Ensure all five Edge Functions are deployed and their request/response
-       contracts match the calls below.
-    3. Ensure create-account securely triggers credentials delivery server-side.
-    4. Do not place service-role keys or TALENT_HUNT_INTERNAL_SECRET in this file.
+    FRONTEND CONFIGURATION:
+    - Replace the two placeholders below with your Supabase Project URL and public
+      anon/publishable key.
+    - NEVER put SUPABASE_SERVICE_ROLE_KEY, AiSensy API key, OTP_HMAC_SECRET, or
+      TALENT_HUNT_INTERNAL_SECRET in this HTML.
+    - This HTML calls the deployed Edge Functions; it cannot implement or repair
+      their server-side database, OTP, Auth, or WhatsApp delivery logic by itself.
+    - Backend functions must use the same camelCase request contract used below.
   */
 
   const SUPABASE_URL = "REPLACE_WITH_YOUR_SUPABASE_PROJECT_URL";
@@ -1964,7 +1967,12 @@
     }
 
     if (!response.ok || result.success === false) {
-      throw new Error(result.message || `${functionName} failed (${response.status}).`);
+      const safeMessage = typeof result.message === "string" && result.message.trim()
+        ? result.message.trim()
+        : typeof result.error === "string" && result.error.trim()
+          ? result.error.trim()
+          : `${functionName} failed (${response.status}).`;
+      throw new Error(safeMessage);
     }
     return result;
   }
@@ -2018,20 +2026,26 @@
 
     try {
       const registration = await invokeEdgeFunction("talent-hunt-register", {
-        student_name: studentName,
-        school_name: schoolName,
-        student_class: studentClass,
+        studentName,
+        schoolName,
+        studentClass,
+        whatsappNumber,
         state: "Maharashtra",
         district,
-        district_code: districtSelect.value,
+        districtCode: districtSelect.value,
         taluka,
-        taluka_code: talukaSelect.value,
+        talukaCode: talukaSelect.value,
         board,
-        medium,
-        whatsapp_number: whatsappNumber
+        medium
       });
 
-      currentRegistrationId = registration.registrationId || registration.registration_id || registration.id;
+      currentRegistrationId =
+        registration.registrationId ||
+        registration.registration_id ||
+        registration.id ||
+        registration.registration?.id ||
+        registration.data?.registrationId ||
+        registration.data?.id;
       if (!currentRegistrationId) {
         throw new Error("Registration was saved but the API did not return a registration ID. Contact support before retrying.");
       }
@@ -2041,7 +2055,7 @@
       });
 
       document.querySelector("#scene5 .otp-box p").textContent =
-        `A verification code has been requested for WhatsApp number ${whatsappNumber}. Enter the code received to continue.`;
+        `If WhatsApp delivery is successful, the verification code will arrive at ${whatsappNumber}. Enter the 6-digit code to continue. If it does not arrive, wait for the resend option or contact SIR support.`;
       document.querySelector("#scene5 .hint").textContent =
         "OTP expires according to the server's configured expiry. Never share your OTP with anyone.";
       goToScene(5);
@@ -2095,8 +2109,8 @@
       if (loginId) {
         document.querySelector("#scene6 .success p").textContent =
           deliveryStatus === "SENT" || deliveryStatus === "DELIVERED"
-            ? "Your WhatsApp number has been verified, your student account is ready, and your login credentials have been sent to WhatsApp."
-            : "Your WhatsApp number has been verified and your student account is ready. Credentials delivery is not confirmed yet. Please contact SIR before trying to register again.";
+            ? "Your WhatsApp number has been verified, your student account is ready, and the server reports that your login credentials were sent to WhatsApp."
+            : "Your WhatsApp number was verified and the server returned a Login ID, but credentials delivery is not confirmed. Please contact SIR support before trying to register again.";
       } else {
         document.querySelector("#scene6 .success p").textContent =
           "Your WhatsApp number was verified, but account creation could not be confirmed. Please contact SIR support.";
