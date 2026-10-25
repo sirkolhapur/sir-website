@@ -819,6 +819,67 @@
 
 
     /* =========================================
+       FIRST-LOGIN CREDENTIALS
+       ========================================= */
+    .credentials-panel {
+      width: 100%; max-width: 650px; margin: 30px auto 0; padding: 24px;
+      border: 1px solid rgba(245,197,66,.35); border-radius: 18px;
+      background: rgba(255,255,255,.055); text-align: left;
+    }
+    .credentials-panel[hidden] { display: none !important; }
+    .credentials-panel h3 { color: var(--gold); font-size: 18px; margin-bottom: 8px; }
+    .credentials-panel .credentials-intro { margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+    .credential-row {
+      display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+      margin-top: 12px; padding: 13px 14px; border-radius: 10px;
+      background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.10);
+    }
+    .credential-value-wrap { min-width: 0; }
+    .credential-label {
+      display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px;
+      letter-spacing: .8px; text-transform: uppercase;
+    }
+    .credential-value {
+      display: block; color: var(--white); font-size: 17px; font-weight: 800;
+      overflow-wrap: anywhere; user-select: text;
+    }
+    .copy-button {
+      border: 1px solid rgba(245,197,66,.5); border-radius: 8px;
+      background: rgba(245,197,66,.12); color: var(--gold); padding: 9px 12px;
+      font-size: 12px; font-weight: 800; min-height: 38px;
+    }
+    .credentials-warning {
+      margin: 17px 0 0 !important; padding: 13px; border-left: 3px solid var(--gold);
+      border-radius: 5px; background: rgba(245,197,66,.08); color: #fff3c4 !important;
+      font-size: 12px !important; line-height: 1.65 !important;
+    }
+    .credentials-status { margin-top: 12px !important; font-size: 12px !important; color: var(--muted) !important; }
+    .credentials-actions { display: grid; gap: 10px; margin-top: 18px; }
+    .secondary-action {
+      display: inline-flex; justify-content: center; align-items: center; width: 100%;
+      min-height: 46px; padding: 12px 16px; border: 1px solid rgba(255,255,255,.24);
+      border-radius: 10px; color: var(--white); background: rgba(255,255,255,.06);
+      text-decoration: none; font-weight: 800; font-size: 13px;
+    }
+    .credentials-error { color: #ffb8b8 !important; margin-top: 12px !important; font-size: 12px !important; }
+
+
+    .credentials-panel { margin: 24px auto 0; max-width: 520px; text-align: left; padding: 22px; border-radius: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(245,197,66,.38); }
+    .credentials-panel[hidden] { display: none !important; }
+    .credentials-panel h3 { margin-bottom: 10px; color: var(--gold); font-size: 21px; }
+    .credentials-intro { margin: 0 0 16px !important; }
+    .credential-row { display:flex; gap:12px; align-items:center; justify-content:space-between; background:#fff; color:#122033; padding:14px; border-radius:12px; margin:12px 0; }
+    .credential-value-wrap { min-width:0; display:flex; flex-direction:column; gap:6px; overflow-wrap:anywhere; }
+    .credential-label { font-size:10px; font-weight:800; letter-spacing:1px; color:#687587; }
+    .credential-value { font-weight:900; font-size:20px; color:#071426; overflow-wrap:anywhere; }
+    .copy-button { border:1px solid #d7dde5; background:#f3f6f9; border-radius:8px; padding:10px 12px; font-size:11px; font-weight:800; flex-shrink:0; }
+    .credentials-warning { margin:14px 0 !important; padding:12px; background:rgba(245,197,66,.10); border-left:3px solid var(--gold); font-size:12px; }
+    .credentials-status { font-size:12px; margin:10px 0 !important; }
+    .credentials-actions { margin-top:14px; }
+    .secondary-action { display:block; text-align:center; width:100%; padding:15px; border:0; border-radius:10px; background:var(--gold); color:#071426; text-decoration:none; font-weight:900; font-size:13px; }
+    .credentials-error { color:#ffd5d5; font-size:12px; margin-top:12px !important; }
+
+    /* =========================================
        MOBILE
        ========================================= */
 
@@ -1628,7 +1689,7 @@
 
         <div class="hint">
 
-          Real OTP sending and verification are not connected in this preview.
+          Enter the 6-digit OTP sent to your registered WhatsApp number.
 
         </div>
 
@@ -1673,28 +1734,29 @@
         </h2>
 
 
-        <p>
-
-          Your registration is complete.
-
-          Your Talent Hunt journey is about
-          to begin.
-
-          The next stage will unlock your
-          challenges, results and scholarship journey.
-
+        <p id="successMessage">
+          Your registration is complete. Your account details will appear below.
         </p>
 
+        <div id="credentialsPanel" class="credentials-panel" hidden>
+          <h3>Your SIR Login ID</h3>
+          <p class="credentials-intro">Account created successfully! Save your Login ID, then create a password you can remember.</p>
+          <div class="credential-row">
+            <div class="credential-value-wrap">
+              <span class="credential-label">LOGIN ID</span>
+              <span id="credentialLoginId" class="credential-value"></span>
+            </div>
+            <button class="copy-button" type="button" onclick="copyCredential('credentialLoginId', this)">COPY ID</button>
+          </div>
+          <p class="credentials-warning">Please note down your Login ID or take a screenshot of this screen. Keep it private and do not share it with anyone.</p>
+          <p id="credentialsDeliveryStatus" class="credentials-status" role="status"></p>
+          <div class="credentials-actions">
+            <button id="createPasswordButton" class="secondary-action" type="button" onclick="continueToPasswordSetup()">CREATE MY PASSWORD →</button>
+          </div>
+          <p id="credentialsError" class="credentials-error" role="alert" hidden></p>
+        </div>
 
-        <button
-          class="cta"
-          type="button"
-          onclick="location.reload()"
-        >
-
-          BACK TO START
-
-        </button>
+        <button class="cta" type="button" onclick="location.reload()">BACK TO START</button>
 
       </div>
 
@@ -1712,8 +1774,8 @@
     ============================================================
     SIR TALENT HUNT — STEP 1 FRONTEND EXPERIENCE
 
-    CURRENT VERSION:
-    UI / FRONTEND ONLY
+    REGISTRATION FLOW:
+    Supabase Edge Functions handle registration, OTP verification and account creation
 
     FLOW:
 
@@ -1729,13 +1791,12 @@
       ↓
     SUCCESS
 
-    NEXT BACKEND STEP:
-
-    1. Save registration in Supabase
-    2. Send WhatsApp OTP
-    3. Verify OTP
-    4. Create student account
-    5. Send confirmation + founder video on WhatsApp
+    BACKEND FUNCTIONS USED:
+    1. talent-hunt-register
+    2. talent-hunt-send-otp
+    3. talent-hunt-verify-otp
+    4. talent-hunt-create-account
+    The temporary password is returned only for a successful first-time account creation.
     ============================================================
   */
 
@@ -2070,59 +2131,83 @@
     }
   });
 
-  /*
-    VERIFY OTP → CREATE ACCOUNT
-    Credentials must be sent from the trusted backend, not from browser code.
-    create-account should return credentialsDelivery status after server-side delivery.
-  */
+  /* VERIFY OTP → CREATE ACCOUNT → PASSWORD SETUP */
+  let passwordSetupToken = null;
+
   async function verifyOtpDemo() {
     if (otpVerificationInProgress) return;
     if (!currentRegistrationId) {
-      alert("Your registration session is missing. Please register again.");
+      alert("Your registration session is missing. Please contact SIR support before registering again.");
       goToScene(4);
       return;
     }
-
     const otp = otpInput.value.trim();
-    if (!/^[0-9]{6}$/.test(otp)) {
-      alert("Please enter the 6-digit OTP.");
-      return;
-    }
-
+    if (!/^[0-9]{6}$/.test(otp)) { alert("Please enter the 6-digit OTP."); return; }
     otpVerificationInProgress = true;
     const originalLabel = "VERIFY & CONTINUE →";
     if (otpButton) setBusy(otpButton, true, "VERIFYING...", originalLabel);
-
     try {
-      await invokeEdgeFunction("talent-hunt-verify-otp", {
-        registrationId: currentRegistrationId,
-        otp
-      });
-
-      const account = await invokeEdgeFunction("talent-hunt-create-account", {
-        registrationId: currentRegistrationId
-      });
-
+      await invokeEdgeFunction("talent-hunt-verify-otp", { registrationId: currentRegistrationId, otp });
+      const account = await invokeEdgeFunction("talent-hunt-create-account", { registrationId: currentRegistrationId });
       const loginId = account.loginId || account.login_id;
-      const deliveryStatus = String(account.credentialsDelivery || account.credentials_delivery || "").toUpperCase();
-
-      if (loginId) {
-        document.querySelector("#scene6 .success p").textContent =
-          deliveryStatus === "SENT" || deliveryStatus === "DELIVERED"
-            ? "Your WhatsApp number has been verified, your student account is ready, and the server reports that your login credentials were sent to WhatsApp."
-            : "Your WhatsApp number was verified and the server returned a Login ID, but credentials delivery is not confirmed. Please contact SIR support before trying to register again.";
+      passwordSetupToken = account.passwordSetupToken || account.password_setup_token || null;
+      const panel = document.getElementById("credentialsPanel");
+      const error = document.getElementById("credentialsError");
+      const message = document.getElementById("successMessage");
+      const status = document.getElementById("credentialsDeliveryStatus");
+      panel.hidden = true; error.hidden = true; status.textContent = "";
+      document.getElementById("credentialLoginId").textContent = "";
+      if (loginId && passwordSetupToken && account.accountStatus !== "EXISTS") {
+        document.getElementById("credentialLoginId").textContent = String(loginId);
+        message.textContent = "Your account has been created successfully. Save your Login ID, then create your own password.";
+        status.textContent = "No temporary password is needed. Choose your own password in the next step.";
+        panel.hidden = false;
+      } else if (loginId && account.accountStatus === "EXISTS") {
+        message.textContent = "An account already exists for this registration. For your security, a new setup link cannot be issued automatically here. Please contact SIR support for account recovery.";
+        error.hidden = false;
+        error.textContent = "Do not register again. Your existing account and Login ID need to be recovered safely.";
+        panel.hidden = false;
+        document.getElementById("createPasswordButton").disabled = true;
       } else {
-        document.querySelector("#scene6 .success p").textContent =
-          "Your WhatsApp number was verified, but account creation could not be confirmed. Please contact SIR support.";
+        throw new Error("Account creation could not confirm a secure password-setup link. Please contact SIR support; do not register again.");
       }
-
       goToScene(6);
     } catch (error) {
-      console.error("OTP verification/account creation failed:", error);
+      console.error("OTP verification/account creation failed:", error instanceof Error ? error.message : "Unknown error");
       alert(error instanceof Error ? error.message : "OTP verification failed. Please check the code and try again.");
     } finally {
       otpVerificationInProgress = false;
       if (otpButton) setBusy(otpButton, false, "", originalLabel);
+    }
+  }
+
+  function continueToPasswordSetup() {
+    if (!passwordSetupToken) {
+      alert("Password setup is not available for this account. Please contact SIR support.");
+      return;
+    }
+    // Token is one-time and short-lived. Put it in the URL fragment so it is not sent in HTTP requests/referrer headers.
+    window.location.href = "set-password.html#token=" + encodeURIComponent(passwordSetupToken);
+  }
+
+  async function copyCredential(elementId, button) {
+    const element = document.getElementById(elementId);
+    const value = element?.textContent?.trim();
+    if (!value) return;
+
+    const originalText = button.textContent;
+    try {
+      await navigator.clipboard.writeText(value);
+      button.textContent = "COPIED";
+      window.setTimeout(() => { button.textContent = originalText; }, 1400);
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      button.textContent = "SELECTED";
+      window.setTimeout(() => { button.textContent = originalText; }, 1400);
     }
   }
 
