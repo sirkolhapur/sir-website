@@ -645,7 +645,9 @@ async function showReconciliation(box, jobId) {
 }
 
 // ---------- Review & Edit / Verification Queue lists ----------
-async function itemList(root, statuses, title, sub) {
+// opts.onReject: show a Reject button per row (existing server function
+// qb_reject_import_item: open items only, records who/when/why).
+async function itemList(root, statuses, title, sub, opts = {}) {
   const { data, error } = await sb.from("qb_import_items").select("id,job_id,seq,source_number,source_location,status,confidence,issues,review_note,draft,qb_import_jobs(source_label,file_name,file_type)")
     .in("status", statuses).order("job_id").order("seq").limit(500);
   if (error) throw error;
@@ -654,9 +656,33 @@ async function itemList(root, statuses, title, sub) {
     <td>${esc(i.qb_import_jobs?.source_label || i.qb_import_jobs?.file_name)}<br><span style="color:var(--m)">${esc(i.qb_import_jobs?.file_type)}</span></td>
     <td>${esc(i.source_location || "")} · Q${esc(i.source_number || "?")}</td><td>${esc(plainStem(i.draft?.question).slice(0, 110))}</td>
     <td><span class="tag ${i.status === "returned" ? "red" : "amber"}">${esc(ITEM_LABEL[i.status])}</span>${i.confidence === "low" ? ' <span class="tag red">uncertain</span>' : ""}${i.review_note ? `<br><span style="color:var(--m)">${esc(i.review_note)}</span>` : ""}</td>
-    <td>${(i.issues || []).length}</td><td><button class="btn primary small" data-item="${esc(i.id)}">Open</button></td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Nothing here.</div>`}`;
+    <td>${(i.issues || []).length}</td><td style="white-space:nowrap"><button class="btn primary small" data-item="${esc(i.id)}">Open</button>${opts.onReject ? ` <button class="btn danger small" data-rej="${esc(i.id)}" data-label="${esc(`Q${i.source_number || "?"} · ${i.source_location || ""}`)}">Reject</button>` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Nothing here.</div>`}`;
   root.appendChild(box);
   $$("[data-item]", box).forEach((b) => b.onclick = () => openItem(b.dataset.item, data.map((x) => x.id)).catch(fail));
+  $$("[data-rej]", box).forEach((b) => b.onclick = async () => {
+    const reason = prompt(`Reject ${b.dataset.label}?\n\nReason (duplicate, not a question, unreadable, subjective…):`);
+    if (reason === null) return; // cancelled
+    if (!confirm(`Reject ${b.dataset.label}? It leaves the review queues and can never be verified or added to a test. The source file and page images are not touched.`)) return;
+    b.disabled = true;
+    const { error: je } = await sb.rpc("qb_reject_import_item", { p_item_id: b.dataset.rej, p_reason: reason.trim() || null });
+    if (je) { b.disabled = false; return fail(je); }
+    toast(`${b.dataset.label} rejected`);
+    opts.onReject();
+  });
+}
+
+// Rejected items: read-only history (reason, when). Rejected items stay in
+// the database; they are never verified or added to tests.
+async function rejectedCard(card) {
+  const { data, error } = await sb.from("qb_import_items").select("id,source_number,source_location,review_note,reviewed_at,draft,qb_import_jobs(source_label,file_name)")
+    .eq("status", "rejected").order("reviewed_at", { ascending: false }).limit(200);
+  if (error) { card.innerHTML = `<div class="empty bad">${esc(error.message)}</div>`; return; }
+  card.innerHTML = `<details><summary class="ctitle" style="cursor:pointer">Rejected extractions (${data.length}${data.length === 200 ? "+" : ""})</summary>
+    <p class="csub">Kept for the record with the reason and time. They cannot be verified or added to tests. Restoring or deleting them needs a server function this portal does not have yet.</p>
+    ${data.length ? `<div class="tablewrap"><table><thead><tr><th>Source</th><th>Location</th><th>Question</th><th>Reason</th><th>Rejected</th></tr></thead><tbody>${data.map((i) => `<tr>
+      <td>${esc(i.qb_import_jobs?.source_label || i.qb_import_jobs?.file_name || "")}</td><td>${esc(i.source_location || "")} · Q${esc(i.source_number || "?")}</td>
+      <td>${esc(plainStem(i.draft?.question).slice(0, 110))}</td><td>${esc(i.review_note || "—")}</td><td>${i.reviewed_at ? esc(new Date(i.reviewed_at).toLocaleString()) : "—"}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">None.</div>`}
+  </details>`;
 }
 async function pageReviewList(root) {
   root.innerHTML = "";
@@ -1002,11 +1028,15 @@ async function pageFailed(root) {
   const imgs = document.createElement("div"); imgs.className = "card"; imgs.style.marginTop = "14px"; root.appendChild(imgs);
   unusedImagesCard(imgs);
   const box = document.createElement("div"); box.style.marginTop = "14px"; root.appendChild(box);
-  await itemList(box, ["review_required", "corrected", "returned"], "Uncertain extractions", "Low-confidence items: handwriting, tilted scans, unreadable formulas, missing options or numbers.").catch(fail);
+  // After a reject, reload this page and the sidebar counts.
+  await itemList(box, ["review_required", "corrected", "returned"], "Uncertain extractions", "Low-confidence items: handwriting, tilted scans, unreadable formulas, missing options or numbers.",
+    { onReject: () => T.go("failed") }).catch(fail);
   // itemList shows all open items; keep only the low-confidence ones.
   const ids = new Set(items.data.map((i) => i.id));
   $$("[data-item]", box).forEach((b) => { if (!ids.has(b.dataset.item)) b.closest("tr").remove(); });
   const h = $(".ctitle", box); if (h) h.textContent = `Uncertain extractions (${ids.size})`;
+  const rej = document.createElement("div"); rej.className = "card"; rej.style.marginTop = "14px"; root.appendChild(rej);
+  await rejectedCard(rej);
 }
 
 // Images in qb-images that no question, solution, import draft or test uses
