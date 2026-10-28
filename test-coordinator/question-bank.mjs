@@ -9,7 +9,8 @@
 // here are convenience only.
 // =====================================================================
 import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs";
-import { linesFromPdfItems, linesFromOcr, ocrColumnRects, segmentQuestions } from "../tools/qb/pdf-parser.mjs";
+import { linesFromPdfItems, segmentQuestions, reconcileExtraction, UNREADABLE } from "../tools/qb/pdf-parser.mjs";
+import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs";
 import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs";
 import { parseXlsx } from "../tools/qb/xlsx-parser.mjs";
 import { suggestClassification } from "../tools/qb/suggest.mjs";
@@ -20,6 +21,12 @@ const esc = T.esc;
 const toast = (m) => T.toast(m);
 const QB_IMAGES_URL = `${T.SUPABASE_URL}/storage/v1/object/public/qb-images/`;
 const MAX_BYTES = 50 * 1024 * 1024;
+// Difficulty is stored 1–5. Bands used for display and filtering:
+//   1–2 Easy (direct recall / one-step), 3 Medium (two or three steps or
+//   concepts), 4–5 Hard (multi-concept, lengthy or tricky; JEE Adv level).
+const BANDS = { easy: [1, 2], medium: [3], hard: [4, 5] };
+const DIFF_LABEL = { 1: "1 · Easy", 2: "2 · Easy", 3: "3 · Medium", 4: "4 · Hard", 5: "5 · Hard (hardest)" };
+const bandOf = (d) => Object.keys(BANDS).find((k) => BANDS[k].includes(Number(d)));
 const TYPE_LABEL = { single: "Single correct", multi: "Multiple correct", integer: "Integer", numerical: "Numerical", matrix_match: "Matrix match" };
 const ITEM_LABEL = { review_required: "Review required", corrected: "Corrected", returned: "Returned for correction", verified: "Verified", rejected: "Rejected" };
 const JOB_LABEL = { uploaded: "Uploaded", processing: "Processing", review_required: "Review required", done: "Done", failed: "Failed", cancelled: "Cancelled" };
@@ -138,7 +145,7 @@ function rowToQ(row, key) {
 }
 const metaTags = (q) => {
   const ch = chapterBySlug(q.subject, q.chapter), tp = ch && topicsOf(ch.id).find((t) => t.slug === q.topic);
-  return `<span class="tag blue">${esc(q.code || "new")}</span> <span class="tag ${q.status === "live" ? "" : "amber"}">${esc(q.status === "live" ? "verified" : q.status)}</span> <span class="tag blue">${esc(ch?.name || q.chapter || "—")}</span> <span class="tag blue">${esc(tp?.label || q.topic || "—")}</span> <span class="tag blue">${esc(TYPE_LABEL[q.type] || q.type)}</span> <span class="tag blue">Difficulty ${esc(q.difficulty)}</span>`;
+  return `<span class="tag blue">${esc(q.code || "new")}</span> <span class="tag ${q.status === "live" ? "" : "amber"}">${esc(q.status === "live" ? "verified" : q.status)}</span> <span class="tag blue">${esc(ch?.name || q.chapter || "—")}</span> <span class="tag blue">${esc(tp?.label || q.topic || "—")}</span> <span class="tag blue">${esc(TYPE_LABEL[q.type] || q.type)}</span> <span class="tag blue">${q.difficulty ? esc(DIFF_LABEL[q.difficulty]) : "Difficulty not set"}</span>`;
 };
 
 // ---------------------------------------------------------------------
@@ -157,7 +164,7 @@ function questionEditor(existing, { maps } = {}) {
      <div><label class="darklabel">Topic</label><select class="lightfield" data-f="topic"></select></div>
      <div><label class="darklabel">Subtopic</label><select class="lightfield" data-f="subtopic"></select></div>
      <div><label class="darklabel">Type</label><select class="lightfield" data-f="type">${QUESTION_TYPES.map((t) => opt(t, TYPE_LABEL[t], q.type)).join("")}</select></div>
-     <div><label class="darklabel">Difficulty (1–5)</label><select class="lightfield" data-f="difficulty">${[1, 2, 3, 4, 5].map((d) => opt(d, d, q.difficulty)).join("")}</select></div>
+     <div><label class="darklabel">Difficulty</label><select class="lightfield" data-f="difficulty">${q.difficulty ? "" : opt("", "Choose…", "")}${[1, 2, 3, 4, 5].map((d) => opt(d, DIFF_LABEL[d], q.difficulty)).join("")}</select></div>
     </div>
     <div data-f="branchwrap" class="hide"><label class="darklabel">Branch</label><select class="lightfield" data-f="branch">${opt("", "—", q.branch)}${opt("botany", "Botany", q.branch)}${opt("zoology", "Zoology", q.branch)}</select></div>
     <label class="darklabel" style="margin-top:10px">Exam suitability</label><div class="toolbar" style="margin:0">${S.tax.examTags.map((t) => `<label class="checkline"><input type="checkbox" data-exam="${esc(t.id)}"${q.exam.includes(t.id) ? " checked" : ""}> ${esc(t.label)}</label>`).join("")}</div>
@@ -196,7 +203,7 @@ function questionEditor(existing, { maps } = {}) {
   f("topic").onchange = () => { q.topic = topicById(f("topic").value)?.slug || null; q.subtopic = null; fillSubtopics(); };
   f("subtopic").onchange = () => { q.subtopic = f("subtopic").value || null; };
   f("branch").onchange = () => { q.branch = f("branch").value || null; };
-  f("difficulty").onchange = () => { q.difficulty = Number(f("difficulty").value); };
+  f("difficulty").onchange = () => { q.difficulty = Number(f("difficulty").value) || null; };
   fillChapters();
 
   const renderOptions = () => {
@@ -270,7 +277,7 @@ function questionEditor(existing, { maps } = {}) {
     q.tags = f("tags").value.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
     q.source = f("source").value.trim() || null;
     q.marks = Number(f("marks").value) || 4; q.negative = Math.max(0, Number(f("negative").value) || 0);
-    q.difficulty = Number(f("difficulty").value);
+    q.difficulty = Number(f("difficulty").value) || null;
     if (q.type === "single" || q.type === "multi") q.options = q.options.map((o) => ({ key: o.key, text: o.text.trim() }));
     return structuredClone(q);
   };
@@ -288,10 +295,12 @@ function localErrors(q, { formulaErrors = [] } = {}) {
   const ch = chapterBySlug(q.subject, q.chapter);
   if (!ch) return ["Choose a chapter"];
   if (!q.topic) return ["Choose a topic"];
+  if (!q.difficulty) return ["Choose a difficulty (1–2 Easy, 3 Medium, 4–5 Hard)"];
   const probe = { ...q, code: q.code || `${S.tax.subjects.find((s) => s.id === q.subject).code}-${ch.code}-0000`, status: "live" };
   const errs = validateQuestion(probe, S.taxonomy);
   if (formulaErrors.length) errs.push(`Formula does not render: ${formulaErrors[0].slice(0, 120)}`);
   if (/\]\((blob:|data:|file:|[A-Za-z]:\\)/.test(JSON.stringify(q))) errs.push("An image points to a temporary or local file — use Insert image so it is stored");
+  if (JSON.stringify([q.question, q.options, q.solution]).includes(UNREADABLE)) errs.push(`Replace every ${UNREADABLE} with the value from the page — it marks an exponent or symbol the scan could not read`);
   return errs;
 }
 const notVerified = (err) => {
@@ -429,7 +438,7 @@ async function processFile(file, kind, opts, status) {
 }
 
 function parsePageList(text, max) {
-  if (!String(text || "").trim()) return Array.from({ length: max }, (_, i) => i + 1);
+  if (!String(text || "").trim() || /^\s*all(\s+pages)?\s*$/i.test(text)) return Array.from({ length: max }, (_, i) => i + 1);
   const out = new Set();
   for (const part of text.split(",")) {
     const m = part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);
@@ -452,33 +461,33 @@ async function extractPdf(buf, job, ctx, opts, status) {
     try {
       status(`${label}: rendering…`, pct(0));
       const page = await pdf.getPage(pageNo);
+      // Review image (stored, never altered afterwards).
+      const canvas = await renderPage(page, 2200);
       const vp1 = page.getViewport({ scale: 1 });
-      const vp = page.getViewport({ scale: 2200 / Math.max(vp1.width, vp1.height) });
-      const canvas = document.createElement("canvas"); canvas.width = Math.round(vp.width); canvas.height = Math.round(vp.height);
-      await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+      const vp = page.getViewport({ scale: canvas.width / vp1.width });
       const tc = await page.getTextContent();
       const chars = tc.items.reduce((s, it) => s + (it.str || "").trim().length, 0);
-      let lines, source, conf = null;
-      if (chars >= 80) { lines = linesFromPdfItems(tc.items, vp, pageNo); source = "text"; }
-      else {
+      let pd, conf = null, rawText;
+      if (chars >= 80) {
+        const lines = linesFromPdfItems(tc.items, vp, pageNo);
+        pd = { page: pageNo, width: canvas.width, height: canvas.height, source: "text", lines };
+        rawText = lines.map((l) => l.text).join("\n");
+      } else {
+        // Scanned page: OCR a higher-resolution render, cleaned and
+        // straightened copy (see tools/qb/ocr-page.mjs).
         if (!ocrWorker) { status("Loading the OCR engine (first time only)…", pct(0)); ocrWorker = await Tesseract.createWorker("eng"); }
-        status(`${label}: OCR — finding columns…`, pct(0.3));
-        await ocrWorker.setParameters({ tessedit_pageseg_mode: "3" });
-        const { data: layout } = await ocrWorker.recognize(canvas);
-        const rects = ocrColumnRects(layout.words, canvas.width, canvas.height);
-        await ocrWorker.setParameters({ tessedit_pageseg_mode: "4" });
-        const results = [];
-        for (const [k, rectangle] of rects.entries()) { status(`${label}: OCR column ${k + 1}/${rects.length}…`, pct(0.5)); results.push((await ocrWorker.recognize(canvas, { rectangle })).data); }
-        lines = linesFromOcr(results, canvas.width, pageNo); source = "ocr";
-        conf = results.reduce((s, r) => s + r.confidence, 0) / results.length;
+        const big = await renderPage(page);
+        const r = await ocrPage(ocrWorker, big, { status: (m) => status(`${label}: OCR — ${m}…`, pct(0.4)) });
+        pd = { page: pageNo, width: r.width, height: r.height, source: "ocr", lines: r.lines, figures: r.figures };
+        conf = r.conf; rawText = r.lines.map((l) => l.raw ?? l.text).join("\n");
       }
-      pagesData.push({ page: pageNo, width: canvas.width, height: canvas.height, source, lines });
+      pagesData.push(pd);
       status(`${label}: storing page image…`, pct(0.8));
       const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.92));
       const path = `jobs/${job.id}/pages/p${String(pageNo).padStart(4, "0")}.jpg`;
       await storePrivate(path, blob, "image/jpeg", job, "page", { page_no: pageNo });
       const { error: pe } = await sb.from("qb_import_pages").insert({ job_id: job.id, page_no: pageNo, image_path: path, width: canvas.width, height: canvas.height,
-        text_source: source, ocr_confidence: conf == null ? null : Math.round(conf * 100) / 100, line_count: lines.length, raw_text: lines.map((l) => l.text).join("\n"),
+        text_source: pd.source, ocr_confidence: conf == null ? null : Math.round(conf * 100) / 100, line_count: pd.lines.length, raw_text: rawText,
         status: "done", extracted_at: new Date().toISOString() });
       if (pe) throw pe;
     } catch (err) {
@@ -546,7 +555,8 @@ async function extractXlsx(buf, job, ctx, opts, status) {
 
 function toItem(q, pageNo) {
   return { page_no: pageNo, source_number: q.source_number, source_location: q.source_location, confidence: q.confidence, issues: [...q.issues],
-    extracted: { regions: q.regions, source_text: q.source_text, answer_source: q.answer_source, section: q.section, source_method: q.source_method, page_from: q.page_from, page_to: q.page_to },
+    extracted: { regions: q.regions, source_text: q.source_text, ocr_raw: q.ocr_raw ?? null, answer_source: q.answer_source, section: q.section, section_no: q.section_no ?? 1, number: q.number ?? null,
+      assumed: !!q.assumed, option_markers: q.option_markers ?? null, source_method: q.source_method, page_from: q.page_from, page_to: q.page_to },
     draft: { ...q.draft, figures: (q.draft.figures || []).map((f) => ({ ...f, page: f.page ?? pageNo })) } };
 }
 
@@ -585,14 +595,53 @@ async function pageJobs(root) {
       <td>${esc(j.file_type)}</td><td><span class="tag ${j.status === "failed" ? "red" : j.status === "done" ? "" : "amber"}">${esc(JOB_LABEL[j.status] || j.status)}</span></td>
       <td>${pg.filter((p) => p.status === "done").length}${pg.some((p) => p.status === "failed") ? ` <span class="tag red">${pg.filter((p) => p.status === "failed").length} failed</span>` : ""}${pg.some((p) => p.text_source === "ocr") ? ` <span class="tag blue">OCR</span>` : ""}</td>
       <td>${it.length} · ${open} open · ${ver} verified</td><td>${esc(new Date(j.created_at).toLocaleString())}</td>
-      <td>${j.original_path ? `<button class="btn outline small" data-orig="${esc(j.original_path)}" data-name="${esc(j.file_name)}">Original</button>` : ""} ${["uploaded", "processing"].includes(j.status) ? `<button class="btn danger small" data-cancel="${esc(j.id)}" title="Interrupted upload">Cancel</button>` : ""}</td></tr>`;
-  }).join("")}</tbody></table></div>` : `<div class="empty">No uploads yet.</div>`}</div>`;
+      <td>${it.length ? `<button class="btn primary small" data-recon="${esc(j.id)}">Reconciliation</button> ` : ""}${j.original_path ? `<button class="btn outline small" data-orig="${esc(j.original_path)}" data-name="${esc(j.file_name)}">Original</button>` : ""} ${["uploaded", "processing"].includes(j.status) ? `<button class="btn danger small" data-cancel="${esc(j.id)}" title="Interrupted upload">Cancel</button>` : ""}</td></tr>`;
+  }).join("")}</tbody></table></div>` : `<div class="empty">No uploads yet.</div>`}</div><div id="reconBox"></div>`;
+  $$("[data-recon]", root).forEach((b) => b.onclick = () => showReconciliation($("#reconBox", root), b.dataset.recon).catch(fail));
   $$("[data-orig]", root).forEach((b) => b.onclick = async () => {
     const { data: blob, error: de } = await sb.storage.from("qb-import").download(b.dataset.orig);
     if (de) return fail(de);
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: b.dataset.name }); a.click();
   });
   $$("[data-cancel]", root).forEach((b) => b.onclick = async () => { const { error: ce } = await sb.from("qb_import_jobs").update({ status: "cancelled" }).eq("id", b.dataset.cancel); if (ce) return fail(ce); pageJobs(root); });
+}
+
+// What the numbering in the source says vs what was extracted. A finished
+// job is not a complete extraction: this lists everything that is missing,
+// doubtful or still to be checked.
+async function showReconciliation(box, jobId) {
+  box.innerHTML = `<div class="empty">Building the report…</div>`;
+  const [{ data: items, error: ie }, { data: pages, error: pe }, { data: job }] = await Promise.all([
+    sb.from("qb_import_items").select("source_number,status,issues,extracted,draft").eq("job_id", jobId).order("seq"),
+    sb.from("qb_import_pages").select("page_no,status").eq("job_id", jobId),
+    sb.from("qb_import_jobs").select("file_name,source_label").eq("id", jobId).single(),
+  ]);
+  if (ie || pe) throw ie || pe;
+  const num = (i) => i.extracted?.number ?? (/^\d+$/.test(String(i.source_number || "").replace("?", "")) ? Number(String(i.source_number).replace("?", "")) : null);
+  const r = reconcileExtraction(items.map((i) => ({ source_number: i.source_number, section_no: i.extracted?.section_no ?? 1, number: num(i), assumed: i.extracted?.assumed ?? /\?$/.test(i.source_number || ""),
+    page_from: i.extracted?.page_from, issues: i.issues, type: i.draft?.type, question: i.draft?.question, options: i.draft?.options, figures: i.draft?.figures })), pages);
+  const old = !items.some((i) => i.extracted?.section_no != null);
+  const listCell = (a) => a.length ? `<span class="tag red">${a.length}</span> <span style="color:var(--m)">${esc(a.slice(0, 40).join(", "))}${a.length > 40 ? " …" : ""}</span>` : `<span class="tag">0</span>`;
+  const byStatus = items.reduce((m, i) => (m[i.status] = (m[i.status] || 0) + 1, m), {});
+  box.innerHTML = `<div class="card" style="margin-top:14px"><h3 class="ctitle">Reconciliation — ${esc(job?.source_label || job?.file_name || "")}</h3>
+    <p class="csub">Counts come from the question numbers read in the source. Questions after the last number read in a section cannot be detected this way — compare the last page of each section. Every item still needs a human check.</p>
+    ${old ? `<div class="notice">This file was extracted before sections were tracked: numbers that restart (Classwork, Assignment, …) all count as one section here. Re-upload it for an exact report.</div>` : ""}
+    <div class="tablewrap"><table><tbody>
+      <tr><th>Pages</th><td>${r.pages.processed} processed${r.pages.failed.length ? ` · <span class="bad">failed: ${esc(r.pages.failed.join(", "))}</span>` : " · none failed"}</td></tr>
+      <tr><th>Extracted items</th><td>${r.items} (${esc(Object.entries(byStatus).map(([k, v]) => `${v} ${ITEM_LABEL[k] || k}`).join(", "))})</td></tr>
+      <tr><th>Questions implied by numbering</th><td>${r.numbering_total} (sum of the highest number in each section)</td></tr>
+      <tr><th>Missing numbers</th><td>${r.missing_total}</td></tr>
+      <tr><th>Possibly merged or split</th><td>${listCell(r.merged_or_split)}</td></tr>
+      <tr><th>Options not 4 / empty option</th><td>${listCell(r.option_problems)}</td></tr>
+      <tr><th>No options found</th><td>${listCell(r.no_options)}</td></tr>
+      <tr><th>Uncertain formulas / exponents</th><td>${listCell(r.uncertain_math)}</td></tr>
+      <tr><th>Diagrams to confirm</th><td>${listCell(r.diagrams_to_confirm)}</td></tr>
+      <tr><th>Diagram mentioned, none found</th><td>${listCell(r.diagram_mentioned_missing)}</td></tr>
+    </tbody></table></div>
+    <h3 class="ctitle" style="margin-top:12px">By section</h3>
+    <div class="tablewrap"><table><thead><tr><th>Section</th><th>Pages</th><th>Items</th><th>Highest no.</th><th>Missing numbers</th><th>Repeated numbers</th><th>Assumed numbers</th><th>Unnumbered</th></tr></thead><tbody>
+    ${r.sections.map((s) => `<tr><td>${s.section}</td><td>${s.pages ? `${s.pages[0]}–${s.pages[1]}` : "—"}</td><td>${s.items}</td><td>${s.highest}</td><td>${s.missing.length ? `<span class="bad">${esc(s.missing.join(", "))}</span>` : "none"}</td><td>${s.duplicates.length ? `<span class="bad">${esc(s.duplicates.join(", "))}</span>` : "none"}</td><td>${s.assumed.length ? esc(s.assumed.join(", ")) : "none"}</td><td>${s.unnumbered}</td></tr>`).join("")}
+    </tbody></table></div></div>`;
 }
 
 // ---------- Review & Edit / Verification Queue lists ----------
@@ -667,7 +716,7 @@ async function openItem(itemId, queue = []) {
 
   root.innerHTML = `<div class="toolbar"><button class="btn outline small" data-back>‹ Back to list</button>${idx > 0 ? `<button class="btn outline small" data-prev>Previous</button>` : ""}${idx >= 0 && idx < queue.length - 1 ? `<button class="btn outline small" data-next>Next</button>` : ""}<span class="tag amber">${esc(ITEM_LABEL[item.status])}</span>${item.confidence ? `<span class="tag ${item.confidence === "low" ? "red" : item.confidence === "medium" ? "amber" : ""}">${esc(item.confidence)} confidence</span>` : ""}</div>
    <div class="notice"><b>${esc(job.source_label || job.file_name)}</b> · ${esc(item.source_location || "")} · question ${esc(item.source_number || "?")}${ex.section ? ` · ${esc(ex.section)}` : ""}<br>Read by: ${esc(method)} · ${ex.answer_source ? `answer from <b>${esc(ex.answer_source)}</b> (confirm it)` : "<b>no answer in the source</b> — enter it yourself"}${item.review_note ? `<br><b>Note:</b> ${esc(item.review_note)}` : ""}</div>
-   <div class="qb-review"><div class="qb-source card"><div class="qb-pagewrap" data-page></div><details open style="margin-top:10px"><summary class="darklabel" style="cursor:pointer">Text exactly as read from the source</summary><pre class="qb-src">${esc(ex.source_text || "")}</pre></details><div data-figs></div></div>
+   <div class="qb-review"><div class="qb-source card"><div class="qb-pagewrap" data-page></div><details open style="margin-top:10px"><summary class="darklabel" style="cursor:pointer">${ex.ocr_raw ? "Text as read (exponents rebuilt from the page; [[?]] = could not be read)" : "Text exactly as read from the source"}</summary><pre class="qb-src">${esc(ex.source_text || "")}</pre></details>${ex.ocr_raw ? `<details style="margin-top:6px"><summary class="darklabel" style="cursor:pointer">Original OCR output (unchanged, for comparison)</summary><pre class="qb-src">${esc(ex.ocr_raw)}</pre></details>` : ""}<div data-figs></div></div>
     <div><div data-editor></div><div class="card" style="margin-top:12px" data-gates></div></div></div>`;
   $("[data-back]", root).onclick = () => (item.status === "corrected" ? pageVerifyList(root) : pageReviewList(root)).catch(fail);
   $("[data-prev]", root)?.addEventListener("click", () => openItem(queue[idx - 1], queue).catch(fail));
@@ -693,7 +742,7 @@ async function openItem(itemId, queue = []) {
   wrap.onpointermove = (e) => { if (!start) return; const [x, y] = pt(e); Object.assign(sel.style, { left: Math.min(x, start[0]) / 10 + "%", top: Math.min(y, start[1]) / 10 + "%", width: Math.abs(x - start[0]) / 10 + "%", height: Math.abs(y - start[1]) / 10 + "%" }); };
   wrap.onpointerup = (e) => {
     if (!start) return; const [x, y] = pt(e);
-    if (Math.abs(x - start[0]) > 8 && Math.abs(y - start[1]) > 8) { figures[cropping].box = [Math.min(x, start[0]), Math.min(y, start[1]), Math.max(x, start[0]), Math.max(y, start[1])]; figures[cropping].page = viewPage; delete figures[cropping].pending; }
+    if (Math.abs(x - start[0]) > 8 && Math.abs(y - start[1]) > 8) { figures[cropping].box = [Math.min(x, start[0]), Math.min(y, start[1]), Math.max(x, start[0]), Math.max(y, start[1])]; figures[cropping].page = viewPage; delete figures[cropping].pending; delete figures[cropping].proposed; }
     sel.remove(); start = null; cropping = null; wrap.style.cursor = "";
     renderFigs(); rebuild();
   };
@@ -702,11 +751,15 @@ async function openItem(itemId, queue = []) {
     const panel = $("[data-figs]", root);
     const pageBtns = [...new Set(regions.map((r) => r.page))];
     panel.innerHTML = `${pageBtns.length > 1 ? `<div class="toolbar">${pageBtns.map((p) => `<button class="btn outline small" data-pg="${p}">Page ${p}</button>`).join("")}</div>` : ""}
-      ${viewPage != null && pageImgs[viewPage] ? `<div class="darklabel">Diagrams (cropped from the page — the original page is never altered)</div><div class="qb-figs">${figures.map((f, i) => `<div class="qb-fig" data-fig="${i}"><div data-c></div>Figure ${esc(f.label)} · page ${f.page}<div class="toolbar" style="margin:4px 0 0"><button class="btn outline small" data-crop="${i}">Re-crop</button><button class="btn danger small" data-rm="${i}">✕</button></div></div>`).join("")}</div><button class="btn outline small" data-addfig>+ Add diagram from page</button>` : ""}`;
+      ${viewPage != null && pageImgs[viewPage] ? `<div class="darklabel">Diagrams (cropped from the page — the original page is never altered)</div><div class="qb-figs">${figures.map((f, i) => `<div class="qb-fig" data-fig="${i}"><div data-c></div>Figure ${esc(f.label)} · page ${f.page}<div class="toolbar" style="margin:4px 0 0">${f.proposed ? `<button class="btn gold small" data-confirm="${i}">Confirm crop</button>` : ""}<button class="btn outline small" data-crop="${i}">Re-crop</button><button class="btn danger small" data-rm="${i}">✕</button></div></div>`).join("")}</div><button class="btn outline small" data-addfig>+ Add diagram from page</button>` : ""}`;
     figures.forEach((f, i) => { const c = crop(f); if (c) $(`[data-fig="${i}"] [data-c]`, panel).appendChild(c); });
     $$("[data-pg]", panel).forEach((b) => b.onclick = () => { viewPage = Number(b.dataset.pg); drawPage(); });
     $$("[data-crop]", panel).forEach((b) => b.onclick = () => { cropping = Number(b.dataset.crop); viewPage = figures[cropping].page; drawPage(); wrap.style.cursor = "crosshair"; toast(`Drag over Figure ${figures[cropping].label} on the page`); });
-    figures.forEach((f, i) => { if (f.pending) $(`[data-fig="${i}"]`, panel)?.insertAdjacentHTML("afterbegin", `<span class="tag red">crop not set — drag on the page</span>`); });
+    figures.forEach((f, i) => {
+      if (f.pending) $(`[data-fig="${i}"]`, panel)?.insertAdjacentHTML("afterbegin", `<span class="tag red">crop not set — drag on the page</span>`);
+      else if (f.proposed) $(`[data-fig="${i}"]`, panel)?.insertAdjacentHTML("afterbegin", `<span class="tag amber">detected automatically — confirm, re-crop or remove</span>`);
+    });
+    $$("[data-confirm]", panel).forEach((b) => b.onclick = () => { delete figures[Number(b.dataset.confirm)].proposed; current = editor.getQ(); renderFigs(); rebuild(false); });
     $$("[data-rm]", panel).forEach((b) => b.onclick = () => {
       const [f] = figures.splice(Number(b.dataset.rm), 1);
       current = editor.getQ(); current.question = current.question.replace(new RegExp(`\\n*!\\[[^\\]]*\\]\\(figure:${f.label}\\)`, "g"), "");
@@ -767,6 +820,7 @@ async function openItem(itemId, queue = []) {
     if (unacked.length) local.push(`${unacked.length} warning(s) not ticked yet`);
     const used = JSON.stringify(q);
     for (const fg of figures) if (fg.pending && used.includes(`](figure:${fg.label})`)) local.push(`Figure ${fg.label}: drag on the page to set its crop`);
+    for (const fg of figures) if (fg.proposed && used.includes(`](figure:${fg.label})`)) local.push(`Figure ${fg.label} was detected automatically: confirm the crop, re-crop it or remove it`);
     const missingDup = strong.filter((d) => !notDups().includes(d.question_id));
     if (missingDup.length) local.push(`Possible duplicate of ${missingDup.map((d) => d.code).join(", ")} — reject this item, or tick that it is different`);
     editor.setErrors([]); showFail(local); if (local.length) return;
@@ -827,11 +881,12 @@ async function storeImages(q, figures, crop, job, uploaded = []) {
 // ---------- Final Question Bank ----------
 async function pageBank(root) {
   const f = S.bank.f, subject = f.subject || "";
-  root.innerHTML = `<div class="card"><div class="formgrid" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+  root.innerHTML = `<div class="card"><div class="formgrid" style="grid-template-columns:repeat(7,minmax(0,1fr))">
     <select class="lightfield" id="bS">${opt("", "All subjects", subject)}${subjectOpts(subject)}</select>
     <select class="lightfield" id="bC" ${subject ? "" : "disabled"}>${subject ? chapterOpts(subject, f.chapter) : opt("", "All chapters", "")}</select>
     <select class="lightfield" id="bT" ${f.chapter ? "" : "disabled"}>${f.chapter ? topicOpts(f.chapter, f.topic) : opt("", "All topics", "")}</select>
     <select class="lightfield" id="bY">${opt("", "All types", f.type)}${Object.entries(TYPE_LABEL).map(([k, v]) => opt(k, v, f.type)).join("")}</select>
+    <select class="lightfield" id="bD">${opt("", "All difficulty", f.band)}${opt("easy", "Easy (1–2)", f.band)}${opt("medium", "Medium (3)", f.band)}${opt("hard", "Hard (4–5)", f.band)}</select>
     <select class="lightfield" id="bSt">${opt("live", "Verified (final bank)", f.status ?? "live")}${opt("retired", "Retired", f.status)}${opt("flagged", "Flagged by teacher", f.status)}</select>
     <input class="lightfield" id="bQ" placeholder="Search text or ID" value="${esc(f.q || "")}"></div>
     <div class="toolbar"><button class="btn primary small" id="bNew">+ New question (manual entry)</button></div>
@@ -842,6 +897,7 @@ async function pageBank(root) {
   $("#bC", root).onchange = (e) => { set("chapter", e.target.value); f.topic = undefined; pageBank(root); };
   $("#bT", root).onchange = (e) => { set("topic", e.target.value); loadBank(root); };
   $("#bY", root).onchange = (e) => { set("type", e.target.value); loadBank(root); };
+  $("#bD", root).onchange = (e) => { set("band", e.target.value); loadBank(root); };
   $("#bSt", root).onchange = (e) => { f.status = e.target.value; S.bank.page = 0; loadBank(root); };
   let t; $("#bQ", root).oninput = (e) => { clearTimeout(t); t = setTimeout(() => { set("q", e.target.value.trim()); loadBank(root); }, 350); };
   $("#bNew", root).onclick = () => newQuestion();
@@ -856,6 +912,7 @@ async function loadBank(root) {
   if (f.chapter) q = q.eq("chapter_id", f.chapter);
   if (f.topic) q = q.eq("topic_id", f.topic);
   if (f.type) q = q.eq("type", f.type);
+  if (f.band) q = q.in("difficulty", BANDS[f.band]);
   if (f.q) { const term = f.q.replace(/[%,()]/g, " "); q = /^[A-Za-z]{2,4}-/.test(term) ? q.ilike("code", `${term}%`) : q.ilike("question_md", `%${term}%`); }
   const { data, count, error } = await q;
   if (error) throw error;
@@ -990,11 +1047,12 @@ async function pageBuilder(root, testId) {
   root.innerHTML = `<div class="card"><div class="row"><label class="darklabel" style="margin:0">Test</label><select class="lightfield" id="tbTest" style="max-width:520px">${tests.map((t) => opt(t.id, `${t.title} · ${t.subject || "Mixed"} · ${t.is_published ? "PUBLISHED" : "draft"} · ${t.question_count} q`, test.id)).join("")}</select></div></div>
    <div class="card" style="margin-top:14px"><h3 class="ctitle">Questions in this test (${existing.length})</h3>${existing.length ? `<div class="tablewrap"><table><thead><tr><th>#</th><th>Question</th><th>Image</th><th>Key</th><th>Marks</th><th>Bank ID</th></tr></thead><tbody>${existing.map((q) => `<tr><td>${esc(q.question_order ?? "")}</td><td>${esc(String(q.question_text).slice(0, 140))}</td><td>${q.question_image_url ? `<img src="${esc(q.question_image_url)}" alt="" style="max-height:48px;max-width:110px;border:1px solid var(--line);border-radius:6px">` : "—"}</td><td>${esc(q.correct_option)}</td><td>+${esc(q.marks)} / −${esc(q.negative_marks)}</td><td>${esc(q.qb_code || "manual")}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">No questions yet.</div>`}</div>
    ${test.is_published ? `<div class="notice" style="margin-top:14px">This test is published, so its questions cannot be changed here.</div>` : `<div class="card" style="margin-top:14px"><h3 class="ctitle">Add verified questions</h3><p class="csub">Only questions verified in the final bank. This test format holds single-correct A–D questions with at most one question image; other types are refused with a reason. New questions go after the existing ones, in the order you tick them; nothing is deleted.</p>
-    <div class="formgrid" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+    <div class="formgrid" style="grid-template-columns:repeat(7,minmax(0,1fr))">
      <select class="lightfield" id="tpS">${subjectOpts(f.subject)}</select>
      <select class="lightfield" id="tpC">${chapterOpts(f.subject, f.chapter)}</select>
      <select class="lightfield" id="tpT" ${f.chapter ? "" : "disabled"}>${f.chapter ? topicOpts(f.chapter, f.topic) : opt("", "All topics", "")}</select>
      <select class="lightfield" id="tpY">${opt("", "All types", f.type)}${Object.entries(TYPE_LABEL).map(([k, v]) => opt(k, v, f.type)).join("")}</select>
+     <select class="lightfield" id="tpD">${opt("", "All difficulty", f.band)}${opt("easy", "Easy (1–2)", f.band)}${opt("medium", "Medium (3)", f.band)}${opt("hard", "Hard (4–5)", f.band)}</select>
      <input class="lightfield" id="tpSrc" placeholder="Source contains…" value="${esc(f.source || "")}">
      <input class="lightfield" id="tpQ" placeholder="Search text or ID" value="${esc(f.q || "")}"></div>
     <div class="row" style="margin-top:10px"><label class="darklabel" style="margin:0">Marks</label><input class="lightfield" type="number" step="0.25" min="0.25" id="tpM" value="4" style="max-width:90px"><label class="darklabel" style="margin:0">Negative</label><input class="lightfield" type="number" step="0.25" min="0" id="tpN" value="1" style="max-width:90px"><button class="btn gold" id="tpAdd" disabled>Add selected</button></div>
@@ -1005,6 +1063,7 @@ async function pageBuilder(root, testId) {
   const load = async () => {
     let q = sb.from("qb_questions").select("*").eq("status", "live").eq("subject_id", f.subject).order("code").limit(60);
     if (f.chapter) q = q.eq("chapter_id", f.chapter); if (f.topic) q = q.eq("topic_id", f.topic); if (f.type) q = q.eq("type", f.type);
+    if (f.band) q = q.in("difficulty", BANDS[f.band]);
     if (f.source) q = q.ilike("source", `%${f.source.replace(/[%,()]/g, " ")}%`);
     if (f.q) q = /^[A-Za-z]{2,4}-/.test(f.q) ? q.ilike("code", `${f.q}%`) : q.ilike("question_md", `%${f.q.replace(/[%,()]/g, " ")}%`);
     const { data, error: le } = await q; if (le) throw le;
@@ -1028,6 +1087,7 @@ async function pageBuilder(root, testId) {
   $("#tpC", root).onchange = (e) => { set("chapter", e.target.value); f.topic = undefined; pageBuilder(root, test.id).catch(fail); };
   $("#tpT", root).onchange = (e) => { set("topic", e.target.value); load().catch(fail); };
   $("#tpY", root).onchange = (e) => { set("type", e.target.value); load().catch(fail); };
+  $("#tpD", root).onchange = (e) => { set("band", e.target.value); load().catch(fail); };
   let t; for (const [id, k] of [["#tpSrc", "source"], ["#tpQ", "q"]]) $(id, root).oninput = (e) => { clearTimeout(t); t = setTimeout(() => { set(k, e.target.value.trim()); load().catch(fail); }, 350); };
   $("#tpAdd", root).onclick = async (e) => {
     const addBtn = e.currentTarget; // currentTarget is cleared after the first await
@@ -1044,4 +1104,4 @@ async function pageBuilder(root, testId) {
   await load();
 }
 window.QB.openBuilder = (testId) => { S.pick.testId = testId; };
-const newQuestion = () => openQuestionEditor(null, { code: null, subject: S.tax.subjects[0]?.id, chapter: null, topic: null, type: "single", difficulty: 2, exam: [], tags: [], source: null, status: "draft", marks: 4, negative: 1, question: "", options: ["A", "B", "C", "D"].map((key) => ({ key, text: "" })), answer: null, tolerance: 0, solution: null });
+const newQuestion = () => openQuestionEditor(null, { code: null, subject: S.tax.subjects[0]?.id, chapter: null, topic: null, type: "single", difficulty: null, exam: [], tags: [], source: null, status: "draft", marks: 4, negative: 1, question: "", options: ["A", "B", "C", "D"].map((key) => ({ key, text: "" })), answer: null, tolerance: 0, solution: null });

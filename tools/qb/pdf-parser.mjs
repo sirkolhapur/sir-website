@@ -42,8 +42,10 @@ export function normalizeText(s) {
 
 // Patterns that usually mean OCR lost a superscript/subscript or a symbol.
 // They are flagged for review, never "fixed".
+export const UNREADABLE = "[[?]]";
 const SUSPECT = [
   [/[x×*]\s*10(?!\s*\^)(?:\b|\D)/, "Power of ten without a readable exponent — scans usually lose superscripts (10¹⁸ becomes 10%, 10\" or 10°); re-type every exponent from the page"],
+  [/[x×*]\s*10\d{1,2}\b/, "Possible exponent read as ordinary digits (10⁷ read as 107) — check every power of ten against the page"],
   [/[~«»¢¥§¶|]{1,}/, "unusual symbol — possibly an unreadable formula character"],
   [/\b[A-Z][a-z]?\d[A-Z]/, "chemical formula subscripts may be lost (e.g. H2SO4)"],
   [/\?{2,}|�/, "unreadable characters"],
@@ -189,36 +191,52 @@ export function orderColumns(lines, pageWidth) {
 // ---------------------------------------------------------------------
 // Segmentation
 // ---------------------------------------------------------------------
-// "12. Text", "12) Text", "(12) Text", "12.) Text", "Q12. Text". The dot
-// must be followed by a space so "1.34 x 10" is never a question number.
-const Q_START = /^\s*(?:Q(?:ue)?(?:stion)?\s*\.?\s*)?(?:\(|\[)?(\d{1,3})\s*(?:\.\)?\s+|\)\s*|\]\s*|\s-\s+)(?=\S)/i;
+// "12. Text", "12) Text", "(12) Text", "12.) Text", "Q12. Text", and
+// "118.A charged…" (no space, capital letter next). A dot followed by a
+// digit is never a question number, so "1.34 x 10" is safe.
+const Q_START = /^\s*(?:Q(?:ue)?(?:stion)?\s*\.?\s*)?(?:\(|\[)?(\d{1,3})\s*(?:\.\)?\s+|\.(?=[A-Z(“"'])|\)\s*|\]\s*|\s-\s+)(?=\S)/i;
 const ANSWER_KEY_HEADING = /^\s*(answer\s*key|answers?|ans(?:wer)?s?\.?\s*key|hints?\s*(?:&|and)\s*solutions?)\s*[:.-]?\s*$/i;
 const SOLUTION_START = /^\s*(?:sol(?:ution)?|explanation|hint)\s*[.:-]\s*/i;
 const INLINE_ANSWER = /\b(?:ans(?:wer)?|correct\s+(?:option|answer))\s*[.:-]?\s*\(?\s*([a-dA-D1-4])\s*\)?(?!\w)/;
 
 // Lines that start a new question, keeping the numbering plausible:
-// next = previous + 1, a restart at 1 (new section), or a short skip
-// (flagged). Lines like "1.6 × 10" never match (no space after the dot).
+//   • next = previous + 1, or a short skip (flagged);
+//   • a new section: numbering restarts at a small number (1, or 2–5 when
+//     the "1." is unreadable) and the following numbers continue it;
+//   • a misread number ("193" between 92 and 94) is taken as the missing
+//     one and flagged.
+// Each start carries its section number; restarts begin a new section.
 export function findQuestionStarts(lines) {
   const cands = [];
   lines.forEach((l, i) => {
     const m = l.text.match(Q_START);
     if (m) cands.push({ index: i, number: Number(m[1]) });
   });
-  // A candidate is accepted if it continues the sequence, or if the next
-  // candidate continues *it* (handles page ranges like 1–13 then 65–80,
-  // and unreadable numbers in between).
+  // Does the sequence continue from n? (one of the next three candidates is n+1…n+3)
+  const ahead = (k, n) => cands.slice(k + 1, k + 4).some((x) => x.number > n && x.number - n <= 3);
   const starts = [];
-  let last = 0;
+  let last = 0, section = 1;
   cands.forEach((c, k) => {
     const next = cands[k + 1];
     const continues = c.number === last + 1;
-    const supported = next && next.number > c.number && next.number - c.number <= 3;
     const smallSkip = c.number > last && c.number - last <= 3;
-    const restart = c.number === 1 && last >= 1;
-    if (!(continues || smallSkip || restart || (supported && c.number > last) || (supported && last === 0))) return;
-    starts.push({ index: c.index, number: c.number, skipped: last && c.number > last + 1 && !restart ? c.number - last - 1 : 0, restart });
-    last = c.number;
+    // A restart needs two following numbers continuing it, and must not be
+    // followed by the old sequence carrying on (figure labels "(1)", "(3)").
+    const nextFew = cands.slice(k + 1, k + 6);
+    const runs = new Set(nextFew.filter((x) => x.number > c.number && x.number - c.number <= 4).map((x) => x.number)).size >= 2;
+    const oldGoesOn = nextFew.slice(0, 4).some((x) => x.number > last && x.number - last <= 3);
+    const restart = last >= 3 && c.number <= 5 && c.number < last && runs && !oldGoesOn;
+    const jump = c.number > last && ahead(k, c.number) && (last === 0 || c.number - last <= 40);
+    if (continues || smallSkip || restart || jump) {
+      if (restart) section++;
+      const skipped = restart ? c.number - 1 : (last && c.number > last + 1 ? c.number - last - 1 : (last === 0 ? c.number - 1 : 0));
+      starts.push({ index: c.index, number: c.number, skipped, restart, section });
+      last = c.number;
+    } else if (next && next.number === last + 2 && c.number !== last) {
+      // Misread number in the slot of last + 1.
+      starts.push({ index: c.index, number: last + 1, skipped: 0, restart: false, section, assumed: true, readAs: c.number });
+      last = last + 1;
+    }
   });
   return starts;
 }
@@ -255,14 +273,14 @@ export function recoverUnnumberedStarts(lines, starts, pageDims) {
         const next = qi + 1 < starts.length ? starts[qi + 1] : null;
         const prevNum = out[out.length - 1].number;
         if (next && next.number === prevNum + 1) break; // numbering is already continuous: nothing missing
-        out.push({ index: i, number: prevNum + 1, skipped: 0, restart: false, assumed: true });
+        out.push({ index: i, number: prevNum + 1, skipped: 0, restart: false, assumed: true, section: s.section });
         hasD = false;
       }
     }
   });
   // Numbers after an assumed question no longer count as a skip.
   for (let k = 1; k < out.length; k++) {
-    if (out[k].skipped && out[k].number - out[k - 1].number === 1) out[k].skipped = 0;
+    if (out[k].skipped && !out[k].restart && out[k].number - out[k - 1].number === 1) out[k].skipped = 0;
   }
   return out;
 }
@@ -270,19 +288,29 @@ export function recoverUnnumberedStarts(lines, starts, pageDims) {
 // Split a question body into stem + options. Accepts a) (a) A) (A) a. A.
 // and (1)…(4); options may share a line ("a) x  b) y").
 export function extractOptions(body) {
-  // Common OCR misreads of an option letter on scans: ¢) ©) → c),
-  // "by Friction" (a ticked "b)") → "b) Friction".
-  body = body.replace(/(^|[\s(])[¢©](\s?[).])/g, "$1c$2").replace(/(^|\n)(\W?)by(?=\s+[A-Z])/g, "$1$2b)");
+  // Common OCR misreads of an option letter on scans: ¢) ©) co) → c),
+  // "by Friction" / "dy both" (a ticked "b)" / "d)") → "b) Friction".
+  body = body.replace(/(^|[\s(])(?:[¢©]|co)(\s?[).])/g, "$1c$2").replace(/(^|\n)(\W?)by(?=\s+[A-Z0-9])/g, "$1$2b)")
+    .replace(/(^|\n)(\W?)dy(?=\s+\S)/g, "$1$2d)").replace(/(\s)dy(?=\s+[\d(+-])/g, "$1d)");
+  // A ticked letter is sometimes read as a look-alike, but only where the
+  // sequence expects it (b after a, c after b): p) 6) → b), e) → c).
+  const LOOK = { a: "a", b: "[bp6]", c: "[ce]", d: "d", 1: "1", 2: "2", 3: "3", 4: "4" };
+  // One stray tick/mark character may precede the letter ("La)", "Jb)",
+  // "_c)", "/d)", "'d)"); a ")" may be followed directly by the text ("p)15").
+  const markerRe = (k, lineStart) => new RegExp(`${lineStart ? "(?:^|(?<=\\n))" : "(?:^|(?<=[\\s(\\[]))"}[LJlIP/\\\\|_vV✓√'"‘’“”.,:;~-]?[(\\[]?${LOOK[k] ?? k}\\s?(?:[).\\]](?=\\s|$)|\\)(?=[^\\s)]))`, /[a-d]/.test(k) ? "gim" : "gm");
   const tryKeys = (keys) => {
     const found = [];
     let from = 0;
-    for (const k of keys) {
-      // One stray tick/mark character may precede the letter ("La)", "Jb)", "_c)", "/d)").
-      const re = new RegExp(`(?:^|(?<=[\\s(\\[]))[LJlI/\\\\|_vV✓√]?[(\\[]?${k}\\s?[).\\]](?=\\s|$)`, k.length === 1 && /[a-d]/.test(k) ? "gim" : "gm");
-      re.lastIndex = from;
-      let m;
+    for (const [i, k] of keys.entries()) {
+      // The first option almost always starts a line: prefer that, so "(a)
+      // and (b)" inside the stem is not taken for options.
       let hit = null;
-      while ((m = re.exec(body))) { if (m.index >= from) { hit = m; break; } }
+      for (const re of i === 0 ? [markerRe(k, true), markerRe(k, false)] : [markerRe(k, false)]) {
+        re.lastIndex = from;
+        let m;
+        while ((m = re.exec(body))) { if (m.index >= from) { hit = m; break; } }
+        if (hit) break;
+      }
       if (!hit) continue; // a missing marker (e.g. hidden by a tick) does not stop the search
       found.push({ key: k, at: hit.index, end: hit.index + hit[0].length });
       from = hit.index + hit[0].length;
@@ -290,7 +318,21 @@ export function extractOptions(body) {
     return found;
   };
   let marks = tryKeys(["a", "b", "c", "d"]);
+  let reordered = false;
   if (marks.length < 4) {
+    // Curved or tilted scans can put "b) …" before "a) …" in the text. If
+    // each of a)–d) appears exactly once after the stem, take each option's
+    // text from its own marker and order them by letter (flagged).
+    const all = ["a", "b", "c", "d"].map((k) => [...body.matchAll(new RegExp(`(?:^|(?<=\\s))[LJlI/\\\\|_'"‘’“”]?${k}\\s?\\)(?=\\s|[^\\s)])`, "gim"))]);
+    const start = all.flat().length ? Math.min(...all.flat().map((m) => m.index)) : 0;
+    const each = all.map((ms) => ms.filter((m) => m.index >= start));
+    if (each.every((ms) => ms.length === 1)) {
+      const found = each.map((ms, i) => ({ key: "abcd"[i], at: ms[0].index, end: ms[0].index + ms[0][0].length }));
+      const inText = [...found].sort((x, y) => x.at - y.at);
+      if (inText.some((m, i) => m.key !== "abcd"[i])) { marks = inText; reordered = true; }
+    }
+  }
+  if (marks.length < 4 && !reordered) {
     const numeric = tryKeys(["1", "2", "3", "4"]);
     if (numeric.length === 4) marks = numeric;
   }
@@ -301,11 +343,19 @@ export function extractOptions(body) {
     key: toLetter(m.key),
     text: body.slice(m.end, i + 1 < marks.length ? marks[i + 1].at : undefined).replace(/\s+/g, " ").trim(),
   }));
+  if (reordered) {
+    options.sort((x, y) => x.key.localeCompare(y.key));
+    return { stem: body.slice(0, marks[0].at).trim(), options, found: 4, missing: [], secondSet: false, reordered };
+  }
   const missing = ["A", "B", "C", "D"].filter((L) => !options.some((o) => o.key === L));
   // Keep keys A–D contiguous for the editor; the missing letter's text is
   // still inside the neighbouring option and is reported for review.
   options.forEach((o, i) => { o.key = "ABCD"[i]; });
-  return { stem: body.slice(0, marks[0].at).trim(), options, found: marks.length, missing };
+  // A second "a) … b)" after the last option: probably two questions merged
+  // (the next question's number was not read).
+  const tail = marks.length ? body.slice(marks[marks.length - 1].end) : "";
+  const secondSet = !numericKeys && /(?:^|\n)\W?[(\[]?a\s?[).\]]\s[\s\S]*(?:^|\s)\W?[(\[]?b\s?[).\]]\s/m.test(tail);
+  return { stem: body.slice(0, marks[0].at).trim(), options, found: marks.length, missing, secondSet };
 }
 
 // Answer key section → { number: "A" | "B" | … }. Only read after an
@@ -369,7 +419,21 @@ export function segmentQuestions(pages, ctx = {}) {
   // were unreadable).
   const preEnd = starts.length ? starts[0].index : body.length;
   const pre = body.slice(0, preEnd).filter((l) => l.kind === "text" && /[A-Za-z]{3}/.test(l.text));
-  if (pre.length) starts.unshift({ index: body.indexOf(pre[0]), number: null, skipped: 0, restart: false, preamble: true });
+  if (pre.length) starts.unshift({ index: body.indexOf(pre[0]), number: null, skipped: 0, restart: false, preamble: true, section: starts[0]?.section ?? 1 });
+
+  // Which question owns each line (for placing diagram areas).
+  const owner = new Map();
+  starts.forEach((s, qi) => { for (let i = s.index; i < (starts[qi + 1]?.index ?? body.length); i++) owner.set(body[i], qi); });
+  const figsByQ = new Map();
+  for (const p of pages) for (const f of p.figures || []) {
+    const cy = (f.y0 + f.y1) / 2;
+    const same = body.filter((l) => l.page === p.page && (f.col == null || l.col == null || l.col === f.col));
+    const above = same.filter((l) => l.y0 <= cy).sort((a, b) => b.y0 - a.y0)[0];
+    const below = same.filter((l) => l.y0 > cy).sort((a, b) => a.y0 - b.y0)[0];
+    const qi = owner.get(above ?? below);
+    if (qi != null) (figsByQ.get(qi) ?? figsByQ.set(qi, []).get(qi)).push({ ...f, page: p.page });
+  }
+  const inkData = pages.some((p) => Array.isArray(p.figures));
 
   starts.forEach((s, qi) => {
     const end = qi + 1 < starts.length ? starts[qi + 1].index : body.length;
@@ -384,8 +448,12 @@ export function segmentQuestions(pages, ctx = {}) {
     }
     if (unreadable.length) issues.push(`${unreadable.length} unreadable line(s) were left out of this question — compare with the page`);
     const qSection = qLines[0].section;
-    if (s.assumed) issues.push(`Question number was not readable (handwriting or damage over it?) — assumed ${s.number}; confirm against the page`);
-    if (s.skipped) issues.push(`Numbering jumps from ${s.number - s.skipped - 1} to ${s.number} — a question may be missing or unreadable`);
+    if (s.assumed) issues.push(s.readAs != null
+      ? `Question number read as ${s.readAs} — assumed ${s.number} from the sequence; confirm against the page`
+      : `Question number was not readable (handwriting or damage over it?) — assumed ${s.number}; confirm against the page`);
+    if (s.skipped) issues.push(s.restart || s.number === s.skipped + 1
+      ? `Section ${s.section}: question(s) 1${s.skipped > 1 ? `–${s.skipped}` : ""} not found before ${s.number} — missing or merged into the previous question`
+      : `Numbering jumps from ${s.number - s.skipped - 1} to ${s.number} — a question may be missing or merged into this one`);
 
     // First line without its number; join the rest with newlines.
     const first = s.preamble || s.assumed ? qLines[0].text : qLines[0].text.replace(Q_START, "");
@@ -415,12 +483,18 @@ export function segmentQuestions(pages, ctx = {}) {
       issues.push(`Answer key has an entry for ${s.number}, but this number repeats in the PDF — key not applied, choose manually`);
     }
 
-    const { stem, options, found, missing } = extractOptions(raw);
+    const { stem, options, found, missing, secondSet, reordered } = extractOptions(raw);
     const isMcq = found >= 2;
-    if (found > 0 && found < 4) issues.push(`Only ${found} option marker(s) read${missing?.length ? ` — option ${missing.join(", ")} marker not found; its text is probably joined to the option before it` : ""}`);
+    if (found > 0 && found < 4) issues.push(`Only ${found} of 4 option markers read${missing?.length ? ` — option ${missing.join(", ")} not found; its text is probably joined to the option before it. Split it before verifying` : ""}`);
     if (!isMcq) issues.push("No options detected — may be integer/numerical/subjective, or options were not read");
+    if (reordered) issues.push("Options were out of order in the scan (curved or tilted page) and were matched by their letters — check each option against the page");
+    if (secondSet) issues.push("A second set of options a), b)… follows — this item probably contains two questions (the next number was not read). Split it");
     if (!stem || stem.length < 8) issues.push("Question text missing or very short");
-    if (!answer) issues.push("No answer in the source — enter and verify the correct answer");
+    if (!answer) issues.push(keyStart >= 0
+      ? `The source's answer key has no entry for ${s.number ?? "this question"} — enter and verify the correct answer`
+      : "The source has no answer key — enter and verify the correct answer (handwritten ticks on the page are not used)");
+    const unreadableMath = (stem + options.map((o) => o.text).join(" ")).split(UNREADABLE).length - 1;
+    if (unreadableMath) issues.push(`${unreadableMath} exponent(s)/symbol(s) could not be read reliably — shown as ${UNREADABLE}. Type them from the page`);
 
     const fullText = [stem, ...options.map((o) => o.text)].join(" ");
     // Already-converted math is not suspect; a "$^{…}$" right after a number
@@ -447,26 +521,33 @@ export function segmentQuestions(pages, ctx = {}) {
     }
     if (regions.length > 1) issues.push(`Question continues across pages ${regions.map((r) => r.page).join(" → ")} — check the join`);
 
-    // Diagram suggestions: big blank gaps inside the question, or a mention.
-    const figures = figureGaps(qLines).map((g, i) => {
+    // Diagrams: ink on the page that is not text (scans), or large blank
+    // gaps (text PDFs). Always a proposal: the reviewer confirms each crop.
+    const areas = inkData ? (figsByQ.get(qi) || []) : figureGaps(qLines);
+    const figures = areas.map((g, i) => {
       const d = pageDims[g.page];
-      return { label: String(i + 1), page: g.page, option_key: null, description: "",
+      return { label: String(i + 1), page: g.page, option_key: null, description: "", proposed: true,
         box: [g.x0 / d.w, g.y0 / d.h, g.x1 / d.w, g.y1 / d.h].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 1000)) };
     });
     if (/\b(figure|fig\.|diagram|shown|graph|circuit|structure)\b/i.test(fullText) && !figures.length && !/!\[[^\]]*\]\(/.test(fullText)) {
-      issues.push("Mentions a figure/diagram but none was located — crop it from the page");
+      issues.push("Mentions a figure/diagram but none was located — crop it from the page (tick only if no diagram is needed)");
     }
-    if (figures.length) issues.push(`${figures.length} possible diagram area(s) found — check the crop`);
+    if (figures.length) issues.push(`${figures.length} diagram area(s) detected — confirm or re-crop each one; a diagram that belongs to this question must be attached`);
 
     const minConf = qLines.reduce((m, l) => l.conf == null ? m : Math.min(m, l.conf), 100);
-    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length;
+    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length || unreadableMath || secondSet;
     const confidence = severe ? "low" : (issues.length > 1 || minConf < 85) ? "medium" : "high";
 
     const question = stem + figures.map((f) => `\n\n![Figure ${f.label}](figure:${f.label})`).join("");
     const pageFrom = regions[0]?.page ?? qLines[0].page, pageTo = regions[regions.length - 1]?.page ?? qLines[0].page;
     questions.push({
       source_number: s.preamble ? "?" : String(s.number) + (s.assumed ? "?" : ""),
+      number: s.preamble ? null : s.number,
+      assumed: !!s.assumed,
       section: qSection,
+      section_no: s.section ?? 1,
+      option_markers: found,
+      ocr_raw: qLines.some((l) => l.raw != null) ? qLines.map((l) => l.raw ?? l.text).join("\n") : null,
       page_from: pageFrom,
       page_to: pageTo,
       source_location: sourceLocation ?? (pageFrom === pageTo ? `page ${pageFrom}` : `pages ${pageFrom}–${pageTo}`),
@@ -484,7 +565,8 @@ export function segmentQuestions(pages, ctx = {}) {
         subtopic: null,
         branch: null,
         type: isMcq ? "single" : "integer",
-        difficulty: 2,
+        difficulty: null, // never guessed: the reviewer chooses
+
         exam: ctx.exam ?? [],
         tags: [],
         source: ["book", ctx.sourceLabel, qSection, paras.length ? null : `p.${pageFrom}`, s.number != null ? `Q${s.number}` : null].filter(Boolean).join(":"),
@@ -504,4 +586,50 @@ export function segmentQuestions(pages, ctx = {}) {
   });
 
   return { questions, answerKeyFound: keyStart >= 0, answerKeyEntries: Object.keys(keyAnswers).length };
+}
+
+// ---------------------------------------------------------------------
+// Reconciliation: what the numbering says vs what was extracted.
+//   items: [{ source_number, section_no, number, assumed, option_markers,
+//             page_from, issues[], question, options, figures }]
+//   pages: [{ page_no, status }]
+// Missing numbers can only be seen between found numbers: questions after
+// the last number read in a section cannot be detected from numbering.
+// ---------------------------------------------------------------------
+export function reconcileExtraction(items, pages = []) {
+  const has = (it, re) => (it.issues || []).some((s) => re.test(s));
+  const bySection = new Map();
+  for (const it of items) {
+    const k = it.section_no ?? 1;
+    (bySection.get(k) ?? bySection.set(k, []).get(k)).push(it);
+  }
+  const sections = [...bySection.entries()].sort((a, b) => a[0] - b[0]).map(([no, its]) => {
+    const nums = its.map((i) => i.number).filter((n) => Number.isInteger(n));
+    const count = new Map(); nums.forEach((n) => count.set(n, (count.get(n) || 0) + 1));
+    const max = nums.length ? Math.max(...nums) : 0;
+    const missing = []; for (let n = 1; n <= max; n++) if (!count.has(n)) missing.push(n);
+    const pgs = its.map((i) => i.page_from).filter(Boolean);
+    return {
+      section: no, pages: pgs.length ? [Math.min(...pgs), Math.max(...pgs)] : null,
+      items: its.length, highest: max, found: count.size,
+      missing, duplicates: [...count.entries()].filter(([, c]) => c > 1).map(([n]) => n),
+      assumed: its.filter((i) => i.assumed).map((i) => i.number),
+      unnumbered: its.filter((i) => i.number == null).length,
+    };
+  });
+  const list = (pred) => items.filter(pred).map((i) => `${i.section_no ?? 1}:${i.source_number}`);
+  return {
+    pages: { processed: pages.filter((p) => p.status === "done").length, failed: pages.filter((p) => p.status === "failed").map((p) => p.page_no) },
+    items: items.length,
+    sections,
+    numbering_total: sections.reduce((s, x) => s + x.highest, 0),
+    missing_total: sections.reduce((s, x) => s + x.missing.length, 0),
+    merged_or_split: list((i) => has(i, /two questions|merged|not found before|jumps from/)),
+    option_problems: list((i) => i.type !== "integer" && Array.isArray(i.options) && i.options.length > 0 && (i.options.length !== 4 || i.options.some((o) => !String(o.text || "").trim()))),
+    no_options: list((i) => !Array.isArray(i.options) || !i.options.length),
+    uncertain_math: list((i) => JSON.stringify([i.question, i.options]).includes(UNREADABLE) || has(i, /exponent|formula character|subscripts may be lost/)),
+    diagrams_to_confirm: list((i) => (i.figures || []).some((f) => f.proposed || f.pending)),
+    diagram_mentioned_missing: list((i) => has(i, /Mentions a figure/)),
+    needs_review: items.length,
+  };
 }
