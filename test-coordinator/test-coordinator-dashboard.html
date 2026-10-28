@@ -51,7 +51,16 @@ async function verifyTestCoordinator(user){
 if (
   String(staff.designation || '').trim().toLowerCase()
   !== 'test & assessment coordinator'
-) if(String(staff.designation||'').trim().toLowerCase()!=='test coordinator')throw new Error('Access denied: this portal is only for Test Coordinator staff.');
+) 
+if (
+  String(staff.designation || '').trim().toLowerCase()
+  !== 'test & assessment coordinator'
+) {
+  throw new Error(
+    'Access denied: this portal is only for Test & Assessment Coordinator staff.'
+  );
+}
+
  return staff;
 }
 function showLogin(){$('appView').classList.add('hide');$('loginView').classList.remove('hide')}
