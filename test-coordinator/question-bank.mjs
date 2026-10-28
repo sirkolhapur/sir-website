@@ -771,23 +771,31 @@ async function openItem(itemId, queue = []) {
     if (missingDup.length) local.push(`Possible duplicate of ${missingDup.map((d) => d.code).join(", ")} — reject this item, or tick that it is different`);
     editor.setErrors([]); showFail(local); if (local.length) return;
     btn.disabled = true; btn.textContent = "Verifying…";
+    const uploaded = [];
+    let ok = false;
     try {
       const ch = chapterBySlug(q.subject, q.chapter);
       const { data: codes, error: ce } = await sb.rpc("qb_next_codes", { p_chapter_id: ch.id, p_count: 1 });
       if (ce) throw ce;
-      const { q: final, assets } = await storeImages(q, figures, crop, job);
+      const { q: final, assets } = await storeImages(q, figures, crop, job, uploaded);
       final.code = codes[0]; final.status = "live"; final.content_hash = `import:${item.id}`; final.source_file = `${job.file_name}#${item.source_location || ""}`;
       final.assets = assets; delete final.figures;
       const { error: ve } = await sb.rpc("qb_verify_import_item", { p_item_id: item.id, p_question: final, p_acknowledged: acks(), p_not_duplicate_of: notDups() });
       if (ve) { const g = notVerified(ve); if (g) { showFail(g); return; } throw ve; }
+      ok = true;
       toast(`${final.code} verified and added to the Question Bank`); after();
-    } catch (err) { fail(err); } finally { btn.disabled = false; btn.textContent = "Verify & add to Question Bank"; }
+    } catch (err) { fail(err); } finally {
+      // Verification rolled back, so the copies just made are unused; the
+      // storage policy refuses to delete anything a question still uses.
+      if (!ok && uploaded.length) sb.storage.from("qb-images").remove(uploaded).catch(() => {});
+      btn.disabled = false; btn.textContent = "Verify & add to Question Bank";
+    }
   };
 }
 
 // Copy every image a question uses into qb-images under a random, stable
 // path and register it (crop box + source page) — originals untouched.
-async function storeImages(q, figures, crop, job) {
+async function storeImages(q, figures, crop, job, uploaded = []) {
   const final = structuredClone(q), assets = [];
   const fields = () => [final, ...(Array.isArray(final.options) ? final.options : final.options ? [...final.options.left, ...final.options.right] : [])];
   const replaceAll = (from, to) => {
@@ -800,7 +808,8 @@ async function storeImages(q, figures, crop, job) {
     const c = crop(f); if (!c) throw new Error(`Figure ${f.label}: page image not available`);
     const blob = await new Promise((res) => c.toBlob(res, "image/png"));
     const path = await uploadBankImage(blob, "image/png");
-    const pg = (await sb.from("qb_import_pages").select("image_path").eq("job_id", job.id).eq("page_no", f.page).single()).data;
+    uploaded.push(path);
+    const pg =(await sb.from("qb_import_pages").select("image_path").eq("job_id", job.id).eq("page_no", f.page).single()).data;
     assets.push({ path, kind: "figure", page_no: f.page, source_path: pg?.image_path, crop_box: f.box.map((v) => Math.round(v)) });
     replaceAll(`](figure:${f.label})`, `](qb-images/${path})`);
   }
@@ -808,6 +817,7 @@ async function storeImages(q, figures, crop, job) {
     const { data: blob, error } = await sb.storage.from("qb-import").download(m);
     if (error) throw new Error(`Source image ${m.split("/").pop()} is missing: ${error.message}`);
     const path = await uploadBankImage(blob, blob.type);
+    uploaded.push(path);
     assets.push({ path, kind: "media", source_path: m });
     replaceAll(`](import-media:${m})`, `](qb-images/${path})`);
   }
@@ -932,12 +942,39 @@ async function pageFailed(root) {
   for (const r of [jobs, pages, items]) if (r.error) throw r.error;
   root.innerHTML = `<div class="card"><h3 class="ctitle">Failed files (${jobs.data.length})</h3>${jobs.data.length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Error</th><th>When</th></tr></thead><tbody>${jobs.data.map((j) => `<tr><td>${esc(j.source_label || j.file_name)}</td><td class="bad">${esc(j.error || "")}</td><td>${esc(new Date(j.created_at).toLocaleString())}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">None.</div>`}</div>
    <div class="card" style="margin-top:14px"><h3 class="ctitle">Pages that could not be read (${pages.data.length})</h3>${pages.data.length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Page</th><th>Error</th></tr></thead><tbody>${pages.data.map((p) => `<tr><td>${esc(p.qb_import_jobs?.file_name)}</td><td>${p.page_no}</td><td class="bad">${esc(p.error || "")}</td></tr>`).join("")}</tbody></table></div><p class="csub">Re-upload the file with just these pages (Upload → PDF pages).</p>` : `<div class="empty">None.</div>`}</div>`;
+  const imgs = document.createElement("div"); imgs.className = "card"; imgs.style.marginTop = "14px"; root.appendChild(imgs);
+  unusedImagesCard(imgs);
   const box = document.createElement("div"); box.style.marginTop = "14px"; root.appendChild(box);
   await itemList(box, ["review_required", "corrected", "returned"], "Uncertain extractions", "Low-confidence items: handwriting, tilted scans, unreadable formulas, missing options or numbers.").catch(fail);
   // itemList shows all open items; keep only the low-confidence ones.
   const ids = new Set(items.data.map((i) => i.id));
   $$("[data-item]", box).forEach((b) => { if (!ids.has(b.dataset.item)) b.closest("tr").remove(); });
   const h = $(".ctitle", box); if (h) h.textContent = `Uncertain extractions (${ids.size})`;
+}
+
+// Images in qb-images that no question, solution, import draft or test uses
+// (left by a failed verification or an editor closed without saving).
+async function unusedImagesCard(card) {
+  const { data, error } = await sb.rpc("qb_unused_images", { p_min_age: "1 day", p_limit: 500 });
+  if (error) { card.remove(); return; }
+  const kb = Math.round(data.reduce((s, r) => s + Number(r.size_bytes || 0), 0) / 1024);
+  card.innerHTML = `<h3 class="ctitle">Unused images (${data.length}${data.length === 500 ? "+" : ""})</h3>
+    <p class="csub">Pictures uploaded more than a day ago that no question, solution, import or test uses${data.length ? ` — about ${kb} KB` : ""}. Images in use cannot be deleted.</p>
+    ${data.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">${data.slice(0, 12).map((r) => `<img src="${esc(QB_IMAGES_URL + r.name)}" alt="" loading="lazy" style="height:64px;max-width:120px;object-fit:contain;border:1px solid #ddd;border-radius:6px;background:#fff">`).join("")}</div>
+    <div class="toolbar"><button class="btn outline small" data-clean>Delete ${data.length} unused image${data.length === 1 ? "" : "s"}</button></div>` : `<div class="empty">None.</div>`}`;
+  const btn = $("[data-clean]", card); if (!btn) return;
+  btn.onclick = async () => {
+    if (!confirm(`Permanently delete ${data.length} unused image(s)?`)) return;
+    btn.disabled = true; btn.textContent = "Deleting…";
+    try {
+      let n = 0;
+      for (let i = 0; i < data.length; i += 100) {
+        const { data: gone, error: re } = await sb.storage.from("qb-images").remove(data.slice(i, i + 100).map((r) => r.name));
+        if (re) throw re; n += gone?.length || 0;
+      }
+      toast(`${n} unused image(s) deleted`); unusedImagesCard(card);
+    } catch (err) { fail(err); btn.disabled = false; }
+  };
 }
 
 // ---------- Draft Test Builder: add verified questions ----------
@@ -976,9 +1013,9 @@ async function pageBuilder(root, testId) {
       const imgs = (row.question_md.match(/!\[[^\]]*\]\(qb-images\//g) || []).length;
       const reason = already.has(row.code) ? "already in this test" : row.type !== "single" ? "type not supported by this test format"
         : JSON.stringify(row.options).includes("![") ? "images inside options" : imgs > 1 ? "more than one image" : null;
-      const plainOnly = !reason && /\$|^\s*\|/m.test(row.question_md + JSON.stringify(row.options));
+      const plainOnly = !reason && /^\s*\|/m.test(row.question_md);
       const card = document.createElement("div"); card.className = "qb-q";
-      card.innerHTML = `<label class="checkline"><input type="checkbox" data-id="${esc(row.id)}" ${reason ? "disabled" : ""}${selected.includes(row.id) ? " checked" : ""}> <span>${metaTags(rowToQ(row))}${reason ? ` <span class="tag red">${esc(reason)}</span>` : ""}${plainOnly ? ` <span class="tag amber" title="The existing tests table stores plain text; the Admin Dashboard shows its question text unformatted">formulas/tables show as plain text in this test format</span>` : ""}</span></label>`;
+      card.innerHTML = `<label class="checkline"><input type="checkbox" data-id="${esc(row.id)}" ${reason ? "disabled" : ""}${selected.includes(row.id) ? " checked" : ""}> <span>${metaTags(rowToQ(row))}${reason ? ` <span class="tag red">${esc(reason)}</span>` : ""}${plainOnly ? ` <span class="tag amber" title="The existing tests table stores plain text; formulas render in the Admin Dashboard but tables show as | rows">table shows as plain rows in this test format</span>` : ""}</span></label>`;
       card.appendChild(questionView(rowToQ(row))); list.appendChild(card);
     }
     $$("input[data-id]", list).forEach((c) => c.onchange = () => {
