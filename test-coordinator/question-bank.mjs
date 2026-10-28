@@ -1044,26 +1044,152 @@ function openQuestionEditor(row, q) {
 
 // ---------- Failed / Uncertain ----------
 async function pageFailed(root) {
-  const [jobs, pages, items] = await Promise.all([
+  const [jobs, pages] = await Promise.all([
     sb.from("qb_import_jobs").select("id,file_name,source_label,error,created_at").eq("status", "failed").order("created_at", { ascending: false }),
     sb.from("qb_import_pages").select("job_id,page_no,error,qb_import_jobs(file_name)").eq("status", "failed"),
-    sb.from("qb_import_items").select("id,source_location,source_number,confidence,issues,status,draft,qb_import_jobs(source_label,file_name)").in("status", ["review_required", "corrected", "returned"]).eq("confidence", "low").limit(500),
   ]);
-  for (const r of [jobs, pages, items]) if (r.error) throw r.error;
-  root.innerHTML = `<div class="card"><h3 class="ctitle">Failed files (${jobs.data.length})</h3>${jobs.data.length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Error</th><th>When</th></tr></thead><tbody>${jobs.data.map((j) => `<tr><td>${esc(j.source_label || j.file_name)}</td><td class="bad">${esc(j.error || "")}</td><td>${esc(new Date(j.created_at).toLocaleString())}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">None.</div>`}</div>
+  for (const r of [jobs, pages]) if (r.error) throw r.error;
+  root.innerHTML = `${bulkResultBanner()}<div class="card"><h3 class="ctitle">Failed files (${jobs.data.length})</h3>${jobs.data.length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Error</th><th>When</th></tr></thead><tbody>${jobs.data.map((j) => `<tr><td>${esc(j.source_label || j.file_name)}</td><td class="bad">${esc(j.error || "")}</td><td>${esc(new Date(j.created_at).toLocaleString())}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">None.</div>`}</div>
    <div class="card" style="margin-top:14px"><h3 class="ctitle">Pages that could not be read (${pages.data.length})</h3>${pages.data.length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Page</th><th>Error</th></tr></thead><tbody>${pages.data.map((p) => `<tr><td>${esc(p.qb_import_jobs?.file_name)}</td><td>${p.page_no}</td><td class="bad">${esc(p.error || "")}</td></tr>`).join("")}</tbody></table></div><p class="csub">Re-upload the file with just these pages (Upload → PDF pages).</p>` : `<div class="empty">None.</div>`}</div>`;
   const imgs = document.createElement("div"); imgs.className = "card"; imgs.style.marginTop = "14px"; root.appendChild(imgs);
   unusedImagesCard(imgs);
-  const box = document.createElement("div"); box.style.marginTop = "14px"; root.appendChild(box);
-  // After a reject, reload this page and the sidebar counts.
-  await itemList(box, ["review_required", "corrected", "returned"], "Uncertain extractions", "Low-confidence items: handwriting, tilted scans, unreadable formulas, missing options or numbers.",
-    { onReject: () => T.go("failed") }).catch(fail);
-  // itemList shows all open items; keep only the low-confidence ones.
-  const ids = new Set(items.data.map((i) => i.id));
-  $$("[data-item]", box).forEach((b) => { if (!ids.has(b.dataset.item)) b.closest("tr").remove(); });
-  const h = $(".ctitle", box); if (h) h.textContent = `Uncertain extractions (${ids.size})`;
+  const box = document.createElement("div"); box.className = "card"; box.style.marginTop = "14px"; root.appendChild(box);
+  await uncertainList(box).catch(fail);
   const rej = document.createElement("div"); rej.className = "card"; rej.style.marginTop = "14px"; root.appendChild(rej);
   await rejectedCard(rej, () => T.go("failed"));
+}
+
+// ---------- Uncertain extractions: select, bulk reject ----------
+// All low-confidence open items are loaded on one page (no pagination, up
+// to UNCERTAIN_MAX), so "Select all" means exactly the rows shown. Bulk
+// rejection goes through qb_reject_import_items (one transaction; skips and
+// reports anything not open or outside the chosen import). The list and
+// counts change only after the server answers.
+const OPEN_STATUSES = ["review_required", "corrected", "returned"];
+const UNCERTAIN_MAX = 1000;
+
+async function uncertainList(box) {
+  const { data, error } = await sb.from("qb_import_items").select("id,job_id,seq,source_number,source_location,status,confidence,issues,review_note,draft,qb_import_jobs(source_label,file_name)")
+    .in("status", OPEN_STATUSES).eq("confidence", "low").order("job_id").order("seq").limit(UNCERTAIN_MAX + 1);
+  if (error) throw error;
+  const more = data.length > UNCERTAIN_MAX, rows = data.slice(0, UNCERTAIN_MAX);
+  const label = (i) => `Q${i.source_number || "?"} · ${i.source_location || ""}`;
+  const src = (i) => i.qb_import_jobs?.source_label || i.qb_import_jobs?.file_name || "import";
+  const byId = new Map(rows.map((i) => [i.id, i]));
+  const imports = [...rows.reduce((m, i) => m.set(i.job_id, { id: i.job_id, name: src(i), file: i.qb_import_jobs?.file_name, n: (m.get(i.job_id)?.n || 0) + 1 }), new Map()).values()];
+  const sel = new Set();
+  box.innerHTML = `<h3 class="ctitle">Uncertain extractions (${rows.length}${more ? "+" : ""})</h3>
+    <p class="csub">Low-confidence items: handwriting, tilted scans, unreadable formulas, missing options or numbers.
+      ${more ? `<b>Only the first ${UNCERTAIN_MAX} are shown</b> — "Select all" selects these ${UNCERTAIN_MAX} only.` : `All ${rows.length} are listed here on one page, so "Select all" selects exactly these ${rows.length}.`}</p>
+    ${rows.length ? `<div class="row" style="flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0">
+        <label class="darklabel" style="margin:0">Import</label>
+        <select class="lightfield" id="ucJob" style="max-width:360px">${imports.map((j) => opt(j.id, `${j.name} — ${j.n} uncertain`, imports[0].id)).join("")}</select>
+        <button class="btn danger small" id="ucJobAll">Reject all uncertain from this import</button></div>
+      <div id="ucBar" class="notice" style="display:none;position:sticky;top:0;z-index:5;align-items:center;gap:10px;flex-wrap:wrap">
+        <b id="ucCount"></b><button class="btn danger small" id="ucRejectSel"></button><button class="btn outline small" id="ucClear">Clear selection</button></div>
+      <div class="tablewrap"><table><thead><tr><th style="width:34px"><input type="checkbox" id="ucAll" aria-label="Select all ${rows.length} shown"></th><th>Source</th><th>Location</th><th>Question</th><th>Status</th><th>Warnings</th><th></th></tr></thead><tbody>
+      ${rows.map((i) => `<tr><td><input type="checkbox" data-uc="${esc(i.id)}" aria-label="Select ${esc(label(i))}"></td>
+        <td>${esc(src(i))}</td><td>${esc(i.source_location || "")} · Q${esc(i.source_number || "?")}</td><td>${esc(plainStem(i.draft?.question).slice(0, 110))}</td>
+        <td><span class="tag ${i.status === "returned" ? "red" : "amber"}">${esc(ITEM_LABEL[i.status])}</span> <span class="tag red">uncertain</span></td><td>${(i.issues || []).length}</td>
+        <td style="white-space:nowrap"><button class="btn primary small" data-item="${esc(i.id)}">Open</button> <button class="btn danger small" data-rej="${esc(i.id)}" data-label="${esc(label(i))}">Reject</button></td></tr>`).join("")}
+      </tbody></table></div>` : `<div class="empty">Nothing here.</div>`}`;
+  if (!rows.length) return;
+
+  const boxes = () => $$("[data-uc]", box);
+  const sync = () => {
+    $("#ucBar", box).style.display = sel.size ? "flex" : "none";
+    $("#ucCount", box).textContent = `${sel.size} question${sel.size === 1 ? "" : "s"} selected`;
+    $("#ucRejectSel", box).textContent = `Reject selected (${sel.size})`;
+    const all = $("#ucAll", box);
+    all.checked = sel.size === rows.length; all.indeterminate = sel.size > 0 && sel.size < rows.length;
+  };
+  boxes().forEach((c) => c.onchange = () => { c.checked ? sel.add(c.dataset.uc) : sel.delete(c.dataset.uc); sync(); });
+  $("#ucAll", box).onchange = (e) => { boxes().forEach((c) => { c.checked = e.target.checked; c.checked ? sel.add(c.dataset.uc) : sel.delete(c.dataset.uc); }); sync(); };
+  $("#ucClear", box).onclick = () => { sel.clear(); boxes().forEach((c) => { c.checked = false; }); sync(); };
+  $("#ucRejectSel", box).onclick = () => bulkReject([...sel].map((id) => byId.get(id)), null);
+  $("#ucJobAll", box).onclick = () => {
+    const job = imports.find((j) => j.id === $("#ucJob", box).value);
+    bulkReject(rows.filter((i) => i.job_id === job.id), job);
+  };
+  $$("[data-item]", box).forEach((b) => b.onclick = () => openItem(b.dataset.item, rows.map((x) => x.id)).catch(fail));
+  // Single reject: the existing server function, unchanged.
+  $$("[data-rej]", box).forEach((b) => b.onclick = async () => {
+    const reason = prompt(`Reject ${b.dataset.label}?\n\nReason (duplicate, not a question, unreadable, subjective…):`);
+    if (reason === null) return;
+    if (!confirm(`Reject ${b.dataset.label}? It leaves the review queues and can never be verified or added to a test. The source file and page images are not touched.`)) return;
+    b.disabled = true;
+    const { error: je } = await sb.rpc("qb_reject_import_item", { p_item_id: b.dataset.rej, p_reason: reason.trim() || null });
+    if (je) { b.disabled = false; return fail(je); }
+    toast(`${b.dataset.label} rejected`); T.go("failed");
+  });
+
+  async function bulkReject(items, job) {
+    if (!items.length) return;
+    const sources = [...new Set(items.map(src))];
+    const reason = await confirmBulk({ count: items.length, sources, scoped: !!job });
+    if (reason === null) return;
+    const buttons = [$("#ucRejectSel", box), $("#ucJobAll", box), $("#ucClear", box), ...$$("[data-rej]", box), ...boxes(), $("#ucAll", box)];
+    buttons.forEach((b) => { b.disabled = true; });
+    const status = document.createElement("div"); status.className = "msg"; status.textContent = `Rejecting ${items.length} question(s)…`;
+    box.prepend(status);
+    try {
+      const r = await rejectMany(items.map((i) => i.id), reason || null, job?.id ?? null, (n) => { status.textContent = `Rejecting… ${n} of ${items.length}`; });
+      S.bulkResult = {
+        rejected: r.rejected.length, total: items.length, sources,
+        skipped: r.skipped.map((s) => `${byId.get(s.id) ? label(byId.get(s.id)) : s.id}: ${s.reason}`),
+      };
+      T.go("failed"); // reload list + sidebar counts from the server
+    } catch (err) {
+      // Nothing is changed in the page: the server reported an error.
+      status.className = "msg bad"; status.textContent = `Not rejected — ${err.message || err}. No question was changed by this request.`;
+      buttons.forEach((b) => { b.disabled = false; });
+    }
+  }
+}
+
+// One server call (qb_reject_import_items). If that database update is not
+// applied yet, fall back to the existing single-item function, one by one,
+// collecting exactly which succeeded and which failed.
+async function rejectMany(ids, reason, jobId, progress) {
+  const { data, error } = await sb.rpc("qb_reject_import_items", { p_item_ids: ids, p_reason: reason, p_job_id: jobId });
+  if (!error) return { rejected: data.rejected || [], skipped: data.skipped || [] };
+  if (!/qb_reject_import_items|PGRST202|Could not find the function/i.test(`${error.code} ${error.message}`)) throw error;
+  const out = { rejected: [], skipped: [] };
+  for (const [k, id] of ids.entries()) {
+    const { error: e } = await sb.rpc("qb_reject_import_item", { p_item_id: id, p_reason: reason });
+    if (e) out.skipped.push({ id, reason: e.message }); else out.rejected.push(id);
+    progress?.(k + 1);
+  }
+  return out;
+}
+
+// Modal confirmation. Resolves to the reason ("" allowed) or null if cancelled.
+function confirmBulk({ count, sources, scoped }) {
+  return new Promise((resolve) => {
+    const d = document.createElement("dialog");
+    d.style.cssText = "max-width:min(540px,92vw);border:1px solid #c9a227;border-radius:12px;padding:18px;color:#10233f";
+    d.innerHTML = `<h3 style="margin:0 0 8px">Reject ${count} question${count === 1 ? "" : "s"}?</h3>
+      <p style="margin:0 0 6px"><b>${scoped ? "Import" : "From"}:</b> ${esc(sources.join(", "))}${scoped ? " — only this import's uncertain questions" : ""}</p>
+      <p style="margin:0 0 10px">They will be removed from the active review queues and can never be verified or added to a test. The source PDF, page images and other questions are not touched. Rejected questions can be restored from <b>Rejected extractions</b>.</p>
+      <label class="darklabel" for="bkReason">Reason (optional)</label>
+      <input class="lightfield" id="bkReason" placeholder="e.g. unreadable scan — will re-upload" style="width:100%;margin-bottom:12px">
+      <div class="toolbar" style="justify-content:flex-end;margin:0"><button class="btn outline" data-x>Cancel</button><button class="btn danger" data-ok>Confirm rejection of ${count}</button></div>`;
+    document.body.appendChild(d);
+    const done = (v) => { d.close(); d.remove(); resolve(v); };
+    d.addEventListener("cancel", (e) => { e.preventDefault(); done(null); });
+    $("[data-x]", d).onclick = () => done(null);
+    // Confirm resolves to the reason text, possibly "" (only Cancel is null).
+    $("[data-ok]", d).onclick = (e) => { e.currentTarget.disabled = true; done($("#bkReason", d).value.trim()); };
+    d.showModal();
+  });
+}
+
+// Result of the last bulk action, shown once after the page reloads.
+function bulkResultBanner() {
+  const r = S.bulkResult; S.bulkResult = null;
+  if (!r) return "";
+  return `<div class="msg ${r.skipped.length ? "bad" : "success"}" id="bulkResult" style="margin-bottom:14px"><b>${r.rejected} of ${r.total} question(s) rejected</b> (${esc(r.sources.join(", "))}).
+    ${r.skipped.length ? `<br>Not rejected (${r.skipped.length}):<ul style="margin:4px 0 0;padding-left:18px">${r.skipped.slice(0, 50).map((s) => `<li>${esc(s)}</li>`).join("")}${r.skipped.length > 50 ? `<li>… and ${r.skipped.length - 50} more</li>` : ""}</ul>` : ""}</div>`;
 }
 
 // Images in qb-images that no question, solution, import draft or test uses
