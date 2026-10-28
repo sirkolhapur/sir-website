@@ -48,7 +48,10 @@ async function verifyTestCoordinator(user){
  if(error){console.error(error);throw new Error('Supabase login succeeded, but Test Coordinator role verification is not configured. Ask Admin to enable the approved role-verification RPC.')}
  const staff=Array.isArray(data)?data[0]:data;
  if(!staff)throw new Error('This account is not linked to an active Test Coordinator record.');
- if(String(staff.designation||'').trim().toLowerCase()!=='test coordinator')throw new Error('Access denied: this portal is only for Test Coordinator staff.');
+if (
+  String(staff.designation || '').trim().toLowerCase()
+  !== 'test & assessment coordinator'
+) if(String(staff.designation||'').trim().toLowerCase()!=='test coordinator')throw new Error('Access denied: this portal is only for Test Coordinator staff.');
  return staff;
 }
 function showLogin(){$('appView').classList.add('hide');$('loginView').classList.remove('hide')}
