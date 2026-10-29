@@ -229,8 +229,11 @@ export function otherColumnWords(words, rects, col) {
 // vertical gap in the outer column, all running to the edge. Found on the
 // layout pass (before column OCR, which may glue the strip onto real lines).
 // Returns page rectangles to paint out of the OCR copy.
+// A strip must hold real words: the page's own column of hanging question
+// numbers ("29.", "30.") also stands beyond an empty gap at the left edge
+// of a tight photo (measured: page 3 lost its numbers to this).
 export function edgeStrips(words, rects, w, h) {
-  const boxes = (words || []).filter((x) => (x.text || "").trim() && x.bbox).map((x) => x.bbox);
+  const boxes = (words || []).filter((x) => (x.text || "").trim() && x.bbox).map((x) => ({ ...x.bbox, word: /[A-Za-z]{3}/.test(x.text) }));
   const out = [];
   const side = (outer, inner) => {
     // Candidate gap positions in the outer 40% of the outer column.
@@ -247,7 +250,8 @@ export function edgeStrips(words, rects, w, h) {
     const reach = inner ? Math.max(...best.beyond.map((b) => b.x1)) >= w * 0.97 : Math.min(...best.beyond.map((b) => b.x0)) <= w * 0.03;
     const y0 = Math.min(...best.beyond.map((b) => b.y0)), y1 = Math.max(...best.beyond.map((b) => b.y1));
     const pageSide = boxes.filter((b) => (inner ? b.x1 <= best.x : b.x0 >= best.x) && b.y1 > y0 && b.y0 < y1 && (inner ? b.x0 >= r.left : b.x1 <= r.left + r.width));
-    if (reach && pageSide.length >= best.beyond.length) out.push(inner ? { x0: best.x, y0: 0, x1: w, y1: h } : { x0: 0, y0: 0, x1: best.x, y1: h });
+    const realWords = best.beyond.filter((b) => b.word).length;
+    if (reach && realWords >= 3 && pageSide.length >= best.beyond.length) out.push(inner ? { x0: best.x, y0: 0, x1: w, y1: h } : { x0: 0, y0: 0, x1: best.x, y1: h });
   };
   if (rects.length) { side(rects[rects.length - 1], true); side(rects[0], false); }
   return out;
@@ -258,11 +262,13 @@ export function edgeStrips(words, rects, w, h) {
 // separately so they stay in the audit text but never join a question.
 export function edgeBleed(lines, rects, w) {
   const keep = [], bleed = [];
-  const last = rects[rects.length - 1], first = rects[0];
+  const last = rects[rects.length - 1];
   for (const l of lines) {
+    // Right edge only: at the left edge a tight photo puts the page's own
+    // hanging question numbers ("29.") there (measured: 9 lines of page 3
+    // were dropped). A left-edge strip is still caught by edgeStrips().
     const right = l.col === rects.length - 1 && l.x0 > last.left + 0.6 * last.width && l.x1 >= w * 0.985;
-    const left = l.col === 0 && l.x0 <= w * 0.015 && l.x1 < first.left + 0.35 * first.width;
-    (right || left ? bleed : keep).push(l);
+    (right ? bleed : keep).push(l);
   }
   // A single line at the edge can be a long line of the page itself; a strip
   // is several lines.
