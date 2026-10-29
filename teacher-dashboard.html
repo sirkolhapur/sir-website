@@ -2727,7 +2727,7 @@
                     <div class="test-engine-notice" id="testEngineNotice" role="status">
                         Loading verified Question Bank questions…
                     </div>
-                    <div id="testEngineRoot"><div id="topbar"><div class="brand">SIR <span>· Test Composer</span></div><div class="steps"><span class="step" id="s1">1 · Assign</span><span class="step" id="s2">2 · Teachers pick</span><span class="step" id="s3">3 · Final paper</span></div></div><div id="app"></div></div>
+                    <div id="testEngineRoot"><div id="topbar"><div class="brand">SIR <span>· Test Composer</span></div><div class="steps"><span class="step" id="s1">1 · Assign</span><span class="step" id="s2">2 · Admin review</span><span class="step" id="s3">3 · Final paper</span></div></div><div id="app"></div></div>
                 </section>
 
 
@@ -3503,16 +3503,11 @@
                     `;
 
 
-            document.getElementById(
-                "overviewBatches"
-            ).innerHTML =
-                html;
+            const overviewBatchesEl = document.getElementById("overviewBatches");
+            if (overviewBatchesEl) overviewBatchesEl.innerHTML = html;
 
-
-            document.getElementById(
-                "allBatches"
-            ).innerHTML =
-                html;
+            const allBatchesEl = document.getElementById("allBatches");
+            if (allBatchesEl) allBatchesEl.innerHTML = html;
 
         }
 
@@ -9162,8 +9157,8 @@ function scopeSummary(){
 
 function renderTopbar(){
   const s1active = ["mode","pattern-pick","pattern-confirm","custom-form"].includes(state.stage);
-  document.getElementById("s1").className = "step" + (s1active?" active":(state.stage==="teacher-pick"||state.stage==="final"?" done":""));
-  document.getElementById("s2").className = "step" + (state.stage==="teacher-pick"?" active":(state.stage==="final"?" done":""));
+  document.getElementById("s1").className = "step" + (s1active?" active":(state.stage==="admin-review"||state.stage==="final"?" done":""));
+  document.getElementById("s2").className = "step" + (state.stage==="admin-review"?" active":(state.stage==="final"?" done":""));
   document.getElementById("s3").className = "step" + (state.stage==="final"?" active":"");
 }
 
@@ -9174,7 +9169,7 @@ function renderMode(){
   html += '<div onclick="state.stage=\'pattern-pick\';renderApp()"><h3>Standard pattern</h3><p>JEE Main, NEET, MHT-CET, JEE Advanced. Question-count / type breakdown is set automatically — you pick syllabus scope from the real chapter &amp; topic list.</p></div>';
   html += '<div onclick="startCustom()"><h3>Custom</h3><p>Any number of subjects, any question counts, any types — full control.</p></div>';
   html += '</div></div>';
-  document.getElementById("app").innerHTML = html;
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function renderPatternPick(){
@@ -9187,7 +9182,7 @@ function renderPatternPick(){
       (p.indicative ? '<div class="warn">⚠ indicative, not official — adjust if needed</div>' : '') + '</div>';
   });
   html += '</div><div style="margin-top:16px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button></div></div>';
-  document.getElementById("app").innerHTML = html;
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function choosePattern(key){
@@ -9260,8 +9255,8 @@ function renderPatternConfirm(){
 
     html += renderScopeBuilder(row, i);
 
-    html += '<label style="margin-top:12px">Teacher assigned</label><select onchange="state.subjectRows['+i+'].teacher=this.value">';
-    html += '<option value="">— choose from directory —</option>';
+    html += '<label style="margin-top:12px">Admin assigned</label><select onchange="state.subjectRows['+i+'].teacher=this.value">';
+    html += '<option value="">— admin will review —</option>';
     eligible.forEach(t=>{ html += '<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>'; });
     if(eligible.length===0) html += '<option disabled>no teacher in directory for this subject/branch</option>';
     html += '</select>';
@@ -9274,8 +9269,8 @@ function renderPatternConfirm(){
     '<textarea id="adminNote" placeholder="e.g. Keep difficulty at JEE Main level only.">'+state.adminNote+'</textarea>';
   html += '<div style="margin-top:16px;display:flex;gap:10px">' +
     '<button class="btn" onclick="state.stage=\'pattern-pick\';renderApp()">← Choose different pattern</button>' +
-    '<button class="btn primary" onclick="submitPatternConfirm()">Create test &amp; send to teachers →</button></div></div>';
-  document.getElementById("app").innerHTML = html;
+    '<button class="btn primary" onclick="submitPatternConfirm()">Create test &amp; send to admin →</button></div></div>';
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function submitPatternConfirm(){
@@ -9320,7 +9315,7 @@ function renderCustomForm(){
     html += '<div><label>Subject</label><select onchange="updateRow('+i+',\'subject\',this.value)">' +
       SUBJECTS.map(s=>'<option value="'+s+'"'+(s===row.subject?' selected':'')+'>'+s[0].toUpperCase()+s.slice(1)+'</option>').join('') + '</select></div>';
     html += '<div><label># Questions</label><input type="number" min="1" value="'+row.count+'" onchange="updateRow('+i+',\'count\',this.value)"></div>';
-    html += '<div><label>Teacher assigned</label><select onchange="updateRow('+i+',\'teacher\',this.value)"><option value="">— choose —</option>' +
+    html += '<div><label>Admin assigned</label><select onchange="updateRow('+i+',\'teacher\',this.value)"><option value="">— admin will review —</option>' +
       eligible.map(t=>'<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>').join('') + '</select></div>';
     html += '</div>';
 
@@ -9343,9 +9338,9 @@ function renderCustomForm(){
   html += '<div class="card" style="margin-top:16px">';
   html += '<div class="scopebanner"><div class="lbl">Auto-generated scope summary</div>'+scopeSummary()+'</div>';
   html += '<label>Additional notes <span style="font-weight:400">(optional)</span></label><textarea id="adminNote">'+state.adminNote+'</textarea>';
-  html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button><button class="btn primary" onclick="createCustomAssignment()">Create test &amp; send to teachers →</button></div>';
+  html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button><button class="btn primary" onclick="createCustomAssignment()">Create test &amp; send to admin →</button></div>';
   html += '</div>';
-  document.getElementById("app").innerHTML = html;
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function createCustomAssignment(){
@@ -9369,7 +9364,7 @@ function finalizeAssignment(){
   state.uiOpenRow = null;
   state.uiFilters = {};
   state.summaryFrozen = scopeSummary();
-  state.stage = "teacher-pick";
+  state.stage = "admin-review";
   renderApp();
 }
 
@@ -9388,7 +9383,7 @@ function subjectAllMet(row){ return reqCountsFor(row).every(rc=>rc.picked===rc.r
 
 function renderTeacherPick(){
   renderTopbar();
-  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">Each subject teacher picks their own questions. Once every section is marked complete, the paper compiles itself.</p></div>';
+  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">The admin reviews the requested question scope and finalizes the paper before it is published.</p></div>';
   html += '<div class="scopebanner"><div class="lbl">Syllabus scope for this test</div>'+state.summaryFrozen+(state.adminNote?'<br><i>'+state.adminNote+'</i>':'')+'</div>';
 
   state.subjectRows.forEach(row=>{
@@ -9398,7 +9393,7 @@ function renderTeacherPick(){
     const done = state.subjectDone[k];
     html += '<div class="subjcard"><div class="top"><div>' +
       '<div style="font-family:var(--display);font-weight:600;font-size:16px">'+rowLabel(row)+'</div>' +
-      '<div class="meta">Teacher: '+(row.teacher||'(unassigned)')+' · needs '+needed+' questions across '+row.requirements.length+' section(s)</div>' +
+      '<div class="meta">Admin review · needs '+needed+' questions across '+row.requirements.length+' section(s)</div>' +
       '</div><div style="display:flex;align-items:center;gap:10px">' +
       '<span class="progress-pill '+(done?'ok':'wait')+'">'+picked+' / '+needed+' selected</span>' +
       '<button class="btn" onclick="toggleOpen(\''+k+'\')">'+(state.uiOpenRow===k?'Close':'Open')+'</button>' +
@@ -9411,7 +9406,7 @@ function renderTeacherPick(){
   html += '<div style="margin-top:6px"><button class="btn primary" '+(allDone?'':'disabled')+' onclick="state.stage=\'final\';renderApp()">Compile final paper →</button>' +
     (allDone?'':' <span style="font-size:12.5px;color:var(--slate);margin-left:8px">waiting on all sections</span>') + '</div>';
 
-  document.getElementById("app").innerHTML = html;
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function toggleOpen(k){
@@ -9509,7 +9504,7 @@ function renderFinal(){
     totalQ += qs.length;
     const sectionMarks = qs.reduce((s,q)=>s+q.marks,0);
     totalM += sectionMarks;
-    html += '<div class="card psection"><h3>'+rowLabel(row)+' <span style="font-family:var(--mono);font-size:12px;color:var(--slate);font-weight:400">— '+qs.length+' questions, '+sectionMarks+' marks, set by '+(row.teacher||'unassigned')+'</span></h3>';
+    html += '<div class="card psection"><h3>'+rowLabel(row)+' <span style="font-family:var(--mono);font-size:12px;color:var(--slate);font-weight:400">— '+qs.length+' questions, '+sectionMarks+' marks, prepared for admin review</span></h3>';
     qs.forEach((q,i)=>{
       html += '<div class="pq"><span class="pn">Q'+(i+1)+' · '+q.id+' · '+q.type+' · '+q.marks+' marks</span><br>'+q.question+'</div>';
     });
@@ -9517,8 +9512,8 @@ function renderFinal(){
   });
 
   html += '<div class="ptotal"><span>'+totalQ+' questions total</span><span>'+totalM+' marks total</span></div>';
-  html += '<div style="margin-top:16px"><button class="btn" onclick="state.stage=\'teacher-pick\';renderApp()">← Back to edit selections</button></div>';
-  document.getElementById("app").innerHTML = html;
+  html += '<div style="margin-top:16px"><button class="btn" onclick="state.stage=\'admin-review\';renderApp()">← Back to edit selections</button></div>';
+  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
 }
 
 function renderApp(){
@@ -9526,7 +9521,7 @@ function renderApp(){
   else if(state.stage==="pattern-pick") renderPatternPick();
   else if(state.stage==="pattern-confirm") renderPatternConfirm();
   else if(state.stage==="custom-form") renderCustomForm();
-  else if(state.stage==="teacher-pick") renderTeacherPick();
+  else if(state.stage==="admin-review") renderTeacherPick();
   else if(state.stage==="final") renderFinal();
 }
 
