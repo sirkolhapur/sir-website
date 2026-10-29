@@ -1,0 +1,8 @@
+# SIR Math OCR helper — Python 3.10–3.13 (64-bit), Windows/macOS/Linux, CPU only.
+# Licences: onnxruntime MIT, numpy BSD-3-Clause, Pillow MIT-CMU (HPND), tokenizers Apache-2.0.
+# Tested set (2026-10-29, Windows 11, Python 3.13): onnxruntime 1.31.1,
+# numpy 2.5.4, pillow 13.0.0, tokenizers 0.22.2.
+onnxruntime>=1.20,<2
+numpy>=1.26
+pillow>=10
+tokenizers>=0.20,<1

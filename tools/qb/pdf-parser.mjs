@@ -19,7 +19,23 @@
 const SUPERSCRIPT = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁺": "+", "⁻": "-", "⁽": "(", "⁾": ")", "ⁿ": "n" };
 const SUBSCRIPT = { "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "₊": "+", "₋": "-" };
 
-export function normalizeText(s) {
+const ELEMENTS = new Set(("H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe "
+  + "Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr").split(" "));
+// A real chemical formula: every symbol is an element, at least two of them
+// (H₂O, NH₃) or a bracket group (Ca(OH)₂), and no subscript 1 — chemistry
+// never prints one. "C₁" in "N m² C₁" is a unit (C⁻¹ misread by OCR) and
+// "J₂" is formula junk; neither may become \ce{}.
+function isChemical(m) {
+  const els = [...m.matchAll(/([A-Z][a-z]?)([₀-₉]*)/g)];
+  return els.length > 0 && els.every(([, e]) => ELEMENTS.has(e)) && !els.some(([, , n]) => n === "₁")
+    && (els.length >= 2 || m.includes("("));
+}
+
+// ocrText: the line comes from OCR or a text PDF, where a "$" is a printed
+// character (or a pen tick read as one), never a formula delimiter. It
+// becomes the full-width "＄" (flagged as an unusual symbol), so it cannot
+// pair with the delimiters added below. Word documents keep their $…$ math.
+export function normalizeText(s, { ocrText = false } = {}) {
   let t = String(s ?? "")
     .normalize("NFC")
     .replace(/[­​-‍﻿]/g, "")          // soft hyphen, zero-width
@@ -27,10 +43,11 @@ export function normalizeText(s) {
     .replace(/[−‒–]/g, "-")                  // minus / figure dash / en dash
     .replace(/[‘’‛]/g, "'").replace(/[“”]/g, '"')
     .replace(/\t/g, " ").replace(/ {2,}/g, " ");
+  if (ocrText) t = t.replace(/\$/g, "＄");
   // Chemical formulas written with Unicode subscripts (H₂SO₄, NH₃, Ca(OH)₂)
   // → mhchem, which the portal's KaTeX already renders. Exact conversion.
   t = t.replace(/(?:[A-Z][a-z]?[₀-₉]*|\((?:[A-Z][a-z]?[₀-₉]*)+\)[₀-₉]*)+/g, (m) =>
-    /[₀-₉]/.test(m) && /^[A-Z(]/.test(m) ? `$\\ce{${[...m].map((c) => SUBSCRIPT[c] ?? c).join("")}}$` : m);
+    /[₀-₉]/.test(m) && /^[A-Z(]/.test(m) && isChemical(m) ? `$\\ce{${[...m].map((c) => SUBSCRIPT[c] ?? c).join("")}}$` : m);
   // Remaining Unicode super/subscript runs → LaTeX (exact, nothing guessed).
   // The base is the whole number or word before it ("10⁻¹⁹", "m²", "kg²"),
   // Greek letters included ("ε₀", "μ₀", "λ²").
@@ -46,7 +63,7 @@ export function normalizeText(s) {
 export const UNREADABLE = "[[?]]";
 // Stamped on every extracted item, so a later audit knows which segmenter
 // produced it (the RCC audit had to infer it from deployment times).
-export const PARSER_VERSION = "2026-10-29.audit3";
+export const PARSER_VERSION = "2026-10-29.mathocr-proto1";
 // Saved with each page's text (qb_import_pages.raw_text): the full line
 // geometry, so the page can be segmented again without OCR.
 export const PAGE_DATA_MARK = "\n\n#SIR-PAGE-DATA v1 (lines with positions, for re-segmentation)\n";
@@ -60,10 +77,15 @@ export function pageDataFromRecord(rawText) {
   const i = String(rawText ?? "").indexOf(PAGE_DATA_MARK);
   return i < 0 ? null : JSON.parse(rawText.slice(i + PAGE_DATA_MARK.length));
 }
+const UNIT_LOST_POWER = /(?:^|[\s\d])(?:N|C|m|s|kg|V|J|A|K)\s?[1'!](?=[\s,.)]|$)/;
+const UNIT_LOST_POWER_MSG = "unit with a stray 1 / ' after it (e.g. N C1, m C') — probably a negative power (C⁻¹) the OCR lost; check every unit against the page";
 const SUSPECT = [
   [/[x×*]\s*10(?!\s*\^)(?:\b|\D)/, "Power of ten without a readable exponent — scans usually lose superscripts (10¹⁸ becomes 10%, 10\" or 10°); re-type every exponent from the page"],
   [/[x×*]\s*10\d{1,2}\b/, "Possible exponent read as ordinary digits (10⁷ read as 107) — check every power of ten against the page"],
-  [/[~«»¢¥§¶|]{1,}/, "unusual symbol — possibly an unreadable formula character"],
+  [/[~«»¢¥§¶|＄]{1,}/, "unusual symbol — possibly an unreadable formula character"],
+  // A unit followed by "1", "'" or "!" is almost always a lost negative power
+  // (C⁻¹ read as C1, C' or C!). Flagged, never rewritten.
+  [UNIT_LOST_POWER, UNIT_LOST_POWER_MSG],
   [/\b[A-Z][a-z]?\d[A-Z]/, "chemical formula subscripts may be lost (e.g. H2SO4)"],
   [/\?{2,}|�/, "unreadable characters"],
 ];
@@ -619,7 +641,7 @@ export function segmentQuestions(pages, ctx = {}) {
   // Only short lines there are treated as headers/footers — a question can
   // start right at the top of a page.
   const inMargin = (l) => { const d = pageDims[l.page]; return d && l.text.trim().length <= 32 && (l.y1 < d.h * 0.07 || l.y0 > d.h * 0.955); };
-  const all = pages.flatMap((p) => p.lines.map((l) => ({ ...l, page: p.page, text: normalizeText(l.text) })))
+  const all = pages.flatMap((p) => p.lines.map((l) => ({ ...l, page: p.page, text: normalizeText(l.text, { ocrText: p.source !== "docx" }) })))
     .map((l) => ({ ...l, kind: inMargin(l) ? "furniture" : (l.conf != null && l.conf < 30) ? "unreadable" : classifyLine(l.text) }))
     .filter((l) => l.kind !== "noise" && l.kind !== "furniture");
   const { answers: keyAnswers, keyStart } = parseAnswerKey(all);
@@ -741,6 +763,8 @@ export function segmentQuestions(pages, ctx = {}) {
       .replace(/\$\^\{[^$]*\$/g, "^E").replace(/\$[^$]*\$/g, " ")
       .split("\n").filter((ln) => !/^\s*\|/.test(ln)).join("\n");
     for (const [re, msg] of SUSPECT) if (re.test(plainText)) issues.push(msg);
+    // The same lost power after subscript conversion: "C₁" became $C_{1}$.
+    if (!issues.includes(UNIT_LOST_POWER_MSG) && /\$(?:N|C|m|s|V|J|A|K)_\{1\}\$/.test(fullText)) issues.push(UNIT_LOST_POWER_MSG);
 
     const lowConf = qLines.filter((l) => l.conf != null && l.conf < 70);
     if (lowConf.length) issues.push(`Low OCR confidence on ${lowConf.length} line(s): "${lowConf[0].text.slice(0, 50)}"`);
@@ -857,6 +881,9 @@ export function segmentQuestions(pages, ctx = {}) {
         figures,
       },
     });
+    // The question's own source lines (with word boxes for OCR pages), for
+    // the Math OCR step. Not enumerable: never stored or serialised.
+    Object.defineProperty(questions[questions.length - 1], "lines", { value: qLines, enumerable: false });
   });
 
   return { questions, answerKeyFound: keyStart >= 0, answerKeyEntries: Object.keys(keyAnswers).length };
