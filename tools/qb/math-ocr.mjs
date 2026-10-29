@@ -277,7 +277,9 @@ export function decide(reads, katex) {
   if (new Set(keys).size > 1) reasons.push("the three readings disagree");
   const minProb = Math.min(...reads.map((r) => r.min));
   if (minProb < MIN_PROB) reasons.push(`one symbol was read with low certainty (${Math.round(minProb * 100)}%)`);
-  const prose = PROSE_TEX.test(cleaned[0]);
+  // Words, not LaTeX command names (\left, \frac …), decide "prose".
+  // (Fixed after the held-out run: found by the UI test on development page 12.)
+  const prose = PROSE_TEX.test(cleaned[0]) && /[a-z]{4,}/.test(cleaned[0].replace(/\\[a-zA-Z]+/g, " "));
   const status = keys[0] == null || !cleaned[0] ? "failed" : prose ? "text" : reasons.length ? "uncertain" : "agreed";
   return { latex: cleaned[0] || null, alternatives: [...new Set(cleaned.slice(1).filter((t, i) => keys[i + 1] !== keys[0]))], status, reasons, minProb: Math.round(minProb * 1000) / 1000 };
 }

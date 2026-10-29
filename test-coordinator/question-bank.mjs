@@ -876,7 +876,8 @@ async function openItem(itemId, queue = []) {
       const row = $(`[data-mi="${i}"]`, card);
       const c = m.box ? crop(m) : null;
       if (c) $("[data-mc]", row).appendChild(c); else $("[data-mc]", row).textContent = "no crop";
-      if (m.latex) $("[data-mf]", row).appendChild(mdDiv(`$${m.latex}$`));
+      if (m.latex && m.status !== "failed") $("[data-mf]", row).appendChild(mdDiv(`$${m.latex}$`));
+      else if (m.latex) $("[data-mf]", row).innerHTML = `<span class="tag red">does not render</span><pre class="qb-src">${esc(m.latex)}</pre>`;
     });
     $$("[data-use]", card).forEach((b) => b.onclick = () => {
       const m = ex.math[Number(b.dataset.use)];
