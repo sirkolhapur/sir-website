@@ -8,12 +8,12 @@
 // is a server function that re-checks permissions and gates; the buttons
 // here are convenience only.
 // =====================================================================
-import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs";
-import { linesFromPdfItems, segmentQuestions, reconcileExtraction, UNREADABLE } from "../tools/qb/pdf-parser.mjs";
-import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs";
-import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs";
-import { parseXlsx } from "../tools/qb/xlsx-parser.mjs";
-import { suggestClassification } from "../tools/qb/suggest.mjs";
+import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261028-audit";
+import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261028-audit";
+import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261028-audit";
+import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261028-audit";
+import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261028-audit";
+import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261028-audit";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -471,15 +471,15 @@ async function extractPdf(buf, job, ctx, opts, status) {
       if (chars >= 80) {
         const lines = linesFromPdfItems(tc.items, vp, pageNo);
         pd = { page: pageNo, width: canvas.width, height: canvas.height, source: "text", lines };
-        rawText = lines.map((l) => l.text).join("\n");
+        rawText = pageRecordText(pd);
       } else {
         // Scanned page: OCR a higher-resolution render, cleaned and
         // straightened copy (see tools/qb/ocr-page.mjs).
         if (!ocrWorker) { status("Loading the OCR engine (first time only)…", pct(0)); ocrWorker = await Tesseract.createWorker("eng"); }
         const big = await renderPage(page);
         const r = await ocrPage(ocrWorker, big, { status: (m) => status(`${label}: OCR — ${m}…`, pct(0.4)) });
-        pd = { page: pageNo, width: r.width, height: r.height, source: "ocr", lines: r.lines, figures: r.figures };
-        conf = r.conf; rawText = r.lines.map((l) => l.raw ?? l.text).join("\n");
+        pd = { page: pageNo, width: r.width, height: r.height, source: "ocr", lines: r.lines, figures: r.figures, columns: r.columns };
+        conf = r.conf; rawText = pageRecordText(pd, r.dropped || []);
       }
       pagesData.push(pd);
       status(`${label}: storing page image…`, pct(0.8));
@@ -556,7 +556,7 @@ async function extractXlsx(buf, job, ctx, opts, status) {
 function toItem(q, pageNo) {
   return { page_no: pageNo, source_number: q.source_number, source_location: q.source_location, confidence: q.confidence, issues: [...q.issues],
     extracted: { regions: q.regions, source_text: q.source_text, ocr_raw: q.ocr_raw ?? null, answer_source: q.answer_source, section: q.section, section_no: q.section_no ?? 1, number: q.number ?? null,
-      assumed: !!q.assumed, option_markers: q.option_markers ?? null, source_method: q.source_method, page_from: q.page_from, page_to: q.page_to },
+      assumed: !!q.assumed, option_markers: q.option_markers ?? null, kind: q.kind ?? null, source_method: q.source_method, page_from: q.page_from, page_to: q.page_to, parser_version: PARSER_VERSION },
     draft: { ...q.draft, figures: (q.draft.figures || []).map((f) => ({ ...f, page: f.page ?? pageNo })) } };
 }
 
@@ -619,18 +619,23 @@ async function showReconciliation(box, jobId) {
   if (ie || pe) throw ie || pe;
   const num = (i) => i.extracted?.number ?? (/^\d+$/.test(String(i.source_number || "").replace("?", "")) ? Number(String(i.source_number).replace("?", "")) : null);
   const r = reconcileExtraction(items.map((i) => ({ source_number: i.source_number, section_no: i.extracted?.section_no ?? 1, number: num(i), assumed: i.extracted?.assumed ?? /\?$/.test(i.source_number || ""),
-    page_from: i.extracted?.page_from, issues: i.issues, type: i.draft?.type, question: i.draft?.question, options: i.draft?.options, figures: i.draft?.figures })), pages);
+    page_from: i.extracted?.page_from, issues: i.issues, type: i.draft?.type, question: i.draft?.question, options: i.draft?.options, figures: i.draft?.figures, kind: i.extracted?.kind })), pages);
   const old = !items.some((i) => i.extracted?.section_no != null);
+  const versions = [...new Set(items.map((i) => i.extracted?.parser_version || "before version stamps"))];
+  const KIND = { mcq: "options found", assertion_reason: "Assertion–Reason", descriptive: "descriptive (not auto-gradable)", unknown: "no options, kind unclear" };
   const listCell = (a) => a.length ? `<span class="tag red">${a.length}</span> <span style="color:var(--m)">${esc(a.slice(0, 40).join(", "))}${a.length > 40 ? " …" : ""}</span>` : `<span class="tag">0</span>`;
   const byStatus = items.reduce((m, i) => (m[i.status] = (m[i.status] || 0) + 1, m), {});
   box.innerHTML = `<div class="card" style="margin-top:14px"><h3 class="ctitle">Reconciliation — ${esc(job?.source_label || job?.file_name || "")}</h3>
-    <p class="csub">Counts come from the question numbers read in the source. Questions after the last number read in a section cannot be detected this way — compare the last page of each section. Every item still needs a human check.</p>
+    <p class="csub">Counts come from the question numbers read in the source. A question whose number was not read and that was not recovered from the page layout stays inside the item before it: those items are listed under "Possibly merged or split". Compare the last page of each section, and check every item against the page.</p>
     ${old ? `<div class="notice">This file was extracted before sections were tracked: numbers that restart (Classwork, Assignment, …) all count as one section here. Re-upload it for an exact report.</div>` : ""}
     <div class="tablewrap"><table><tbody>
       <tr><th>Pages</th><td>${r.pages.processed} processed${r.pages.failed.length ? ` · <span class="bad">failed: ${esc(r.pages.failed.join(", "))}</span>` : " · none failed"}</td></tr>
-      <tr><th>Extracted items</th><td>${r.items} (${esc(Object.entries(byStatus).map(([k, v]) => `${v} ${ITEM_LABEL[k] || k}`).join(", "))})</td></tr>
+      <tr><th>Extracted items (raw)</th><td>${r.items} (${esc(Object.entries(byStatus).map(([k, v]) => `${v} ${ITEM_LABEL[k] || k}`).join(", "))})</td></tr>
+      <tr><th>Different question numbers found</th><td>${r.unique_numbers}${r.duplicate_total ? ` · <span class="bad">${r.duplicate_total} number(s) found twice</span>` : ""}${r.unnumbered_total ? ` · ${r.unnumbered_total} item(s) without a number` : ""} — one printed question split into two items still counts once</td></tr>
       <tr><th>Questions implied by numbering</th><td>${r.numbering_total} (sum of the highest number in each section)</td></tr>
       <tr><th>Missing numbers</th><td>${r.missing_total}</td></tr>
+      <tr><th>Kinds</th><td>${esc(Object.entries(r.kinds).map(([k, v]) => `${v} ${KIND[k] || k}`).join(" · "))}</td></tr>
+      <tr><th>Extracted by</th><td>parser ${esc(versions.join(", "))}</td></tr>
       <tr><th>Possibly merged or split</th><td>${listCell(r.merged_or_split)}</td></tr>
       <tr><th>Options not 4 / empty option</th><td>${listCell(r.option_problems)}</td></tr>
       <tr><th>No options found</th><td>${listCell(r.no_options)}</td></tr>

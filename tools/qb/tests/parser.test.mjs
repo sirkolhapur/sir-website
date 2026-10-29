@@ -1,6 +1,6 @@
 // Regression tests for the question parser (pure functions, no network).
 // Cases come from the RCC Electrostatics scan that produced 250 items for
-// ~300 questions. Run:  node --test tools/qb/tests/
+// ~300 questions. Run:  node --test "tools/qb/tests/*.test.mjs"
 import test from "node:test";
 import assert from "node:assert/strict";
 import { findQuestionStarts, extractOptions, normalizeText, segmentQuestions, reconcileExtraction, UNREADABLE } from "../pdf-parser.mjs";

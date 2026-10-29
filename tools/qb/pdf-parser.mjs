@@ -43,6 +43,22 @@ export function normalizeText(s) {
 // Patterns that usually mean OCR lost a superscript/subscript or a symbol.
 // They are flagged for review, never "fixed".
 export const UNREADABLE = "[[?]]";
+// Stamped on every extracted item, so a later audit knows which segmenter
+// produced it (the RCC audit had to infer it from deployment times).
+export const PARSER_VERSION = "2026-10-28.audit";
+// Saved with each page's text (qb_import_pages.raw_text): the full line
+// geometry, so the page can be segmented again without OCR.
+export const PAGE_DATA_MARK = "\n\n#SIR-PAGE-DATA v1 (lines with positions, for re-segmentation)\n";
+export function pageRecordText(pd, dropped = []) {
+  const readable = pd.lines.map((l) => l.raw ?? l.text).join("\n")
+    + (dropped.length ? `\n\n[Left out — ${dropped[0].reason}]\n${dropped.map((l) => l.text).join("\n")}` : "");
+  const keep = (l) => ({ text: l.text, raw: l.raw ?? null, col: l.col ?? null, conf: l.conf ?? null, x0: Math.round(l.x0), y0: Math.round(l.y0), x1: Math.round(l.x1), y1: Math.round(l.y1), ...(l.hgt ? { hgt: Math.round(l.hgt) } : {}), ...(l.marginNumber ? { marginNumber: true } : {}) });
+  return readable + PAGE_DATA_MARK + JSON.stringify({ page: pd.page, width: pd.width, height: pd.height, source: pd.source, columns: pd.columns ?? null, figures: pd.figures ?? null, lines: pd.lines.map(keep), dropped: dropped.map(keep), parser: PARSER_VERSION });
+}
+export function pageDataFromRecord(rawText) {
+  const i = String(rawText ?? "").indexOf(PAGE_DATA_MARK);
+  return i < 0 ? null : JSON.parse(rawText.slice(i + PAGE_DATA_MARK.length));
+}
 const SUSPECT = [
   [/[x×*]\s*10(?!\s*\^)(?:\b|\D)/, "Power of ten without a readable exponent — scans usually lose superscripts (10¹⁸ becomes 10%, 10\" or 10°); re-type every exponent from the page"],
   [/[x×*]\s*10\d{1,2}\b/, "Possible exponent read as ordinary digits (10⁷ read as 107) — check every power of ten against the page"],
@@ -199,24 +215,93 @@ const ANSWER_KEY_HEADING = /^\s*(answer\s*key|answers?|ans(?:wer)?s?\.?\s*key|hi
 const SOLUTION_START = /^\s*(?:sol(?:ution)?|explanation|hint)\s*[.:-]\s*/i;
 const INLINE_ANSWER = /\b(?:ans(?:wer)?|correct\s+(?:option|answer))\s*[.:-]?\s*\(?\s*([a-dA-D1-4])\s*\)?(?!\w)/;
 
+// Looser starts, accepted only where the numbering expects them (below):
+//   prefix — a short stray token before the number: a tick, the column rule
+//            read as "|", a fragment of the other column ("mly 39.", "C93.");
+//   comma  — "71, Consider" (the dot read as a comma);
+//   glued  — the rule read as a digit in front of the number: "1111." for
+//            111, "3126." for 26 (the expected number is the digits' end);
+//   lost   — the number did not survive OCR at all: ". Assertion : …".
+const LOOSE_START = /^\s*((?:[^\s\d(]{1,4}\s+){0,2}[^\s\d(]{0,2}\s*)\(?(\d{1,4})\s*([.,)])\s*(?=[A-Z(“"'[]|\$)/;
+const LOST_START = /^\s*[.,·]\s*(?=[A-Z][a-z])/;
+
+// Hanging first line: question numbers stand out to the left of the text
+// below them. Compared with the next line of the same column only, so a
+// tilted page (x drifting with height) does not matter.
+function hangsLeft(lines, i, lineH) {
+  const l = lines[i];
+  const same = (o) => o && o.page === l.page && (o.col ?? 0) === (l.col ?? 0);
+  for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+    const n = lines[j];
+    if (!same(n) || n.y0 <= l.y0) continue;
+    if (n.y0 - l.y1 > 2 * lineH) return false;
+    return n.x0 - l.x0 >= 0.35 * lineH;
+  }
+  return false;
+}
+
+// One wrong digit, same length, and only a pair OCR actually confuses on
+// scans (measured: 94→04, 28→25, 21→41, 9→0) — otherwise any single-digit
+// label such as "(2)" would pass for a lost question 6.
+const CONFUSED = new Set(["09", "08", "06", "17", "14", "27", "24", "38", "35", "56", "58", "68", "89", "49"]);
+const oneDigitOff = (read, want) => {
+  const a = String(read), b = String(want);
+  if (a.length !== b.length) return false;
+  const diff = [...a].map((ch, i) => [ch, b[i]]).filter(([x, y]) => x !== y);
+  return diff.length === 1 && CONFUSED.has([...diff[0]].sort().join(""));
+};
+
 // Lines that start a new question, keeping the numbering plausible:
 //   • next = previous + 1, or a short skip (flagged);
 //   • a new section: numbering restarts at a small number (1, or 2–5 when
 //     the "1." is unreadable) and the following numbers continue it;
 //   • a misread number ("193" between 92 and 94) is taken as the missing
-//     one and flagged.
-// Each start carries its section number; restarts begin a new section.
+//     one and flagged; so is a misread or lost number on a hanging first
+//     line where the next number is expected;
+//   • loose starts (above) count only as exactly the expected next number.
+// Each start carries its section number (restarts begin a new section) and
+// `cut`: how many characters of the line belong to the number.
 export function findQuestionStarts(lines) {
-  const cands = [];
+  const hs = lines.map((l) => l.hgt ?? (l.y1 - l.y0)).filter((v) => v > 0).sort((a, b) => a - b);
+  const lineH = hs[Math.floor(hs.length / 2)] || 20;
+  const cands = [], loose = new Map();
   lines.forEach((l, i) => {
     const m = l.text.match(Q_START);
-    if (m) cands.push({ index: i, number: Number(m[1]) });
+    if (m) { cands.push({ index: i, number: Number(m[1]), cut: m[0].length }); return; }
+    const lm = l.text.match(LOOSE_START);
+    if (lm) {
+      const d = lm[2], nums = [Number(d)];
+      for (let k = 1; k <= 2 && d.length - k >= 1; k++) if (d[k] !== "0") nums.push(Number(d.slice(k)));
+      loose.set(i, { nums, cut: lm[0].length, prefix: lm[1].trim(), sep: lm[3] });
+    } else if (LOST_START.test(l.text)) loose.set(i, { nums: [], cut: l.text.match(LOST_START)[0].length, lost: true });
   });
   // Does the sequence continue from n? (one of the next three candidates is n+1…n+3)
   const ahead = (k, n) => cands.slice(k + 1, k + 4).some((x) => x.number > n && x.number - n <= 3);
   const starts = [];
   let last = 0, section = 1;
+  const nextCand = (i) => cands.find((x) => x.index > i);
+  // Loose lines between the previous candidate and line `upto`.
+  const takeLoose = (from, upto) => {
+    for (const [i, c] of loose) {
+      if (i <= from || i >= upto || !last) continue;
+      const want = last + 1, nxt = nextCand(i);
+      const room = !nxt || nxt.number > want || nxt.number <= 5;   // the slot is still open
+      if (!room) continue;
+      // A word-like prefix ("is 6. Then") or a comma needs the hanging layout.
+      const hangs = hangsLeft(lines, i, lineH);
+      if (c.nums.includes(want) && (hangs || ((!c.prefix || c.prefix.length <= 2) && c.sep !== ","))) {
+        starts.push({ index: i, number: want, skipped: 0, restart: false, section, cut: c.cut, loose: true });
+        last = want;
+      } else if ((c.lost || c.nums.some((n) => oneDigitOff(n, want))) && hangs) {
+        starts.push({ index: i, number: want, skipped: 0, restart: false, section, assumed: true, readAs: c.lost ? null : c.nums[0], cut: c.cut });
+        last = want;
+      }
+    }
+  };
+  let prevIndex = -1;
   cands.forEach((c, k) => {
+    takeLoose(prevIndex, c.index);
+    prevIndex = c.index;
     const next = cands[k + 1];
     const continues = c.number === last + 1;
     const smallSkip = c.number > last && c.number - last <= 3;
@@ -227,17 +312,25 @@ export function findQuestionStarts(lines) {
     const oldGoesOn = nextFew.slice(0, 4).some((x) => x.number > last && x.number - last <= 3);
     const restart = last >= 3 && c.number <= 5 && c.number < last && runs && !oldGoesOn;
     const jump = c.number > last && ahead(k, c.number) && (last === 0 || c.number - last <= 40);
+    // "1, 2, 5, 4": a skip ahead immediately followed by last + 2 is a
+    // misread last + 1 (3 read as 5), not two missing questions.
+    if (last > 0 && !continues && smallSkip && next && next.number === last + 2) {
+      starts.push({ index: c.index, number: last + 1, skipped: 0, restart: false, section, assumed: true, readAs: c.number, cut: c.cut });
+      last = last + 1;
+      return;
+    }
     if (continues || smallSkip || restart || jump) {
       if (restart) section++;
       const skipped = restart ? c.number - 1 : (last && c.number > last + 1 ? c.number - last - 1 : (last === 0 ? c.number - 1 : 0));
-      starts.push({ index: c.index, number: c.number, skipped, restart, section });
+      starts.push({ index: c.index, number: c.number, skipped, restart, section, cut: c.cut });
       last = c.number;
-    } else if (next && next.number === last + 2 && c.number !== last) {
+    } else if (last > 0 && c.number !== last && ((next && next.number === last + 2) || (oneDigitOff(c.number, last + 1) && hangsLeft(lines, c.index, lineH) && (!next || next.number > last + 1)))) {
       // Misread number in the slot of last + 1.
-      starts.push({ index: c.index, number: last + 1, skipped: 0, restart: false, section, assumed: true, readAs: c.number });
+      starts.push({ index: c.index, number: last + 1, skipped: 0, restart: false, section, assumed: true, readAs: c.number, cut: c.cut });
       last = last + 1;
     }
   });
+  takeLoose(prevIndex, lines.length);
   return starts;
 }
 
@@ -298,6 +391,12 @@ export function extractOptions(body) {
   // One stray tick/mark character may precede the letter ("La)", "Jb)",
   // "_c)", "/d)", "'d)"); a ")" may be followed directly by the text ("p)15").
   const markerRe = (k, lineStart) => new RegExp(`${lineStart ? "(?:^|(?<=\\n))" : "(?:^|(?<=[\\s(\\[]))"}[LJlIP/\\\\|_vV✓√'"‘’“”.,:;~-]?[(\\[]?${LOOK[k] ?? k}\\s?(?:[).\\]](?=\\s|$)|\\)(?=[^\\s)]))`, /[a-d]/.test(k) ? "gim" : "gm");
+  // Last resort for a marker hidden under a pen tick, measured on the RCC
+  // scan: "bj Friction", "ay N C m²", "0) 15.6 N", "&) 1.8 × 10⁻³ m". Only
+  // at the START of a line, only in sequence (before the next letter's own
+  // marker), so "shown by the figure" can never become an option.
+  const TICKED = { a: "[aα]", b: "[bp6h]", c: "[ce¢©o0&]", d: "[d]" };
+  const tickedRe = (k) => new RegExp(`(?:^|(?<=\\n))[^\\w\\n]{0,2}${TICKED[k]}\\s?[).\\]}jy](?=\\s)`, "gim");
   const tryKeys = (keys) => {
     const found = [];
     let from = 0;
@@ -310,6 +409,14 @@ export function extractOptions(body) {
         let m;
         while ((m = re.exec(body))) { if (m.index >= from) { hit = m; break; } }
         if (hit) break;
+      }
+      if (!hit && TICKED[k]) {
+        const nk = keys[i + 1], nre = nk ? markerRe(nk, false) : null;
+        let limit = body.length;
+        if (nre) { nre.lastIndex = from; const nm = nre.exec(body); if (nm) limit = nm.index; }
+        const re = tickedRe(k); re.lastIndex = from;
+        const m = re.exec(body);
+        if (m && m.index >= from && m.index < limit) hit = m;
       }
       if (!hit) continue; // a missing marker (e.g. hidden by a tick) does not stop the search
       found.push({ key: k, at: hit.index, end: hit.index + hit[0].length });
@@ -360,12 +467,24 @@ export function extractOptions(body) {
 
 // Answer key section → { number: "A" | "B" | … }. Only read after an
 // explicit heading such as "Answer Key" so stray "2. (b)" text is ignored.
+// A heading is only a heading when it looks like one (capital first letter,
+// not the end of a sentence such as "…Justify your / answer.") AND what
+// follows really is a key: at least five "number → letter" pairs in the next
+// lines. Without this, one such line cut off the rest of a document.
+const KEY_PAIR = /(\d{1,3})\s*[.):\-]?\s*\(?\s*([a-dA-D1-4])\s*\)?(?![A-Za-z0-9])/g;
+function isAnswerKeyAt(lines, i) {
+  const t = lines[i].text.trim();
+  if (!ANSWER_KEY_HEADING.test(t) || !/^[A-Z]/.test(t)) return false;
+  const next = lines.slice(i + 1, i + 16).map((l) => l.text).join("  ");
+  return (next.match(KEY_PAIR) || []).length >= 5;
+}
+
 export function parseAnswerKey(lines) {
-  const keyStart = lines.findIndex((l) => ANSWER_KEY_HEADING.test(l.text));
+  const keyStart = lines.findIndex((l, i) => isAnswerKeyAt(lines, i));
   if (keyStart < 0) return { answers: {}, keyStart: -1 };
   const text = lines.slice(keyStart + 1).map((l) => l.text).join("  ");
   const answers = {};
-  const re = /(\d{1,3})\s*[.):\-]?\s*\(?\s*([a-dA-D1-4])\s*\)?(?![A-Za-z0-9])/g;
+  const re = new RegExp(KEY_PAIR.source, "g");
   let m;
   while ((m = re.exec(text))) {
     const v = m[2].toUpperCase();
@@ -376,7 +495,7 @@ export function parseAnswerKey(lines) {
 
 // Is there a large vertical gap (a likely diagram) inside a question?
 function figureGaps(qLines) {
-  const hs = qLines.map((l) => l.y1 - l.y0).filter((h) => h > 0).sort((a, b) => a - b);
+  const hs = qLines.map((l) => l.hgt ?? (l.y1 - l.y0)).filter((h) => h > 0).sort((a, b) => a - b);
   const med = hs[Math.floor(hs.length / 2)] || 20;
   const gaps = [];
   for (let i = 1; i < qLines.length; i++) {
@@ -386,6 +505,81 @@ function figureGaps(qLines) {
     }
   }
   return gaps;
+}
+
+// What a question is, from its own text (and its section heading):
+//   assertion_reason — "Assertion … Reason …";
+//   descriptive      — sub-questions "a) What is …?" instead of options, an
+//                      instruction such as "Show that / Explain / Derive", or
+//                      a section headed Subjective / Unsolved / Short answer;
+//   mcq              — options found; unknown — no options, nothing else.
+// subparts: the "options" found are really sub-questions (kept in the text).
+const SUBQ = /^(What|Why|How|Which|Where|When|Who|Find|Show|Explain|Estimate|Obtain|Calculate|Determine|Is|Does|Do|Can|Could|Would|Suggest|Sketch|Draw|Derive|Prove|Give|State|Write|Compare|Check|Verify|Treating|Assume)\b/;
+const DESCRIPTIVE = /\b(Show that|Explain|Derive|Prove that|Sketch|Suggest|Justify|Discuss|Describe|Draw|Obtain the|Verify|Estimate)\b/;
+export function questionKind(raw, { options, found }, section = "") {
+  if (/\bAssertion\b/i.test(raw) && /\bReason\b/i.test(raw)) return { name: "assertion_reason" };
+  const subq = (options || []).filter((o) => /\?\s*$/.test(o.text) || SUBQ.test(o.text)).length;
+  const subparts = found >= 2 && subq >= 2 && subq >= Math.ceil(options.length / 2);
+  if (subparts) return { name: "descriptive", basis: "its parts are questions, not options", subparts: true };
+  if (found >= 2) return { name: "mcq" };
+  if (/subjective|unsolved|short answer|long answer|descriptive/i.test(section || "")) return { name: "descriptive", basis: `section "${section}"` };
+  const m = raw.match(DESCRIPTIVE);
+  if (m) return { name: "descriptive", basis: `"${m[1]}"` };
+  return { name: "unknown" };
+}
+
+// Diagram areas → questions. A diagram belongs to the question whose own
+// lines (same page, same column) overlap it most in height: it sits beside
+// or below that question's text. Measured on the RCC scan, "the line just
+// above the diagram's centre" gave 8 of 58 diagrams to the PREVIOUS
+// question (a diagram beside a question's first lines, two diagrams read as
+// one area). An area that clearly covers two questions is split at the
+// second question's first line; a diagram in the gap between two questions
+// goes to the one above and is marked ambiguous for the reviewer.
+//   owner: Map line → question index. Returns Map question index → areas.
+export function assignFigures(pages, body, owner) {
+  const out = new Map();
+  const add = (qi, f) => (out.get(qi) ?? out.set(qi, []).get(qi)).push(f);
+  for (const p of pages) {
+    const pl = body.filter((l) => l.page === p.page);
+    const hs = pl.map((l) => l.hgt ?? (l.y1 - l.y0)).filter((v) => v > 0).sort((a, b) => a - b);
+    const lineH = hs[Math.floor(hs.length / 2)] || 20;
+    for (const f of p.figures || []) {
+      const same = pl.filter((l) => f.col == null || l.col == null || l.col === f.col);
+      const spans = new Map();
+      for (const l of same) {
+        const qi = owner.get(l); if (qi == null) continue;
+        const s = spans.get(qi);
+        spans.set(qi, s ? { qi, y0: Math.min(s.y0, l.y0), y1: Math.max(s.y1, l.y1) } : { qi, y0: l.y0, y1: l.y1 });
+      }
+      const ov = [...spans.values()].map((s) => ({ ...s, ov: Math.max(0, Math.min(f.y1, s.y1) - Math.max(f.y0, s.y0)) })).sort((a, b) => b.ov - a.ov);
+      const fig = { ...f, page: p.page };
+      if (ov[0]?.ov > 0) {
+        const second = ov[1];
+        if (second && second.ov >= Math.max(2 * lineH, 0.3 * (f.y1 - f.y0))) {
+          // Two questions under one area: split at the later one's top.
+          const [a, b] = [ov[0], second].sort((x, y) => x.y0 - y.y0);
+          const cut = b.y0 - 0.2 * lineH;
+          if (cut - f.y0 >= 2 * lineH && f.y1 - cut >= 2 * lineH) {
+            add(a.qi, { ...fig, y1: cut, split: true });
+            add(b.qi, { ...fig, y0: cut, split: true });
+          } else add(ov[0].qi, { ...fig, ambiguous: second.qi });
+          continue;
+        }
+        add(ov[0].qi, fig);
+        continue;
+      }
+      // In a gap: nearest question above (diagrams follow their text), but
+      // say so when a question also starts right below it.
+      const above = [...spans.values()].filter((s) => s.y1 <= f.y0 + lineH).sort((a, b) => b.y1 - a.y1)[0];
+      const below = [...spans.values()].filter((s) => s.y0 >= f.y1 - lineH).sort((a, b) => a.y0 - b.y0)[0];
+      const pick = above ?? below;
+      if (pick == null) continue;
+      const close = (s) => s && (s === above ? f.y0 - s.y1 : s.y0 - f.y1) <= 3 * lineH;
+      add(pick.qi, above && below && close(above) && close(below) ? { ...fig, ambiguous: (pick === above ? below : above).qi } : fig);
+    }
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------
@@ -412,6 +606,8 @@ export function segmentQuestions(pages, ctx = {}) {
     else body.push({ ...l, section });
   }
   const starts = recoverUnnumberedStarts(body, findQuestionStarts(body), pageDims);
+  const bodyHs = body.map((l) => l.hgt ?? (l.y1 - l.y0)).filter((v) => v > 0).sort((a, b) => a - b);
+  const bodyLineH = bodyHs[Math.floor(bodyHs.length / 2)] || 20;
   const questions = [];
 
   // Text before the first detected question is never dropped silently: it
@@ -424,15 +620,7 @@ export function segmentQuestions(pages, ctx = {}) {
   // Which question owns each line (for placing diagram areas).
   const owner = new Map();
   starts.forEach((s, qi) => { for (let i = s.index; i < (starts[qi + 1]?.index ?? body.length); i++) owner.set(body[i], qi); });
-  const figsByQ = new Map();
-  for (const p of pages) for (const f of p.figures || []) {
-    const cy = (f.y0 + f.y1) / 2;
-    const same = body.filter((l) => l.page === p.page && (f.col == null || l.col == null || l.col === f.col));
-    const above = same.filter((l) => l.y0 <= cy).sort((a, b) => b.y0 - a.y0)[0];
-    const below = same.filter((l) => l.y0 > cy).sort((a, b) => a.y0 - b.y0)[0];
-    const qi = owner.get(above ?? below);
-    if (qi != null) (figsByQ.get(qi) ?? figsByQ.set(qi, []).get(qi)).push({ ...f, page: p.page });
-  }
+  const figsByQ = assignFigures(pages, body, owner);
   const inkData = pages.some((p) => Array.isArray(p.figures));
 
   starts.forEach((s, qi) => {
@@ -456,7 +644,13 @@ export function segmentQuestions(pages, ctx = {}) {
       : `Numbering jumps from ${s.number - s.skipped - 1} to ${s.number} — a question may be missing or merged into this one`);
 
     // First line without its number; join the rest with newlines.
-    const first = s.preamble || s.assumed ? qLines[0].text : qLines[0].text.replace(Q_START, "");
+    // First line without its number token (exactly what was matched, so a
+    // stray prefix such as "mly 39." does not stay in the text).
+    const startLine = body[s.index];
+    const first = s.preamble ? qLines[0].text
+      : qLines[0] === startLine && s.cut != null ? startLine.text.slice(s.cut).trim()
+      : s.assumed ? qLines[0].text : qLines[0].text.replace(Q_START, "");
+    if (s.loose) issues.push(`Question number read through a stray mark or neighbouring text ("${startLine.text.slice(0, Math.min(s.cut, 16)).trim()}") — check the first line against the page`);
     let raw = [first, ...qLines.slice(1).map((l) => l.text)].join("\n");
 
     // Source solution / explanation (kept separate, labelled as source).
@@ -483,10 +677,23 @@ export function segmentQuestions(pages, ctx = {}) {
       issues.push(`Answer key has an entry for ${s.number}, but this number repeats in the PDF — key not applied, choose manually`);
     }
 
-    const { stem, options, found, missing, secondSet, reordered } = extractOptions(raw);
+    let { stem, options, found, missing, secondSet, reordered } = extractOptions(raw);
+    // What kind of question this is. The bank stores auto-graded types only
+    // (single, multi, integer, numerical, matrix_match); nothing is invented
+    // to make a question fit one.
+    const kind = questionKind(raw, { stem, options, found }, qSection);
+    if (kind.subparts) { stem = raw.trim(); options = []; found = 0; missing = []; secondSet = false; reordered = false; }
     const isMcq = found >= 2;
+    const asserts = (raw.match(/\bAssertion\b/gi) || []).length;
+    if (kind.name === "assertion_reason" && !isMcq) issues.push("Assertion–Reason question printed without options — type the four Assertion–Reason options exactly as the source series uses them (they are not invented here)");
+    if (kind.name === "descriptive") issues.push(`Descriptive question (${kind.basis}) — the question bank only holds auto-graded types; reject it, or rewrite it as a gradable question before verifying`);
+    if (asserts > 1) issues.push(`Contains ${asserts} "Assertion" statements — probably ${asserts} questions merged (numbers not read). Split it`);
+    // A line inside this item that hangs left like a question's first line
+    // and starts like one: probably a question whose number was not read.
+    const hidden = qLines.slice(1).filter((l) => (Q_START.test(l.text) || LOOSE_START.test(l.text) || LOST_START.test(l.text)) && hangsLeft(body, body.indexOf(l), bodyLineH));
+    if (hidden.length) issues.push(`${hidden.length} line(s) inside look like the start of another question ("${hidden[0].text.slice(0, 40)}") — check whether questions were merged`);
     if (found > 0 && found < 4) issues.push(`Only ${found} of 4 option markers read${missing?.length ? ` — option ${missing.join(", ")} not found; its text is probably joined to the option before it. Split it before verifying` : ""}`);
-    if (!isMcq) issues.push("No options detected — may be integer/numerical/subjective, or options were not read");
+    if (!isMcq && kind.name === "unknown") issues.push("No options detected — may be integer/numerical/subjective, or options were not read");
     if (reordered) issues.push("Options were out of order in the scan (curved or tilted page) and were matched by their letters — check each option against the page");
     if (secondSet) issues.push("A second set of options a), b)… follows — this item probably contains two questions (the next number was not read). Split it");
     if (!stem || stem.length < 8) issues.push("Question text missing or very short");
@@ -507,19 +714,38 @@ export function segmentQuestions(pages, ctx = {}) {
     const lowConf = qLines.filter((l) => l.conf != null && l.conf < 70);
     if (lowConf.length) issues.push(`Low OCR confidence on ${lowConf.length} line(s): "${lowConf[0].text.slice(0, 50)}"`);
 
-    // Source regions (one per page the question touches), in thousandths.
+    // Source regions (one per page and column the question touches, in
+    // reading order), in thousandths. A question that runs from the bottom
+    // of one column into the next gets two boxes, not one box over the page.
     // Word documents have no page geometry: they get paragraph numbers.
     const regions = [];
     const paras = qLines.map((l) => l.para).filter((p) => p != null);
     const sourceLocation = paras.length
       ? (Math.min(...paras) === Math.max(...paras) ? `paragraph ${paras[0]}` : `paragraphs ${Math.min(...paras)}–${Math.max(...paras)}`)
       : null;
-    for (const pg of paras.length ? [] : [...new Set(qLines.map((l) => l.page))]) {
-      const ls = qLines.filter((l) => l.page === pg), d = pageDims[pg];
-      const box = [Math.min(...ls.map((l) => l.x0)), Math.min(...ls.map((l) => l.y0)), Math.max(...ls.map((l) => l.x1)), Math.max(...ls.map((l) => l.y1))];
-      regions.push({ page: pg, box: [box[0] / d.w, box[1] / d.h, box[2] / d.w, box[3] / d.h].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 1000)) });
+    const parts = [];
+    for (const l of paras.length ? [] : qLines) {
+      const last = parts[parts.length - 1];
+      if (last && last.page === l.page && last.col === (l.col ?? 0)) last.lines.push(l);
+      else parts.push({ page: l.page, col: l.col ?? 0, lines: [l] });
     }
-    if (regions.length > 1) issues.push(`Question continues across pages ${regions.map((r) => r.page).join(" → ")} — check the join`);
+    for (const p of parts) {
+      const ls = p.lines, d = pageDims[p.page];
+      const box = [Math.min(...ls.map((l) => l.x0)), Math.min(...ls.map((l) => l.y0)), Math.max(...ls.map((l) => l.x1)), Math.max(...ls.map((l) => l.y1))];
+      regions.push({ page: p.page, box: [box[0] / d.w, box[1] / d.h, box[2] / d.w, box[3] / d.h].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 1000)) });
+    }
+    const pagesTouched = [...new Set(regions.map((r) => r.page))];
+    if (pagesTouched.length > 1) issues.push(`Question continues across pages ${pagesTouched.join(" → ")} — check the join`);
+    // All four options already printed before a column/page break, yet the
+    // item goes on: the next question's number was almost certainly lost.
+    let afterOptions = false;
+    if (parts.length > 1 && isMcq) {
+      const firstPart = parts[0].lines.map((l) => l.text).join("\n");
+      if (extractOptions(firstPart).found === 4) {
+        afterOptions = true;
+        issues.push(`Continues after its four options into the next ${parts[1].page === parts[0].page ? "column" : "page"} ("${parts[1].lines[0].text.slice(0, 40)}") — the next question's number was probably not read. Split it`);
+      }
+    }
 
     // Diagrams: ink on the page that is not text (scans), or large blank
     // gaps (text PDFs). Always a proposal: the reviewer confirms each crop.
@@ -529,13 +755,17 @@ export function segmentQuestions(pages, ctx = {}) {
       return { label: String(i + 1), page: g.page, option_key: null, description: "", proposed: true,
         box: [g.x0 / d.w, g.y0 / d.h, g.x1 / d.w, g.y1 / d.h].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 1000)) };
     });
+    areas.forEach((g, i) => {
+      if (g.ambiguous != null) issues.push(`Diagram ${i + 1} sits between this question and question ${starts[g.ambiguous]?.number ?? "?"} — confirm it belongs here, or remove it and add it there`);
+      if (g.split) issues.push(`Diagram ${i + 1} was cut from an area shared with the neighbouring question — check that the crop holds the whole diagram`);
+    });
     if (/\b(figure|fig\.|diagram|shown|graph|circuit|structure)\b/i.test(fullText) && !figures.length && !/!\[[^\]]*\]\(/.test(fullText)) {
       issues.push("Mentions a figure/diagram but none was located — crop it from the page (tick only if no diagram is needed)");
     }
     if (figures.length) issues.push(`${figures.length} diagram area(s) detected — confirm or re-crop each one; a diagram that belongs to this question must be attached`);
 
     const minConf = qLines.reduce((m, l) => l.conf == null ? m : Math.min(m, l.conf), 100);
-    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length || unreadableMath || secondSet;
+    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length || unreadableMath || secondSet || asserts > 1 || hidden.length || afterOptions;
     const confidence = severe ? "low" : (issues.length > 1 || minConf < 85) ? "medium" : "high";
 
     const question = stem + figures.map((f) => `\n\n![Figure ${f.label}](figure:${f.label})`).join("");
@@ -547,6 +777,7 @@ export function segmentQuestions(pages, ctx = {}) {
       section: qSection,
       section_no: s.section ?? 1,
       option_markers: found,
+      kind: kind.name,
       ocr_raw: qLines.some((l) => l.raw != null) ? qLines.map((l) => l.raw ?? l.text).join("\n") : null,
       page_from: pageFrom,
       page_to: pageTo,
@@ -564,7 +795,7 @@ export function segmentQuestions(pages, ctx = {}) {
         topic: null,
         subtopic: null,
         branch: null,
-        type: isMcq ? "single" : "integer",
+        type: isMcq || kind.name === "assertion_reason" ? "single" : "integer",
         difficulty: null, // never guessed: the reviewer chooses
 
         exam: ctx.exam ?? [],
@@ -574,7 +805,7 @@ export function segmentQuestions(pages, ctx = {}) {
         marks: 4,
         negative: isMcq ? 1 : 0,
         question,
-        options: isMcq ? options : null,
+        options: isMcq ? options : kind.name === "assertion_reason" ? [] : null,
         hint: null,
         solution,
         unit: null,
@@ -618,13 +849,21 @@ export function reconcileExtraction(items, pages = []) {
     };
   });
   const list = (pred) => items.filter(pred).map((i) => `${i.section_no ?? 1}:${i.source_number}`);
+  const kinds = {};
+  for (const i of items) { const k = i.kind || "unknown"; kinds[k] = (kinds[k] || 0) + 1; }
   return {
     pages: { processed: pages.filter((p) => p.status === "done").length, failed: pages.filter((p) => p.status === "failed").map((p) => p.page_no) },
     items: items.length,
+    // One printed number found once counts once: duplicates and splits do
+    // not raise it, and items without a readable number are not in it.
+    unique_numbers: sections.reduce((s, x) => s + x.found, 0),
+    duplicate_total: sections.reduce((s, x) => s + x.duplicates.length, 0),
+    unnumbered_total: sections.reduce((s, x) => s + x.unnumbered, 0),
+    kinds,
     sections,
     numbering_total: sections.reduce((s, x) => s + x.highest, 0),
     missing_total: sections.reduce((s, x) => s + x.missing.length, 0),
-    merged_or_split: list((i) => has(i, /two questions|merged|not found before|jumps from/)),
+    merged_or_split: list((i) => has(i, /two questions|merged|not found before|jumps from|look like the start of another|"Assertion" statements/)),
     option_problems: list((i) => i.type !== "integer" && Array.isArray(i.options) && i.options.length > 0 && (i.options.length !== 4 || i.options.some((o) => !String(o.text || "").trim()))),
     no_options: list((i) => !Array.isArray(i.options) || !i.options.length),
     uncertain_math: list((i) => JSON.stringify([i.question, i.options]).includes(UNREADABLE) || has(i, /exponent|formula character|subscripts may be lost/)),
