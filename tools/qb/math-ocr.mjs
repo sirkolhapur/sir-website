@@ -119,11 +119,26 @@ export function findOptionMarkers(lines, keys = ["A", "B", "C", "D"]) {
     for (let i = lo; i < hi; i++) {
       const w = words[i];
       const first = i === 0 || words[i - 1].li !== w.li;
-      if (re.test(w.text) && (first || words[i - 1].x1 < w.x0 - 0.8 * lineH(w.line))) { found[k] = { ...w, idx: i, lookalike: true }; break; }
+      if (re.test(w.text) && (first || words[i - 1].x1 < w.x0 - 0.4 * lineH(w.line))) { found[k] = { ...w, idx: i, lookalike: true }; break; }
+    }
+  });
+  // Last tier, position only: the letter itself is unreadable ("2)", ")",
+  // "<Q)") but a short ")"-token starts a row, or stands apart, in the gap
+  // between two found neighbours. Marked inferred → never "agreed".
+  const LOOSE = /^[^\w\s]{0,2}[\w<]?\)$/;
+  keys.forEach((k, n) => {
+    if (found[k]) return;
+    const prev = keys.slice(0, n).reverse().map((x) => found[x]).find(Boolean), next = keys.slice(n + 1).map((x) => found[x]).find(Boolean);
+    if (!prev && !next) return;
+    const lo = prev ? prev.idx + 1 : 0, hi = next ? next.idx : words.length;
+    for (let i = lo; i < hi; i++) {
+      const w = words[i];
+      const first = i === 0 || words[i - 1].li !== w.li;
+      if (w.text.length <= 3 && LOOSE.test(w.text) && (first || words[i - 1].x1 < w.x0 - 0.4 * lineH(w.line))) { found[k] = { ...w, idx: i, inferred: true }; break; }
     }
   });
   for (const k of keys) if (found[k]) {
-    const w = found[k], m = w.text.match(markerRe(LOOKALIKE[k]) ) || w.text.match(markerRe(STRICT[k]));
+    const w = found[k], m = w.inferred ? [w.text, w.text] : w.text.match(markerRe(LOOKALIKE[k])) || w.text.match(markerRe(STRICT[k]));
     const frac = m ? m[1].length / w.text.length : 1;
     found[k].markEnd = w.x0 + (w.x1 - w.x0) * frac;
   }
@@ -138,7 +153,10 @@ export function inkBox(grey, W, Hpx, box, seedY0, seedY1, h) {
   const y0 = Math.max(0, Math.floor(box[1])), y1 = Math.min(Hpx - 1, Math.ceil(box[3]));
   if (x1 - x0 < 4 || y1 - y0 < 4) return null;
   const rowInk = (y) => { let n = 0; for (let x = x0; x <= x1; x++) if (grey[y * W + x] < 140) n++; return n; };
-  const minInk = 2, gap = Math.max(3, Math.round(0.45 * h));
+  // Inside a stacked formula the blank rows are thin (bar ↔ numerator);
+  // between printed lines they are wider. 0.3 × line height separates them
+  // on the RCC scans (measured on the development pages).
+  const minInk = 2, gap = Math.max(3, Math.round(0.3 * h));
   let top = Math.max(y0, Math.round(seedY0)), bot = Math.min(y1, Math.round(seedY1));
   for (let y = top - 1, blank = 0; y >= y0; y--) { if (rowInk(y) >= minInk) { top = y; blank = 0; } else if (++blank > gap) break; }
   for (let y = bot + 1, blank = 0; y <= y1; y++) { if (rowInk(y) >= minInk) { bot = y; blank = 0; } else if (++blank > gap) break; }
@@ -150,12 +168,21 @@ export function inkBox(grey, W, Hpx, box, seedY0, seedY1, h) {
 
 const proseWord = (w) => /^[^A-Za-z]*[A-Za-z]?[a-z]{3,}[^A-Za-z]*$/.test(w.text) && /[aeiou]/i.test(w.text) && (w.conf ?? 0) >= 80 && w.text.replace(/[^A-Za-z]/g, "").length >= 4;
 
+// Any option-marker-like word ("a)", "(c)", a ticked "0)") — used to end a
+// region at the next option on the row even when that option's letter was
+// misread, and to recognise option rows of other questions.
+const ANY_MARKER = /^[^\w\s(\[]{0,2}[(\[]?[a-dA-D]\s?[).\]}]/;
+const LOOK_MARKER = /^[^\w\s(\[]{0,2}[(\[]?[aαbp6hce¢©o0&d]\s?[).\]}]$/;
+const QNUM = /^\(?\d{1,3}[.)]$/;
+
 // Coarse regions of a question's options (page coords) + stacked-fragment
-// suggestions in its question text. pages: { [page]: { width, height } }.
-export function mathRegions(q, pages) {
+// suggestions in its question text.
+//   dims: { [page]: { w, h } }   page: { [page]: { lines, columns } } (all
+//   OCR lines of the page — neighbouring questions bound the regions too).
+export function mathRegions(q, dims, page = {}) {
   const lines = q.lines || [];
   if (!lines.length || !lines.some((l) => l.words)) return { options: [], stem: [], why: "no word geometry (not an OCR page)" };
-  const keys = (q.draft.options || []).map((o) => o.key).filter((k) => STRICT[k]);
+  const keys = (q.draft.options?.length ? q.draft.options.map((o) => o.key) : ["A", "B", "C", "D"]).filter((k) => STRICT[k]);
   const marks = findOptionMarkers(lines, keys);
   const hs = lines.map(lineH).filter((v) => v > 0);
   const H = median(hs) || 30;
@@ -163,21 +190,42 @@ export function mathRegions(q, pages) {
   for (const k of keys) {
     const m = marks[k];
     if (!m) { options.push({ key: k, missing: "option marker not found on the page" }); continue; }
-    const L = m.line, page = L.page, col = L.col ?? 0;
-    const colLines = lines.filter((l) => l.page === page && (l.col ?? 0) === col);
-    const colRight = Math.max(...colLines.map((l) => l.x1));
-    // Next marker on the same row ends this option.
-    const rowNext = keys.map((x) => marks[x]).filter((o) => o && o !== m && o.line.page === page && o.x0 > m.x1 && Math.abs((o.y0 + o.y1) / 2 - (m.y0 + m.y1) / 2) < 0.8 * H).sort((a, b) => a.x0 - b.x0)[0];
-    const rx0 = m.markEnd + 0.15 * H, rx1 = rowNext ? rowNext.x0 - 0.25 * H : colRight + 0.3 * H;
+    const L = m.line, pg = L.page, col = L.col ?? 0;
+    const pageLines = (page[pg]?.lines || lines).filter((l) => l.page === undefined || l.page === pg);
+    const colLines = pageLines.filter((l) => (l.col ?? 0) === col);
+    // Right edge: where this column's justified text lines end (median —
+    // some lines carry junk from the neighbouring page out to the edge), but
+    // never left of the option row itself, never beyond the column.
+    const colRect = page[pg]?.columns?.[col];
+    const longX1 = colLines.filter((l) => (l.text || "").length > 20).map((l) => l.x1);
+    const textRight = Math.max(longX1.length ? median(longX1) + 0.3 * H : -Infinity, L.x1);
+    const colRight = Math.min(colRect ? colRect.left + colRect.width : Infinity, textRight);
     const yc = (m.y0 + m.y1) / 2;
-    // Rows that are text or another option row bound the region vertically.
-    const isAnchor = (l) => l !== L && (keys.some((x) => marks[x] && marks[x].line === l) || (l.words || []).filter(proseWord).length >= 2);
+    const sameRow = (w) => Math.abs((w.y0 + w.y1) / 2 - yc) < 0.8 * H;
+    // The next marker-like word on the same row ends this option.
+    const rowWords = colLines.flatMap((l) => l.words || []).filter((w) => sameRow(w) && w.x0 > m.x1 + 0.5 * H);
+    // …and so does an exam-year label "(2001)" printed at the row's end.
+    const rowNext = rowWords.filter((w) => ANY_MARKER.test(w.text) || LOOK_MARKER.test(w.text) || /^\(?(?:19|20)\d\d\)?[.,]?$/.test(w.text)).sort((a, b) => a.x0 - b.x0)[0];
+    const rx0 = m.markEnd + 0.15 * H, rx1 = rowNext ? rowNext.x0 - 0.25 * H : colRight - 0.1 * H;
+    // Text rows, option rows and question-number rows (of ANY question in
+    // this column) bound the region vertically.
+    // Only short broken fragments (a fraction's numerator / denominator)
+    // may join the option; every other line is a boundary. Printed lines
+    // can sit so close that their boxes overlap, so the cut is half-way
+    // between the two rows' centres.
+    const isAnchor = (l) => {
+      if (l === L) return false;
+      const t = (l.text || "").trim(), ws = l.words || [];
+      return t.length > 14 || ws.some(proseWord) || (ws[0] && (ANY_MARKER.test(ws[0].text) || QNUM.test(ws[0].text))) || keys.some((x) => marks[x] && marks[x].line === l);
+    };
     const over = (l) => l.x1 > rx0 && l.x0 < rx1;
-    const above = colLines.filter((l) => isAnchor(l) && over(l) && (l.y0 + l.y1) / 2 < yc - 0.6 * H).sort((a, b) => b.y1 - a.y1)[0];
-    const below = colLines.filter((l) => isAnchor(l) && over(l) && (l.y0 + l.y1) / 2 > yc + 0.6 * H).sort((a, b) => a.y0 - b.y0)[0];
-    const top = Math.max(above ? above.y1 + 2 : -Infinity, yc - 2.6 * H), bottom = Math.min(below ? below.y0 - 2 : Infinity, yc + 2.6 * H);
-    const inRegion = colLines.flatMap((l) => (l.words || []).filter((w) => w.x0 >= rx0 - 2 && w.x1 <= rx1 + 2 && (w.y0 + w.y1) / 2 >= top && (w.y0 + w.y1) / 2 <= bottom));
-    options.push({ key: k, page, col, box: [rx0, top, rx1, bottom], seed: [m.y0, m.y1], H, prose: inRegion.filter(proseWord).length >= 1, lookalike: !!m.lookalike, words: inRegion.map((w) => w.text).join(" ") });
+    const cy = (l) => (l.y0 + l.y1) / 2;
+    const above = colLines.filter((l) => isAnchor(l) && over(l) && cy(l) < yc - 0.6 * H).sort((a, b) => cy(b) - cy(a))[0];
+    const below = colLines.filter((l) => isAnchor(l) && over(l) && cy(l) > yc + 0.6 * H).sort((a, b) => cy(a) - cy(b))[0];
+    const top = Math.max(!above ? -Infinity : above.y1 < m.y0 ? above.y1 + 1 : (cy(above) + yc) / 2, yc - 2.6 * H);
+    const bottom = Math.min(!below ? Infinity : below.y0 > m.y1 ? below.y0 - 1 : (cy(below) + yc) / 2, yc + 2.6 * H);
+    const inRegion = colLines.flatMap((l) => (l.words || []).filter((w) => (w.x0 + w.x1) / 2 >= rx0 && (w.x0 + w.x1) / 2 <= rx1 && (w.y0 + w.y1) / 2 >= top && (w.y0 + w.y1) / 2 <= bottom));
+    options.push({ key: k, page: pg, col, box: [rx0, top, rx1, bottom], seed: [m.y0, m.y1], H, prose: inRegion.filter(proseWord).length >= 1, lookalike: !!m.lookalike, inferred: !!m.inferred, words: inRegion.map((w) => w.text).join(" ") });
   }
   // Stem: groups of stacked fragment lines before the first option row.
   const firstOpt = Math.min(...keys.map((k) => marks[k]?.idx ?? Infinity));
@@ -197,14 +245,35 @@ export function mathRegions(q, pages) {
 // Decision on three readings
 // ---------------------------------------------------------------------
 const PROSE_TEX = /\\(?:text|mathrm|textrm|operatorname)\s*\{[^}]*[a-z]{4,}/;
+// Region-boundary repair (developed on the development pages only): the
+// crop may start with the tail of the option's own marker — ")" or "b)".
+// Only a LEADING label is removed, and only when no "(" opens before it.
+// Added AFTER the clean-up freeze, from the development pages only (the
+// held-out pages were not looked at): a trailing exam-year label
+// "( 2001 )" from the same row is not part of the formula, and an
+// empty-base superscript 10^{^{-3}} is the same as 10^{-3} (as cleanTex
+// already does for subscripts).
+export function stripLabel(t) {
+  return String(t ?? "")
+    .replace(/^\s*(?:\\mathrm\{\s*[a-dA-D]?\s*\)\s*\}|[a-dA-D]?\s*\))\s*(?:\\[ ,;:!]|~|\\q?quad)*\s*/, "")
+    .replace(/(?:\\[ ,;:!]|~|\\q?quad|\s)*\(\s*(?:1\s*9|2\s*0)\s*\d\s*\d\s*\)\s*$/, "")
+    .replace(/\^\{\s*(?:\{\s*\})?\s*\^/g, "^{")
+    .trim();
+}
+// A reading of more than one printed line, or with another option's label
+// inside, means the crop held more than this option.
+const MULTI_LINE = /\\begin\{(?:array|matrix|aligned|gathered|cases)\}|\\\\/;
+const OTHER_LABEL = /\\mathrm\{\s*[a-dA-D]\s*\)\s*\}|(?:^|[^\\a-zA-Z])[a-dA-D]\s\)/;
 export function decide(reads, katex) {
   if (!reads?.length) return { latex: null, status: "failed", reasons: ["the helper returned no reading"] };
-  const cleaned = reads.map((r) => cleanTex(r.latex));
+  const cleaned = reads.map((r) => stripLabel(cleanTex(r.latex)));
   const keys = cleaned.map((t) => formulaKey(t, katex));
   const reasons = [];
   if (!cleaned[0]) reasons.push("empty reading");
   if (keys[0] == null) reasons.push("the formula does not render");
   if (reads.some((r) => r.truncated)) reasons.push("a reading ran on without finishing (repeating symbols)");
+  if (MULTI_LINE.test(cleaned[0])) reasons.push("the crop holds more than one printed line");
+  if (OTHER_LABEL.test(cleaned[0])) reasons.push("the crop holds another option's label");
   if (new Set(keys).size > 1) reasons.push("the three readings disagree");
   const minProb = Math.min(...reads.map((r) => r.min));
   if (minProb < MIN_PROB) reasons.push(`one symbol was read with low certainty (${Math.round(minProb * 100)}%)`);
@@ -246,11 +315,44 @@ export async function runMathOcr(questions, pagesData, { renderPage, katex, url 
   const t0 = Date.now();
   const stats = { regions: 0, sent: 0, agreed: 0, uncertain: 0, failed: 0, text: 0, prose: 0, noMarker: 0, stemSuggestions: 0, helperMs: 0, pages: 0 };
   const dims = Object.fromEntries(pagesData.map((p) => [p.page, { w: p.width, h: p.height }]));
+  const pageCtx = Object.fromEntries(pagesData.map((p) => [p.page, { columns: p.columns, lines: (p.lines || []).map((l) => ({ ...l, page: p.page })) }]));
   const work = [];
   for (const q of questions) {
     q.math = [];
-    if (!Array.isArray(q.draft.options) || !q.lines?.some((l) => l.words)) continue;
-    const r = mathRegions(q, dims);
+    if (!q.lines?.some((l) => l.words)) continue;
+    // The text parser found no options (typically every option a garbled
+    // stacked formula): if the page shows at least three markers a)…d) in
+    // order, the options are recovered from the page — always flagged.
+    const m = findOptionMarkers(q.lines);
+    // Option rows are short (formulas, numbers) or share a row; sub-part
+    // questions ("(a) Explain why …") have sentence-long rows.
+    const optionLike = (w) => {
+      const rest = (w.line.words || []).filter((x) => x.x0 > w.x1).map((x) => x.text).join(" ");
+      return rest.length < 35 || Object.values(m).some((o) => o !== w && o.line === w.line);
+    };
+    if (!q.draft.options?.length) {
+      // The text parser found no options — typically every option a garbled
+      // stacked formula, which can also make it call the question
+      // "descriptive". Recovered only from ≥3 option-like markers; flagged.
+      if (q.kind && !["unknown", "descriptive"].includes(q.kind)) continue;
+      const found = Object.values(m).filter(optionLike);
+      if (found.length < 3) continue;
+      q.draft.options = ["A", "B", "C", "D"].filter((k) => m[k] || k < Object.keys(m).sort().pop()).map((key) => ({ key, text: "" }));
+      q.draft.type = "single";
+      q.recovered = true;
+      stats.recoveredQuestions = (stats.recoveredQuestions || 0) + 1;
+      q.issues.push(`Math OCR: the text reader found no options${q.kind === "descriptive" ? " and took this for a descriptive question" : ""}; option markers a)–d) were found on the page and each option was read from its image — check the question type, every option and the answer before verifying`);
+    } else if (q.draft.options.length < 4 && Array.isArray(q.draft.options)) {
+      // Some options missing from the text: add those whose marker is on the page.
+      const add = ["A", "B", "C", "D"].filter((k) => m[k] && optionLike(m[k]) && !q.draft.options.some((o) => o.key === k));
+      if (add.length) {
+        for (const key of add) q.draft.options.push({ key, text: "" });
+        q.draft.options.sort((a, b) => a.key.localeCompare(b.key));
+        q.recoveredKeys = add;
+        q.issues.push(`Math OCR: option ${add.join(", ")} was missing from the text but its marker was found on the page — read from the image; check it`);
+      }
+    }
+    const r = mathRegions(q, dims, pageCtx);
     for (const o of r.options) {
       if (o.missing) { stats.noMarker++; q.math.push({ target: "option", key: o.key, status: "not_located", reasons: [o.missing], ocr_text: q.draft.options.find((x) => x.key === o.key)?.text ?? "" }); continue; }
       if (o.prose) { stats.prose++; continue; }
@@ -291,6 +393,9 @@ export async function runMathOcr(questions, pagesData, { renderPage, katex, url 
   // Apply — only to the same option of the same question.
   for (const w of work) {
     const q = w.q, res = w.result || { status: "failed", reasons: ["not read"] };
+    if (q.recoveredKeys?.includes(w.key) && res.status === "agreed") { res.status = "uncertain"; res.reasons = [...(res.reasons || []), "this option was missing from the text and was read from the page"]; }
+    if (q.recovered && res.status === "agreed") { res.status = "uncertain"; res.reasons = [...(res.reasons || []), "options recovered from the page (the text reader found none)"]; }
+    if (w.inferred && res.status === "agreed") { res.status = "uncertain"; res.reasons = [...(res.reasons || []), "the option letter was unreadable; its place was inferred from the other options"]; }
     const opt = w.kind === "option" ? q.draft.options.find((o) => o.key === w.key) : null;
     const entry = { target: w.kind, key: w.key, page: w.page, crop_px: w.crop ?? null, box: w.crop ? thousandths(w.crop, dims[w.page]) : null,
       ocr_text: w.kind === "option" ? (opt?.text ?? "") : w.ocr, latex: res.latex ?? null, alternatives: res.alternatives ?? [], status: res.status,

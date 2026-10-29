@@ -22,7 +22,7 @@ from .postprocess import post_process
 
 BOS, EOS = 1, 2
 SIZE = 384
-MAX_TOKENS = 256  # longer = a runaway, repeating read (seen once on a blurred crop)
+MAX_TOKENS = 160  # longer = a runaway, repeating read (the longest RCC option formula is ~80 tokens)
 
 
 class FormulaRecognizer:

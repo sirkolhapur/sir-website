@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { cleanTex, findOptionMarkers, inkBox, mathRegions, decide } from "../math-ocr.mjs";
+import { cleanTex, stripLabel, findOptionMarkers, inkBox, mathRegions, decide } from "../math-ocr.mjs";
 import { normalizeText, segmentQuestions } from "../pdf-parser.mjs";
 
 const katex = process.env.QB_KATEX ? createRequire(import.meta.url)(process.env.QB_KATEX) : null;
@@ -22,6 +22,25 @@ test("cleanTex: exact rewrites only", () => {
   assert.equal(cleanTex("m_{o}"), "m_{o}");
   const b = (s) => [...s].reduce((n, c) => n + (c === "{") - (c === "}"), 0);
   for (const s of ["\\frac{1}{2}\\left(\\frac{q}{\\varepsilon_{_0}}-\\phi\\right)", "\\frac{Q}{6\\epsilon_{_0}}\\times10^{-3}"]) assert.equal(b(cleanTex(s)), 0);
+});
+
+test("region repair: the option's own label, a trailing exam year and an empty-base power are removed; real brackets stay", () => {
+  assert.equal(stripLabel(") \\ -K \\frac{e^{2}}{r^{3}}"), "-K \\frac{e^{2}}{r^{3}}");
+  assert.equal(stripLabel("\\mathrm{b )}\\ x^{2}"), "x^{2}");
+  assert.equal(stripLabel("\\frac{Q} {6 \\epsilon_{0}} \\times10^{^{-3}} \\ \\ ( 2001 )"), "\\frac{Q} {6 \\epsilon_{0}} \\times10^{{-3}}");
+  assert.equal(stripLabel("(a+b)^{2}"), "(a+b)^{2}");
+  assert.equal(stripLabel("x(2+1)"), "x(2+1)");
+});
+
+test("an unreadable option letter is placed from the layout, as 'inferred'", () => {
+  const lines = [
+    line([W("2)", 60, 200, 85, 230, 69), W("Q=+2", 120, 200, 260, 230, 52), W("b)", 500, 200, 530, 230), W("Q=-2q", 560, 200, 680, 230, 10)]),
+    line([W(")", 62, 300, 72, 330, 16), W("Q=2V2q", 120, 300, 260, 330, 1), W("d)", 500, 300, 530, 330), W("Q=-2V2", 560, 300, 680, 330, 13)]),
+  ];
+  const m = findOptionMarkers(lines);
+  assert.equal(m.A.text, "2)"); assert.equal(m.A.inferred, true);
+  assert.equal(m.C.text, ")"); assert.equal(m.C.inferred, true);
+  assert.ok(!m.B.inferred && !m.D.inferred);
 });
 
 test("stray OCR $ cannot pair with formula delimiters; Word math is kept", () => {
