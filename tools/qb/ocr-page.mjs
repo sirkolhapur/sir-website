@@ -74,10 +74,96 @@ export function prepPixels(rgba, w, h, { dropColour = true, sat = 60, flatten = 
   return out;
 }
 
-export function prepareCanvas(src, opts) {
+// Printed column rules: long, thin, near-vertical strokes (often coloured).
+// Tesseract reads one next to a question number as "1" or "|" ("1111.",
+// "| 102.") or drops the number with it. Found on a 2× reduced dark mask;
+// each rule is returned as a line x = a + b·y (page pixels) with a
+// half-thickness t. Searched as straight dark runs at small slants (a phone
+// photo tilts the rule by a degree or two); text never makes one, because
+// the gaps between text lines break it.
+export function findVerticalRules(grey, w, h, { dark = 170, minLen = 0.12, maxGap = 2 } = {}) {
+  // Searched on a 4× reduced mask (a cell is dark if any of its pixels is):
+  // a 3–5 px rule stays one cell wide and the search is ~16× cheaper than
+  // at full size. The eraser then follows the real stroke at full size.
+  const D = 4, mw = Math.ceil(w / D), mh = Math.ceil(h / D);
+  const m = new Uint8Array(mw * mh);
+  for (let y = 0; y < h; y++) {
+    const row = (y >> 2) * mw, src = y * w;
+    for (let x = 0; x < w; x++) if (grey[src + x] < dark) m[row + (x >> 2)] = 1;
+  }
+  const cands = [];
+  const off = new Int32Array(mh + 1);
+  // Slants up to ±3.4° (curled page edges); every long run counts, so a
+  // curved rule is found as several straight pieces.
+  for (let s = -6; s <= 6; s++) {
+    const b = s * 0.01;
+    for (let y = 0; y <= mh; y++) off[y] = Math.round(b * y);
+    for (let a = 0; a < mw; a++) {
+      let start = -1, last = -1, hits = 0, thin = 0;
+      for (let y = 0; y <= mh; y++) {
+        const x = a + off[y], row = y * mw;
+        const on = y < mh && x >= 1 && x < mw - 1 && (m[row + x] | m[row + x - 1] | m[row + x + 1]) === 1;
+        if (on && !(start >= 0 && y - last > maxGap)) {
+          if (start < 0) { start = y; hits = 0; thin = 0; }
+          last = y; hits++;
+          if (!(x >= 3 && m[row + x - 3]) && !(x + 3 < mw && m[row + x + 3])) thin++;
+          continue;
+        }
+        if (start >= 0 && (y - last > maxGap || y === mh || on)) {
+          const len = last - start;
+          if (len >= mh * minLen && hits >= len * 0.85 && thin >= hits * 0.6) cands.push({ a, b, len, y0: start, y1: last });
+          start = on ? y : -1; hits = on ? 1 : 0; thin = 0; last = on ? y : -1;
+        }
+      }
+    }
+  }
+  // One rule per stroke: neighbouring positions/slants describe the same one
+  // (same place where their heights overlap).
+  cands.sort((p, q) => q.len - p.len);
+  const kept = [];
+  for (const c of cands) {
+    const same = kept.some((r) => {
+      const lo = Math.max(r.y0, c.y0), hi = Math.min(r.y1, c.y1);
+      if (hi <= lo) return false;
+      const mid = (lo + hi) / 2;
+      return Math.abs((r.a + r.b * mid) - (c.a + c.b * mid)) < 4;
+    });
+    if (!same) kept.push(c);
+  }
+  return kept.map((c) => ({ a: (c.a + 0.5) * D, b: c.b, y0: c.y0 * D, y1: (c.y1 + 1) * D, t: 3 * D }));
+}
+
+// Paint the rules as paper (OCR copy only; the stored page is untouched).
+// Per row only the thin dark run nearest the predicted line is erased (at
+// most 10 px wide), so a character close to the rule keeps its pixels.
+export function eraseVerticalRules(grey, w, h, rules, { dark = 170 } = {}) {
+  for (const r of rules) {
+    for (let y = Math.max(0, r.y0); y < Math.min(h, r.y1); y++) {
+      const xc = Math.round(r.a + r.b * y), row = y * w;
+      let best = -1;
+      for (let d = 0; d <= r.t && best < 0; d++) {
+        if (xc - d >= 0 && grey[row + xc - d] < dark) best = xc - d;
+        else if (xc + d < w && grey[row + xc + d] < dark) best = xc + d;
+      }
+      if (best < 0) continue;
+      let x0 = best, x1 = best;
+      while (x0 > 0 && grey[row + x0 - 1] < dark && best - x0 < 10) x0--;
+      while (x1 < w - 1 && grey[row + x1 + 1] < dark && x1 - best < 10) x1++;
+      if (x1 - x0 + 1 > 10) continue; // a wide run here is not the rule alone
+      for (let x = Math.max(0, x0 - 1); x <= Math.min(w - 1, x1 + 1); x++) grey[row + x] = 255;
+    }
+  }
+  return grey;
+}
+
+export function prepareCanvas(src, opts = {}) {
   const ctx = src.getContext("2d", { willReadFrequently: true });
   const img = ctx.getImageData(0, 0, src.width, src.height);
   const g = prepPixels(img.data, src.width, src.height, opts);
+  if (opts.rules) {
+    opts.rules.push(...findVerticalRules(g, src.width, src.height));
+    eraseVerticalRules(g, src.width, src.height, opts.rules);
+  }
   const out = document.createElement("canvas"); out.width = src.width; out.height = src.height;
   const oimg = new ImageData(src.width, src.height);
   for (let i = 0, p = 0; i < g.length; i++, p += 4) { oimg.data[p] = oimg.data[p + 1] = oimg.data[p + 2] = g[i]; oimg.data[p + 3] = 255; }
@@ -111,9 +197,76 @@ export function columnRects(words, w, h) {
   if (gutter == null) return [{ left: 0, top: 0, width: w, height: h }];
   const pad = Math.round(w * 0.004);
   return [
-    { left: 0, top: 0, width: Math.min(w, Math.round(gutter + pad)), height: h },
-    { left: Math.max(0, Math.round(gutter - pad)), top: 0, width: w - Math.max(0, Math.round(gutter - pad)), height: h },
+    { left: 0, top: 0, width: Math.min(w, Math.round(gutter + pad)), height: h, gutter },
+    { left: Math.max(0, Math.round(gutter - pad)), top: 0, width: w - Math.max(0, Math.round(gutter - pad)), height: h, gutter },
   ];
+}
+
+// Words of the layout pass that belong to the OTHER column: on a tilted or
+// curved photo the ends of left-column lines reach past the split and were
+// read glued in front of right-column numbers ("mly 39.", "eld 123.").
+// A mask never covers a word of this column: the layout pass sometimes
+// returns a box that runs over the neighbouring number ("uniformly" over
+// "39."), so masks are cut back at this column's words.
+export function otherColumnWords(words, rects, col) {
+  if (rects.length < 2) return [];
+  const g = rects[0].gutter;
+  const boxes = (words || []).filter((x) => (x.text || "").trim() && x.bbox).map((x) => x.bbox);
+  const mine = boxes.filter((b) => (col === 0 ? (b.x0 + b.x1) / 2 <= g : (b.x0 + b.x1) / 2 >= g));
+  const vOverlap = (a, b) => Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 0.3 * Math.min(a.y1 - a.y0, b.y1 - b.y0);
+  return boxes.filter((b) => !mine.includes(b)).map((b) => {
+    const m = { ...b };
+    for (const o of mine) {
+      if (!vOverlap(m, o)) continue;
+      if (col === 1 && o.x0 > m.x0) m.x1 = Math.min(m.x1, o.x0 - 3);
+      if (col === 0 && o.x1 < m.x1) m.x0 = Math.max(m.x0, o.x1 + 3);
+    }
+    return m;
+  }).filter((m) => m.x1 > m.x0);
+}
+
+// A strip of the NEIGHBOURING page at the image edge: words beyond an empty
+// vertical gap in the outer column, all running to the edge. Found on the
+// layout pass (before column OCR, which may glue the strip onto real lines).
+// Returns page rectangles to paint out of the OCR copy.
+export function edgeStrips(words, rects, w, h) {
+  const boxes = (words || []).filter((x) => (x.text || "").trim() && x.bbox).map((x) => x.bbox);
+  const out = [];
+  const side = (outer, inner) => {
+    // Candidate gap positions in the outer 40% of the outer column.
+    const r = outer, lo = inner ? r.left + r.width * 0.6 : r.left, hi = inner ? w * 0.97 : r.left + r.width * 0.4;
+    let best = null;
+    for (let x = lo; x <= hi; x += 4) {
+      const crossing = boxes.filter((b) => b.x0 < x && b.x1 > x).length;
+      const beyond = boxes.filter((b) => (inner ? b.x0 >= x : b.x1 <= x));
+      if (crossing === 0 && beyond.length >= 3 && (!best || (inner ? x < best.x : x > best.x))) best = { x, beyond };
+    }
+    if (!best) return;
+    // The strip must reach the edge, and the page's own text must be on the
+    // other side of the gap along most of the strip's height.
+    const reach = inner ? Math.max(...best.beyond.map((b) => b.x1)) >= w * 0.97 : Math.min(...best.beyond.map((b) => b.x0)) <= w * 0.03;
+    const y0 = Math.min(...best.beyond.map((b) => b.y0)), y1 = Math.max(...best.beyond.map((b) => b.y1));
+    const pageSide = boxes.filter((b) => (inner ? b.x1 <= best.x : b.x0 >= best.x) && b.y1 > y0 && b.y0 < y1 && (inner ? b.x0 >= r.left : b.x1 <= r.left + r.width));
+    if (reach && pageSide.length >= best.beyond.length) out.push(inner ? { x0: best.x, y0: 0, x1: w, y1: h } : { x0: 0, y0: 0, x1: best.x, y1: h });
+  };
+  if (rects.length) { side(rects[rects.length - 1], true); side(rects[0], false); }
+  return out;
+}
+
+// Lines photographed from the NEIGHBOURING page: a strip at the image edge
+// (start far into the outer column and run off the image). Returned
+// separately so they stay in the audit text but never join a question.
+export function edgeBleed(lines, rects, w) {
+  const keep = [], bleed = [];
+  const last = rects[rects.length - 1], first = rects[0];
+  for (const l of lines) {
+    const right = l.col === rects.length - 1 && l.x0 > last.left + 0.6 * last.width && l.x1 >= w * 0.985;
+    const left = l.col === 0 && l.x0 <= w * 0.015 && l.x1 < first.left + 0.35 * first.width;
+    (right || left ? bleed : keep).push(l);
+  }
+  // A single line at the edge can be a long line of the page itself; a strip
+  // is several lines.
+  return bleed.length >= 2 ? { keep, bleed } : { keep: lines, bleed: [] };
 }
 
 // Median slope (radians) of long text lines inside a rectangle.
@@ -133,15 +286,21 @@ export function skewOf(lines, r) {
 
 // The column as its own canvas, rotated by -angle; map() turns its
 // coordinates back into page coordinates.
-function columnCanvas(src, r, angle) {
+function columnCanvas(src, r, angle, mask = []) {
   // Padding so rotated corners are not cut off.
   const pad = Math.ceil(Math.abs(Math.sin(angle)) * Math.max(r.width, r.height) / 2) + 8;
+  // The column alone, with the other column's words painted out.
+  const part = document.createElement("canvas"); part.width = r.width; part.height = r.height;
+  const pctx = part.getContext("2d");
+  pctx.drawImage(src, r.left, r.top, r.width, r.height, 0, 0, r.width, r.height);
+  pctx.fillStyle = "#fff";
+  for (const b of mask) pctx.fillRect(b.x0 - r.left - 2, b.y0 - r.top - 2, b.x1 - b.x0 + 4, b.y1 - b.y0 + 4);
   const c = document.createElement("canvas"); c.width = r.width + 2 * pad; c.height = r.height + 2 * pad;
   const ctx = c.getContext("2d");
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
   const cx = c.width / 2, cy = c.height / 2;
   ctx.translate(cx, cy); ctx.rotate(-angle); ctx.translate(-cx, -cy);
-  ctx.drawImage(src, r.left, r.top, r.width, r.height, pad, pad, r.width, r.height);
+  ctx.drawImage(part, 0, 0, r.width, r.height, pad, pad, r.width, r.height);
   const cos = Math.cos(angle), sin = Math.sin(angle);
   const pt = (x, y) => [r.left - pad + cx + (x - cx) * cos - (y - cy) * sin, r.top - pad + cy + (x - cx) * sin + (y - cy) * cos];
   const map = (b) => {
@@ -372,7 +531,8 @@ function debugCrop(canvas, e) {
 // Diagram detection uses a colour-free copy (no banners or pen marks).
 export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = true, dropColour = false, deskew = true, exponents = true, debug = false } = {}) {
   const w = srcCanvas.width, h = srcCanvas.height;
-  const prepared = clean ? prepareCanvas(srcCanvas, { dropColour }) : null;
+  const rules = [];
+  const prepared = clean ? prepareCanvas(srcCanvas, { dropColour, rules }) : null;
   const canvas = prepared ? prepared.canvas : srcCanvas;
   // Stricter colour cut for diagram finding: banner edges and pen strokes go.
   const grey = prepareCanvas(srcCanvas, { dropColour: true, sat: 35 }).grey;
@@ -380,11 +540,12 @@ export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = tr
   await worker.setParameters({ tessedit_pageseg_mode: "3", tessedit_char_whitelist: "" });
   const { data: layout } = await worker.recognize(canvas);
   const rects = columnRects(layout.words, w, h);
-  const lines = [], textBoxes = [], stats = { columns: rects.length, skew: [], exponentsRead: 0, exponentsReread: 0, exponentsUnreadable: 0 };
+  const strips = edgeStrips(layout.words, rects, w, h);
+  const lines = [], textBoxes = [], stats = { columns: rects.length, skew: [], exponentsRead: 0, exponentsReread: 0, exponentsUnreadable: 0, rulesErased: rules.length, edgeStrips: strips.length };
   for (const [col, r] of rects.entries()) {
     const angle = deskew ? skewOf(layout.lines, r) : 0;
     stats.skew.push(Math.round(angle * 1800 / Math.PI) / 10);
-    const cc = columnCanvas(canvas, r, angle);
+    const cc = columnCanvas(canvas, r, angle, [...otherColumnWords(layout.words, rects, col), ...strips]);
     status(`column ${col + 1}/${rects.length}`);
     await worker.setParameters({ tessedit_pageseg_mode: "4", tessedit_char_whitelist: "" });
     const { data } = await worker.recognize(cc.canvas);
@@ -422,11 +583,18 @@ export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = tr
         }
       }
       // Text areas (not diagrams): words read with some confidence, and whole
-      // lines that read as text.
+      // lines that read as text — but a line's box only when its words are
+      // contiguous: a line that runs on into a diagram's labels beside it
+      // ("…are placed , -4uC 3uC") would otherwise cover the diagram.
       for (const wd of l.words || []) if ((wd.confidence ?? 0) >= 40 && /[A-Za-z0-9]{2}|^[A-Za-z0-9]$/.test(wd.text || "")) textBoxes.push(cc.map(wd.bbox));
       const letters = (l.text.match(/[A-Za-z]/g) || []).length;
-      if ((l.confidence ?? 0) >= 60 && letters >= 8 && letters / Math.max(1, l.text.replace(/\s/g, "").length) >= 0.7) textBoxes.push(cc.map(l.bbox));
-      colLines.push({ text, raw: rawText, col, conf: l.confidence ?? null, ...l.bbox, pageBox: cc.map(l.bbox) });
+      const wb = (l.words || []).filter((wd) => wd.bbox && (wd.text || "").trim()).map((wd) => wd.bbox).sort((a, b) => a.x0 - b.x0);
+      const lh = l.bbox.y1 - l.bbox.y0;
+      const contiguous = wb.every((b, i) => i === 0 || b.x0 - wb[i - 1].x1 <= 1.5 * lh);
+      if ((l.confidence ?? 0) >= 60 && letters >= 8 && letters / Math.max(1, l.text.replace(/\s/g, "").length) >= 0.7 && contiguous) textBoxes.push(cc.map(l.bbox));
+      // hgt: the line's own height in the straightened column (page boxes of
+      // a tilted column are taller than the text).
+      colLines.push({ text, raw: rawText, col, conf: l.confidence ?? null, ...l.bbox, hgt: lh, pageBox: cc.map(l.bbox) });
     }
     // Question numbers hang in the column's left margin; the text pass
     // sometimes drops that strip entirely. Read it on its own.
@@ -435,10 +603,16 @@ export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = tr
     // Order in the straightened column, then convert to page coordinates.
     lines.push(...readingOrder(colLines).map(({ pageBox, ...l }) => ({ ...l, ...pageBox })));
   }
-  const lineH = median(lines.map((l) => l.y1 - l.y0)) || h / 60;
+  const { keep, bleed } = edgeBleed(lines, rects, w);
+  stats.edgeLines = bleed.length;
+  const lineH = median(keep.map((l) => l.hgt ?? (l.y1 - l.y0))) || h / 60;
   const figures = findFigureAreas(grey, w, h, textBoxes, lineH).map((b) => ({ ...b, col: rects.findIndex((r) => (b.x0 + b.x1) / 2 >= r.left && (b.x0 + b.x1) / 2 < r.left + r.width) }));
-  const conf = lines.length ? lines.reduce((s, l) => s + (l.conf ?? 0), 0) / lines.length : 0;
-  return { lines, figures, columns: rects, width: w, height: h, conf, stats };
+  const conf = keep.length ? keep.reduce((s, l) => s + (l.conf ?? 0), 0) / keep.length : 0;
+  // Text of a masked neighbouring-page strip stays in the audit record.
+  const inStrip = (bb) => strips.some((r) => bb.x0 >= r.x0 - 2 && bb.x1 <= r.x1 + 2);
+  const stripLines = (layout.lines || []).filter((l) => l.bbox && (l.text || "").trim() && inStrip(l.bbox)).map((l) => ({ text: l.text.trim(), raw: l.text.trim(), conf: l.confidence ?? null, ...l.bbox }));
+  const dropped = [...bleed, ...stripLines].map((l) => ({ ...l, reason: "outside the page's text area (neighbouring page in the photo)" }));
+  return { lines: keep, dropped, figures, columns: rects, width: w, height: h, conf, stats };
 }
 
 // Margin pass. Question numbers hang left of the text; the text pass
