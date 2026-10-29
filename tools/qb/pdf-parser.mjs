@@ -45,7 +45,7 @@ export function normalizeText(s) {
 export const UNREADABLE = "[[?]]";
 // Stamped on every extracted item, so a later audit knows which segmenter
 // produced it (the RCC audit had to infer it from deployment times).
-export const PARSER_VERSION = "2026-10-28.audit";
+export const PARSER_VERSION = "2026-10-29.audit2";
 // Saved with each page's text (qb_import_pages.raw_text): the full line
 // geometry, so the page can be segmented again without OCR.
 export const PAGE_DATA_MARK = "\n\n#SIR-PAGE-DATA v1 (lines with positions, for re-segmentation)\n";
@@ -310,7 +310,10 @@ export function findQuestionStarts(lines) {
     const nextFew = cands.slice(k + 1, k + 6);
     const runs = new Set(nextFew.filter((x) => x.number > c.number && x.number - c.number <= 4).map((x) => x.number)).size >= 2;
     const oldGoesOn = nextFew.slice(0, 4).some((x) => x.number > last && x.number - last <= 3);
-    const restart = last >= 3 && c.number <= 5 && c.number < last && runs && !oldGoesOn;
+    // …and not when a lower number follows at once ("3 )" from garbled
+    // options, then the real "1.", "2." of the new section).
+    const lowerSoon = nextFew.slice(0, 3).some((x) => x.number >= 1 && x.number < c.number);
+    const restart = last >= 3 && c.number <= 5 && c.number < last && runs && !oldGoesOn && !lowerSoon;
     const jump = c.number > last && ahead(k, c.number) && (last === 0 || c.number - last <= 40);
     // "1, 2, 5, 4": a skip ahead immediately followed by last + 2 is a
     // misread last + 1 (3 read as 5), not two missing questions.
@@ -469,14 +472,15 @@ export function extractOptions(body) {
 // explicit heading such as "Answer Key" so stray "2. (b)" text is ignored.
 // A heading is only a heading when it looks like one (capital first letter,
 // not the end of a sentence such as "…Justify your / answer.") AND what
-// follows really is a key: at least five "number → letter" pairs in the next
-// lines. Without this, one such line cut off the rest of a document.
+// follows really is a key: "number → letter" pairs in the next
+// lines (at least two; a short test may have a 3-entry key). Without this,
+// one such line cut off the rest of a document.
 const KEY_PAIR = /(\d{1,3})\s*[.):\-]?\s*\(?\s*([a-dA-D1-4])\s*\)?(?![A-Za-z0-9])/g;
 function isAnswerKeyAt(lines, i) {
   const t = lines[i].text.trim();
   if (!ANSWER_KEY_HEADING.test(t) || !/^[A-Z]/.test(t)) return false;
   const next = lines.slice(i + 1, i + 16).map((l) => l.text).join("  ");
-  return (next.match(KEY_PAIR) || []).length >= 5;
+  return (next.match(KEY_PAIR) || []).length >= 2;
 }
 
 export function parseAnswerKey(lines) {

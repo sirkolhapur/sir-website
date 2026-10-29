@@ -121,5 +121,5 @@ async function loadCalendar(){try{await loadTests();$('calendarList').innerHTML=
 async function loadProfile(){const {data:{user}}=await supabaseClient.auth.getUser();$('profileInfo').textContent=`Signed in as ${user?.email||'authenticated user'}. Dedicated Test Coordinator role RPC is required for authorization.`}
 restoreSession();
 </script>
-<script type="module" src="question-bank.mjs?v=20261028-audit"></script>
+<script type="module" src="question-bank.mjs?v=20261029-audit2"></script>
 </body></html>

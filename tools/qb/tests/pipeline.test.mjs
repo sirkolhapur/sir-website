@@ -229,3 +229,33 @@ test("negative: a question that legitimately continues into the next column (opt
   assert.equal(q4.draft.options.length, 4);
   assert.ok(!q4.issues.some((i) => /Continues after its four options/.test(i)));
 });
+
+test("a garbled '3 )' before a new section's '1.' does not start the section (no silent loss of 1 and 2)", () => {
+  const s = findQuestionStarts(col([["24. A hollow sphere", 0], ["a) x b) y c) z d) w"], ["25. A point charge", 0], ["3 ) Si, c) zero d) x", 0],
+    ["1. It is possible to have a charged body", 0], ["a) x b) y c) z d) w"], ["2. A body can be negatively charged", 0], ["a) x"], ["4. The spatial distribution", 0], ["a) x"], ["5. Identify incorrect", 0], ["a) x"]]));
+  assert.equal(s.map((x) => `${x.section}:${x.number}`).join(" "), "1:24 1:25 2:1 2:2 2:4 2:5");
+});
+
+test("negative: hanging question numbers at the very left edge of a tight photo are never dropped as a neighbouring page", () => {
+  const rects = [{ left: 0, width: 1150 }, { left: 1130, width: 1200 }];
+  const lines = [{ col: 0, x0: 20, x1: 110, text: "29." }, { col: 0, x0: 22, x1: 112, text: "30." }, { col: 0, x0: 150, x1: 1050, text: "A particle of mass" }];
+  assert.equal(edgeBleed(lines, rects, 2332).bleed.length, 0);
+});
+
+test("negative: the page's own column of hanging numbers at the left edge is not a neighbouring-page strip", () => {
+  const w = 2332, h = 3300, rects = [{ left: 0, width: 1150 }, { left: 1130, width: 1200 }];
+  const words = [];
+  for (let i = 0; i < 10; i++) {
+    const y = 400 + i * 220;
+    words.push({ text: `${26 + i}.`, bbox: { x0: 54, y0: y, x1: 120, y1: y + 40 } });
+    for (let k = 0; k < 3; k++) words.push({ text: "charges", bbox: { x0: 150 + k * 300, y0: y + k * 55, x1: 400 + k * 300, y1: y + k * 55 + 40 } });
+  }
+  assert.equal(edgeStrips(words, rects, w, h).length, 0);
+});
+
+test("a short real answer key (3 entries) is read and not turned into a question", () => {
+  const lines = col([["1. Q one", 0], ["a) x b) y c) z d) w"], ["2. Q two", 0], ["a) x b) y c) z d) w"], ["3. Q three", 0], ["a) x b) y c) z d) w"], ["Answer Key", 0], ["1. (b)"], ["2. (c)"], ["3. (a)"]]);
+  const { questions } = segmentQuestions([{ page: 1, width: 1000, height: 2000, source: "ocr", lines }]);
+  assert.deepEqual(questions.map((q) => q.number), [1, 2, 3]);
+  assert.deepEqual(questions.map((q) => q.draft.answer), ["B", "C", "A"]);
+});
