@@ -259,3 +259,52 @@ test("a short real answer key (3 entries) is read and not turned into a question
   assert.deepEqual(questions.map((q) => q.number), [1, 2, 3]);
   assert.deepEqual(questions.map((q) => q.draft.answer), ["B", "C", "A"]);
 });
+
+test("RCC p1 pattern: Q2's number read on Q1's c)/d) row — the row stays with Q1, Q2 keeps only its own text and options", () => {
+  // Synthetic lines with the structure measured on the live job (the margin
+  // pass glued "2." to Q1's last option row; a pen tick hid Q1's "a)").
+  const lines = col([["1. There are two types of electric charges", 0], ["The property which differentiates them is"],
+    ["a) field of charge b) amount of charge"], ["2. c) strength of charge d) polarity of charge", 1],
+    ["What will happen when we rub a glass rod", 0], ["with silk cloth?"],
+    ["a) electrons go to silk"], ["b) rod positive, silk negative"], ["c) new charge is created"], ["d) both a and b"],
+    ["3. When a person combs his hair", 0], ["a) w b) x c) y d) z"]]);
+  const { questions } = segmentQuestions([{ page: 1, width: 1000, height: 2000, source: "ocr", lines }]);
+  assert.deepEqual(questions.map((q) => q.number), [1, 2, 3]);
+  const [q1, q2] = questions;
+  assert.deepEqual(q1.draft.options.map((o) => o.key + ":" + o.text), ["A:field of charge", "B:amount of charge", "C:strength of charge", "D:polarity of charge"]);
+  assert.match(q2.draft.question, /^What will happen when we rub a glass rod/);
+  assert.ok(!/strength of charge|polarity of charge/.test(JSON.stringify(q2.draft)), "no Q1 text inside Q2");
+  assert.deepEqual(q2.draft.options.map((o) => o.text), ["electrons go to silk", "rod positive, silk negative", "new charge is created", "both a and b"]);
+  assert.ok(q1.issues.some((i) => /last option row/.test(i)) && q2.issues.some((i) => /read beside the previous question's option row/.test(i)));
+});
+
+test("an option letter hidden by a pen tick keeps the other options under their PRINTED letters (empty slot, never re-lettered)", () => {
+  const o = extractOptions("The property is\n7 icld of charge b) amount of charge\nc) strength of charge d) polarity of charge");
+  assert.deepEqual(o.options.map((x) => `${x.key}:${x.text}`), ["A:", "B:amount of charge", "C:strength of charge", "D:polarity of charge"]);
+  assert.deepEqual(o.missing, ["A"]);
+});
+
+test("a stacked fraction read as broken fragments is flagged for retyping, never rebuilt into a guessed formula", () => {
+  const lines = col([["34. The force per unit charge is", 0], ["a) flux b) field c) potential d) current"],
+    ["35. Five equal charges are placed at the corners of a pentagon", 0], ["The electric field at the centre is"], ["q"], ["a b"], [") 4dnegr? dneqr?"], ["): dra d) zero"],
+    ["36. In above question what is the field", 0], ["a) x b) y c) z d) w"]]).map((l) => (l.text.length <= 18 ? { ...l, conf: 40 } : l));
+  const { questions } = segmentQuestions([{ page: 1, width: 1000, height: 2000, source: "ocr", lines }]);
+  const q35 = questions.find((q) => q.number === 35);
+  assert.ok(q35.issues.some((i) => /stacked formula/.test(i)));
+  assert.equal(q35.confidence, "low");
+  assert.ok(!/\\frac/.test(JSON.stringify(q35.draft)), "no fraction invented");
+  assert.ok(!questions.find((q) => q.number === 34).issues.some((i) => /stacked formula/.test(i)));
+});
+
+test("notation: powers of ten, negative exponents, units, dimensions, chemistry and Greek bases convert exactly", async () => {
+  const { normalizeText: n } = await import("../pdf-parser.mjs");
+  assert.equal(n("1.6 × 10⁻¹⁹ C"), "1.6 × $10^{-19}$ C");
+  assert.equal(n("2 × 10⁴ N/C"), "2 × $10^{4}$ N/C");
+  assert.equal(n("m s⁻²"), "m $s^{-2}$");
+  assert.equal(n("[M¹L³T⁻³A⁻¹]"), "[$M^{1}$$L^{3}$$T^{-3}$$A^{-1}$]");
+  assert.equal(n("H₂SO₄"), "$\\ce{H2SO4}$");
+  assert.equal(n("ε₀ and μ₀"), "$ε_{0}$ and $μ_{0}$");
+  assert.equal(n("λ²"), "$λ^{2}$");
+  // nothing guessed: an exponent OCR could not read stays visibly unresolved
+  assert.equal(n("10^{[[?]]}"), "10^{[[?]]}");
+});

@@ -627,6 +627,7 @@ export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = tr
 // OCR that small patch alone (digits and brackets only) and put the number
 // in front of the line. A bare "29." line is joined to the text beside it.
 // Returns how many numbers were added.
+const OPTION_ROW = /^\s*[^\w\s]{0,2}[(\[]?[a-dA-Do¢©&]\s?[).\]}]\s/;
 export async function marginNumbers(worker, canvas, colLines, dbg = null) {
   if (colLines.length < 5) return 0;
   const lineH = median(colLines.map((l) => l.y1 - l.y0));
@@ -638,7 +639,7 @@ export async function marginNumbers(worker, canvas, colLines, dbg = null) {
     const bare = row.text.match(/^\W{0,2}(\d{1,3})\W{0,2}$/);
     if (!bare) continue;
     const next = colLines.find((l) => l !== row && l.text && Math.abs((l.y0 + l.y1) / 2 - (row.y0 + row.y1) / 2) < 0.6 * lineH && l.x0 > row.x0);
-    if (next && !NUM.test(next.text)) { next.text = `${bare[1]}. ${next.text}`; next.x0 = Math.min(next.x0, row.x0); next.marginNumber = true; row.text = ""; added++; }
+    if (next && !NUM.test(next.text) && !OPTION_ROW.test(next.text)) { next.text = `${bare[1]}. ${next.text}`; next.x0 = Math.min(next.x0, row.x0); next.marginNumber = true; row.text = ""; added++; }
   }
   for (const l of colLines) {
     if (!l.text || NUM.test(l.text)) continue;
@@ -659,7 +660,15 @@ export async function marginNumbers(worker, canvas, colLines, dbg = null) {
     const t = (data.text || "").replace(/\s/g, ""), m = t.match(/^\(?(\d{1,3})\.?\)?$/);
     if (dbg) dbg.push(`${Math.round(l.y0)}:${t}:${Math.round(data.confidence)}`);
     if (!m || (data.confidence ?? 0) < 60) continue;
-    l.text = `${m[1]}. ${l.text}`; l.x0 = x0 + ix0; l.marginNumber = true; added++;
+    // The number belongs to the line its ink is level with — not simply the
+    // line whose strip was searched (a tilted page puts the next question's
+    // "2." beside the previous question's last option row), and never to an
+    // option row.
+    const inkCy = y0 + (iy0 + iy1) / 2;
+    const target = colLines.filter((o) => o.text && !NUM.test(o.text) && !OPTION_ROW.test(o.text))
+      .sort((a, b) => Math.abs((a.y0 + a.y1) / 2 - inkCy) - Math.abs((b.y0 + b.y1) / 2 - inkCy))[0];
+    if (!target || Math.abs((target.y0 + target.y1) / 2 - inkCy) > 0.6 * lineH) continue;
+    target.text = `${m[1]}. ${target.text}`; target.x0 = Math.min(target.x0, x0 + ix0); target.marginNumber = true; added++;
   }
   await worker.setParameters({ tessedit_pageseg_mode: "4", tessedit_char_whitelist: "" });
   for (let i = colLines.length - 1; i >= 0; i--) if (!colLines[i].text) colLines.splice(i, 1);
