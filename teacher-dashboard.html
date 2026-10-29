@@ -2113,6 +2113,153 @@
         .dsp-availability-empty { color: #667085; font-size: 13px; padding: 8px 0; }
         @media (max-width: 640px) { .dsp-availability-list { grid-template-columns: 1fr; } }
 
+
+/* =====================================================
+   TEST COMPOSER — embedded, scoped prototype styles
+===================================================== */
+.test-engine-notice{background:#fffaf0;border:1px solid #ead9a5;border-radius:9px;padding:12px 14px;margin-bottom:14px;color:#70551a;font-size:12px}
+#testEngineRoot{--ink:#101B2D;--slate:#5A6B85;--line:#D8E0EC;--paper:#F5F7FA;--card:#fff;--cherenkov:#1E56F0;--cherenkov-tint:#EAF0FE;--cherenkov-dark:#123CB4;--green:#1C8A4E;--green-tint:#E4F5EB;--amber:#B9790A;--amber-tint:#FCEFD8;--red:#D64545;--red-tint:#FBEDED;--display:'Space Grotesk',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;color:var(--ink);font-family:var(--body);font-size:14px}
+#testEngineRoot *{box-sizing:border-box}
+#testEngineRoot button,#testEngineRoot select,#testEngineRoot input,#testEngineRoot textarea{font:inherit}
+#testEngineRoot button{cursor:pointer}
+#testEngineRoot .hidden{display:none!important}
+#testEngineRoot #topbar{background:#fff;border:1px solid #e5e9f0;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+#testEngineRoot .brand{font-weight:800;color:#07152f;font-size:15px}
+#testEngineRoot .brand span{color:#9a7214;font-weight:600}
+#testEngineRoot .steps{display:flex;gap:7px;flex-wrap:wrap}
+#testEngineRoot .step{font-size:10px;font-weight:700;padding:7px 9px;border-radius:6px;background:#f3f5f8;color:#667085}
+#testEngineRoot .step.active{background:#fff2cc;color:#7a5700}
+#testEngineRoot .step.done{background:#e7f7ee;color:#147a4c}
+#testEngineRoot .card,#testEngineRoot .subjcard{background:#fff;border:1px solid #e5e9f0;border-radius:11px;padding:17px;margin-bottom:13px}
+#testEngineRoot .pt{font-size:21px;color:#07152f;margin:0 0 6px}
+#testEngineRoot .sub{color:#667085;font-size:12px;margin:0 0 14px;line-height:1.5}
+#testEngineRoot label{display:block;font-size:11px;font-weight:700;margin:9px 0 5px;color:#344054}
+#testEngineRoot input[type=text],#testEngineRoot input[type=number],#testEngineRoot select,#testEngineRoot textarea{width:100%;min-height:37px;border:1px solid #dfe4ec;border-radius:7px;padding:8px 10px;background:#fff;color:#172033}
+#testEngineRoot textarea{min-height:70px}
+#testEngineRoot .btn{border:1px solid #dfe4ec;background:#fff;color:#07152f;border-radius:7px;padding:9px 12px;font-size:11px;font-weight:800}
+#testEngineRoot .btn.primary{background:#d7a62a;border-color:#d7a62a;color:#07152f}
+#testEngineRoot .btn:disabled{opacity:.45;cursor:not-allowed}
+#testEngineRoot .linkbtn{border:0;background:none;color:#9a7214;font-weight:800}
+#testEngineRoot .row,#testEngineRoot .row3,#testEngineRoot .subjrow,#testEngineRoot .hdr{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#testEngineRoot .row3>*{flex:1;min-width:130px}
+#testEngineRoot .tag,#testEngineRoot .badge{display:inline-block;border-radius:999px;background:#f2f4f7;padding:4px 7px;font-size:9px;color:#475467;margin:2px}
+#testEngineRoot .scopebanner{background:#fffaf0;border:1px solid #ead9a5;border-radius:9px;padding:13px;margin-bottom:12px;font-size:12px;line-height:1.6}
+#testEngineRoot .lbl{font-size:9px;letter-spacing:.12em;font-weight:800;color:#8a6414;margin-bottom:5px}
+#testEngineRoot .subjcard .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#testEngineRoot .meta{font-size:10px;color:#667085;margin-top:4px}
+#testEngineRoot .progress-pill{font-size:10px;border-radius:999px;padding:6px 9px;background:#fff2cc;color:#7a5700}
+#testEngineRoot .progress-pill.ok{background:#e7f7ee;color:#147a4c}
+#testEngineRoot .picker{border-top:1px solid #edf0f4;margin-top:13px;padding-top:13px}
+#testEngineRoot .reqbar,#testEngineRoot .filters,#testEngineRoot .difflist{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+#testEngineRoot .reqchip{border-radius:7px;padding:6px 8px;font-size:10px;background:#fff2cc;color:#7a5700}
+#testEngineRoot .reqchip.met{background:#e7f7ee;color:#147a4c}
+#testEngineRoot .filters>div{flex:1;min-width:150px}
+#testEngineRoot .chip-check{display:inline-flex;align-items:center;gap:5px;border:1px solid #dfe4ec;border-radius:7px;padding:6px 8px;font-size:10px;background:#fff}
+#testEngineRoot .qitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid #edf0f4}
+#testEngineRoot .qtxt{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+#testEngineRoot .qmeta{margin-top:6px}
+#testEngineRoot .add{border:1px solid #d7a62a;border-radius:7px;background:#fffaf0;padding:7px 10px;font-size:10px;font-weight:800;align-self:center}
+#testEngineRoot .add.added{background:#e7f7ee;border-color:#86c9a4;color:#147a4c}
+#testEngineRoot .empty{padding:24px;text-align:center;color:#667085;background:#f8f9fb;border-radius:8px;font-size:12px}
+#testEngineRoot .psection h3{font-size:15px;border-bottom:2px solid #d7a62a;padding-bottom:8px;margin:0 0 10px;color:#07152f}
+#testEngineRoot .pq{padding:10px 0;border-bottom:1px dashed #dfe4ec;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+#testEngineRoot .pn{font-family:var(--mono);color:#667085;font-size:10px}
+#testEngineRoot .ptotal{background:#07152f;color:#fff;border-radius:9px;padding:16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:800}
+#testEngineRoot .scopebanner .lbl{display:block}
+#testEngineRoot .ptitle{color:#07152f}
+#testEngineRoot .step.active{background:#fff2cc;color:#7a5700}
+@media(max-width:760px){#testEngineRoot #topbar{align-items:flex-start;flex-direction:column}#testEngineRoot .steps{width:100%}#testEngineRoot .step{flex:1;text-align:center}#testEngineRoot .qitem{grid-template-columns:1fr}#testEngineRoot .add{justify-self:start}}
+
+#testEngineRoot{
+  --ink:#101B2D;--slate:#5A6B85;--line:#D8E0EC;--paper:#F5F7FA;--card:#fff;
+  --cherenkov:#1E56F0;--cherenkov-tint:#EAF0FE;--cherenkov-dark:#123CB4;
+  --green:#1C8A4E;--green-tint:#E4F5EB;
+  --amber:#B9790A;--amber-tint:#FCEFD8;
+  --red:#D64545;--red-tint:#FBEDED;
+  --display:'Space Grotesk',sans-serif;--body:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+#testEngineRoot *{box-sizing:border-box}
+#testEngineRoot{margin:0;font-family:var(--body);background:var(--paper);color:var(--ink);font-size:15px}
+#testEngineRoot button,#testEngineRoot select,#testEngineRoot input,#testEngineRoot textarea{font-family:var(--body)}
+#testEngineRoot .hidden{display:none !important}
+#testEngineRoot #topbar{background:var(--card);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+#testEngineRoot .brand{font-family:var(--display);font-weight:700;font-size:16px}
+#testEngineRoot .brand span{color:var(--cherenkov)}
+#testEngineRoot .steps{display:flex;gap:8px;font-family:var(--mono);font-size:12px}
+#testEngineRoot .step{padding:5px 12px;border-radius:16px;border:1px solid var(--line);color:var(--slate)}
+#testEngineRoot .step.active{background:var(--cherenkov);color:#fff;border-color:var(--cherenkov)}
+#testEngineRoot .step.done{background:var(--green-tint);color:var(--green);border-color:var(--green)}
+#testEngineRoot #app{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+#testEngineRoot .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+#testEngineRoot .card + .card{margin-top:16px}
+#testEngineRoot h1.pt{font-family:var(--display);font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+#testEngineRoot p.sub{color:var(--slate);font-size:14px;margin:0 0 20px}
+#testEngineRoot label{display:block;font-size:12.5px;color:var(--slate);margin-bottom:5px;font-weight:500}
+#testEngineRoot input[type=text],#testEngineRoot input[type=number],#testEngineRoot select,#testEngineRoot textarea{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14.5px;background:#fff;font-family:inherit}
+#testEngineRoot textarea{resize:vertical;min-height:44px}
+#testEngineRoot input:focus,#testEngineRoot select:focus,#testEngineRoot textarea:focus{outline:none;border-color:var(--cherenkov)}
+#testEngineRoot .row{display:grid;gap:12px}
+#testEngineRoot .row3{grid-template-columns:1.3fr 0.7fr 1fr}
+#testEngineRoot .subjrow{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--paper)}
+#testEngineRoot .subjrow .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#testEngineRoot .subjrow .hdr .tag{font-family:var(--mono);font-size:11px;background:var(--cherenkov-tint);color:var(--cherenkov-dark);padding:2px 9px;border-radius:12px}
+#testEngineRoot button.btn{font-size:14px;padding:10px 18px;border-radius:9px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+#testEngineRoot button.btn:hover{border-color:var(--cherenkov);color:var(--cherenkov)}
+#testEngineRoot button.btn.primary{background:var(--cherenkov);color:#fff;border-color:var(--cherenkov)}
+#testEngineRoot button.btn.primary:hover{background:var(--cherenkov-dark)}
+#testEngineRoot button.btn:disabled{opacity:.4;cursor:not-allowed}
+#testEngineRoot .linkbtn{background:none;border:none;color:var(--cherenkov);font-size:12.5px;cursor:pointer;padding:0}
+#testEngineRoot .patgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#testEngineRoot .patcard{border:1.5px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;background:#fff}
+#testEngineRoot .patcard:hover{border-color:var(--cherenkov)}
+#testEngineRoot .patcard h4{font-family:var(--display);font-size:15px;margin:0 0 6px}
+#testEngineRoot .patcard p{font-size:12.5px;color:var(--slate);margin:0;line-height:1.5}
+#testEngineRoot .patcard .warn{color:var(--amber);font-size:11.5px;margin-top:8px;font-family:var(--mono)}
+#testEngineRoot .bigchoice{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#testEngineRoot .bigchoice > div{border:1.5px solid var(--line);border-radius:14px;padding:24px;cursor:pointer;text-align:center}
+#testEngineRoot .bigchoice > div:hover{border-color:var(--cherenkov)}
+#testEngineRoot .bigchoice h3{font-family:var(--display);font-size:17px;margin:0 0 8px}
+#testEngineRoot .bigchoice p{font-size:13px;color:var(--slate);margin:0}
+#testEngineRoot .reqline{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px dashed var(--line)}
+#testEngineRoot .reqline:last-child{border-bottom:none}
+#testEngineRoot .scopebanner{background:var(--amber-tint);border:1px solid var(--amber);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13.5px}
+#testEngineRoot .scopebanner .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px}
+#testEngineRoot .chapterlist{max-height:260px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;margin-top:6px}
+#testEngineRoot .chaprow{padding:4px 0}
+#testEngineRoot .chaprow-head{display:flex;align-items:center;gap:8px;font-size:13.5px}
+#testEngineRoot .chaprow-head input{width:auto}
+#testEngineRoot .topiclist{margin:6px 0 6px 24px;padding:8px 10px;border-left:2px solid var(--line);display:grid;gap:4px}
+#testEngineRoot .topiclist label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--slate);margin:0;font-weight:400}
+#testEngineRoot .topiclist label input{width:auto}
+#testEngineRoot .subjcard{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;background:#fff}
+#testEngineRoot .subjcard .top{display:flex;justify-content:space-between;align-items:center}
+#testEngineRoot .subjcard .meta{font-size:13px;color:var(--slate);margin-top:3px}
+#testEngineRoot .progress-pill{font-family:var(--mono);font-size:12px;padding:4px 12px;border-radius:14px}
+#testEngineRoot .progress-pill.wait{background:var(--amber-tint);color:var(--amber)}
+#testEngineRoot .progress-pill.ok{background:var(--green-tint);color:var(--green)}
+#testEngineRoot .picker{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+#testEngineRoot .reqbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#testEngineRoot .reqchip{font-family:var(--mono);font-size:12px;padding:5px 11px;border-radius:8px;border:1px solid var(--line)}
+#testEngineRoot .reqchip.met{background:var(--green-tint);border-color:var(--green);color:var(--green)}
+#testEngineRoot .reqchip.open{background:var(--amber-tint);border-color:var(--amber);color:var(--amber)}
+#testEngineRoot .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+#testEngineRoot .difflist{display:flex;gap:6px;flex-wrap:wrap}
+#testEngineRoot .chip-check{display:flex;align-items:center;gap:5px;font-size:13px;border:1px solid var(--line);border-radius:7px;padding:5px 10px;background:#fff;cursor:pointer}
+#testEngineRoot .chip-check input{width:auto}
+#testEngineRoot .qitem{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+#testEngineRoot .qitem .qtxt{font-size:14px;line-height:1.5}
+#testEngineRoot .qitem .qmeta{font-family:var(--mono);font-size:11px;color:var(--slate);margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+#testEngineRoot .badge{padding:1px 8px;border-radius:10px;background:var(--paper);border:1px solid var(--line)}
+#testEngineRoot .qitem button.add{flex-shrink:0;font-size:12.5px;padding:7px 14px;border-radius:8px;border:1.5px solid var(--cherenkov);color:var(--cherenkov);background:#fff}
+#testEngineRoot .qitem button.add.added{background:var(--green);border-color:var(--green);color:#fff}
+#testEngineRoot .empty{font-size:13.5px;color:var(--slate);padding:20px;text-align:center;font-style:italic}
+#testEngineRoot .psection{margin-bottom:22px}
+#testEngineRoot .psection h3{font-family:var(--display);font-size:16px;border-bottom:2px solid var(--cherenkov);padding-bottom:6px;margin-bottom:12px}
+#testEngineRoot .pq{padding:10px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+#testEngineRoot .pq .pn{font-family:var(--mono);color:var(--slate);font-size:12px}
+#testEngineRoot .ptotal{background:var(--ink);color:#fff;border-radius:12px;padding:18px 22px;display:flex;justify-content:space-between;font-family:var(--display);font-weight:700}
+
+
 </style>
 
 </head>
@@ -2571,29 +2718,16 @@
                     class="page-section"
                     id="section-tests"
                 >
-
                     <div class="section-header">
-
                         <div>
-
-                            <h2>
-                                Tests
-                            </h2>
-
-                            <p>
-                                Tests available in your assigned batches.
-                            </p>
-
+                            <h2>Test Composer</h2>
+                            <p>Create a test using verified questions from the SIR Question Bank.</p>
                         </div>
-
                     </div>
-
-
-                    <div
-                        class="test-grid"
-                        id="testsGrid"
-                    ></div>
-
+                    <div class="test-engine-notice" id="testEngineNotice" role="status">
+                        Loading verified Question Bank questions…
+                    </div>
+                    <div id="testEngineRoot"><div id="topbar"><div class="brand">SIR <span>· Test Composer</span></div><div class="steps"><span class="step" id="s1">1 · Assign</span><span class="step" id="s2">2 · Teachers pick</span><span class="step" id="s3">3 · Final paper</span></div></div><div id="app"></div></div>
                 </section>
 
 
@@ -5536,8 +5670,8 @@
             ],
 
             tests: [
-                "Tests",
-                "Tests in your assigned batches"
+                "Test Composer",
+                "Build a test from the verified SIR Question Bank"
             ],
 
             results: [
@@ -6035,6 +6169,3370 @@
             }
         }
     );
+</script>
+<script>
+
+
+"use strict";
+
+// SIR integration: load only verified/live questions from the existing Question Bank.
+// This is read-only. The composer does not write tests or alter Question Bank records.
+let SIR_QB_READY = false;
+let SIR_QB_ERROR = "";
+let SIR_QB_SUBJECTS = [];
+let SIR_QB_CHAPTERS = [];
+let SIR_QB_TOPICS = [];
+let QUESTIONS = [];
+
+function sirText(v){ return String(v ?? ""); }
+async function loadSirQuestionBank(){
+  const notice = document.getElementById("testEngineNotice");
+  try {
+    const [sr, cr, tr, qr] = await Promise.all([
+      supabaseClient.from("qb_subjects").select("id,code,name,branches").order("sort_order"),
+      supabaseClient.from("qb_chapters").select("id,subject_id,code,slug,name,branches").order("sort_order"),
+      supabaseClient.from("qb_topics").select("id,chapter_id,slug,label").order("sort_order"),
+      supabaseClient.from("qb_questions").select("id,code,subject_id,chapter_id,topic_id,branch,type,difficulty,exam_tags,tags,source,status,default_marks,default_negative,question_md,options").eq("status","live").order("code").limit(5000)
+    ]);
+    for (const x of [sr,cr,tr,qr]) if (x.error) throw x.error;
+    SIR_QB_SUBJECTS = sr.data || [];
+    SIR_QB_CHAPTERS = cr.data || [];
+    SIR_QB_TOPICS = tr.data || [];
+    const subjById = new Map(SIR_QB_SUBJECTS.map(x=>[x.id,x]));
+    const chapterById = new Map(SIR_QB_CHAPTERS.map(x=>[x.id,x]));
+    const topicById = new Map(SIR_QB_TOPICS.map(x=>[x.id,x]));
+    QUESTIONS = (qr.data || []).map(row=>{
+      const sub = subjById.get(row.subject_id) || {};
+      const ch = chapterById.get(row.chapter_id) || {};
+      const tp = topicById.get(row.topic_id) || {};
+      const subjectRaw = (sub.code || sub.name || "").toLowerCase();
+      const subject = /phys|^phy/.test(subjectRaw) ? "physics" :
+        /chem/.test(subjectRaw) ? "chemistry" :
+        /math|^mat/.test(subjectRaw) ? "mathematics" :
+        /bio/.test(subjectRaw) ? "biology" : subjectRaw;
+      return {
+        id: row.code || row.id,
+        dbId: row.id,
+        subject,
+        chapter: ch.slug || "",
+        topic: tp.slug || "",
+        type: row.type,
+        difficulty: Number(row.difficulty || 3),
+        marks: Number(row.default_marks || 0),
+        negative: Number(row.default_negative || 0),
+        question: row.question_md || "",
+        options: row.options || [],
+        branch: row.branch || null,
+        exam: row.exam_tags || [],
+        status: row.status,
+        source: row.source || ""
+      };
+    }).filter(q=>q.question && ["physics","chemistry","mathematics","biology"].includes(q.subject));
+    SIR_QB_READY = true;
+    if (notice) {
+      notice.textContent = `Connected to SIR Question Bank · ${QUESTIONS.length} verified/live questions loaded. This composer is currently a read-only draft workspace; saving, assigning and publishing require the approved test workflow/API.`;
+      notice.style.background = "#ecfdf3"; notice.style.borderColor = "#86efac"; notice.style.color = "#166534";
+    }
+    // Replace hardcoded prototype syllabus metadata with DB-backed taxonomy.
+    if (SIR_QB_SUBJECTS.length && SIR_QB_CHAPTERS.length) {
+      const mapSubject = {};
+      for (const sub of SIR_QB_SUBJECTS) {
+        const key = /phys|^phy/i.test(sub.code+" "+sub.name) ? "physics" :
+          /chem/i.test(sub.code+" "+sub.name) ? "chemistry" :
+          /math/i.test(sub.code+" "+sub.name) ? "mathematics" :
+          /bio/i.test(sub.code+" "+sub.name) ? "biology" : null;
+        if (key) mapSubject[key] = (mapSubject[key] || []).concat(SIR_QB_CHAPTERS.filter(ch=>ch.subject_id===sub.id).map(ch=>({
+          code: ch.code || ch.slug, full_code: ch.code || ch.slug, slug: ch.slug, name: ch.name, branch: ch.branches || null
+        })));
+      }
+      for (const key of Object.keys(mapSubject)) CHAPTERS[key] = mapSubject[key];
+      const mappedTopics = {};
+      for (const ch of SIR_QB_CHAPTERS) {
+        mappedTopics[ch.code || ch.slug] = SIR_QB_TOPICS.filter(tp=>tp.chapter_id===ch.id).map(tp=>({slug:tp.slug,label:tp.label}));
+      }
+      for (const ch of SIR_QB_CHAPTERS) {
+        const sub = SIR_QB_SUBJECTS.find(x=>x.id===ch.subject_id);
+        const subjectKey = /phys|^phy/i.test((sub?.code||"")+" "+(sub?.name||"")) ? "physics" :
+          /chem/i.test((sub?.code||"")+" "+(sub?.name||"")) ? "chemistry" :
+          /math/i.test((sub?.code||"")+" "+(sub?.name||"")) ? "mathematics" :
+          /bio/i.test((sub?.code||"")+" "+(sub?.name||"")) ? "biology" : null;
+        if (subjectKey) {
+          const idx = CHAPTERS[subjectKey].findIndex(x=>x.slug===ch.slug);
+          if (idx>=0) CHAPTERS[subjectKey][idx].full_code = ch.code || ch.slug;
+        }
+      }
+      Object.assign(TOPICS, mappedTopics);
+    }
+    renderApp();
+  } catch (err) {
+    console.error("SIR Question Bank load failed:", err);
+    SIR_QB_ERROR = err?.message || String(err);
+    if (notice) {
+      notice.textContent = `Question Bank connection failed: ${SIR_QB_ERROR}. No sample questions will be shown. Check the coordinator Question Bank RLS/read access before using this composer.`;
+      notice.style.background = "#fff0f0"; notice.style.borderColor = "#fca5a5"; notice.style.color = "#991b1b";
+    }
+    QUESTIONS = [];
+    renderApp();
+  }
+}
+
+
+const CHAPTERS = {
+  "physics": [
+    {
+      "code": "UAM",
+      "full_code": "PHY-UAM",
+      "slug": "units-and-measurement",
+      "name": "Units and Measurement",
+      "branch": null
+    },
+    {
+      "code": "KIN",
+      "full_code": "PHY-KIN",
+      "slug": "kinematics",
+      "name": "Kinematics",
+      "branch": null
+    },
+    {
+      "code": "LOM",
+      "full_code": "PHY-LOM",
+      "slug": "laws-of-motion",
+      "name": "Laws of Motion",
+      "branch": null
+    },
+    {
+      "code": "WPE",
+      "full_code": "PHY-WPE",
+      "slug": "work-power-energy",
+      "name": "Work, Energy and Power",
+      "branch": null
+    },
+    {
+      "code": "ROT",
+      "full_code": "PHY-ROT",
+      "slug": "rotational-motion",
+      "name": "Rotational Motion",
+      "branch": null
+    },
+    {
+      "code": "GRV",
+      "full_code": "PHY-GRV",
+      "slug": "gravitation",
+      "name": "Gravitation",
+      "branch": null
+    },
+    {
+      "code": "SHM",
+      "full_code": "PHY-SHM",
+      "slug": "oscillations",
+      "name": "Oscillations (SHM)",
+      "branch": null
+    },
+    {
+      "code": "WAV",
+      "full_code": "PHY-WAV",
+      "slug": "waves",
+      "name": "Waves",
+      "branch": null
+    },
+    {
+      "code": "MEC",
+      "full_code": "PHY-MEC",
+      "slug": "mechanical-properties-of-matter",
+      "name": "Mechanical Properties of Matter",
+      "branch": null
+    },
+    {
+      "code": "THR",
+      "full_code": "PHY-THR",
+      "slug": "thermal-properties-and-thermodynamics",
+      "name": "Thermal Properties & Thermodynamics",
+      "branch": null
+    },
+    {
+      "code": "KTG",
+      "full_code": "PHY-KTG",
+      "slug": "kinetic-theory-of-gases",
+      "name": "Kinetic Theory of Gases",
+      "branch": null
+    },
+    {
+      "code": "ELS",
+      "full_code": "PHY-ELS",
+      "slug": "electrostatics",
+      "name": "Electrostatics",
+      "branch": null
+    },
+    {
+      "code": "CUR",
+      "full_code": "PHY-CUR",
+      "slug": "current-electricity",
+      "name": "Current Electricity",
+      "branch": null
+    },
+    {
+      "code": "MAG",
+      "full_code": "PHY-MAG",
+      "slug": "magnetism-and-matter",
+      "name": "Magnetism and Matter",
+      "branch": null
+    },
+    {
+      "code": "EMI",
+      "full_code": "PHY-EMI",
+      "slug": "electromagnetic-induction",
+      "name": "Electromagnetic Induction",
+      "branch": null
+    },
+    {
+      "code": "AC",
+      "full_code": "PHY-AC",
+      "slug": "alternating-current",
+      "name": "Alternating Current",
+      "branch": null
+    },
+    {
+      "code": "EMW",
+      "full_code": "PHY-EMW",
+      "slug": "electromagnetic-waves",
+      "name": "Electromagnetic Waves",
+      "branch": null
+    },
+    {
+      "code": "RAY",
+      "full_code": "PHY-RAY",
+      "slug": "ray-optics",
+      "name": "Ray Optics",
+      "branch": null
+    },
+    {
+      "code": "WOP",
+      "full_code": "PHY-WOP",
+      "slug": "wave-optics",
+      "name": "Wave Optics",
+      "branch": null
+    },
+    {
+      "code": "DUA",
+      "full_code": "PHY-DUA",
+      "slug": "dual-nature-of-matter",
+      "name": "Dual Nature of Radiation and Matter",
+      "branch": null
+    },
+    {
+      "code": "ATM",
+      "full_code": "PHY-ATM",
+      "slug": "atoms-and-nuclei",
+      "name": "Atoms and Nuclei",
+      "branch": null
+    },
+    {
+      "code": "SEM",
+      "full_code": "PHY-SEM",
+      "slug": "semiconductors",
+      "name": "Semiconductor Electronics",
+      "branch": null
+    },
+    {
+      "code": "COM",
+      "full_code": "PHY-COM",
+      "slug": "communication-systems",
+      "name": "Communication Systems",
+      "branch": null
+    }
+  ],
+  "chemistry": [
+    {
+      "code": "MOL",
+      "full_code": "CHE-MOL",
+      "slug": "mole-concept",
+      "name": "Some Basic Concepts of Chemistry",
+      "branch": null
+    },
+    {
+      "code": "ATS",
+      "full_code": "CHE-ATS",
+      "slug": "atomic-structure",
+      "name": "Atomic Structure",
+      "branch": null
+    },
+    {
+      "code": "PER",
+      "full_code": "CHE-PER",
+      "slug": "periodicity",
+      "name": "Classification of Elements & Periodicity",
+      "branch": null
+    },
+    {
+      "code": "BON",
+      "full_code": "CHE-BON",
+      "slug": "chemical-bonding",
+      "name": "Chemical Bonding and Molecular Structure",
+      "branch": null
+    },
+    {
+      "code": "THD",
+      "full_code": "CHE-THD",
+      "slug": "thermodynamics",
+      "name": "Chemical Thermodynamics",
+      "branch": null
+    },
+    {
+      "code": "EQL",
+      "full_code": "CHE-EQL",
+      "slug": "equilibrium",
+      "name": "Equilibrium",
+      "branch": null
+    },
+    {
+      "code": "RED",
+      "full_code": "CHE-RED",
+      "slug": "redox-and-electrochemistry",
+      "name": "Redox Reactions & Electrochemistry",
+      "branch": null
+    },
+    {
+      "code": "KIN",
+      "full_code": "CHE-KIN",
+      "slug": "chemical-kinetics",
+      "name": "Chemical Kinetics",
+      "branch": null
+    },
+    {
+      "code": "SOL",
+      "full_code": "CHE-SOL",
+      "slug": "solutions",
+      "name": "Solutions",
+      "branch": null
+    },
+    {
+      "code": "SUR",
+      "full_code": "CHE-SUR",
+      "slug": "surface-chemistry",
+      "name": "Surface Chemistry",
+      "branch": null
+    },
+    {
+      "code": "HYD",
+      "full_code": "CHE-HYD",
+      "slug": "hydrogen-and-s-block",
+      "name": "Hydrogen and s-Block Elements",
+      "branch": null
+    },
+    {
+      "code": "PBL",
+      "full_code": "CHE-PBL",
+      "slug": "p-block-elements",
+      "name": "p-Block Elements",
+      "branch": null
+    },
+    {
+      "code": "DFB",
+      "full_code": "CHE-DFB",
+      "slug": "d-and-f-block",
+      "name": "d- and f-Block Elements",
+      "branch": null
+    },
+    {
+      "code": "COC",
+      "full_code": "CHE-COC",
+      "slug": "coordination-compounds",
+      "name": "Coordination Compounds",
+      "branch": null
+    },
+    {
+      "code": "GOC",
+      "full_code": "CHE-GOC",
+      "slug": "general-organic-chemistry",
+      "name": "General Organic Chemistry",
+      "branch": null
+    },
+    {
+      "code": "HYC",
+      "full_code": "CHE-HYC",
+      "slug": "hydrocarbons",
+      "name": "Hydrocarbons",
+      "branch": null
+    },
+    {
+      "code": "HAL",
+      "full_code": "CHE-HAL",
+      "slug": "haloalkanes-and-haloarenes",
+      "name": "Haloalkanes and Haloarenes",
+      "branch": null
+    },
+    {
+      "code": "ALC",
+      "full_code": "CHE-ALC",
+      "slug": "alcohols-phenols-ethers",
+      "name": "Alcohols, Phenols and Ethers",
+      "branch": null
+    },
+    {
+      "code": "CBN",
+      "full_code": "CHE-CBN",
+      "slug": "aldehydes-ketones-carboxylic-acids",
+      "name": "Aldehydes, Ketones & Carboxylic Acids",
+      "branch": null
+    },
+    {
+      "code": "AMN",
+      "full_code": "CHE-AMN",
+      "slug": "amines",
+      "name": "Amines",
+      "branch": null
+    },
+    {
+      "code": "BIM",
+      "full_code": "CHE-BIM",
+      "slug": "biomolecules",
+      "name": "Biomolecules",
+      "branch": null
+    },
+    {
+      "code": "POL",
+      "full_code": "CHE-POL",
+      "slug": "polymers",
+      "name": "Polymers",
+      "branch": null
+    },
+    {
+      "code": "EVD",
+      "full_code": "CHE-EVD",
+      "slug": "everyday-chemistry",
+      "name": "Chemistry in Everyday Life",
+      "branch": null
+    },
+    {
+      "code": "ENV",
+      "full_code": "CHE-ENV",
+      "slug": "environmental-chemistry",
+      "name": "Environmental Chemistry",
+      "branch": null
+    },
+    {
+      "code": "PRC",
+      "full_code": "CHE-PRC",
+      "slug": "practical-chemistry",
+      "name": "Practical / Qualitative Analysis",
+      "branch": null
+    }
+  ],
+  "mathematics": [
+    {
+      "code": "SET",
+      "full_code": "MAT-SET",
+      "slug": "sets-relations-functions",
+      "name": "Sets, Relations and Functions",
+      "branch": null
+    },
+    {
+      "code": "CPX",
+      "full_code": "MAT-CPX",
+      "slug": "complex-numbers",
+      "name": "Complex Numbers",
+      "branch": null
+    },
+    {
+      "code": "QUA",
+      "full_code": "MAT-QUA",
+      "slug": "quadratic-equations",
+      "name": "Quadratic Equations",
+      "branch": null
+    },
+    {
+      "code": "SEQ",
+      "full_code": "MAT-SEQ",
+      "slug": "sequences-and-series",
+      "name": "Sequences and Series",
+      "branch": null
+    },
+    {
+      "code": "PNC",
+      "full_code": "MAT-PNC",
+      "slug": "permutations-and-combinations",
+      "name": "Permutations and Combinations",
+      "branch": null
+    },
+    {
+      "code": "BIN",
+      "full_code": "MAT-BIN",
+      "slug": "binomial-theorem",
+      "name": "Binomial Theorem",
+      "branch": null
+    },
+    {
+      "code": "MAT",
+      "full_code": "MAT-MAT",
+      "slug": "matrices-and-determinants",
+      "name": "Matrices and Determinants",
+      "branch": null
+    },
+    {
+      "code": "TRI",
+      "full_code": "MAT-TRI",
+      "slug": "trigonometry",
+      "name": "Trigonometry",
+      "branch": null
+    },
+    {
+      "code": "STL",
+      "full_code": "MAT-STL",
+      "slug": "straight-lines",
+      "name": "Straight Lines",
+      "branch": null
+    },
+    {
+      "code": "CIR",
+      "full_code": "MAT-CIR",
+      "slug": "circles",
+      "name": "Circles",
+      "branch": null
+    },
+    {
+      "code": "CON",
+      "full_code": "MAT-CON",
+      "slug": "conic-sections",
+      "name": "Conic Sections",
+      "branch": null
+    },
+    {
+      "code": "LIM",
+      "full_code": "MAT-LIM",
+      "slug": "limits-and-continuity",
+      "name": "Limits, Continuity and Differentiability",
+      "branch": null
+    },
+    {
+      "code": "DIF",
+      "full_code": "MAT-DIF",
+      "slug": "differentiation",
+      "name": "Differentiation and Applications",
+      "branch": null
+    },
+    {
+      "code": "CAL",
+      "full_code": "MAT-CAL",
+      "slug": "integral-calculus",
+      "name": "Integral Calculus",
+      "branch": null
+    },
+    {
+      "code": "DEQ",
+      "full_code": "MAT-DEQ",
+      "slug": "differential-equations",
+      "name": "Differential Equations",
+      "branch": null
+    },
+    {
+      "code": "VEC",
+      "full_code": "MAT-VEC",
+      "slug": "vectors-and-3d-geometry",
+      "name": "Vectors and 3D Geometry",
+      "branch": null
+    },
+    {
+      "code": "PRB",
+      "full_code": "MAT-PRB",
+      "slug": "probability",
+      "name": "Probability",
+      "branch": null
+    },
+    {
+      "code": "STA",
+      "full_code": "MAT-STA",
+      "slug": "statistics",
+      "name": "Statistics",
+      "branch": null
+    }
+  ],
+  "biology": [
+    {
+      "code": "DIV",
+      "full_code": "BIO-DIV",
+      "slug": "diversity-of-living-world",
+      "name": "Diversity in the Living World",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "STR",
+      "full_code": "BIO-STR",
+      "slug": "structural-organisation",
+      "name": "Structural Organisation in Animals & Plants",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "CEL",
+      "full_code": "BIO-CEL",
+      "slug": "cell-structure-and-function",
+      "name": "Cell Structure and Function",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "PPH",
+      "full_code": "BIO-PPH",
+      "slug": "plant-physiology",
+      "name": "Plant Physiology",
+      "branch": [
+        "botany"
+      ]
+    },
+    {
+      "code": "HPH",
+      "full_code": "BIO-HPH",
+      "slug": "human-physiology",
+      "name": "Human Physiology",
+      "branch": [
+        "zoology"
+      ]
+    },
+    {
+      "code": "REP",
+      "full_code": "BIO-REP",
+      "slug": "reproduction",
+      "name": "Reproduction",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "GEN",
+      "full_code": "BIO-GEN",
+      "slug": "genetics-and-evolution",
+      "name": "Genetics and Evolution",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "BIT",
+      "full_code": "BIO-BIT",
+      "slug": "biology-and-human-welfare",
+      "name": "Biology and Human Welfare",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "BIO",
+      "full_code": "BIO-BIO",
+      "slug": "biotechnology",
+      "name": "Biotechnology and Its Applications",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    },
+    {
+      "code": "ECO",
+      "full_code": "BIO-ECO",
+      "slug": "ecology-and-environment",
+      "name": "Ecology and Environment",
+      "branch": [
+        "botany",
+        "zoology"
+      ]
+    }
+  ]
+};
+
+const TOPICS = {
+  "BIO-BIO": [
+    {
+      "slug": "principles-of-biotechnology",
+      "label": "Principles and processes of biotechnology",
+      "order": 1
+    },
+    {
+      "slug": "genetic-engineering",
+      "label": "Genetic engineering and recombinant DNA technology",
+      "order": 2
+    },
+    {
+      "slug": "applications-in-medicine",
+      "label": "Applications in medicine (insulin, gene therapy)",
+      "order": 3
+    },
+    {
+      "slug": "applications-in-agriculture",
+      "label": "Applications in agriculture (Bt crops, GM organisms)",
+      "order": 4
+    }
+  ],
+  "BIO-BIT": [
+    {
+      "slug": "human-health-and-disease",
+      "label": "Human health and common diseases",
+      "order": 1
+    },
+    {
+      "slug": "immunity",
+      "label": "Immunity and immune system",
+      "order": 2
+    },
+    {
+      "slug": "drugs-and-alcohol-abuse",
+      "label": "Drugs and alcohol abuse",
+      "order": 3
+    },
+    {
+      "slug": "improvement-in-food-production",
+      "label": "Improvement in food production (plant breeding, animal husbandry)",
+      "order": 4
+    },
+    {
+      "slug": "microbes-in-human-welfare",
+      "label": "Microbes in human welfare",
+      "order": 5
+    }
+  ],
+  "BIO-CEL": [
+    {
+      "slug": "cell-theory-and-cell-types",
+      "label": "Cell theory, prokaryotic and eukaryotic cells",
+      "order": 1
+    },
+    {
+      "slug": "cell-membrane-and-wall",
+      "label": "Cell membrane and cell wall",
+      "order": 2
+    },
+    {
+      "slug": "cell-organelles",
+      "label": "Cell organelles and their functions",
+      "order": 3
+    },
+    {
+      "slug": "nucleus-and-chromosomes",
+      "label": "Nucleus and chromosomes",
+      "order": 4
+    },
+    {
+      "slug": "cell-division",
+      "label": "Cell cycle, mitosis and meiosis",
+      "order": 5
+    },
+    {
+      "slug": "biomolecules-in-cells",
+      "label": "Biomolecules \u2014 structure and function",
+      "order": 6
+    }
+  ],
+  "BIO-DIV": [
+    {
+      "slug": "classification-basics",
+      "label": "Basis of classification, taxonomic categories",
+      "order": 1
+    },
+    {
+      "slug": "five-kingdom-classification",
+      "label": "Five kingdom classification",
+      "order": 2
+    },
+    {
+      "slug": "plant-kingdom",
+      "label": "Classification of the plant kingdom",
+      "order": 3
+    },
+    {
+      "slug": "animal-kingdom",
+      "label": "Classification of the animal kingdom (non-chordates, chordates)",
+      "order": 4
+    }
+  ],
+  "BIO-ECO": [
+    {
+      "slug": "organisms-and-environment",
+      "label": "Organisms and their environment",
+      "order": 1
+    },
+    {
+      "slug": "population-ecology",
+      "label": "Population interactions and growth",
+      "order": 2
+    },
+    {
+      "slug": "ecosystems",
+      "label": "Ecosystem structure and function",
+      "order": 3
+    },
+    {
+      "slug": "biodiversity",
+      "label": "Biodiversity and its conservation",
+      "order": 4
+    },
+    {
+      "slug": "environmental-issues",
+      "label": "Environmental issues (pollution, global warming, ozone depletion)",
+      "order": 5
+    }
+  ],
+  "BIO-GEN": [
+    {
+      "slug": "mendelian-genetics",
+      "label": "Principles of inheritance \u2014 Mendel's laws",
+      "order": 1
+    },
+    {
+      "slug": "deviations-from-mendelism",
+      "label": "Deviations from Mendelian genetics (linkage, co-dominance)",
+      "order": 2
+    },
+    {
+      "slug": "molecular-basis-of-inheritance",
+      "label": "Molecular basis of inheritance (DNA, RNA, replication)",
+      "order": 3
+    },
+    {
+      "slug": "gene-expression",
+      "label": "Transcription, translation and gene regulation",
+      "order": 4
+    },
+    {
+      "slug": "evolution-basics",
+      "label": "Origin and evidence of evolution",
+      "order": 5
+    },
+    {
+      "slug": "mechanisms-of-evolution",
+      "label": "Mechanisms of evolution (natural selection, Hardy-Weinberg)",
+      "order": 6
+    }
+  ],
+  "BIO-HPH": [
+    {
+      "slug": "digestion-and-absorption",
+      "label": "Digestion and absorption",
+      "order": 1
+    },
+    {
+      "slug": "breathing-and-respiration",
+      "label": "Breathing and exchange of gases",
+      "order": 2
+    },
+    {
+      "slug": "body-fluids-and-circulation",
+      "label": "Body fluids and circulation",
+      "order": 3
+    },
+    {
+      "slug": "excretory-products",
+      "label": "Excretory products and their elimination",
+      "order": 4
+    },
+    {
+      "slug": "locomotion-and-movement",
+      "label": "Locomotion and movement",
+      "order": 5
+    },
+    {
+      "slug": "neural-control",
+      "label": "Neural control and coordination",
+      "order": 6
+    },
+    {
+      "slug": "chemical-coordination",
+      "label": "Chemical coordination and integration (endocrine system)",
+      "order": 7
+    }
+  ],
+  "BIO-PPH": [
+    {
+      "slug": "transport-in-plants",
+      "label": "Transport in plants (transpiration, translocation)",
+      "order": 1
+    },
+    {
+      "slug": "mineral-nutrition",
+      "label": "Mineral nutrition in plants",
+      "order": 2
+    },
+    {
+      "slug": "photosynthesis",
+      "label": "Photosynthesis in higher plants",
+      "order": 3
+    },
+    {
+      "slug": "respiration-in-plants",
+      "label": "Respiration in plants",
+      "order": 4
+    },
+    {
+      "slug": "plant-growth-and-development",
+      "label": "Plant growth and development, plant hormones",
+      "order": 5
+    }
+  ],
+  "BIO-REP": [
+    {
+      "slug": "reproduction-in-organisms",
+      "label": "Modes of reproduction in organisms",
+      "order": 1
+    },
+    {
+      "slug": "sexual-reproduction-in-plants",
+      "label": "Sexual reproduction in flowering plants",
+      "order": 2
+    },
+    {
+      "slug": "human-reproduction",
+      "label": "Human reproductive system",
+      "order": 3
+    },
+    {
+      "slug": "reproductive-health",
+      "label": "Reproductive health and birth control",
+      "order": 4
+    }
+  ],
+  "BIO-STR": [
+    {
+      "slug": "plant-tissues",
+      "label": "Plant tissues (meristematic and permanent)",
+      "order": 1
+    },
+    {
+      "slug": "animal-tissues",
+      "label": "Animal tissues (epithelial, connective, muscular, nervous)",
+      "order": 2
+    },
+    {
+      "slug": "morphology-of-flowering-plants",
+      "label": "Morphology of flowering plants",
+      "order": 3
+    },
+    {
+      "slug": "anatomy-of-flowering-plants",
+      "label": "Anatomy of flowering plants",
+      "order": 4
+    },
+    {
+      "slug": "structural-organisation-in-animals",
+      "label": "Structural organisation in animals (frog/cockroach as examples)",
+      "order": 5
+    }
+  ],
+  "CHE-ALC": [
+    {
+      "slug": "nomenclature-and-preparation-alcohols",
+      "label": "Nomenclature and preparation of alcohols",
+      "order": 1
+    },
+    {
+      "slug": "properties-of-alcohols",
+      "label": "Chemical properties of alcohols",
+      "order": 2
+    },
+    {
+      "slug": "phenols",
+      "label": "Preparation and properties of phenols",
+      "order": 3
+    },
+    {
+      "slug": "ethers",
+      "label": "Preparation and properties of ethers",
+      "order": 4
+    }
+  ],
+  "CHE-AMN": [
+    {
+      "slug": "classification-and-nomenclature-amines",
+      "label": "Classification and nomenclature of amines",
+      "order": 1
+    },
+    {
+      "slug": "preparation-of-amines",
+      "label": "Preparation of amines",
+      "order": 2
+    },
+    {
+      "slug": "basicity-of-amines",
+      "label": "Basicity of amines",
+      "order": 3
+    },
+    {
+      "slug": "reactions-of-amines",
+      "label": "Chemical reactions of amines",
+      "order": 4
+    },
+    {
+      "slug": "diazonium-salts",
+      "label": "Diazonium salts",
+      "order": 5
+    }
+  ],
+  "CHE-ATS": [
+    {
+      "slug": "subatomic-particles",
+      "label": "Discovery of subatomic particles",
+      "order": 1
+    },
+    {
+      "slug": "bohr-model",
+      "label": "Bohr's model of the atom",
+      "order": 2
+    },
+    {
+      "slug": "quantum-numbers",
+      "label": "Quantum numbers",
+      "order": 3
+    },
+    {
+      "slug": "electronic-configuration",
+      "label": "Electronic configuration (Aufbau, Pauli, Hund)",
+      "order": 4
+    },
+    {
+      "slug": "shapes-of-orbitals",
+      "label": "Shapes of s, p, d orbitals",
+      "order": 5
+    },
+    {
+      "slug": "dual-nature-and-uncertainty",
+      "label": "de Broglie relation and Heisenberg's uncertainty principle",
+      "order": 6
+    }
+  ],
+  "CHE-BIM": [
+    {
+      "slug": "carbohydrates",
+      "label": "Classification and structure of carbohydrates",
+      "order": 1
+    },
+    {
+      "slug": "proteins",
+      "label": "Amino acids and proteins",
+      "order": 2
+    },
+    {
+      "slug": "enzymes",
+      "label": "Enzymes",
+      "order": 3
+    },
+    {
+      "slug": "vitamins",
+      "label": "Vitamins",
+      "order": 4
+    },
+    {
+      "slug": "nucleic-acids",
+      "label": "Nucleic acids",
+      "order": 5
+    }
+  ],
+  "CHE-BON": [
+    {
+      "slug": "ionic-bonding",
+      "label": "Ionic bond formation and lattice energy",
+      "order": 1
+    },
+    {
+      "slug": "covalent-bonding-lewis",
+      "label": "Covalent bonding and Lewis structures",
+      "order": 2
+    },
+    {
+      "slug": "vsepr-theory",
+      "label": "VSEPR theory and molecular shapes",
+      "order": 3
+    },
+    {
+      "slug": "hybridisation",
+      "label": "Hybridisation (sp, sp2, sp3 and beyond)",
+      "order": 4
+    },
+    {
+      "slug": "molecular-orbital-theory",
+      "label": "Molecular orbital theory",
+      "order": 5
+    },
+    {
+      "slug": "hydrogen-bonding",
+      "label": "Hydrogen bonding and intermolecular forces",
+      "order": 6
+    },
+    {
+      "slug": "bond-parameters",
+      "label": "Bond length, bond angle and bond energy",
+      "order": 7
+    }
+  ],
+  "CHE-CBN": [
+    {
+      "slug": "nomenclature-carbonyl-compounds",
+      "label": "Nomenclature and structure of carbonyl compounds",
+      "order": 1
+    },
+    {
+      "slug": "preparation-of-aldehydes-ketones",
+      "label": "Preparation of aldehydes and ketones",
+      "order": 2
+    },
+    {
+      "slug": "nucleophilic-addition-reactions",
+      "label": "Nucleophilic addition reactions",
+      "order": 3
+    },
+    {
+      "slug": "named-reactions-carbonyl",
+      "label": "Named reactions (aldol, Cannizzaro, etc.)",
+      "order": 4
+    },
+    {
+      "slug": "carboxylic-acids",
+      "label": "Preparation and properties of carboxylic acids",
+      "order": 5
+    }
+  ],
+  "CHE-COC": [
+    {
+      "slug": "werners-theory",
+      "label": "Werner's theory of coordination compounds",
+      "order": 1
+    },
+    {
+      "slug": "nomenclature-of-coordination-compounds",
+      "label": "Nomenclature of coordination compounds",
+      "order": 2
+    },
+    {
+      "slug": "isomerism-in-coordination-compounds",
+      "label": "Isomerism in coordination compounds",
+      "order": 3
+    },
+    {
+      "slug": "bonding-theories",
+      "label": "Valence bond and crystal field theory",
+      "order": 4
+    },
+    {
+      "slug": "applications-of-coordination-compounds",
+      "label": "Applications of coordination compounds",
+      "order": 5
+    }
+  ],
+  "CHE-DFB": [
+    {
+      "slug": "general-characteristics-transition-elements",
+      "label": "General characteristics of transition elements",
+      "order": 1
+    },
+    {
+      "slug": "electronic-configuration-d-block",
+      "label": "Electronic configuration of d-block elements",
+      "order": 2
+    },
+    {
+      "slug": "oxidation-states-and-colour",
+      "label": "Variable oxidation states and colour of compounds",
+      "order": 3
+    },
+    {
+      "slug": "lanthanoids-and-actinoids",
+      "label": "Lanthanoids and actinoids",
+      "order": 4
+    }
+  ],
+  "CHE-ENV": [
+    {
+      "slug": "atmospheric-pollution",
+      "label": "Atmospheric pollution",
+      "order": 1
+    },
+    {
+      "slug": "water-pollution",
+      "label": "Water pollution",
+      "order": 2
+    },
+    {
+      "slug": "soil-pollution",
+      "label": "Soil pollution",
+      "order": 3
+    },
+    {
+      "slug": "green-chemistry",
+      "label": "Green chemistry",
+      "order": 4
+    }
+  ],
+  "CHE-EQL": [
+    {
+      "slug": "chemical-equilibrium-basics",
+      "label": "Dynamic nature of chemical equilibrium",
+      "order": 1
+    },
+    {
+      "slug": "equilibrium-constant",
+      "label": "Law of mass action and equilibrium constant",
+      "order": 2
+    },
+    {
+      "slug": "le-chateliers-principle",
+      "label": "Le Chatelier's principle",
+      "order": 3
+    },
+    {
+      "slug": "ionic-equilibrium-acids-bases",
+      "label": "Acids, bases and ionic equilibrium",
+      "order": 4
+    },
+    {
+      "slug": "ph-and-buffers",
+      "label": "pH calculations and buffer solutions",
+      "order": 5
+    },
+    {
+      "slug": "solubility-product",
+      "label": "Solubility product and common ion effect",
+      "order": 6
+    }
+  ],
+  "CHE-EVD": [
+    {
+      "slug": "drugs-and-their-classification",
+      "label": "Drugs and their classification",
+      "order": 1
+    },
+    {
+      "slug": "drug-target-interaction",
+      "label": "Drug-target interaction",
+      "order": 2
+    },
+    {
+      "slug": "food-chemicals",
+      "label": "Chemicals in food (preservatives, sweeteners)",
+      "order": 3
+    },
+    {
+      "slug": "cleansing-agents",
+      "label": "Soaps and detergents",
+      "order": 4
+    }
+  ],
+  "CHE-GOC": [
+    {
+      "slug": "nomenclature",
+      "label": "IUPAC nomenclature",
+      "order": 1
+    },
+    {
+      "slug": "hybridisation-and-bonding",
+      "label": "Hybridisation and bonding in organic molecules",
+      "order": 2
+    },
+    {
+      "slug": "electronic-effects",
+      "label": "Inductive, electromeric and hyperconjugation effects",
+      "order": 3
+    },
+    {
+      "slug": "resonance",
+      "label": "Resonance and resonance stability",
+      "order": 4
+    },
+    {
+      "slug": "acidity-and-basicity",
+      "label": "Acidity and basicity of organic compounds",
+      "order": 5
+    },
+    {
+      "slug": "reaction-intermediates",
+      "label": "Carbocations, carbanions, free radicals",
+      "order": 6
+    },
+    {
+      "slug": "isomerism-structural",
+      "label": "Structural isomerism",
+      "order": 7
+    },
+    {
+      "slug": "isomerism-stereochemistry",
+      "label": "Stereoisomerism (geometrical, optical)",
+      "order": 8
+    },
+    {
+      "slug": "reaction-mechanisms-intro",
+      "label": "Introduction to reaction mechanisms (substitution, addition, elimination)",
+      "order": 9
+    }
+  ],
+  "CHE-HAL": [
+    {
+      "slug": "nomenclature-and-preparation-halides",
+      "label": "Nomenclature and preparation of haloalkanes/haloarenes",
+      "order": 1
+    },
+    {
+      "slug": "nucleophilic-substitution",
+      "label": "Nucleophilic substitution reactions (SN1, SN2)",
+      "order": 2
+    },
+    {
+      "slug": "elimination-reactions",
+      "label": "Elimination reactions",
+      "order": 3
+    },
+    {
+      "slug": "reactions-of-haloarenes",
+      "label": "Reactions of haloarenes",
+      "order": 4
+    }
+  ],
+  "CHE-HYC": [
+    {
+      "slug": "classification-and-nomenclature-hydrocarbons",
+      "label": "Classification and nomenclature of hydrocarbons",
+      "order": 1
+    },
+    {
+      "slug": "alkanes",
+      "label": "Preparation and properties of alkanes",
+      "order": 2
+    },
+    {
+      "slug": "alkenes",
+      "label": "Preparation and properties of alkenes",
+      "order": 3
+    },
+    {
+      "slug": "alkynes",
+      "label": "Preparation and properties of alkynes",
+      "order": 4
+    },
+    {
+      "slug": "aromatic-hydrocarbons",
+      "label": "Aromatic hydrocarbons and benzene",
+      "order": 5
+    },
+    {
+      "slug": "electrophilic-aromatic-substitution",
+      "label": "Electrophilic aromatic substitution",
+      "order": 6
+    }
+  ],
+  "CHE-HYD": [
+    {
+      "slug": "position-of-hydrogen",
+      "label": "Position of hydrogen in the periodic table",
+      "order": 1
+    },
+    {
+      "slug": "hydrides",
+      "label": "Hydrides and their classification",
+      "order": 2
+    },
+    {
+      "slug": "water-and-hydrogen-peroxide",
+      "label": "Water and hydrogen peroxide",
+      "order": 3
+    },
+    {
+      "slug": "alkali-metals",
+      "label": "Alkali metals and their compounds",
+      "order": 4
+    },
+    {
+      "slug": "alkaline-earth-metals",
+      "label": "Alkaline earth metals and their compounds",
+      "order": 5
+    }
+  ],
+  "CHE-KIN": [
+    {
+      "slug": "rate-of-reaction",
+      "label": "Rate of a chemical reaction",
+      "order": 1
+    },
+    {
+      "slug": "rate-law-and-order",
+      "label": "Rate law, order and molecularity",
+      "order": 2
+    },
+    {
+      "slug": "integrated-rate-equations",
+      "label": "Integrated rate equations (zero and first order)",
+      "order": 3
+    },
+    {
+      "slug": "half-life",
+      "label": "Half-life of a reaction",
+      "order": 4
+    },
+    {
+      "slug": "arrhenius-equation",
+      "label": "Effect of temperature, Arrhenius equation",
+      "order": 5
+    },
+    {
+      "slug": "collision-theory",
+      "label": "Collision theory of reaction rates",
+      "order": 6
+    }
+  ],
+  "CHE-MOL": [
+    {
+      "slug": "mole-concept",
+      "label": "Mole concept and Avogadro's number",
+      "order": 1
+    },
+    {
+      "slug": "stoichiometry",
+      "label": "Stoichiometry and chemical equations",
+      "order": 2
+    },
+    {
+      "slug": "limiting-reagent",
+      "label": "Limiting reagent",
+      "order": 3
+    },
+    {
+      "slug": "concentration-terms",
+      "label": "Concentration terms (molarity, molality, normality)",
+      "order": 4
+    },
+    {
+      "slug": "equivalent-concept",
+      "label": "Equivalent weight and equivalent concept",
+      "order": 5
+    }
+  ],
+  "CHE-PBL": [
+    {
+      "slug": "group-13-elements",
+      "label": "Group 13 elements (boron family)",
+      "order": 1
+    },
+    {
+      "slug": "group-14-elements",
+      "label": "Group 14 elements (carbon family)",
+      "order": 2
+    },
+    {
+      "slug": "group-15-elements",
+      "label": "Group 15 elements (nitrogen family)",
+      "order": 3
+    },
+    {
+      "slug": "group-16-elements",
+      "label": "Group 16 elements (oxygen family)",
+      "order": 4
+    },
+    {
+      "slug": "group-17-elements",
+      "label": "Group 17 elements (halogens)",
+      "order": 5
+    },
+    {
+      "slug": "group-18-elements",
+      "label": "Group 18 elements (noble gases)",
+      "order": 6
+    }
+  ],
+  "CHE-PER": [
+    {
+      "slug": "modern-periodic-law",
+      "label": "Modern periodic law and the periodic table",
+      "order": 1
+    },
+    {
+      "slug": "periodic-trends-size",
+      "label": "Atomic and ionic radii trends",
+      "order": 2
+    },
+    {
+      "slug": "ionisation-enthalpy",
+      "label": "Ionisation enthalpy",
+      "order": 3
+    },
+    {
+      "slug": "electron-gain-enthalpy",
+      "label": "Electron gain enthalpy and electronegativity",
+      "order": 4
+    },
+    {
+      "slug": "periodicity-of-properties",
+      "label": "Periodicity of valence and chemical properties",
+      "order": 5
+    }
+  ],
+  "CHE-POL": [
+    {
+      "slug": "classification-of-polymers",
+      "label": "Classification of polymers",
+      "order": 1
+    },
+    {
+      "slug": "addition-polymerisation",
+      "label": "Addition polymerisation",
+      "order": 2
+    },
+    {
+      "slug": "condensation-polymerisation",
+      "label": "Condensation polymerisation",
+      "order": 3
+    },
+    {
+      "slug": "important-polymers",
+      "label": "Important commercial polymers",
+      "order": 4
+    }
+  ],
+  "CHE-PRC": [
+    {
+      "slug": "qualitative-analysis-cations",
+      "label": "Qualitative analysis of cations",
+      "order": 1
+    },
+    {
+      "slug": "qualitative-analysis-anions",
+      "label": "Qualitative analysis of anions",
+      "order": 2
+    },
+    {
+      "slug": "titrimetric-analysis",
+      "label": "Titrimetric analysis",
+      "order": 3
+    },
+    {
+      "slug": "chromatography-basics",
+      "label": "Chromatography basics",
+      "order": 4
+    }
+  ],
+  "CHE-RED": [
+    {
+      "slug": "oxidation-and-reduction",
+      "label": "Oxidation, reduction and oxidation number",
+      "order": 1
+    },
+    {
+      "slug": "balancing-redox-reactions",
+      "label": "Balancing redox reactions",
+      "order": 2
+    },
+    {
+      "slug": "electrochemical-cells",
+      "label": "Galvanic cells and cell notation",
+      "order": 3
+    },
+    {
+      "slug": "nernst-equation",
+      "label": "Nernst equation and electrode potential",
+      "order": 4
+    },
+    {
+      "slug": "electrolysis",
+      "label": "Electrolysis and Faraday's laws",
+      "order": 5
+    },
+    {
+      "slug": "conductance",
+      "label": "Conductance and Kohlrausch's law",
+      "order": 6
+    }
+  ],
+  "CHE-SOL": [
+    {
+      "slug": "concentration-of-solutions",
+      "label": "Ways of expressing concentration",
+      "order": 1
+    },
+    {
+      "slug": "raoults-law",
+      "label": "Raoult's law and vapour pressure of solutions",
+      "order": 2
+    },
+    {
+      "slug": "colligative-properties",
+      "label": "Colligative properties (boiling point elevation, freezing point depression)",
+      "order": 3
+    },
+    {
+      "slug": "osmotic-pressure",
+      "label": "Osmotic pressure",
+      "order": 4
+    },
+    {
+      "slug": "abnormal-molar-mass",
+      "label": "Van't Hoff factor and abnormal molar mass",
+      "order": 5
+    }
+  ],
+  "CHE-SUR": [
+    {
+      "slug": "adsorption",
+      "label": "Adsorption \u2014 physisorption and chemisorption",
+      "order": 1
+    },
+    {
+      "slug": "catalysis",
+      "label": "Catalysis and its types",
+      "order": 2
+    },
+    {
+      "slug": "colloids",
+      "label": "Colloidal state and its classification",
+      "order": 3
+    },
+    {
+      "slug": "properties-of-colloids",
+      "label": "Properties of colloids",
+      "order": 4
+    }
+  ],
+  "CHE-THD": [
+    {
+      "slug": "system-and-surroundings",
+      "label": "System, surroundings and types of processes",
+      "order": 1
+    },
+    {
+      "slug": "first-law-of-thermodynamics",
+      "label": "First law of thermodynamics, internal energy",
+      "order": 2
+    },
+    {
+      "slug": "enthalpy",
+      "label": "Enthalpy and enthalpy changes",
+      "order": 3
+    },
+    {
+      "slug": "hess-law",
+      "label": "Hess's law and thermochemical calculations",
+      "order": 4
+    },
+    {
+      "slug": "entropy-and-second-law",
+      "label": "Entropy and the second law",
+      "order": 5
+    },
+    {
+      "slug": "gibbs-energy",
+      "label": "Gibbs free energy and spontaneity",
+      "order": 6
+    }
+  ],
+  "MAT-BIN": [
+    {
+      "slug": "binomial-theorem-positive-integer",
+      "label": "Binomial theorem for positive integral index",
+      "order": 1
+    },
+    {
+      "slug": "general-and-middle-terms",
+      "label": "General term and middle term",
+      "order": 2
+    },
+    {
+      "slug": "binomial-coefficients-properties",
+      "label": "Properties of binomial coefficients",
+      "order": 3
+    }
+  ],
+  "MAT-CAL": [
+    {
+      "slug": "indefinite-integration-basics",
+      "label": "Indefinite integration \u2014 standard forms",
+      "order": 1
+    },
+    {
+      "slug": "integration-by-substitution",
+      "label": "Integration by substitution",
+      "order": 2
+    },
+    {
+      "slug": "integration-by-parts",
+      "label": "Integration by parts",
+      "order": 3
+    },
+    {
+      "slug": "integration-of-rational-functions",
+      "label": "Integration of rational and irrational functions",
+      "order": 4
+    },
+    {
+      "slug": "definite-integration",
+      "label": "Definite integration and properties",
+      "order": 5
+    },
+    {
+      "slug": "area-under-curves",
+      "label": "Area under curves",
+      "order": 6
+    },
+    {
+      "slug": "differential-equations-intro",
+      "label": "Introduction to differential equations (via integration)",
+      "order": 7
+    }
+  ],
+  "MAT-CIR": [
+    {
+      "slug": "equation-of-a-circle",
+      "label": "Equation of a circle",
+      "order": 1
+    },
+    {
+      "slug": "tangents-and-normals-circle",
+      "label": "Tangents and normals to a circle",
+      "order": 2
+    },
+    {
+      "slug": "family-of-circles",
+      "label": "Family of circles",
+      "order": 3
+    },
+    {
+      "slug": "pair-of-tangents",
+      "label": "Pair of tangents from a point",
+      "order": 4
+    }
+  ],
+  "MAT-CON": [
+    {
+      "slug": "parabola",
+      "label": "Parabola \u2014 standard equation and properties",
+      "order": 1
+    },
+    {
+      "slug": "ellipse",
+      "label": "Ellipse \u2014 standard equation and properties",
+      "order": 2
+    },
+    {
+      "slug": "hyperbola",
+      "label": "Hyperbola \u2014 standard equation and properties",
+      "order": 3
+    },
+    {
+      "slug": "tangents-and-normals-conics",
+      "label": "Tangents and normals to conics",
+      "order": 4
+    }
+  ],
+  "MAT-CPX": [
+    {
+      "slug": "complex-number-basics",
+      "label": "Algebra of complex numbers",
+      "order": 1
+    },
+    {
+      "slug": "modulus-and-argument",
+      "label": "Modulus and argument of a complex number",
+      "order": 2
+    },
+    {
+      "slug": "polar-representation",
+      "label": "Polar and Euler representation",
+      "order": 3
+    },
+    {
+      "slug": "cube-roots-of-unity",
+      "label": "Roots of complex numbers, cube roots of unity",
+      "order": 4
+    }
+  ],
+  "MAT-DEQ": [
+    {
+      "slug": "formation-of-differential-equations",
+      "label": "Formation of differential equations",
+      "order": 1
+    },
+    {
+      "slug": "variable-separable",
+      "label": "Solving by variable separable method",
+      "order": 2
+    },
+    {
+      "slug": "homogeneous-differential-equations",
+      "label": "Homogeneous differential equations",
+      "order": 3
+    },
+    {
+      "slug": "linear-differential-equations",
+      "label": "Linear differential equations",
+      "order": 4
+    }
+  ],
+  "MAT-DIF": [
+    {
+      "slug": "derivatives-of-standard-functions",
+      "label": "Derivatives of standard functions",
+      "order": 1
+    },
+    {
+      "slug": "chain-rule",
+      "label": "Chain rule, product and quotient rule",
+      "order": 2
+    },
+    {
+      "slug": "implicit-differentiation",
+      "label": "Implicit and parametric differentiation",
+      "order": 3
+    },
+    {
+      "slug": "tangents-and-normals-curves",
+      "label": "Tangents and normals to curves",
+      "order": 4
+    },
+    {
+      "slug": "increasing-decreasing-functions",
+      "label": "Increasing and decreasing functions",
+      "order": 5
+    },
+    {
+      "slug": "maxima-and-minima",
+      "label": "Maxima and minima",
+      "order": 6
+    }
+  ],
+  "MAT-LIM": [
+    {
+      "slug": "limits-basics",
+      "label": "Limits \u2014 algebra of limits, standard limits",
+      "order": 1
+    },
+    {
+      "slug": "continuity",
+      "label": "Continuity of a function at a point",
+      "order": 2
+    },
+    {
+      "slug": "differentiability",
+      "label": "Differentiability and its relation to continuity",
+      "order": 3
+    }
+  ],
+  "MAT-MAT": [
+    {
+      "slug": "matrix-algebra",
+      "label": "Matrix algebra (addition, multiplication)",
+      "order": 1
+    },
+    {
+      "slug": "types-of-matrices",
+      "label": "Types of matrices",
+      "order": 2
+    },
+    {
+      "slug": "determinants-basics",
+      "label": "Determinants and their properties",
+      "order": 3
+    },
+    {
+      "slug": "adjoint-and-inverse",
+      "label": "Adjoint and inverse of a matrix",
+      "order": 4
+    },
+    {
+      "slug": "solving-linear-equations",
+      "label": "Solving systems of linear equations using matrices",
+      "order": 5
+    }
+  ],
+  "MAT-PNC": [
+    {
+      "slug": "fundamental-principle-of-counting",
+      "label": "Fundamental principle of counting",
+      "order": 1
+    },
+    {
+      "slug": "permutations",
+      "label": "Permutations",
+      "order": 2
+    },
+    {
+      "slug": "combinations",
+      "label": "Combinations",
+      "order": 3
+    },
+    {
+      "slug": "permutations-with-repetition",
+      "label": "Permutations/combinations with repetition and restrictions",
+      "order": 4
+    }
+  ],
+  "MAT-PRB": [
+    {
+      "slug": "probability-basics",
+      "label": "Classical probability and events",
+      "order": 1
+    },
+    {
+      "slug": "conditional-probability",
+      "label": "Conditional probability",
+      "order": 2
+    },
+    {
+      "slug": "bayes-theorem",
+      "label": "Bayes' theorem",
+      "order": 3
+    },
+    {
+      "slug": "probability-distributions",
+      "label": "Random variables and probability distributions",
+      "order": 4
+    },
+    {
+      "slug": "binomial-distribution",
+      "label": "Binomial distribution",
+      "order": 5
+    }
+  ],
+  "MAT-QUA": [
+    {
+      "slug": "nature-of-roots",
+      "label": "Nature of roots of a quadratic equation",
+      "order": 1
+    },
+    {
+      "slug": "relation-between-roots-and-coefficients",
+      "label": "Relations between roots and coefficients",
+      "order": 2
+    },
+    {
+      "slug": "forming-equations-with-given-roots",
+      "label": "Forming equations from given roots",
+      "order": 3
+    },
+    {
+      "slug": "quadratic-inequalities",
+      "label": "Quadratic inequalities",
+      "order": 4
+    }
+  ],
+  "MAT-SEQ": [
+    {
+      "slug": "arithmetic-progression",
+      "label": "Arithmetic progression",
+      "order": 1
+    },
+    {
+      "slug": "geometric-progression",
+      "label": "Geometric progression",
+      "order": 2
+    },
+    {
+      "slug": "arithmetic-geometric-series",
+      "label": "Arithmetic-geometric series",
+      "order": 3
+    },
+    {
+      "slug": "sum-of-special-series",
+      "label": "Sum of special series (squares, cubes)",
+      "order": 4
+    }
+  ],
+  "MAT-SET": [
+    {
+      "slug": "sets-basics",
+      "label": "Sets, operations on sets",
+      "order": 1
+    },
+    {
+      "slug": "relations",
+      "label": "Relations and their types",
+      "order": 2
+    },
+    {
+      "slug": "functions-basics",
+      "label": "Functions \u2014 domain, range, types",
+      "order": 3
+    },
+    {
+      "slug": "composition-of-functions",
+      "label": "Composition and inverse of functions",
+      "order": 4
+    }
+  ],
+  "MAT-STA": [
+    {
+      "slug": "measures-of-central-tendency",
+      "label": "Mean, median, mode",
+      "order": 1
+    },
+    {
+      "slug": "measures-of-dispersion",
+      "label": "Range, mean deviation, standard deviation",
+      "order": 2
+    },
+    {
+      "slug": "variance-and-coefficient-of-variation",
+      "label": "Variance and coefficient of variation",
+      "order": 3
+    }
+  ],
+  "MAT-STL": [
+    {
+      "slug": "slope-and-equation-of-a-line",
+      "label": "Slope and different forms of a line's equation",
+      "order": 1
+    },
+    {
+      "slug": "angle-between-lines",
+      "label": "Angle between two lines",
+      "order": 2
+    },
+    {
+      "slug": "distance-formulas",
+      "label": "Distance of a point from a line, distance between parallel lines",
+      "order": 3
+    },
+    {
+      "slug": "family-of-lines",
+      "label": "Family of lines and concurrency",
+      "order": 4
+    }
+  ],
+  "MAT-TRI": [
+    {
+      "slug": "trigonometric-ratios-and-identities",
+      "label": "Trigonometric ratios and identities",
+      "order": 1
+    },
+    {
+      "slug": "trigonometric-equations",
+      "label": "Trigonometric equations",
+      "order": 2
+    },
+    {
+      "slug": "inverse-trigonometric-functions",
+      "label": "Inverse trigonometric functions",
+      "order": 3
+    },
+    {
+      "slug": "properties-of-triangles",
+      "label": "Properties of triangles (sine rule, cosine rule)",
+      "order": 4
+    }
+  ],
+  "MAT-VEC": [
+    {
+      "slug": "vector-algebra-basics",
+      "label": "Vector algebra \u2014 addition, scalar multiplication",
+      "order": 1
+    },
+    {
+      "slug": "dot-product",
+      "label": "Dot product and its applications",
+      "order": 2
+    },
+    {
+      "slug": "cross-product",
+      "label": "Cross product and its applications",
+      "order": 3
+    },
+    {
+      "slug": "three-d-lines",
+      "label": "Equations of a line in 3D",
+      "order": 4
+    },
+    {
+      "slug": "three-d-planes",
+      "label": "Equations of a plane in 3D",
+      "order": 5
+    },
+    {
+      "slug": "distance-and-angle-3d",
+      "label": "Distance and angle between lines/planes",
+      "order": 6
+    }
+  ],
+  "PHY-AC": [
+    {
+      "slug": "ac-basics",
+      "label": "AC voltage and current, RMS values",
+      "order": 1
+    },
+    {
+      "slug": "ac-through-single-element",
+      "label": "AC circuits with resistor, inductor, capacitor individually",
+      "order": 2
+    },
+    {
+      "slug": "lcr-series-circuit",
+      "label": "LCR series circuit and impedance",
+      "order": 3
+    },
+    {
+      "slug": "resonance-in-lcr",
+      "label": "Resonance in LCR circuits",
+      "order": 4
+    },
+    {
+      "slug": "power-in-ac-circuits",
+      "label": "Power in AC circuits, power factor",
+      "order": 5
+    },
+    {
+      "slug": "transformers",
+      "label": "Transformers and AC generators",
+      "order": 6
+    }
+  ],
+  "PHY-ATM": [
+    {
+      "slug": "atomic-models",
+      "label": "Rutherford and Bohr atomic models",
+      "order": 1
+    },
+    {
+      "slug": "hydrogen-spectrum",
+      "label": "Hydrogen spectrum",
+      "order": 2
+    },
+    {
+      "slug": "composition-of-nucleus",
+      "label": "Composition and size of the nucleus",
+      "order": 3
+    },
+    {
+      "slug": "mass-defect-and-binding-energy",
+      "label": "Mass defect and binding energy",
+      "order": 4
+    },
+    {
+      "slug": "radioactivity",
+      "label": "Radioactivity and decay laws",
+      "order": 5
+    },
+    {
+      "slug": "nuclear-fission-and-fusion",
+      "label": "Nuclear fission and fusion",
+      "order": 6
+    }
+  ],
+  "PHY-COM": [
+    {
+      "slug": "elements-of-communication",
+      "label": "Elements of a communication system",
+      "order": 1
+    },
+    {
+      "slug": "modulation-basics",
+      "label": "Need for modulation",
+      "order": 2
+    },
+    {
+      "slug": "amplitude-modulation",
+      "label": "Amplitude modulation",
+      "order": 3
+    },
+    {
+      "slug": "bandwidth-and-propagation",
+      "label": "Bandwidth of signals and propagation of EM waves",
+      "order": 4
+    }
+  ],
+  "PHY-CUR": [
+    {
+      "slug": "ohms-law",
+      "label": "Current, drift velocity and Ohm's law",
+      "order": 1
+    },
+    {
+      "slug": "resistance-and-resistivity",
+      "label": "Resistance, resistivity and temperature dependence",
+      "order": 2
+    },
+    {
+      "slug": "combination-of-resistors",
+      "label": "Series and parallel combination of resistors",
+      "order": 3
+    },
+    {
+      "slug": "kirchhoffs-laws",
+      "label": "Kirchhoff's laws",
+      "order": 4
+    },
+    {
+      "slug": "cells-emf-internal-resistance",
+      "label": "EMF, internal resistance and cell combinations",
+      "order": 5
+    },
+    {
+      "slug": "bridges-and-meters",
+      "label": "Wheatstone bridge, potentiometer and meter bridge",
+      "order": 6
+    }
+  ],
+  "PHY-DUA": [
+    {
+      "slug": "photoelectric-effect",
+      "label": "Photoelectric effect",
+      "order": 1
+    },
+    {
+      "slug": "einsteins-photoelectric-equation",
+      "label": "Einstein's photoelectric equation",
+      "order": 2
+    },
+    {
+      "slug": "matter-waves",
+      "label": "de Broglie wavelength and matter waves",
+      "order": 3
+    },
+    {
+      "slug": "davisson-germer-experiment",
+      "label": "Davisson-Germer experiment",
+      "order": 4
+    }
+  ],
+  "PHY-ELS": [
+    {
+      "slug": "coulombs-law",
+      "label": "Coulomb's law and electric charge",
+      "order": 1
+    },
+    {
+      "slug": "electric-field",
+      "label": "Electric field and field lines",
+      "order": 2
+    },
+    {
+      "slug": "gauss-law",
+      "label": "Gauss's law and its applications",
+      "order": 3
+    },
+    {
+      "slug": "electric-potential",
+      "label": "Electric potential and potential energy",
+      "order": 4
+    },
+    {
+      "slug": "capacitance",
+      "label": "Capacitors and capacitance",
+      "order": 5
+    },
+    {
+      "slug": "dielectrics",
+      "label": "Dielectrics and combination of capacitors",
+      "order": 6
+    }
+  ],
+  "PHY-EMI": [
+    {
+      "slug": "magnetic-flux",
+      "label": "Magnetic flux",
+      "order": 1
+    },
+    {
+      "slug": "faradays-law",
+      "label": "Faraday's law of electromagnetic induction",
+      "order": 2
+    },
+    {
+      "slug": "lenzs-law",
+      "label": "Lenz's law and direction of induced current",
+      "order": 3
+    },
+    {
+      "slug": "motional-emf",
+      "label": "Motional EMF",
+      "order": 4
+    },
+    {
+      "slug": "self-and-mutual-inductance",
+      "label": "Self and mutual inductance",
+      "order": 5
+    },
+    {
+      "slug": "eddy-currents",
+      "label": "Eddy currents",
+      "order": 6
+    }
+  ],
+  "PHY-EMW": [
+    {
+      "slug": "displacement-current",
+      "label": "Displacement current",
+      "order": 1
+    },
+    {
+      "slug": "maxwells-equations",
+      "label": "Maxwell's equations (qualitative)",
+      "order": 2
+    },
+    {
+      "slug": "properties-of-em-waves",
+      "label": "Properties of electromagnetic waves",
+      "order": 3
+    },
+    {
+      "slug": "em-spectrum",
+      "label": "Electromagnetic spectrum",
+      "order": 4
+    }
+  ],
+  "PHY-GRV": [
+    {
+      "slug": "newtons-law-of-gravitation",
+      "label": "Newton's law of gravitation",
+      "order": 1
+    },
+    {
+      "slug": "gravitational-field-and-potential",
+      "label": "Gravitational field, potential and potential energy",
+      "order": 2
+    },
+    {
+      "slug": "variation-of-g",
+      "label": "Variation of g with height, depth and rotation",
+      "order": 3
+    },
+    {
+      "slug": "keplers-laws",
+      "label": "Kepler's laws of planetary motion",
+      "order": 4
+    },
+    {
+      "slug": "orbital-velocity",
+      "label": "Orbital velocity and time period of satellites",
+      "order": 5
+    },
+    {
+      "slug": "escape-velocity",
+      "label": "Escape velocity and energy of a satellite",
+      "order": 6
+    }
+  ],
+  "PHY-KIN": [
+    {
+      "slug": "distance-and-displacement",
+      "label": "Distance and displacement",
+      "order": 1
+    },
+    {
+      "slug": "speed-and-velocity",
+      "label": "Speed and velocity",
+      "order": 2
+    },
+    {
+      "slug": "uniformly-accelerated-motion",
+      "label": "Equations of uniformly accelerated motion",
+      "order": 3
+    },
+    {
+      "slug": "motion-under-gravity",
+      "label": "Motion under gravity (free fall, vertical throw)",
+      "order": 4
+    },
+    {
+      "slug": "motion-graphs",
+      "label": "Position-time and velocity-time graphs",
+      "order": 5
+    },
+    {
+      "slug": "relative-motion-1d",
+      "label": "Relative motion in one dimension",
+      "order": 6
+    },
+    {
+      "slug": "relative-motion-2d",
+      "label": "Relative motion in two dimensions (river-boat, rain-man)",
+      "order": 7
+    },
+    {
+      "slug": "projectile-motion",
+      "label": "Projectile motion",
+      "order": 8
+    },
+    {
+      "slug": "projectile-on-incline",
+      "label": "Projectile motion on an inclined plane",
+      "order": 9
+    }
+  ],
+  "PHY-KTG": [
+    {
+      "slug": "ideal-gas-equation",
+      "label": "Ideal gas equation and gas laws",
+      "order": 1
+    },
+    {
+      "slug": "kinetic-theory-postulates",
+      "label": "Kinetic theory postulates and pressure of a gas",
+      "order": 2
+    },
+    {
+      "slug": "kinetic-energy-and-temperature",
+      "label": "Kinetic energy interpretation of temperature",
+      "order": 3
+    },
+    {
+      "slug": "degrees-of-freedom",
+      "label": "Degrees of freedom and specific heats",
+      "order": 4
+    },
+    {
+      "slug": "mean-free-path",
+      "label": "Mean free path and Maxwell speed distribution",
+      "order": 5
+    }
+  ],
+  "PHY-LOM": [
+    {
+      "slug": "newtons-laws",
+      "label": "Newton's three laws of motion",
+      "order": 1
+    },
+    {
+      "slug": "momentum-and-impulse",
+      "label": "Linear momentum and impulse",
+      "order": 2
+    },
+    {
+      "slug": "free-body-diagrams",
+      "label": "Free body diagrams and force analysis",
+      "order": 3
+    },
+    {
+      "slug": "friction",
+      "label": "Friction (static, kinetic, rolling)",
+      "order": 4
+    },
+    {
+      "slug": "circular-motion-dynamics",
+      "label": "Dynamics of circular motion (banking, centripetal force)",
+      "order": 5
+    },
+    {
+      "slug": "connected-bodies",
+      "label": "Connected bodies, pulleys and constraint motion",
+      "order": 6
+    },
+    {
+      "slug": "pseudo-forces",
+      "label": "Non-inertial frames and pseudo forces",
+      "order": 7
+    }
+  ],
+  "PHY-MAG": [
+    {
+      "slug": "magnetic-field-basics",
+      "label": "Magnetic field due to a moving charge and current",
+      "order": 1
+    },
+    {
+      "slug": "biot-savart-law",
+      "label": "Biot-Savart law and applications",
+      "order": 2
+    },
+    {
+      "slug": "amperes-law",
+      "label": "Ampere's circuital law",
+      "order": 3
+    },
+    {
+      "slug": "force-on-current-carrying-conductor",
+      "label": "Force on a current-carrying conductor and moving charge",
+      "order": 4
+    },
+    {
+      "slug": "torque-on-current-loop",
+      "label": "Torque on a current loop, magnetic dipole moment",
+      "order": 5
+    },
+    {
+      "slug": "bar-magnet-and-earths-magnetism",
+      "label": "Bar magnet and earth's magnetism",
+      "order": 6
+    },
+    {
+      "slug": "magnetic-properties-of-materials",
+      "label": "Magnetic properties of materials (dia, para, ferro)",
+      "order": 7
+    }
+  ],
+  "PHY-MEC": [
+    {
+      "slug": "elasticity-basics",
+      "label": "Stress, strain and Hooke's law",
+      "order": 1
+    },
+    {
+      "slug": "elastic-moduli",
+      "label": "Young's, bulk and shear moduli",
+      "order": 2
+    },
+    {
+      "slug": "fluid-pressure",
+      "label": "Pressure in fluids and Pascal's law",
+      "order": 3
+    },
+    {
+      "slug": "buoyancy",
+      "label": "Archimedes' principle and buoyancy",
+      "order": 4
+    },
+    {
+      "slug": "fluid-flow",
+      "label": "Streamline flow, Bernoulli's principle",
+      "order": 5
+    },
+    {
+      "slug": "viscosity-and-surface-tension",
+      "label": "Viscosity and surface tension",
+      "order": 6
+    }
+  ],
+  "PHY-RAY": [
+    {
+      "slug": "reflection-at-mirrors",
+      "label": "Reflection at plane and curved mirrors",
+      "order": 1
+    },
+    {
+      "slug": "mirror-formula",
+      "label": "Mirror formula and magnification",
+      "order": 2
+    },
+    {
+      "slug": "refraction-basics",
+      "label": "Refraction at plane surfaces, Snell's law",
+      "order": 3
+    },
+    {
+      "slug": "total-internal-reflection",
+      "label": "Total internal reflection",
+      "order": 4
+    },
+    {
+      "slug": "refraction-at-curved-surfaces",
+      "label": "Refraction at spherical surfaces and lenses",
+      "order": 5
+    },
+    {
+      "slug": "lens-formula",
+      "label": "Lens formula, power and combination of lenses",
+      "order": 6
+    },
+    {
+      "slug": "prism",
+      "label": "Refraction through a prism",
+      "order": 7
+    },
+    {
+      "slug": "optical-instruments",
+      "label": "Optical instruments (microscope, telescope)",
+      "order": 8
+    }
+  ],
+  "PHY-ROT": [
+    {
+      "slug": "angular-kinematics",
+      "label": "Angular displacement, velocity, acceleration",
+      "order": 1
+    },
+    {
+      "slug": "moment-of-inertia",
+      "label": "Moment of inertia of standard bodies",
+      "order": 2
+    },
+    {
+      "slug": "parallel-perpendicular-axis",
+      "label": "Parallel and perpendicular axis theorems",
+      "order": 3
+    },
+    {
+      "slug": "torque-and-angular-momentum",
+      "label": "Torque and angular momentum",
+      "order": 4
+    },
+    {
+      "slug": "conservation-of-angular-momentum",
+      "label": "Conservation of angular momentum",
+      "order": 5
+    },
+    {
+      "slug": "rotational-kinetic-energy",
+      "label": "Rotational kinetic energy",
+      "order": 6
+    },
+    {
+      "slug": "rolling-motion",
+      "label": "Rolling without slipping",
+      "order": 7
+    },
+    {
+      "slug": "combined-translation-rotation",
+      "label": "Combined translational and rotational motion",
+      "order": 8
+    }
+  ],
+  "PHY-SEM": [
+    {
+      "slug": "energy-bands",
+      "label": "Energy bands in solids",
+      "order": 1
+    },
+    {
+      "slug": "intrinsic-and-extrinsic-semiconductors",
+      "label": "Intrinsic and extrinsic semiconductors",
+      "order": 2
+    },
+    {
+      "slug": "pn-junction-diode",
+      "label": "p-n junction diode and its characteristics",
+      "order": 3
+    },
+    {
+      "slug": "diode-as-rectifier",
+      "label": "Diode as a rectifier",
+      "order": 4
+    },
+    {
+      "slug": "transistors",
+      "label": "Transistors and their configurations",
+      "order": 5
+    },
+    {
+      "slug": "logic-gates",
+      "label": "Digital electronics and logic gates",
+      "order": 6
+    }
+  ],
+  "PHY-SHM": [
+    {
+      "slug": "periodic-motion",
+      "label": "Periodic and oscillatory motion",
+      "order": 1
+    },
+    {
+      "slug": "shm-basics",
+      "label": "Simple harmonic motion \u2014 displacement, velocity, acceleration",
+      "order": 2
+    },
+    {
+      "slug": "energy-in-shm",
+      "label": "Energy in simple harmonic motion",
+      "order": 3
+    },
+    {
+      "slug": "spring-mass-system",
+      "label": "Spring-mass systems",
+      "order": 4
+    },
+    {
+      "slug": "simple-pendulum",
+      "label": "Simple pendulum",
+      "order": 5
+    },
+    {
+      "slug": "damped-and-forced-oscillations",
+      "label": "Damped and forced oscillations, resonance",
+      "order": 6
+    }
+  ],
+  "PHY-THR": [
+    {
+      "slug": "temperature-and-heat",
+      "label": "Temperature, heat and thermal expansion",
+      "order": 1
+    },
+    {
+      "slug": "calorimetry",
+      "label": "Calorimetry and specific heat",
+      "order": 2
+    },
+    {
+      "slug": "heat-transfer",
+      "label": "Conduction, convection and radiation",
+      "order": 3
+    },
+    {
+      "slug": "laws-of-thermodynamics",
+      "label": "Zeroth and first law of thermodynamics",
+      "order": 4
+    },
+    {
+      "slug": "thermodynamic-processes",
+      "label": "Isothermal, adiabatic, isochoric and isobaric processes",
+      "order": 5
+    },
+    {
+      "slug": "second-law-and-entropy",
+      "label": "Second law of thermodynamics and entropy",
+      "order": 6
+    },
+    {
+      "slug": "carnot-engine",
+      "label": "Heat engines and the Carnot cycle",
+      "order": 7
+    }
+  ],
+  "PHY-UAM": [
+    {
+      "slug": "units-and-dimensions",
+      "label": "Units, dimensions and dimensional formulae",
+      "order": 1
+    },
+    {
+      "slug": "dimensional-analysis",
+      "label": "Dimensional analysis and its applications",
+      "order": 2
+    },
+    {
+      "slug": "significant-figures",
+      "label": "Significant figures and rounding",
+      "order": 3
+    },
+    {
+      "slug": "errors-in-measurement",
+      "label": "Errors in measurement (absolute, relative, percentage)",
+      "order": 4
+    },
+    {
+      "slug": "combination-of-errors",
+      "label": "Propagation of errors in combined measurements",
+      "order": 5
+    },
+    {
+      "slug": "measuring-instruments",
+      "label": "Vernier calipers and screw gauge",
+      "order": 6
+    }
+  ],
+  "PHY-WAV": [
+    {
+      "slug": "wave-motion-basics",
+      "label": "Wave motion \u2014 transverse and longitudinal waves",
+      "order": 1
+    },
+    {
+      "slug": "wave-equation",
+      "label": "Wave equation and speed of a wave",
+      "order": 2
+    },
+    {
+      "slug": "superposition-of-waves",
+      "label": "Principle of superposition",
+      "order": 3
+    },
+    {
+      "slug": "standing-waves",
+      "label": "Standing waves in strings and pipes",
+      "order": 4
+    },
+    {
+      "slug": "beats",
+      "label": "Beats",
+      "order": 5
+    },
+    {
+      "slug": "doppler-effect",
+      "label": "Doppler effect",
+      "order": 6
+    }
+  ],
+  "PHY-WOP": [
+    {
+      "slug": "huygens-principle",
+      "label": "Huygens' principle",
+      "order": 1
+    },
+    {
+      "slug": "interference",
+      "label": "Young's double slit experiment and interference",
+      "order": 2
+    },
+    {
+      "slug": "diffraction",
+      "label": "Diffraction of light",
+      "order": 3
+    },
+    {
+      "slug": "polarisation",
+      "label": "Polarisation of light",
+      "order": 4
+    }
+  ],
+  "PHY-WPE": [
+    {
+      "slug": "work-done-by-force",
+      "label": "Work done by a constant and variable force",
+      "order": 1
+    },
+    {
+      "slug": "work-energy-theorem",
+      "label": "Work-energy theorem",
+      "order": 2
+    },
+    {
+      "slug": "conservative-forces",
+      "label": "Conservative and non-conservative forces, potential energy",
+      "order": 3
+    },
+    {
+      "slug": "conservation-of-energy",
+      "label": "Conservation of mechanical energy",
+      "order": 4
+    },
+    {
+      "slug": "power",
+      "label": "Power and its calculation",
+      "order": 5
+    },
+    {
+      "slug": "collisions",
+      "label": "Elastic and inelastic collisions",
+      "order": 6
+    }
+  ]
+};
+
+function chapterMeta(subject, slug){
+  return (CHAPTERS[subject]||[]).find(c=>c.slug===slug);
+}
+function chaptersFor(subject, branch){
+  return (CHAPTERS[subject]||[]).filter(c => !branch || (c.branch && c.branch.includes(branch)));
+}
+function topicsFor(fullCode){
+  return TOPICS[fullCode] || [];
+}
+function chapterLabelWithCount(c){
+  const n = (TOPICS[c.full_code]||[]).length;
+  return c.name + " (" + n + " topics)";
+}
+
+const SUBJECTS = ["physics","chemistry","mathematics","biology"];
+
+const TEACHERS = [
+  {name:"R. Sharma", subjects:["physics"]},
+  {name:"A. Kulkarni", subjects:["physics"]},
+  {name:"S. Verma", subjects:["chemistry"]},
+  {name:"P. Iyer", subjects:["mathematics"]},
+  {name:"N. Joshi", subjects:["biology"], branch:"botany"},
+  {name:"K. Deshpande", subjects:["biology"], branch:"zoology"}
+];
+function teachersFor(subject, branch){
+  return TEACHERS.filter(t => t.subjects.includes(subject) && (subject!=="biology" || t.branch===branch));
+}
+
+const PATTERNS = {
+  "jee-main": {
+    label: "JEE Main",
+    note: "75 questions · 300 marks. Each subject: 20 single-correct + 5 numerical, all compulsory. +4/−1 throughout.",
+    subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
+      {types:["single"], count:20, label:"Section A — Single Correct"},
+      {types:["numerical"], count:5, label:"Section B — Numerical Value"}
+    ]}))
+  },
+  "neet": {
+    label: "NEET",
+    note: "180 questions · 720 marks. Pure single-correct MCQ only. Botany and Zoology are separated so each can go to a different teacher.",
+    subjects: [
+      {subject:"physics", requirements:[{types:["single"],count:45,label:"Physics"}]},
+      {subject:"chemistry", requirements:[{types:["single"],count:45,label:"Chemistry"}]},
+      {subject:"biology", branch:"botany", requirements:[{types:["single"],count:45,label:"Botany"}]},
+      {subject:"biology", branch:"zoology", requirements:[{types:["single"],count:45,label:"Zoology"}]}
+    ]
+  },
+  "mht-cet": {
+    label: "MHT-CET (PCM)",
+    note: "150 questions · 200 marks. All single-correct, no negative marking. Maths = 2 marks/question, Physics & Chemistry = 1 mark/question.",
+    subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
+      {types:["single"], count:50, label:s==="mathematics"?"Mathematics (2 marks each)":(s[0].toUpperCase()+s.slice(1)+" (1 mark each)")}
+    ]}))
+  },
+  "jee-adv-p1": {
+    label: "JEE Advanced — Paper 1",
+    indicative: true,
+    note: "Indicative only — IIT Roorkee reveals the exact structure on exam day and it changes most years. Matching-list questions aren't yet supported in Tachyon's schema.",
+    subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
+      {types:["single"], count:7, label:"Single Correct (+3/−1)"},
+      {types:["multi"], count:6, label:"Multiple Correct MSQ (+4 partial/−2)"},
+      {types:["numerical"], count:4, label:"Numerical Value (+4/0)"}
+    ]}))
+  },
+  "jee-adv-p2": {
+    label: "JEE Advanced — Paper 2",
+    indicative: true,
+    note: "Indicative only, same caveats as Paper 1. Trended more numerical-heavy in recent years. Comprehension-based questions aren't yet supported in Tachyon's schema.",
+    subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
+      {types:["single"], count:6, label:"Single Correct (+3/−1)"},
+      {types:["multi"], count:5, label:"Multiple Correct MSQ (+4 partial/−2)"},
+      {types:["numerical"], count:6, label:"Numerical Value (+4/0)"}
+    ]}))
+  }
+};
+
+let state = {
+  stage: "mode",
+  testName: "",
+  adminNote: "",
+  subjectRows: [],
+  selections: {},
+  subjectDone: {},
+  uiOpenRow: null,
+  uiOpenChapter: {},
+  uiFilters: {}
+};
+
+function rowKey(row){ return row.subject + (row.branch ? ":" + row.branch : ""); }
+function rowLabel(row){ return row.subject[0].toUpperCase()+row.subject.slice(1) + (row.branch ? " — " + row.branch[0].toUpperCase()+row.branch.slice(1) : ""); }
+
+function initScope(row){
+  // OPT-IN model: nothing is in scope until explicitly ticked.
+  // scopeChapters[slug] === true means the chapter is included.
+  // scopeTopics[slug][topicSlug] === true means that topic is included.
+  if(!row.scopeChapters) row.scopeChapters = {};
+  if(!row.scopeTopics) row.scopeTopics = {};
+}
+function chapterIncluded(row,slug){ return row.scopeChapters[slug] === true; }
+function topicIncluded(row,chapterSlug,topicSlug){
+  const t = row.scopeTopics[chapterSlug];
+  return !!(t && t[topicSlug] === true);
+}
+function chapterCodeForSlug(subject, slug){
+  const c = (CHAPTERS[subject]||[]).find(x=>x.slug===slug);
+  return c ? c.full_code : null;
+}
+function toggleChapterScope(i,slug,val){
+  const row = state.subjectRows[i];
+  row.scopeChapters[slug] = val;
+  // Ticking a chapter selects all its topics; unticking clears them.
+  const code = chapterCodeForSlug(row.subject, slug);
+  const topics = code ? topicsFor(code) : [];
+  if(!row.scopeTopics[slug]) row.scopeTopics[slug] = {};
+  topics.forEach(t=>{ row.scopeTopics[slug][t.slug] = val; });
+  renderApp();
+}
+function toggleTopicScope(i,chapterSlug,topicSlug,val){
+  const row = state.subjectRows[i];
+  if(!row.scopeTopics[chapterSlug]) row.scopeTopics[chapterSlug] = {};
+  row.scopeTopics[chapterSlug][topicSlug] = val;
+  // If any topic is on, the chapter counts as in-scope; if all off, chapter goes off.
+  const code = chapterCodeForSlug(row.subject, chapterSlug);
+  const topics = code ? topicsFor(code) : [];
+  const anyOn = topics.some(t=>row.scopeTopics[chapterSlug][t.slug] === true);
+  row.scopeChapters[chapterSlug] = anyOn;
+  renderApp();
+}
+function selectAllChapters(i, val){
+  const row = state.subjectRows[i];
+  const chapters = chaptersFor(row.subject, row.branch);
+  chapters.forEach(c=>{
+    row.scopeChapters[c.slug] = val;
+    const topics = topicsFor(c.full_code);
+    if(!row.scopeTopics[c.slug]) row.scopeTopics[c.slug] = {};
+    topics.forEach(t=>{ row.scopeTopics[c.slug][t.slug] = val; });
+  });
+  renderApp();
+}
+function toggleChapterExpand(rowIdx,slug){
+  const k = rowIdx+":"+slug;
+  state.uiOpenChapter[k] = !state.uiOpenChapter[k];
+  renderApp();
+}
+
+// Builds the human-readable summary FROM the structured selections —
+// this is the "dataset, not typed prose" the syllabus scope now is.
+function scopeSummary(){
+  const parts = [];
+  state.subjectRows.forEach(row=>{
+    const chapters = chaptersFor(row.subject, row.branch);
+    const included = chapters.filter(c=>chapterIncluded(row,c.slug));
+    if(included.length===0){ parts.push(rowLabel(row)+": none selected"); return; }
+    if(included.length===chapters.length){ parts.push(rowLabel(row)+": full syllabus"); return; }
+    const bits = included.map(c=>{
+      const allTopics = topicsFor(c.full_code);
+      const includedTopics = allTopics.filter(t=>topicIncluded(row,c.slug,t.slug));
+      if(allTopics.length && includedTopics.length < allTopics.length){
+        return c.name+" ("+includedTopics.length+"/"+allTopics.length+" topics)";
+      }
+      return c.name;
+    });
+    parts.push(rowLabel(row)+": "+bits.join(", "));
+  });
+  return parts.join(" · ");
+}
+
+function renderTopbar(){
+  const s1active = ["mode","pattern-pick","pattern-confirm","custom-form"].includes(state.stage);
+  document.getElementById("s1").className = "step" + (s1active?" active":(state.stage==="teacher-pick"||state.stage==="final"?" done":""));
+  document.getElementById("s2").className = "step" + (state.stage==="teacher-pick"?" active":(state.stage==="final"?" done":""));
+  document.getElementById("s3").className = "step" + (state.stage==="final"?" active":"");
+}
+
+function renderMode(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">New test</h1><p class="sub">Start from a standard exam pattern, or build something custom.</p>';
+  html += '<div class="bigchoice">';
+  html += '<div onclick="state.stage=\'pattern-pick\';renderApp()"><h3>Standard pattern</h3><p>JEE Main, NEET, MHT-CET, JEE Advanced. Question-count / type breakdown is set automatically — you pick syllabus scope from the real chapter &amp; topic list.</p></div>';
+  html += '<div onclick="startCustom()"><h3>Custom</h3><p>Any number of subjects, any question counts, any types — full control.</p></div>';
+  html += '</div></div>';
+  document.getElementById("app").innerHTML = html;
+}
+
+function renderPatternPick(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">Choose a pattern</h1><p class="sub">Picking one locks the question-count / type breakdown to match that exam.</p>';
+  html += '<div class="patgrid">';
+  Object.keys(PATTERNS).forEach(key=>{
+    const p = PATTERNS[key];
+    html += '<div class="patcard" onclick="choosePattern(\''+key+'\')"><h4>'+p.label+'</h4><p>'+p.note+'</p>' +
+      (p.indicative ? '<div class="warn">⚠ indicative, not official — adjust if needed</div>' : '') + '</div>';
+  });
+  html += '</div><div style="margin-top:16px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button></div></div>';
+  document.getElementById("app").innerHTML = html;
+}
+
+function choosePattern(key){
+  const p = PATTERNS[key];
+  state.testName = "";
+  state.adminNote = "";
+  state.subjectRows = JSON.parse(JSON.stringify(p.subjects)).map(r=>({...r, teacher:"", scopeChapters:{}, scopeTopics:{}}));
+  state.stage = "pattern-confirm";
+  renderApp();
+}
+
+function renderScopeBuilder(row, i){
+  const chapters = chaptersFor(row.subject, row.branch);
+  const selectedCount = chapters.filter(c=>chapterIncluded(row,c.slug)).length;
+  const allSelected = chapters.length>0 && selectedCount===chapters.length;
+  let html = '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px">' +
+    '<label style="margin:0">Syllabus scope — pick chapters &amp; topics for this paper' +
+    (selectedCount ? ' <span style="color:var(--cherenkov)">('+selectedCount+' selected)</span>' : ' <span style="color:var(--slate)">(none selected)</span>') + '</label>';
+  if(chapters.length){
+    html += '<div style="display:flex;gap:12px">' +
+      '<button class="linkbtn" onclick="selectAllChapters('+i+',true)"'+(allSelected?' style="opacity:.4;pointer-events:none"':'')+'>Select all</button>' +
+      '<button class="linkbtn" onclick="selectAllChapters('+i+',false)"'+(selectedCount===0?' style="opacity:.4;pointer-events:none"':'')+'>Clear all</button>' +
+      '</div>';
+  }
+  html += '</div><div class="chapterlist">';
+  if(chapters.length===0){
+    html += '<span style="font-size:12.5px;color:var(--slate)">no chapters registered for this subject/branch</span>';
+  }
+  chapters.forEach(c=>{
+    const included = chapterIncluded(row,c.slug);
+    const expandKey = i+":"+c.slug;
+    const isOpen = !!state.uiOpenChapter[expandKey];
+    const allTopics = topicsFor(c.full_code);
+    const topicsOn = allTopics.filter(t=>topicIncluded(row,c.slug,t.slug)).length;
+    const partial = included && topicsOn>0 && topicsOn<allTopics.length;
+    html += '<div class="chaprow"><div class="chaprow-head">' +
+      '<input type="checkbox" '+(included?'checked':'')+' onchange="toggleChapterScope('+i+',\''+c.slug+'\',this.checked)">' +
+      '<span>'+c.name+'</span>' +
+      (allTopics.length ? ' <button class="linkbtn" onclick="toggleChapterExpand('+i+',\''+c.slug+'\')">'+
+        (isOpen?'hide topics':(partial?topicsOn+'/'+allTopics.length+' topics ▸':allTopics.length+' topics ▸'))+'</button>' : '') +
+      '</div>';
+    if(isOpen && allTopics.length){
+      html += '<div class="topiclist">';
+      allTopics.forEach(t=>{
+        const tIncl = topicIncluded(row,c.slug,t.slug);
+        html += '<label><input type="checkbox" '+(tIncl?'checked':'')+
+          ' onchange="toggleTopicScope('+i+',\''+c.slug+'\',\''+t.slug+'\',this.checked)"> '+t.label+'</label>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderPatternConfirm(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">Name this test</h1><p class="sub">A NEET-pattern paper doesn\'t have to mean full syllabus — the scope below is picked from the real chapter/topic list, not typed, so it can\'t drift or get mistyped.</p>';
+  html += '<label>Test name</label><input type="text" id="testName" value="'+state.testName+'" placeholder="e.g. NEET Mock 3 — Mechanics + GOC">';
+  html += '</div>';
+
+  state.subjectRows.forEach((row,i)=>{
+    initScope(row);
+    const eligible = teachersFor(row.subject, row.branch);
+    html += '<div class="card"><div class="subjrow" style="margin-bottom:0"><div class="hdr"><span class="tag">'+rowLabel(row)+'</span></div>';
+    row.requirements.forEach(r=>{
+      html += '<div class="reqline"><span>'+r.label+'</span><span style="font-family:var(--mono)">'+r.count+' questions</span></div>';
+    });
+
+    html += renderScopeBuilder(row, i);
+
+    html += '<label style="margin-top:12px">Teacher assigned</label><select onchange="state.subjectRows['+i+'].teacher=this.value">';
+    html += '<option value="">— choose from directory —</option>';
+    eligible.forEach(t=>{ html += '<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>'; });
+    if(eligible.length===0) html += '<option disabled>no teacher in directory for this subject/branch</option>';
+    html += '</select>';
+    html += '</div></div>';
+  });
+
+  html += '<div class="card" style="margin-top:16px">';
+  html += '<div class="scopebanner"><div class="lbl">Auto-generated scope summary</div>'+scopeSummary()+'</div>';
+  html += '<label>Additional notes <span style="font-weight:400">(optional — for anything the chapter/topic picker above can\'t capture)</span></label>' +
+    '<textarea id="adminNote" placeholder="e.g. Keep difficulty at JEE Main level only.">'+state.adminNote+'</textarea>';
+  html += '<div style="margin-top:16px;display:flex;gap:10px">' +
+    '<button class="btn" onclick="state.stage=\'pattern-pick\';renderApp()">← Choose different pattern</button>' +
+    '<button class="btn primary" onclick="submitPatternConfirm()">Create test &amp; send to teachers →</button></div></div>';
+  document.getElementById("app").innerHTML = html;
+}
+
+function submitPatternConfirm(){
+  state.testName = document.getElementById("testName").value || "Untitled test";
+  state.adminNote = document.getElementById("adminNote").value;
+  finalizeAssignment();
+}
+
+function startCustom(){
+  state.testName = "";
+  state.adminNote = "";
+  state.subjectRows = [ {subject:"physics", branch:null, count:2, types:{single:true,multi:false,numerical:true,integer:false}, teacher:"", scopeChapters:{}, scopeTopics:{}} ];
+  state.stage = "custom-form";
+  renderApp();
+}
+function addSubjectRow(){
+  state.subjectRows.push({subject:"chemistry", branch:null, count:1, types:{single:true,multi:false,numerical:false,integer:false}, teacher:"", scopeChapters:{}, scopeTopics:{}});
+  renderApp();
+}
+function removeSubjectRow(i){ state.subjectRows.splice(i,1); renderApp(); }
+function updateRow(i,key,val){
+  if(key==="count") val = Math.max(1, parseInt(val)||1);
+  state.subjectRows[i][key] = val;
+  if(key==="subject"){ state.subjectRows[i].scopeChapters={}; state.subjectRows[i].scopeTopics={}; state.subjectRows[i].teacher=""; state.subjectRows[i].branch = (val==="biology") ? "botany" : null; }
+  if(key==="branch"){ state.subjectRows[i].teacher=""; state.subjectRows[i].scopeChapters={}; state.subjectRows[i].scopeTopics={}; }
+  renderApp();
+}
+function toggleType(i,t,val){ state.subjectRows[i].types[t]=val; }
+
+function renderCustomForm(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">Custom test</h1><p class="sub">Full control — any subjects, counts, types.</p>';
+  html += '<label>Test name</label><input type="text" id="testName" value="'+state.testName+'" placeholder="e.g. Weekly Physics Practice Set">';
+  html += '</div>';
+
+  state.subjectRows.forEach((row,i)=>{
+    initScope(row);
+    const eligible = teachersFor(row.subject, row.branch);
+    html += '<div class="card"><div class="subjrow" style="margin-bottom:0"><div class="hdr"><span class="tag">Subject '+(i+1)+'</span>' +
+      (state.subjectRows.length>1 ? '<button class="linkbtn" onclick="removeSubjectRow('+i+')">Remove</button>' : '') + '</div>';
+    html += '<div class="row row3">';
+    html += '<div><label>Subject</label><select onchange="updateRow('+i+',\'subject\',this.value)">' +
+      SUBJECTS.map(s=>'<option value="'+s+'"'+(s===row.subject?' selected':'')+'>'+s[0].toUpperCase()+s.slice(1)+'</option>').join('') + '</select></div>';
+    html += '<div><label># Questions</label><input type="number" min="1" value="'+row.count+'" onchange="updateRow('+i+',\'count\',this.value)"></div>';
+    html += '<div><label>Teacher assigned</label><select onchange="updateRow('+i+',\'teacher\',this.value)"><option value="">— choose —</option>' +
+      eligible.map(t=>'<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>').join('') + '</select></div>';
+    html += '</div>';
+
+    if(row.subject==="biology"){
+      html += '<label style="margin-top:12px">Branch</label><div class="difflist">' +
+        ["botany","zoology"].map(b=>'<label class="chip-check"><input type="radio" name="branch'+i+'" '+(row.branch===b?'checked':'')+' onchange="updateRow('+i+',\'branch\',\''+b+'\')"> '+b+'</label>').join('') + '</div>';
+    }
+
+    html += '<label style="margin-top:12px">Allowed question types</label><div class="difflist">';
+    ["single","multi","numerical","integer"].forEach(t=>{
+      html += '<label class="chip-check"><input type="checkbox" '+(row.types[t]?'checked':'')+' onchange="toggleType('+i+',\''+t+'\',this.checked)"> '+t+'</label>';
+    });
+    html += '</div>';
+
+    html += renderScopeBuilder(row, i);
+    html += '</div></div>';
+  });
+
+  html += '<button class="btn" onclick="addSubjectRow()">+ Add another subject</button>';
+  html += '<div class="card" style="margin-top:16px">';
+  html += '<div class="scopebanner"><div class="lbl">Auto-generated scope summary</div>'+scopeSummary()+'</div>';
+  html += '<label>Additional notes <span style="font-weight:400">(optional)</span></label><textarea id="adminNote">'+state.adminNote+'</textarea>';
+  html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button><button class="btn primary" onclick="createCustomAssignment()">Create test &amp; send to teachers →</button></div>';
+  html += '</div>';
+  document.getElementById("app").innerHTML = html;
+}
+
+function createCustomAssignment(){
+  state.testName = document.getElementById("testName").value || "Untitled test";
+  state.adminNote = document.getElementById("adminNote").value;
+  state.subjectRows = state.subjectRows.map(row=>({
+    subject: row.subject,
+    branch: row.branch || null,
+    teacher: row.teacher,
+    scopeChapters: row.scopeChapters,
+    scopeTopics: row.scopeTopics,
+    requirements: [{ types: Object.keys(row.types).filter(t=>row.types[t]), count: row.count, label: "Questions" }]
+  }));
+  finalizeAssignment();
+}
+
+function finalizeAssignment(){
+  state.selections = {};
+  state.subjectDone = {};
+  state.subjectRows.forEach(r=>{ const k=rowKey(r); state.selections[k]=[]; state.subjectDone[k]=false; });
+  state.uiOpenRow = null;
+  state.uiFilters = {};
+  state.summaryFrozen = scopeSummary();
+  state.stage = "teacher-pick";
+  renderApp();
+}
+
+function reqCountsFor(row){
+  const k = rowKey(row);
+  return row.requirements.map(r=>{
+    const picked = state.selections[k].filter(id=>{
+      const q = QUESTIONS.find(q=>q.id===id);
+      return q && r.types.includes(q.type);
+    }).length;
+    return {req:r, picked};
+  });
+}
+function subjectTotalNeeded(row){ return row.requirements.reduce((s,r)=>s+r.count,0); }
+function subjectAllMet(row){ return reqCountsFor(row).every(rc=>rc.picked===rc.req.count); }
+
+function renderTeacherPick(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">Each subject teacher picks their own questions. Once every section is marked complete, the paper compiles itself.</p></div>';
+  html += '<div class="scopebanner"><div class="lbl">Syllabus scope for this test</div>'+state.summaryFrozen+(state.adminNote?'<br><i>'+state.adminNote+'</i>':'')+'</div>';
+
+  state.subjectRows.forEach(row=>{
+    const k = rowKey(row);
+    const picked = state.selections[k].length;
+    const needed = subjectTotalNeeded(row);
+    const done = state.subjectDone[k];
+    html += '<div class="subjcard"><div class="top"><div>' +
+      '<div style="font-family:var(--display);font-weight:600;font-size:16px">'+rowLabel(row)+'</div>' +
+      '<div class="meta">Teacher: '+(row.teacher||'(unassigned)')+' · needs '+needed+' questions across '+row.requirements.length+' section(s)</div>' +
+      '</div><div style="display:flex;align-items:center;gap:10px">' +
+      '<span class="progress-pill '+(done?'ok':'wait')+'">'+picked+' / '+needed+' selected</span>' +
+      '<button class="btn" onclick="toggleOpen(\''+k+'\')">'+(state.uiOpenRow===k?'Close':'Open')+'</button>' +
+      '</div></div>';
+    if(state.uiOpenRow===k) html += renderPicker(row);
+    html += '</div>';
+  });
+
+  const allDone = state.subjectRows.every(r=>state.subjectDone[rowKey(r)]);
+  html += '<div style="margin-top:6px"><button class="btn primary" '+(allDone?'':'disabled')+' onclick="state.stage=\'final\';renderApp()">Compile final paper →</button>' +
+    (allDone?'':' <span style="font-size:12.5px;color:var(--slate);margin-left:8px">waiting on all sections</span>') + '</div>';
+
+  document.getElementById("app").innerHTML = html;
+}
+
+function toggleOpen(k){
+  state.uiOpenRow = (state.uiOpenRow===k) ? null : k;
+  if(!state.uiFilters[k]) state.uiFilters[k] = {chapter:null, showAll:false, diff:[1,2,3,4,5]};
+  renderApp();
+}
+
+function renderPicker(row){
+  const k = rowKey(row);
+  const f = state.uiFilters[k];
+  const chapters = chaptersFor(row.subject, row.branch);
+  const inScope = chapters.filter(c => chapterIncluded(row,c.slug));
+  const visibleChapters = f.showAll ? chapters : inScope;
+  if(!f.chapter && visibleChapters.length) f.chapter = visibleChapters[0].slug;
+
+  let html = '<div class="picker">';
+
+  const rcounts = reqCountsFor(row);
+  html += '<div class="reqbar">';
+  rcounts.forEach(rc=>{
+    const met = rc.picked === rc.req.count;
+    html += '<span class="reqchip '+(met?'met':'open')+'">'+rc.req.label+': '+rc.picked+' / '+rc.req.count+'</span>';
+  });
+  html += '</div>';
+
+  html += '<div class="filters">';
+  if(visibleChapters.length){
+    html += '<div><label>Chapter ('+visibleChapters.length+' in scope)</label><select onchange="setFilter(\''+k+'\',\'chapter\',this.value)">' +
+      visibleChapters.map(c=>'<option value="'+c.slug+'"'+(c.slug===f.chapter?' selected':'')+'>'+c.name+'</option>').join('') + '</select></div>';
+  } else {
+    html += '<div><label>Chapter</label><div style="font-size:13px;color:var(--slate);padding-top:8px">none in scope</div></div>';
+  }
+  html += '<div><label>Difficulty</label><div class="difflist">' +
+    [1,2,3,4,5].map(d=>'<label class="chip-check"><input type="checkbox" '+(f.diff.includes(d)?'checked':'')+' onchange="toggleDiff(\''+k+'\','+d+',this.checked)">'+d+'</label>').join('') +
+    '</div></div>';
+  html += '</div>';
+
+  html += '<label class="chip-check" style="width:fit-content;margin-bottom:12px"><input type="checkbox" '+(f.showAll?'checked':'')+' onchange="setFilter(\''+k+'\',\'showAll\',this.checked)"> Show chapters outside this paper\'s syllabus too (safety override)</label>';
+
+  const allowedTypes = [...new Set(row.requirements.flatMap(r=>r.types))];
+  const matches = QUESTIONS.filter(q=>
+    q.subject===row.subject &&
+    q.chapter===f.chapter &&
+    allowedTypes.includes(q.type) &&
+    f.diff.includes(q.difficulty)
+  );
+
+  if(matches.length===0){
+    html += '<div class="empty">No questions match this chapter + difficulty + type combination yet.</div>';
+  } else {
+    matches.forEach(q=>{
+      const meta = chapterMeta(q.subject,q.chapter);
+      const topicLabel = (topicsFor(meta?meta.full_code:"").find(t=>t.slug===q.topic)||{}).label || q.topic;
+      const added = state.selections[k].includes(q.id);
+      html += '<div class="qitem"><div><div class="qtxt">'+q.question+'</div>' +
+        '<div class="qmeta"><span class="badge">'+q.id+'</span><span class="badge">'+topicLabel+'</span><span class="badge">'+q.type+'</span><span class="badge">difficulty '+q.difficulty+'</span><span class="badge">'+q.marks+' marks</span></div></div>' +
+        '<button class="add'+(added?' added':'')+'" onclick="toggleQuestion(\''+k+'\',\''+q.id+'\')">'+(added?'Added ✓':'Add')+'</button></div>';
+    });
+  }
+
+  html += '<div style="margin-top:14px;display:flex;justify-content:flex-end">';
+  const canComplete = subjectAllMet(row);
+  html += '<button class="btn primary" '+(canComplete?'':'disabled')+' onclick="completeSubject(\''+k+'\')">Mark complete</button>';
+  html += '</div></div>';
+  return html;
+}
+
+function setFilter(k,key,val){ state.uiFilters[k][key]=val; renderApp(); }
+function toggleDiff(k,d,checked){
+  const arr = state.uiFilters[k].diff;
+  const idx = arr.indexOf(d);
+  if(checked && idx===-1) arr.push(d);
+  if(!checked && idx!==-1) arr.splice(idx,1);
+  renderApp();
+}
+function toggleQuestion(k,qid){
+  const arr = state.selections[k];
+  const idx = arr.indexOf(qid);
+  if(idx===-1) arr.push(qid); else arr.splice(idx,1);
+  state.subjectDone[k] = false;
+  renderApp();
+}
+function completeSubject(k){ state.subjectDone[k]=true; state.uiOpenRow=null; renderApp(); }
+
+function renderFinal(){
+  renderTopbar();
+  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">Auto-compiled the moment every section was marked complete.</p></div>';
+  html += '<div class="scopebanner"><div class="lbl">Syllabus scope</div>'+state.summaryFrozen+'</div>';
+
+  let totalQ = 0, totalM = 0;
+  state.subjectRows.forEach(row=>{
+    const k = rowKey(row);
+    const qs = state.selections[k].map(id => QUESTIONS.find(q=>q.id===id));
+    totalQ += qs.length;
+    const sectionMarks = qs.reduce((s,q)=>s+q.marks,0);
+    totalM += sectionMarks;
+    html += '<div class="card psection"><h3>'+rowLabel(row)+' <span style="font-family:var(--mono);font-size:12px;color:var(--slate);font-weight:400">— '+qs.length+' questions, '+sectionMarks+' marks, set by '+(row.teacher||'unassigned')+'</span></h3>';
+    qs.forEach((q,i)=>{
+      html += '<div class="pq"><span class="pn">Q'+(i+1)+' · '+q.id+' · '+q.type+' · '+q.marks+' marks</span><br>'+q.question+'</div>';
+    });
+    html += '</div>';
+  });
+
+  html += '<div class="ptotal"><span>'+totalQ+' questions total</span><span>'+totalM+' marks total</span></div>';
+  html += '<div style="margin-top:16px"><button class="btn" onclick="state.stage=\'teacher-pick\';renderApp()">← Back to edit selections</button></div>';
+  document.getElementById("app").innerHTML = html;
+}
+
+function renderApp(){
+  if(state.stage==="mode") renderMode();
+  else if(state.stage==="pattern-pick") renderPatternPick();
+  else if(state.stage==="pattern-confirm") renderPatternConfirm();
+  else if(state.stage==="custom-form") renderCustomForm();
+  else if(state.stage==="teacher-pick") renderTeacherPick();
+  else if(state.stage==="final") renderFinal();
+}
+
+loadSirQuestionBank();
+
+
 </script>
 </body>
 
