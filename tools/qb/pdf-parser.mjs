@@ -32,10 +32,11 @@ export function normalizeText(s) {
   t = t.replace(/(?:[A-Z][a-z]?[₀-₉]*|\((?:[A-Z][a-z]?[₀-₉]*)+\)[₀-₉]*)+/g, (m) =>
     /[₀-₉]/.test(m) && /^[A-Z(]/.test(m) ? `$\\ce{${[...m].map((c) => SUBSCRIPT[c] ?? c).join("")}}$` : m);
   // Remaining Unicode super/subscript runs → LaTeX (exact, nothing guessed).
-  // The base is the whole number or word before it ("10⁻¹⁹", "m²", "kg²").
-  t = t.replace(/(\d+(?:\.\d+)?|[A-Za-z]+|[)\]]) ?([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾ⁿ]+)/g, (_, base, sup) =>
+  // The base is the whole number or word before it ("10⁻¹⁹", "m²", "kg²"),
+  // Greek letters included ("ε₀", "μ₀", "λ²").
+  t = t.replace(/(\d+(?:\.\d+)?|[A-Za-zα-ωΑ-Ω]+|[)\]]) ?([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁽⁾ⁿ]+)/g, (_, base, sup) =>
     `$${base}^{${[...sup].map((c) => SUPERSCRIPT[c]).join("")}}$`);
-  t = t.replace(/([A-Za-z]+|[)\]])([₀₁₂₃₄₅₆₇₈₉₊₋]+)/g, (_, base, sub) =>
+  t = t.replace(/([A-Za-zα-ωΑ-Ω]+|[)\]])([₀₁₂₃₄₅₆₇₈₉₊₋]+)/g, (_, base, sub) =>
     `$${base}_{${[...sub].map((c) => SUBSCRIPT[c]).join("")}}$`);
   return t.trim();
 }
@@ -45,7 +46,7 @@ export function normalizeText(s) {
 export const UNREADABLE = "[[?]]";
 // Stamped on every extracted item, so a later audit knows which segmenter
 // produced it (the RCC audit had to infer it from deployment times).
-export const PARSER_VERSION = "2026-10-29.audit2";
+export const PARSER_VERSION = "2026-10-29.audit3";
 // Saved with each page's text (qb_import_pages.raw_text): the full line
 // geometry, so the page can be segmented again without OCR.
 export const PAGE_DATA_MARK = "\n\n#SIR-PAGE-DATA v1 (lines with positions, for re-segmentation)\n";
@@ -334,8 +335,25 @@ export function findQuestionStarts(lines) {
     }
   });
   takeLoose(prevIndex, lines.length);
+  // A question never begins with an option marker. "2. c) strength of
+  // charge d) polarity…" means the number was read beside the previous
+  // question's last option row (measured: RCC page 1, the margin pass put
+  // Q2's "2." on Q1's c)/d) row, so Q1 lost two options to Q2). The row
+  // stays with the previous question; the start moves to the next line.
+  for (const s of starts) {
+    const rest = lines[s.index].text.slice(s.cut ?? 0);
+    if (!OPTION_LEAD.test(rest)) continue;
+    const here = lines[s.index], nx = lines[s.index + 1];
+    const nextStart = starts.some((o) => o.index === s.index + 1);
+    if (!nx || nextStart || nx.page !== here.page || (nx.col ?? 0) !== (here.col ?? 0) || OPTION_LEAD.test(nx.text)) continue;
+    here.text = rest.trimStart(); // the number token is not part of the option row
+    s.index += 1; s.cut = 0; s.numberMoved = true;
+  }
   return starts;
 }
+// An option marker at the start of text: a) (a) A. … including ticked
+// look-alikes seen on scans (&) o) ¢) for c).
+const OPTION_LEAD = /^\s*[^\w\s]{0,2}[(\[]?[a-dA-Do¢©&]\s?[).\]}]\s/;
 
 // When a printed number is unreadable (a handwritten circle over "7."),
 // the question would merge into the previous one. Recover it from layout:
@@ -458,9 +476,13 @@ export function extractOptions(body) {
     return { stem: body.slice(0, marks[0].at).trim(), options, found: 4, missing: [], secondSet: false, reordered };
   }
   const missing = ["A", "B", "C", "D"].filter((L) => !options.some((o) => o.key === L));
-  // Keep keys A–D contiguous for the editor; the missing letter's text is
-  // still inside the neighbouring option and is reported for review.
-  options.forEach((o, i) => { o.key = "ABCD"[i]; });
+  // Options keep their PRINTED letters. A letter that was not read (pen
+  // tick over "a)") before the last letter found becomes an EMPTY slot: the
+  // reviewer types it from the page, and verification refuses an empty
+  // option. Re-lettering (b → A) would silently map the answer key wrongly.
+  const lastKey = options.length ? options[options.length - 1].key : "A";
+  for (const L of missing) if (L < lastKey) options.push({ key: L, text: "" });
+  options.sort((x, y) => x.key.localeCompare(y.key));
   // A second "a) … b)" after the last option: probably two questions merged
   // (the next question's number was not read).
   const tail = marks.length ? body.slice(marks[marks.length - 1].end) : "";
@@ -654,6 +676,7 @@ export function segmentQuestions(pages, ctx = {}) {
     const first = s.preamble ? qLines[0].text
       : qLines[0] === startLine && s.cut != null ? startLine.text.slice(s.cut).trim()
       : s.assumed ? qLines[0].text : qLines[0].text.replace(Q_START, "");
+    if (s.numberMoved) issues.push(`Question number ${s.number} was read beside the previous question's option row; that row was kept with the previous question — check both questions' options against the page`);
     if (s.loose) issues.push(`Question number read through a stray mark or neighbouring text ("${startLine.text.slice(0, Math.min(s.cut, 16)).trim()}") — check the first line against the page`);
     let raw = [first, ...qLines.slice(1).map((l) => l.text)].join("\n");
 
@@ -696,7 +719,11 @@ export function segmentQuestions(pages, ctx = {}) {
     // and starts like one: probably a question whose number was not read.
     const hidden = qLines.slice(1).filter((l) => (Q_START.test(l.text) || LOOSE_START.test(l.text) || LOST_START.test(l.text)) && hangsLeft(body, body.indexOf(l), bodyLineH));
     if (hidden.length) issues.push(`${hidden.length} line(s) inside look like the start of another question ("${hidden[0].text.slice(0, 40)}") — check whether questions were merged`);
-    if (found > 0 && found < 4) issues.push(`Only ${found} of 4 option markers read${missing?.length ? ` — option ${missing.join(", ")} not found; its text is probably joined to the option before it. Split it before verifying` : ""}`);
+    if (found > 0 && found < 4) {
+      const gaps = (options || []).filter((o) => o.text === "").map((o) => o.key);
+      const tail = (missing || []).filter((L) => !gaps.includes(L));
+      issues.push(`Only ${found} of 4 option markers read${gaps.length ? ` — option ${gaps.join(", ")} not read (a pen mark over the letter?): left EMPTY, type it from the page; its text may be at the end of the text before it` : ""}${tail.length ? ` — option ${tail.join(", ")} not found after the last option read: its text may be joined to that option, or the question may have fewer options. Check before verifying` : ""}`);
+    }
     if (!isMcq && kind.name === "unknown") issues.push("No options detected — may be integer/numerical/subjective, or options were not read");
     if (reordered) issues.push("Options were out of order in the scan (curved or tilted page) and were matched by their letters — check each option against the page");
     if (secondSet) issues.push("A second set of options a), b)… follows — this item probably contains two questions (the next number was not read). Split it");
@@ -717,6 +744,16 @@ export function segmentQuestions(pages, ctx = {}) {
 
     const lowConf = qLines.filter((l) => l.conf != null && l.conf < 70);
     if (lowConf.length) issues.push(`Low OCR confidence on ${lowConf.length} line(s): "${lowConf[0].text.slice(0, 50)}"`);
+    // Stacked formulas (fractions, roots, limits) are read line by line by
+    // OCR: numerator, bar and denominator come out as short broken lines
+    // ("q", "a b", ") 4dnegr? dneqr?"). They are never rebuilt into a
+    // guessed formula — the reviewer retypes them from the page.
+    const fragments = qLines.slice(1).filter((l) => pageDims[l.page]?.source === "ocr").filter((l) => {
+      const t = l.text.trim();
+      return t.length > 0 && t.length <= 14 && !/^[(\[]?[a-dA-D][).\]]\s+\S{2,}/.test(t) && ((l.conf ?? 100) < 75 || (t.match(/[A-Za-z]{3,}/g) || []).length === 0);
+    });
+    const formulaFragments = fragments.length >= 2;
+    if (formulaFragments) issues.push(`${fragments.length} short broken line(s) ("${fragments.slice(0, 3).map((l) => l.text.trim()).join('", "')}") — usually a stacked formula (fraction, root) or diagram labels that OCR cannot read in layout. Retype the formula from the page`);
 
     // Source regions (one per page and column the question touches, in
     // reading order), in thousandths. A question that runs from the bottom
@@ -769,7 +806,9 @@ export function segmentQuestions(pages, ctx = {}) {
     if (figures.length) issues.push(`${figures.length} diagram area(s) detected — confirm or re-crop each one; a diagram that belongs to this question must be attached`);
 
     const minConf = qLines.reduce((m, l) => l.conf == null ? m : Math.min(m, l.conf), 100);
-    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length || unreadableMath || secondSet || asserts > 1 || hidden.length || afterOptions;
+    const nextMoved = !!starts[qi + 1]?.numberMoved;
+    if (nextMoved) issues.push(`The next question's number was read on this question's last option row; the row was kept here — check that these options are complete and in order`);
+    const severe = !isMcq || !stem || found < 4 || minConf < 60 || s.skipped || s.assumed || s.preamble || unreadable.length || unreadableMath || secondSet || asserts > 1 || hidden.length || afterOptions || s.numberMoved || nextMoved || formulaFragments;
     const confidence = severe ? "low" : (issues.length > 1 || minConf < 85) ? "medium" : "high";
 
     const question = stem + figures.map((f) => `\n\n![Figure ${f.label}](figure:${f.label})`).join("");

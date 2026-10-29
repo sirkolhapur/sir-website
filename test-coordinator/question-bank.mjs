@@ -8,12 +8,12 @@
 // is a server function that re-checks permissions and gates; the buttons
 // here are convenience only.
 // =====================================================================
-import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261029-audit2";
-import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261029-audit2";
-import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261029-audit2";
-import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261029-audit2";
-import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261029-audit2";
-import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261029-audit2";
+import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261029-audit3";
+import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261029-audit3";
+import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261029-audit3";
+import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261029-audit3";
+import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261029-audit3";
+import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261029-audit3";
 
 const T = window.SIR_TC;
 const sb = T.sb;

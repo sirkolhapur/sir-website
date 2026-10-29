@@ -111,9 +111,12 @@ export function scoreAgainstTruth(truth, items, pages) {
   // Correctness of matched items.
   const checks = rows.filter((r) => r.status === "matched").map((r) => {
     const it = items[r.item], d = it.draft || {};
-    const opts = Array.isArray(d.options) ? d.options.length : 0;
+    const opts = Array.isArray(d.options) ? d.options.filter((o) => String(o.text || "").trim()).length : 0;
     const problems = [];
     if (r.type === "mcq" && opts !== 4) problems.push(`options ${opts}/4`);
+    // Text of a NEIGHBOURING question inside this item's stem: an option row
+    // of the question before it (stem starting with an option marker).
+    if (/^\s*[^\w\s]{0,2}[(\[]?[a-dA-D]\s?[).\]]\s/.test(String(d.question || ""))) problems.push("stem starts with an option row (another question's options?)");
     if (r.type !== "mcq" && opts > 0) problems.push(`${r.type} given ${opts} options`);
     const figs = (d.figures || []).length;
     if (r.figure && !figs) problems.push("figure not attached");
