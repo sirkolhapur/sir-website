@@ -1,0 +1,16 @@
+{
+"_note": "HELD-OUT 2 (RCC pages 9 and 15; never run through the prototype before this file was committed). Formula-option questions only; transcribed by Claude from zoomed page tiles before any run. Used to check the accuracy-pass changes on unseen data. PENDING teacher spot-check.",
+"questions": [
+ {"page":9,"num":109,"opts":{"A":["formula","\\frac{1}{r}"],"B":["formula","\\frac{1}{r^{2}}"],"C":["formula","\\frac{1}{r^{3}}"],"D":["formula","\\frac{1}{r^{4}}"]}},
+ {"page":9,"num":110,"opts":{"A":["formula","qEy^{2}"],"B":["formula","qE^{2}y"],"C":["formula","qEy"],"D":["formula","q^{2}Ey"]}},
+ {"page":9,"num":111,"opts":{"A":["formula","10^{18}"],"B":["formula","10^{15}"],"C":["formula","10^{6}"],"D":["formula","10^{12}"]}},
+ {"page":9,"num":112,"opts":{"A":["formula","0.1\\,m"],"B":["formula","0.04\\,m"],"C":["formula","0.033\\,m"],"D":["formula","0.33\\,m"]}},
+ {"page":9,"num":114,"opts":{"A":["formula","E_{A}>E_{B}>E_{C}"],"B":["formula","E_{B}>E_{A}>E_{C}"],"C":["formula","E_{A}=E_{B}>E_{C}"],"D":["formula","E_{A}>E_{B}=E_{C}"]}},
+ {"page":9,"num":115,"opts":{"A":["formula","8\\times10^{4}\\,N/C"],"B":["formula","7\\times10^{4}\\,N/C"],"C":["formula","5\\times10^{4}\\,N/C"],"D":["formula","4\\times10^{4}\\,N/C"]}},
+ {"page":15,"num":2,"opts":{"A":["formula","\\frac{4F}{3}"],"B":["formula","F"],"C":["formula","\\frac{9F}{16}"],"D":["formula","\\frac{16F}{9}"]}},
+ {"page":15,"num":3,"opts":{"A":["formula","\\left(\\frac{2r}{\\sqrt{3}}\\right)"],"B":["formula","\\left(\\frac{2r}{3}\\right)"],"C":["formula","\\left(\\frac{1}{\\sqrt{2}}\\right)^{2}"],"D":["formula","\\left(\\frac{r}{\\sqrt[3]{2}}\\right)"]}},
+ {"page":15,"num":4,"opts":{"A":["formula","-Q/4"],"B":["formula","Q/4"],"C":["formula","-Q/2"],"D":["formula","Q/2"]}},
+ {"page":15,"num":5,"opts":{"A":["formula","-Q"],"B":["formula","Q/2"],"C":["formula","-Q/4"],"D":["formula","+Q"]}},
+ {"page":15,"num":7,"opts":{"A":["formula","\\frac{1}{R^{2}}"],"B":["formula","\\frac{1}{R^{3}}"],"C":["formula","\\frac{1}{R^{4}}"],"D":["formula","\\frac{1}{R^{6}}"]}}
+]
+}

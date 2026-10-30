@@ -1,0 +1,13 @@
+== held: 95 expressions
+current (Tesseract)    exact 24/95 (25%)    layout 32/95 (34%)
+Pix2Text alone         exact 54/95 (57%)    layout 65/95 (68%)
+Pix2Text + clean-up    exact 58/95 (61%)    layout 66/95 (69%)
+options only: current exact 24/95 (25%), p2t+ exact 58/95 (61%)
+formula-detection recall (a Math OCR region read it): 73/95 (77%); options only 73/95 (77%)
+stored option formulas still wrong: 37; of these flagged for review: 34 (not sent / not located count as 'still Tesseract text, existing warnings apply')
+UNFLAGGED wrong formulas (agreed but wrong): 2 — p13_q23A → $v \propto x_{1}^{\frac{1} {2}}$ | p16_q16D → $\frac{\cdots} {\pi\varepsilon_{0} R} N / C$
+status of the formula options: {"uncertain":31,"agreed":39,"not_sent":16,"text":1,"question_not_found":4,"failed":3,"not_located":1}
+text/graph options: 45; sent to Math OCR 3; text replaced 2; FALSE replacements (meaning changed) 2 — p16_q14C [uncertain, flagged] ")" → "$\grave{\varPsi} \mid\Uparrow\ldots\ldots$" | p18_q4B [uncertain, flagged] "is shown in figure. Which one of the following statements is correct? HA is +ve and Bis —veand |Al > |Bl (2006) b) Ais -ve and Bis +ve; |Al = | BI" → "$\mathrm{i s} \overbrace{\wp}$"
+questions not found by the segmenter: p16_q9
+review workload (pages 13,16,18,20): 44 questions; Math OCR readings 76; flagged formulas 42 in 21 questions; agreed (no extra tick) 39; recovered questions 1
+time: OCR 51 s/page (this run); Math OCR 295 s for 4 pages = 73.7 s/page; 3.77 s per formula (3 readings)

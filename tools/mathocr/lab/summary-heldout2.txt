@@ -1,0 +1,13 @@
+== held: 44 expressions
+current (Tesseract)    exact 10/44 (23%)    layout 14/44 (32%)
+Pix2Text alone         exact 30/44 (68%)    layout 31/44 (70%)
+Pix2Text + clean-up    exact 31/44 (70%)    layout 32/44 (73%)
+options only: current exact 10/44 (23%), p2t+ exact 31/44 (70%)
+formula-detection recall (a Math OCR region read it): 38/44 (86%); options only 38/44 (86%)
+stored option formulas still wrong: 13; of these flagged for review: 13 (not sent / not located count as 'still Tesseract text, existing warnings apply')
+UNFLAGGED wrong formulas (agreed but wrong): 0
+status of the formula options: {"agreed":22,"uncertain":15,"failed":1,"not_located":2,"not_sent":4}
+text/graph options: 0; sent to Math OCR 0; text replaced 0; FALSE replacements (meaning changed) 0
+questions not found by the segmenter: none
+review workload (pages 9,15): 21 questions; Math OCR readings 46; flagged formulas 21 in 8 questions; agreed (no extra tick) 26; recovered questions 1
+time: OCR cached; Math OCR 216 s for 2 pages = 108.2 s/page; 1.73 s per formula (3 readings)

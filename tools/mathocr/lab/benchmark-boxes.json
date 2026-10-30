@@ -1,0 +1,1557 @@
+[
+{
+"id": "p03_q39a",
+"page": 3,
+"box": [
+1285,
+2283,
+1545,
+2332
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p03_q39b",
+"page": 3,
+"box": [
+1780,
+2270,
+2040,
+2326
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p03_q39c",
+"page": 3,
+"box": [
+1290,
+2330,
+1565,
+2385
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p03_q39d",
+"page": 3,
+"box": [
+1780,
+2322,
+2025,
+2377
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p04_q48a",
+"page": 4,
+"box": [
+1330,
+1038,
+1725,
+1092
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p04_q48c",
+"page": 4,
+"box": [
+1330,
+1108,
+1755,
+1162
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p04_q49a",
+"page": 4,
+"box": [
+1335,
+1223,
+1530,
+1282
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p04_q49b",
+"page": 4,
+"box": [
+1815,
+1223,
+2090,
+1282
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p04_q49c",
+"page": 4,
+"box": [
+1335,
+1288,
+1600,
+1347
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p04_q49d",
+"page": 4,
+"box": [
+1815,
+1288,
+2075,
+1347
+],
+"cat": [
+"dimensional",
+"option"
+]
+},
+{
+"id": "p10_q118_stem",
+"page": 10,
+"box": [
+925,
+128,
+1088,
+178
+],
+"cat": [
+"sci_notation",
+"units",
+"embedded"
+]
+},
+{
+"id": "p10_q118_field",
+"page": 10,
+"box": [
+892,
+226,
+1075,
+277
+],
+"cat": [
+"power",
+"units",
+"embedded"
+]
+},
+{
+"id": "p10_q118a",
+"page": 10,
+"box": [
+478,
+358,
+728,
+416
+],
+"cat": [
+"sci_notation",
+"greek",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q118b",
+"page": 10,
+"box": [
+880,
+358,
+1108,
+416
+],
+"cat": [
+"sci_notation",
+"greek",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q122a",
+"page": 10,
+"box": [
+318,
+2822,
+678,
+2882
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q122b",
+"page": 10,
+"box": [
+808,
+2822,
+1133,
+2882
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q124_mass",
+"page": 10,
+"box": [
+1508,
+466,
+1642,
+527
+],
+"cat": [
+"power",
+"units",
+"embedded"
+]
+},
+{
+"id": "p10_q124_g",
+"page": 10,
+"box": [
+1820,
+582,
+2030,
+637
+],
+"cat": [
+"power",
+"units",
+"embedded"
+]
+},
+{
+"id": "p10_q125a",
+"page": 10,
+"box": [
+1370,
+995,
+1420,
+1118
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p10_q125b",
+"page": 10,
+"box": [
+1795,
+995,
+1875,
+1118
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p10_q125c",
+"page": 10,
+"box": [
+1370,
+1145,
+1435,
+1262
+],
+"cat": [
+"simple_fraction",
+"option"
+]
+},
+{
+"id": "p10_q125d",
+"page": 10,
+"box": [
+1795,
+1145,
+1875,
+1262
+],
+"cat": [
+"simple_fraction",
+"option"
+]
+},
+{
+"id": "p10_q126a",
+"page": 10,
+"box": [
+1362,
+1487,
+1620,
+1548
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q126b",
+"page": 10,
+"box": [
+1787,
+1487,
+2060,
+1548
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p10_q127a",
+"page": 10,
+"box": [
+1365,
+1915,
+1510,
+1985
+],
+"cat": [
+"radical",
+"option"
+]
+},
+{
+"id": "p10_q127b",
+"page": 10,
+"box": [
+1805,
+1915,
+1975,
+1985
+],
+"cat": [
+"radical",
+"option"
+]
+},
+{
+"id": "p10_q127c",
+"page": 10,
+"box": [
+1365,
+2035,
+1540,
+2108
+],
+"cat": [
+"radical",
+"option"
+]
+},
+{
+"id": "p10_q127d",
+"page": 10,
+"box": [
+1805,
+2035,
+2005,
+2108
+],
+"cat": [
+"radical",
+"option"
+]
+},
+{
+"id": "p12_q11a",
+"page": 12,
+"box": [
+392,
+905,
+625,
+985
+],
+"cat": [
+"inline_fraction",
+"greek",
+"sub_sup",
+"option",
+"near_diagram"
+]
+},
+{
+"id": "p12_q11b",
+"page": 12,
+"box": [
+392,
+990,
+640,
+1070
+],
+"cat": [
+"inline_fraction",
+"greek",
+"sub_sup",
+"option",
+"near_diagram"
+]
+},
+{
+"id": "p12_q11d",
+"page": 12,
+"box": [
+392,
+1115,
+615,
+1190
+],
+"cat": [
+"inline_fraction",
+"greek",
+"sub_sup",
+"option",
+"near_diagram"
+]
+},
+{
+"id": "p12_q12_stem",
+"page": 12,
+"box": [
+975,
+1284,
+1050,
+1416
+],
+"cat": [
+"simple_fraction",
+"embedded"
+]
+},
+{
+"id": "p12_q12b",
+"page": 12,
+"box": [
+532,
+1412,
+648,
+1528
+],
+"cat": [
+"radical",
+"nested_fraction",
+"greek",
+"option"
+]
+},
+{
+"id": "p12_q12c",
+"page": 12,
+"box": [
+762,
+1408,
+898,
+1528
+],
+"cat": [
+"radical",
+"nested_fraction",
+"greek",
+"option"
+]
+},
+{
+"id": "p12_q12d",
+"page": 12,
+"box": [
+1012,
+1440,
+1150,
+1508
+],
+"cat": [
+"radical",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q13_K",
+"page": 12,
+"box": [
+470,
+1725,
+640,
+1845
+],
+"cat": [
+"simple_fraction",
+"greek",
+"embedded"
+]
+},
+{
+"id": "p12_q13a",
+"page": 12,
+"box": [
+355,
+1855,
+505,
+1965
+],
+"cat": [
+"simple_fraction",
+"sub_sup",
+"vector",
+"option"
+]
+},
+{
+"id": "p12_q13b",
+"page": 12,
+"box": [
+803,
+1855,
+928,
+1965
+],
+"cat": [
+"simple_fraction",
+"sub_sup",
+"vector",
+"option"
+]
+},
+{
+"id": "p12_q13c",
+"page": 12,
+"box": [
+355,
+1995,
+505,
+2105
+],
+"cat": [
+"simple_fraction",
+"sub_sup",
+"vector",
+"option"
+]
+},
+{
+"id": "p12_q13d",
+"page": 12,
+"box": [
+800,
+1995,
+928,
+2105
+],
+"cat": [
+"simple_fraction",
+"sub_sup",
+"vector",
+"option"
+]
+},
+{
+"id": "p12_q16a",
+"page": 12,
+"box": [
+1340,
+500,
+1480,
+615
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q16b",
+"page": 12,
+"box": [
+1780,
+490,
+1920,
+595
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q16c",
+"page": 12,
+"box": [
+1343,
+640,
+1640,
+790
+],
+"cat": [
+"nested_fraction",
+"radical",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q16d",
+"page": 12,
+"box": [
+1780,
+635,
+2070,
+780
+],
+"cat": [
+"nested_fraction",
+"radical",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q17a",
+"page": 12,
+"box": [
+1344,
+1050,
+1560,
+1194
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q17b",
+"page": 12,
+"box": [
+1794,
+1050,
+2010,
+1194
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q17c",
+"page": 12,
+"box": [
+1329,
+1200,
+1590,
+1341
+],
+"cat": [
+"radical",
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q17d",
+"page": 12,
+"box": [
+1794,
+1200,
+2055,
+1341
+],
+"cat": [
+"radical",
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p12_q19_e",
+"page": 12,
+"box": [
+1505,
+2180,
+1800,
+2234
+],
+"cat": [
+"sci_notation",
+"units",
+"embedded"
+]
+},
+{
+"id": "p12_q19_data",
+"page": 12,
+"box": [
+1288,
+2236,
+2022,
+2287
+],
+"cat": [
+"sci_notation",
+"units",
+"embedded"
+]
+},
+{
+"id": "p12_q19a",
+"page": 12,
+"box": [
+1343,
+2290,
+1552,
+2342
+],
+"cat": [
+"sci_notation",
+"option"
+]
+},
+{
+"id": "p12_q19b",
+"page": 12,
+"box": [
+1798,
+2290,
+2025,
+2342
+],
+"cat": [
+"sci_notation",
+"option"
+]
+},
+{
+"id": "p12_q19c",
+"page": 12,
+"box": [
+1343,
+2350,
+1552,
+2407
+],
+"cat": [
+"sci_notation",
+"option"
+]
+},
+{
+"id": "p12_q19d",
+"page": 12,
+"box": [
+1810,
+2350,
+2025,
+2407
+],
+"cat": [
+"sci_notation",
+"option"
+]
+},
+{
+"id": "p17_q19a",
+"page": 17,
+"box": [
+240,
+1375,
+330,
+1505
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option",
+"near_diagram"
+]
+},
+{
+"id": "p17_q19b",
+"page": 17,
+"box": [
+710,
+1375,
+765,
+1505
+],
+"cat": [
+"simple_fraction",
+"greek",
+"option"
+]
+},
+{
+"id": "p17_q19c",
+"page": 17,
+"box": [
+235,
+1550,
+370,
+1700
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q19d",
+"page": 17,
+"box": [
+705,
+1530,
+925,
+1685
+],
+"cat": [
+"nested_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q20a",
+"page": 17,
+"box": [
+212,
+2436,
+295,
+2494
+],
+"cat": [
+"power",
+"option"
+]
+},
+{
+"id": "p17_q20b",
+"page": 17,
+"box": [
+697,
+2432,
+865,
+2504
+],
+"cat": [
+"inline_fraction",
+"power",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q20c",
+"page": 17,
+"box": [
+212,
+2522,
+330,
+2583
+],
+"cat": [
+"inline_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p17_q21a",
+"page": 17,
+"box": [
+1290,
+395,
+1455,
+525
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q21b",
+"page": 17,
+"box": [
+1755,
+395,
+1920,
+525
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q21c",
+"page": 17,
+"box": [
+1290,
+545,
+1455,
+665
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q21d",
+"page": 17,
+"box": [
+1755,
+545,
+1920,
+665
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q22a",
+"page": 17,
+"box": [
+1285,
+845,
+1485,
+990
+],
+"cat": [
+"simple_fraction",
+"sci_notation",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q22b",
+"page": 17,
+"box": [
+1750,
+845,
+1955,
+990
+],
+"cat": [
+"simple_fraction",
+"sci_notation",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q22c",
+"page": 17,
+"box": [
+1285,
+1005,
+1395,
+1135
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q22d",
+"page": 17,
+"box": [
+1750,
+1005,
+1835,
+1135
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q24d",
+"page": 17,
+"box": [
+1730,
+2012,
+1950,
+2072
+],
+"cat": [
+"power",
+"greek",
+"units",
+"option"
+]
+},
+{
+"id": "p17_q25a",
+"page": 17,
+"box": [
+1260,
+2315,
+1365,
+2465
+],
+"cat": [
+"simple_fraction",
+"power",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q25b",
+"page": 17,
+"box": [
+1740,
+2325,
+1860,
+2455
+],
+"cat": [
+"simple_fraction",
+"power",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p17_q25d",
+"page": 17,
+"box": [
+1740,
+2500,
+1805,
+2625
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q12a",
+"page": 19,
+"box": [
+245,
+790,
+310,
+915
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p19_q12b",
+"page": 19,
+"box": [
+710,
+790,
+780,
+915
+],
+"cat": [
+"simple_fraction",
+"option"
+]
+},
+{
+"id": "p19_q12c",
+"page": 19,
+"box": [
+245,
+955,
+335,
+1070
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p19_q12d",
+"page": 19,
+"box": [
+710,
+950,
+795,
+1060
+],
+"cat": [
+"simple_fraction",
+"option"
+]
+},
+{
+"id": "p19_q13a",
+"page": 19,
+"box": [
+245,
+1230,
+390,
+1345
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q13b",
+"page": 19,
+"box": [
+710,
+1230,
+880,
+1340
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option",
+"near_diagram"
+]
+},
+{
+"id": "p19_q13c",
+"page": 19,
+"box": [
+245,
+1385,
+375,
+1520
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q13d",
+"page": 19,
+"box": [
+710,
+1385,
+845,
+1520
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q15_v",
+"page": 19,
+"box": [
+945,
+2080,
+1099,
+2155
+],
+"cat": [
+"vector",
+"sub_sup",
+"embedded"
+]
+},
+{
+"id": "p19_q15_E",
+"page": 19,
+"box": [
+600,
+2180,
+780,
+2255
+],
+"cat": [
+"vector",
+"sub_sup",
+"embedded"
+]
+},
+{
+"id": "p19_q18a",
+"page": 19,
+"box": [
+1275,
+985,
+1340,
+1105
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q18b",
+"page": 19,
+"box": [
+1750,
+985,
+1835,
+1105
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q18c",
+"page": 19,
+"box": [
+1275,
+1135,
+1375,
+1262
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q18d",
+"page": 19,
+"box": [
+1745,
+1130,
+1905,
+1258
+],
+"cat": [
+"long_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q20_sigma",
+"page": 19,
+"box": [
+1222,
+2080,
+1655,
+2140
+],
+"cat": [
+"sci_notation",
+"greek",
+"units",
+"embedded"
+]
+},
+{
+"id": "p19_q20b",
+"page": 19,
+"box": [
+1738,
+2195,
+2060,
+2258
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p19_q20d",
+"page": 19,
+"box": [
+1738,
+2256,
+2025,
+2312
+],
+"cat": [
+"sci_notation",
+"units",
+"option"
+]
+},
+{
+"id": "p19_q21a",
+"page": 19,
+"box": [
+1275,
+2440,
+1318,
+2555
+],
+"cat": [
+"simple_fraction",
+"option"
+]
+},
+{
+"id": "p19_q21b",
+"page": 19,
+"box": [
+1550,
+2440,
+1615,
+2555
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p19_q21c",
+"page": 19,
+"box": [
+1805,
+2440,
+1870,
+2555
+],
+"cat": [
+"simple_fraction",
+"power",
+"option"
+]
+},
+{
+"id": "p19_q21d",
+"page": 19,
+"box": [
+2055,
+2470,
+2110,
+2540
+],
+"cat": [
+"power",
+"option"
+]
+},
+{
+"id": "p19_q22a",
+"page": 19,
+"box": [
+1270,
+2855,
+1345,
+2978
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q22b",
+"page": 19,
+"box": [
+1500,
+2855,
+1580,
+2978
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q22c",
+"page": 19,
+"box": [
+1750,
+2855,
+1825,
+2978
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p19_q22d",
+"page": 19,
+"box": [
+2015,
+2855,
+2095,
+2978
+],
+"cat": [
+"simple_fraction",
+"greek",
+"sub_sup",
+"option"
+]
+},
+{
+"id": "p21_q_a",
+"page": 21,
+"box": [
+1272,
+2452,
+1545,
+2513
+],
+"cat": [
+"power",
+"units",
+"option"
+]
+},
+{
+"id": "p21_q_d",
+"page": 21,
+"box": [
+1272,
+2706,
+1565,
+2764
+],
+"cat": [
+"power",
+"units",
+"option"
+]
+},
+{
+"id": "p22_q3",
+"page": 22,
+"box": [
+735,
+785,
+885,
+935
+],
+"cat": [
+"simple_fraction",
+"power",
+"sub_sup",
+"embedded"
+]
+}
+]

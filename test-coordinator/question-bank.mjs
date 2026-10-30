@@ -8,12 +8,13 @@
 // is a server function that re-checks permissions and gates; the buttons
 // here are convenience only.
 // =====================================================================
-import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261029-audit3";
-import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261029-audit3";
-import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261029-audit3";
-import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261029-audit3";
-import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261029-audit3";
-import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261029-audit3";
+import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261029-mathocr1";
+import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261029-mathocr1";
+import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261029-mathocr1";
+import { helperHealth, runMathOcr, MATH_OCR_VERSION } from "../tools/qb/math-ocr.mjs?v=20261029-mathocr1";
+import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261029-mathocr1";
+import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261029-mathocr1";
+import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261029-mathocr1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -497,7 +498,20 @@ async function extractPdf(buf, job, ctx, opts, status) {
   }
   status("Finding questions and options…", 90);
   const { questions } = segmentQuestions(pagesData, ctx);
-  return questions.map((q) => toItem(q, q.page_from));
+  // PROTOTYPE: formulas in options re-read by the local SIR Math OCR helper
+  // (tools/mathocr) when it is running on this PC. Without it nothing changes.
+  let mathOcr = null;
+  if (pagesData.some((p) => p.source === "ocr")) {
+    const health = await helperHealth();
+    if (health) {
+      status("Math OCR helper found — reading formulas from the page images…", 91);
+      const stats = await runMathOcr(questions, pagesData, { renderPage: async (n) => renderPage(await pdf.getPage(n)), katex: window.katex, status: (m) => status(m, 91) });
+      mathOcr = { version: MATH_OCR_VERSION, helper: health.version, model: health.model, stats };
+    } else {
+      status("Math OCR helper not running on this PC — formulas kept as read by Tesseract", 91);
+    }
+  }
+  return questions.map((q) => { const it = toItem(q, q.page_from); if (mathOcr) { it.extracted.math = q.math || []; it.extracted.math_ocr = { version: mathOcr.version, helper: mathOcr.helper, model: mathOcr.model }; } return it; });
 }
 
 async function extractDocx(buf, job, ctx, status) {
@@ -748,7 +762,8 @@ async function openItem(itemId, queue = []) {
     if (de) throw de;
     const img = new Image(); img.src = URL.createObjectURL(blob); await img.decode(); return img;
   };
-  for (const pg of new Set([...regions.map((r) => r.page), ...figures.map((f) => f.page)])) {
+  const mathItems = (ex.math || []).filter((m) => m.box);
+  for (const pg of new Set([...regions.map((r) => r.page), ...figures.map((f) => f.page), ...mathItems.map((m) => m.page)])) {
     const p = pages?.find((x) => x.page_no === pg);
     if (p?.image_path) pageImgs[pg] = await loadImg(p.image_path);
   }
@@ -792,6 +807,7 @@ async function openItem(itemId, queue = []) {
     const box = (b, cls, label) => { const d = document.createElement("div"); d.className = cls; Object.assign(d.style, { left: b[0] / 10 + "%", top: b[1] / 10 + "%", width: (b[2] - b[0]) / 10 + "%", height: (b[3] - b[1]) / 10 + "%" }); if (label) d.innerHTML = `<span>${esc(label)}</span>`; wrap.appendChild(d); };
     regions.filter((r) => r.page === viewPage).forEach((r) => box(r.box, "qb-region"));
     figures.filter((f) => f.page === viewPage).forEach((f) => box(f.box, "qb-fbox", `Figure ${f.label}`));
+    mathItems.filter((m) => m.page === viewPage).forEach((m) => box(m.box, "qb-mbox", m.target === "option" ? m.key : m.key));
   };
   let start = null, sel = null;
   const pt = (e) => { const rc = wrap.getBoundingClientRect(); return [Math.round(((e.clientX - rc.left) / rc.width) * 1000), Math.round(((e.clientY - rc.top) / rc.height) * 1000)]; };
@@ -842,6 +858,35 @@ async function openItem(itemId, queue = []) {
     const host = $("[data-editor]", root); host.innerHTML = ""; host.appendChild(editor.el);
   };
   rebuild(false); renderFigs();
+
+  // PROTOTYPE: formulas read from the page by the Math OCR helper — source
+  // crop beside the recognised formula, with the original OCR text kept.
+  if ((ex.math || []).length) {
+    const card = document.createElement("div");
+    card.className = "qb-math"; card.setAttribute("data-math", "");
+    const TAG = { agreed: ["", "read the same 3 times"], uncertain: ["amber", "UNCERTAIN — compare"], failed: ["red", "could not be read"], text: ["", "words — left as text"], not_located: ["red", "option not found on the page"] };
+    card.innerHTML = `<div class="darklabel" style="margin-top:10px">Formulas read from the page (Math OCR prototype ${esc(ex.math_ocr?.version || "")}) — compare each crop with the formula</div>`
+      + ex.math.map((m, i) => `<div class="qb-mrow" data-mi="${i}"><div class="qb-mhead"><b>${m.target === "option" ? `Option ${esc(m.key)}` : `Question text ${esc(m.key)}`}</b> <span class="tag ${TAG[m.status]?.[0] ?? ""}">${esc(TAG[m.status]?.[1] ?? m.status)}</span>${m.applied ? ` <span class="tag">put into the option</span>` : ""}</div>
+        <div class="qb-mpair"><div data-mc></div><div data-mf></div></div>
+        ${m.reasons?.length ? `<div class="csub">${esc(m.reasons.join("; "))}</div>` : ""}
+        <div class="csub">OCR text before: <code>${esc(m.ocr_text || "—")}</code>${m.alternatives?.length ? ` · other readings: ${m.alternatives.map((a) => `<code>${esc(a)}</code>`).join(", ")}` : ""}</div>
+        ${m.latex && m.target === "option" ? `<button class="btn outline small" data-use="${i}">Use this formula in option ${esc(m.key)}</button>` : ""}${m.latex && m.target === "stem" ? `<button class="btn outline small" data-copy="${i}">Copy LaTeX</button>` : ""}</div>`).join("");
+    $(".qb-source", root).appendChild(card);
+    ex.math.forEach((m, i) => {
+      const row = $(`[data-mi="${i}"]`, card);
+      const c = m.box ? crop(m) : null;
+      if (c) $("[data-mc]", row).appendChild(c); else $("[data-mc]", row).textContent = "no crop";
+      if (m.latex && m.status !== "failed") $("[data-mf]", row).appendChild(mdDiv(`$${m.latex}$`));
+      else if (m.latex) $("[data-mf]", row).innerHTML = `<span class="tag red">does not render</span><pre class="qb-src">${esc(m.latex)}</pre>`;
+    });
+    $$("[data-use]", card).forEach((b) => b.onclick = () => {
+      const m = ex.math[Number(b.dataset.use)];
+      current = editor.getQ();
+      const o = (current.options || []).find((x) => x.key === m.key);
+      if (o) { o.text = `$${m.latex}$`; rebuild(false); toast(`Option ${m.key} set from the page reading — check it before saving`); }
+    });
+    $$("[data-copy]", card).forEach((b) => b.onclick = () => navigator.clipboard?.writeText(ex.math[Number(b.dataset.copy)].latex).then(() => toast("LaTeX copied")));
+  }
 
   const gates = $("[data-gates]", root);
   const strong = (dups || []).filter((d) => d.similarity >= 0.9);
