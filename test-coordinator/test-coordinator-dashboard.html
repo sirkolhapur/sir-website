@@ -15,6 +15,7 @@
 .qb-review{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}.qb-source{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto}.qb-pagewrap{position:relative;user-select:none}.qb-pagewrap img{width:100%;display:block;border-radius:6px}
 .qb-region{position:absolute;border:2px solid #234f8d;background:#234f8d12;pointer-events:none;border-radius:4px}.qb-fbox{position:absolute;border:2px solid #d7a62a;background:#d7a62a22;pointer-events:none}.qb-fbox span{position:absolute;top:-18px;left:-2px;background:#d7a62a;color:#07152f;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px}.qb-sel{position:absolute;border:2px dashed #234f8d;background:#234f8d22;pointer-events:none}
 .qb-src{white-space:pre-wrap;font-family:Consolas,Menlo,monospace;font-size:11.5px;background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:10px;max-height:240px;overflow:auto}
+.qb-mbox{position:absolute;border:2px solid #7a3fb8;background:#7a3fb81a;pointer-events:none}.qb-mbox span{position:absolute;top:-17px;left:-2px;background:#7a3fb8;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px}.qb-mrow{border:1px solid var(--line);border-radius:9px;padding:8px;margin:6px 0;font-size:12px}.qb-mpair{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:6px 0}.qb-mpair canvas{max-width:100%;border-radius:5px;background:#f4f5f8}.qb-mpair .qb-md{font-size:17px}
 .qb-figs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}.qb-fig{border:1px solid var(--line);border-radius:9px;padding:6px;width:170px;font-size:11px}.qb-fig canvas{width:100%;border-radius:5px;background:#f4f5f8}
 .qb-progress{height:8px;background:#eef1f6;border-radius:8px;overflow:hidden;margin-top:6px}.qb-progress div{height:100%;width:0;background:var(--g2);transition:width .3s}
 @media(max-width:1100px){.qb-review{grid-template-columns:1fr}.qb-source{position:static;max-height:none}.qb-row3{grid-template-columns:1fr 1fr}}
@@ -121,5 +122,5 @@ async function loadCalendar(){try{await loadTests();$('calendarList').innerHTML=
 async function loadProfile(){const {data:{user}}=await supabaseClient.auth.getUser();$('profileInfo').textContent=`Signed in as ${user?.email||'authenticated user'}. Dedicated Test Coordinator role RPC is required for authorization.`}
 restoreSession();
 </script>
-<script type="module" src="question-bank.mjs?v=20261029-audit3"></script>
+<script type="module" src="question-bank.mjs?v=20261030-mathocr1"></script>
 </body></html>
