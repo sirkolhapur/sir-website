@@ -57,7 +57,7 @@ if (mode === "bench") {
     rows.push({ id, cat: b.cat, stem, detected: !!hit, status: hit?.status ?? (key ? "not_sent" : "not_located"), flagged: flagged(hit), cur, p2t, plus, got: stem ? hit?.latex : after });
   }
 } else {
-  const truth = JSON.parse(fs.readFileSync("./held/truth.json", "utf8")).questions;
+  const truth = JSON.parse(fs.readFileSync(process.env.HELD_TRUTH || "./held/truth.json", "utf8")).questions;
   for (const tq of truth) {
     const q = qs.find((x) => x.page_from === tq.page && x.number === tq.num) || qs.find((x) => x.page_from <= tq.page && x.page_to >= tq.page && x.number === tq.num);
     for (const [key, [kind, exp]] of Object.entries(tq.opts)) {

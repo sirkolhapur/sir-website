@@ -52,8 +52,8 @@ const n = sql(`select count(*), count(*) filter (where jsonb_array_length(coales
 check("items created, Math OCR results stored with them, parser version recorded", n[0] >= 15 && n[1] >= 5 && n[2] === n[0], `items ${n[0]}, with math ${n[1]}, versioned ${n[2]}`);
 // A reading: original OCR text + source box + three readings. A marker that
 // was not found: original OCR text + the reason (nothing was read).
-const keep = sql(`select count(*), count(*) filter (where e ? 'ocr_text' and ((e->'box' is not null and jsonb_array_length(e->'reads')=3) or (e->>'status'='not_located' and jsonb_array_length(e->'reasons')>0))) from qb_import_items i, jsonb_array_elements(i.extracted->'math') e where job_id='${job}';`).split("|").map(Number);
-check("every reading keeps the original OCR text, its source box and the three readings (an unlocated option keeps its text and the reason)", keep[0] > 0 && keep[0] === keep[1], `${keep[1]}/${keep[0]}`);
+const keep = sql(`select count(*), count(*) filter (where e ? 'ocr_text' and ((e->'box' is not null and (jsonb_array_length(e->'reads')=3 or (e->>'status'='failed' and jsonb_array_length(e->'reasons')>0))) or (e->>'status'='not_located' and jsonb_array_length(e->'reasons')>0))) from qb_import_items i, jsonb_array_elements(i.extracted->'math') e where job_id='${job}';`).split("|").map(Number);
+check("every reading keeps the original OCR text, its source box and the three readings (an unread or unlocated option keeps its text, box where known, and the reason)", keep[0] > 0 && keep[0] === keep[1], `${keep[1]}/${keep[0]}`);
 // Applied readings changed only their own option: the option text equals $latex$ of an entry with that key.
 const wrongTarget = sql(`select count(*) from qb_import_items i, jsonb_array_elements(i.extracted->'math') e where job_id='${job}' and (e->>'applied')::boolean and not exists (select 1 from jsonb_array_elements(i.draft->'options') o where o->>'key'=e->>'key' and o->>'text'='$'||(e->>'latex')||'$');`);
 check("each applied formula sits in its own option of its own question", wrongTarget === "0", wrongTarget);
@@ -72,7 +72,10 @@ await page.waitForTimeout(800);
 const rows = await page.$$eval("[data-math] .qb-mrow", (r) => r.length);
 check("Review & Edit lists every formula reading", rows === mathEntries.length, `${rows} rows / ${mathEntries.length} entries`);
 const crops = await inked("[data-math] [data-mc] canvas");
-check("each reading shows its SOURCE CROP from the stored page image", crops.length === mathEntries.filter((m) => m.box).length && crops.every(Boolean), JSON.stringify(crops));
+// Every entry with a box shows its crop; crops that were READ must hold ink
+// (a rejected speck is shown too, but is a speck by definition).
+const wasRead = mathEntries.filter((m) => m.box).map((m) => m.reads?.length > 0);
+check("each reading shows its SOURCE CROP from the stored page image", crops.length === wasRead.length && crops.every((c, i) => c || !wasRead[i]), JSON.stringify(crops));
 const formulas = await page.$$eval("[data-math] [data-mf]", (els) => els.map((e) => ({ k: e.querySelectorAll(".katex").length, err: e.querySelectorAll(".katex-error").length })));
 check("… beside the recognised formula, rendered without KaTeX errors (a reading that cannot render is shown as raw LaTeX, marked)", formulas.filter((f) => f.k).length === mathEntries.filter((m) => m.latex && m.status !== "failed").length && formulas.every((f) => f.err === 0)
   && (await page.$$eval("[data-math] [data-mf] .tag.red", (t) => t.length)) === mathEntries.filter((m) => m.latex && m.status === "failed").length, JSON.stringify(formulas));

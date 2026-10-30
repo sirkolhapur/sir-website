@@ -5,7 +5,58 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { cleanTex, stripLabel, findOptionMarkers, inkBox, mathRegions, decide } from "../math-ocr.mjs";
+import { cleanTex, stripLabel, findOptionMarkers, inkBox, mathRegions, decide, markersFromInk } from "../math-ocr.mjs";
+
+// Synthetic page: white, with ink rectangles.
+const page = (W, H) => ({ W, H, g: new Uint8Array(W * H).fill(255), ink(x0, y0, x1, y1) { for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) this.g[y * W + x] = 0; return this; } });
+
+test("option labels found from page pixels when the text reader read none (2×2 grid), a column rule does not merge the rows", () => {
+  const p = page(1200, 700);
+  p.ink(1, 0, 3, 700); // column rule / page edge on every row
+  for (const [x, y] of [[100, 100], [600, 100], [100, 330], [600, 330]]) { p.ink(x, y + 20, x + 30, y + 60); p.ink(x + 60, y, x + 300, y + 110); } // "a)" + formula
+  const m = markersFromInk(p.g, p.W, p.H, { x0: 0, x1: 1199, y0: 50, y1: 690, H: 50 });
+  assert.deepEqual(Object.keys(m), ["A", "B", "C", "D"]);
+  assert.equal(m.B.x0, 600); assert.equal(m.C.y0 > m.A.y0, true);
+});
+
+test("ink labels: anything other than a 2×2 grid or a column of four is rejected (no guessed options)", () => {
+  const p = page(1200, 700);
+  for (const [x, y] of [[100, 100], [600, 100], [100, 330]]) { p.ink(x, y + 20, x + 30, y + 60); p.ink(x + 60, y, x + 300, y + 110); }
+  assert.deepEqual(markersFromInk(p.g, p.W, p.H, { x0: 0, x1: 1199, y0: 50, y1: 690, H: 50 }), {});
+});
+
+test("a speck of ink is never sent as a formula (RCC p.12 Q16 B was read as \\imath from a 23×35 px crop)", async () => {
+  const { runMathOcr } = await import("../math-ocr.mjs");
+  const W = 600, H = 300, data = new Uint8ClampedArray(W * H * 4).fill(255);
+  const ink = (x0, y0, x1, y1) => { for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const i = (y * W + x) * 4; data[i] = data[i + 1] = data[i + 2] = 0; } };
+  ink(340, 205, 351, 213);            // B: a speck (11 × 8 px, as on RCC p.12 Q16 B)
+  ink(470, 196, 492, 236);            // C: a single printed letter "F" (22 × 40 px) — a real option
+  ink(560, 210, 576, 232);            // D: a lone lowercase "r" (16 × 22 px, RCC p.12 Q14 A) — a real option
+  globalThis.document = { createElement: () => ({ getContext: () => ({ drawImage() {} }), toDataURL: () => "data:image/png;base64,AA==" }) };
+  const canvas = { width: W, height: H, getContext: () => ({ getImageData: () => ({ data }) }) };
+  const L = (words) => ({ page: 1, col: 0, text: words.map((w) => w.text).join(" "), words, x0: Math.min(...words.map((w) => w.x0)), y0: Math.min(...words.map((w) => w.y0)), x1: Math.max(...words.map((w) => w.x1)), y1: Math.max(...words.map((w) => w.y1)), hgt: 48, conf: 90 }); // RCC body line height ≈ 49 px
+  const lines = [L([W_("5.", 10, 100, 40, 130), W_("Which", 50, 100, 150, 130), W_("charges", 160, 100, 280, 130), W_("placed", 290, 100, 400, 130)]), L([W_("a)", 20, 200, 45, 230), W_("x", 60, 200, 70, 230, 30), W_("b)", 300, 200, 325, 230), W_("c)", 450, 200, 475, 230), W_("d)", 520, 200, 545, 230)])];
+  const q = { lines, issues: [], kind: "mcq", draft: { options: ["A", "B", "C", "D"].map((key) => ({ key, text: "?" })) } };
+  let sent = 0;
+  globalThis.fetch = async () => { sent++; return { ok: true, json: async () => ({ results: [] }) }; };
+  await runMathOcr([q], [{ page: 1, width: W, height: H, lines }], { renderPage: async () => canvas, katex: null });
+  const b = q.math.find((m) => m.key === "B");
+  assert.equal(b.status, "failed"); assert.match(b.reasons.join(), /speck/); assert.ok(b.box, "the speck keeps its source box");
+  assert.equal(q.draft.options.find((o) => o.key === "B").text, "?", "the OCR text is kept");
+  assert.notEqual(q.math.find((m) => m.key === "C").reasons.join(), "the option area holds only a speck of ink — not read; check the page", "a single letter is not a speck");
+  assert.ok(!/speck/.test(q.math.find((m) => m.key === "D").reasons.join()), "a lowercase letter is not a speck");
+  assert.equal(sent, 1, "both letters were sent for reading (one batch)");
+  delete globalThis.document; delete globalThis.fetch;
+});
+const W_ = (text, x0, y0, x1, y1, conf = 95) => ({ text, x0, y0, x1, y1, conf });
+
+test("inkBox: a smaller gap allowance keeps a nearby row out (tight fallback crop)", () => {
+  const p = page(300, 300);
+  p.ink(40, 100, 200, 130);  // the option row
+  p.ink(40, 142, 200, 170);  // the next row, 12 px below
+  assert.ok(inkBox(p.g, p.W, p.H, [0, 60, 299, 220], 100, 130, 50)[3] >= 170, "default joins the row 12 px below");
+  assert.ok(inkBox(p.g, p.W, p.H, [0, 60, 299, 220], 100, 130, 50, 0.12)[3] < 142, "tight stops before it");
+});
 import { normalizeText, segmentQuestions } from "../pdf-parser.mjs";
 
 const katex = process.env.QB_KATEX ? createRequire(import.meta.url)(process.env.QB_KATEX) : null;
@@ -123,4 +174,7 @@ test("decision: agreement → agreed; disagreement / unsure symbol / no render �
   assert.equal(decide([r("\\frac{1}{"), r("\\frac{1}{"), r("\\frac{1}{")], katex).status, "failed");
   assert.equal(decide([r("4\\,\\mathrm{N\\,(repulsive)}"), r("4\\,\\mathrm{N\\,(repulsive)}"), r("4\\,\\mathrm{N\\,(repulsive)}")], katex).status, "text");
   assert.equal(decide([{ ...r("\\alpha\\alpha"), truncated: true }, r("\\alpha"), r("\\alpha")], katex).status, "uncertain");
+  // A lost numerator read three times as \cdots is never "agreed" (RCC p.16 Q16 D).
+  const lost = decide([r("\\frac{\\cdots}{\\pi\\varepsilon_{0}R}N/C"), r("\\frac{\\cdots}{\\pi\\varepsilon_{0}R}N/C"), r("\\frac{\\cdots}{\\pi\\varepsilon_{0}R}N/C")], katex);
+  assert.equal(lost.status, "uncertain"); assert.match(lost.reasons.join(), /ellipsis/);
 });

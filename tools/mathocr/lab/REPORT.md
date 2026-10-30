@@ -115,6 +115,55 @@ Steps: scanned 2-page PDF uploaded through the branch dashboard → Tesseract �
 - **Licences:** model MIT, Pix2Text code MIT, onnxruntime MIT, tokenizers Apache-2.0, NumPy BSD-3, Pillow MIT-CMU. No paid service.
 - **Not yet verified:** that the **actual office PC** runs it reliably. Run `selftest.py` there and one test import. This PC (8 GB RAM) had only 0.5–0.6 GB free during the tests because Docker and the browsers were running; the helper still worked.
 
+## Accuracy pass (2026-10-30)
+
+**Changes** (all in `tools/qb/math-ocr.mjs`; the helper and model are unchanged):
+
+1. **Option labels from page pixels.** Tesseract sometimes returns nothing for a whole block of stacked-fraction options. In that case `markersFromInk` looks for the a)–d) labels below the question. It accepts only a 2×2 grid or a column of four; anything else is rejected. Results found this way are always `uncertain`. Column rules and the page edge no longer merge the rows.
+2. **Fallback crops, for difficult options only.** When the first crop doesn't give three agreeing readings, two more crops are read:
+   - a *tight* crop that keeps neighbouring rows and year labels out;
+   - a *tall* crop that reaches a numerator or denominator the first crop cut off.
+
+   A fallback is used only if its own three readings agree, and it stays `uncertain`.
+3. **New flag rule.** A reading containing an ellipsis (`\cdots`, `\ldots`) is never `agreed`; it stands for a symbol the model didn't read.
+
+**Tested and rejected:** preprocessing variants on the 100 development crops, first reading only:
+
+| Variant | Exact |
+|---|---:|
+| original | 92 |
+| 2× upscale | 92 |
+| grayscale | 91 |
+| contrast stretch | 90 |
+| Otsu binarisation | 75 |
+
+The input image stays unchanged. Pix2Text 1.1.7 / MFR 1.5 is the latest model available here, so no other model was tried.
+
+**Results** (same scorer, same ground truth):
+
+| Set | Before | After | Notes |
+|---|---:|---:|---|
+| Held-out 95 (pages 13/16/18/20) | 59/95 (62%) | **66/95 (69%)**; layout 76%; recall 81% | ⚠ Fixes 1 and 2 were designed while looking at these failures, so this set is **no longer independent**. 1 unflagged error (p13 Q23 A); 2 text options replaced, both flagged. |
+| **Held-out 2 (pages 9, 15; new, unseen)** | not run before | **31/44 (70%)**; layout 73%; recall 86%; today's system 10/44 (23%) | Truth committed (6942112) before any run. No change was made because of these pages. 0 unflagged errors. |
+| Development 100 (benchmark) | 46/100 | **47/100**; layout 61%; recall 68% | No regression; 0 unflagged errors. |
+
+Detection recall:
+- Held-out 95: 77% → 81%.
+- Held-out 2: 86%.
+
+The **95% target was not reached**. With hand-cut crops the model reaches 92% on the development set. End to end, the remaining loss is:
+- option labels and questions Tesseract never segments;
+- crop boundaries;
+- a few confident model misreads (q/g, e/c, invented subscripts).
+
+Two further rules were added after the held-out runs, from development page 12 only:
+- **Speck rejection:** an option crop whose ink is smaller than 0.3 line heights in both directions is not read. The Tesseract text is kept and the item is marked `failed` with its box. The first threshold (0.8, then 0.5) also rejected real single letters ("F", "r⁰", "2F", lowercase "r"). It was corrected and regression-tested.
+- **Ellipsis flag:** see item 3 above.
+
+Neither rule changes a held-out score: the final held-out runs contain no speck rejections at 0.5, and 0.3 rejects strictly less.
+
+Math OCR now takes about 1.7–2.5 s per formula, plus the fallback reads on difficult options. On this busy PC that comes to about 110–125 s per page.
+
 ## Teacher spot-check (requirement 11): PENDING
 
 `spotcheck.html` was generated locally (not committed: it holds book page crops).

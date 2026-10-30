@@ -1,13 +1,13 @@
 == held: 95 expressions
 current (Tesseract)    exact 24/95 (25%)    layout 32/95 (34%)
-Pix2Text alone         exact 54/95 (57%)    layout 65/95 (68%)
-Pix2Text + clean-up    exact 59/95 (62%)    layout 67/95 (71%)
-options only: current exact 24/95 (25%), p2t+ exact 59/95 (62%)
-formula-detection recall (a Math OCR region read it): 73/95 (77%); options only 73/95 (77%)
-stored option formulas still wrong: 36; of these flagged for review: 34 (not sent / not located count as 'still Tesseract text, existing warnings apply')
-UNFLAGGED wrong formulas (agreed but wrong): 2 — p13_q23A → $v \propto x_{1}^{\frac{1} {2}}$ | p16_q16D → $\frac{\cdots} {\pi\varepsilon_{0} R} N / C$
-status of the formula options: {"uncertain":32,"agreed":39,"not_sent":16,"question_not_found":4,"failed":3,"not_located":1}
+Pix2Text alone         exact 60/95 (63%)    layout 70/95 (74%)
+Pix2Text + clean-up    exact 66/95 (69%)    layout 72/95 (76%)
+options only: current exact 24/95 (25%), p2t+ exact 66/95 (69%)
+formula-detection recall (a Math OCR region read it): 77/95 (81%); options only 77/95 (81%)
+stored option formulas still wrong: 29; of these flagged for review: 28 (not sent / not located count as 'still Tesseract text, existing warnings apply')
+UNFLAGGED wrong formulas (agreed but wrong): 1 — p13_q23A → $v \propto x_{1}^{\frac{1} {2}}$
+status of the formula options: {"uncertain":37,"agreed":38,"not_sent":12,"question_not_found":4,"failed":3,"not_located":1}
 text/graph options: 45; sent to Math OCR 3; text replaced 2; FALSE replacements (meaning changed) 2 — p16_q14C [uncertain, flagged] ")" → "$\grave{\varPsi} \mid\Uparrow\ldots\ldots$" | p18_q4B [uncertain, flagged] "is shown in figure. Which one of the following statements is correct? HA is +ve and Bis —veand |Al > |Bl (2006) b) Ais -ve and Bis +ve; |Al = | BI" → "$\mathrm{i s} \overbrace{\wp}$"
 questions not found by the segmenter: p16_q9
-review workload (pages 13,16,18,20): 44 questions; Math OCR readings 76; flagged formulas 43 in 21 questions; agreed (no extra tick) 39; recovered questions 1
-time: OCR cached; Math OCR 163 s for 4 pages = 40.9 s/page; 2.09 s per formula (3 readings)
+review workload (pages 13,16,18,20): 44 questions; Math OCR readings 80; flagged formulas 48 in 22 questions; agreed (no extra tick) 38; recovered questions 2
+time: OCR cached; Math OCR 482 s for 4 pages = 120.6 s/page; 2.48 s per formula (3 readings)
