@@ -600,7 +600,10 @@ export async function ocrPage(worker, srcCanvas, { status = () => {}, clean = tr
       if ((l.confidence ?? 0) >= 60 && letters >= 8 && letters / Math.max(1, l.text.replace(/\s/g, "").length) >= 0.7 && contiguous) textBoxes.push(cc.map(l.bbox));
       // hgt: the line's own height in the straightened column (page boxes of
       // a tilted column are taller than the text).
-      colLines.push({ text, raw: rawText, col, conf: l.confidence ?? null, ...l.bbox, hgt: lh, pageBox: cc.map(l.bbox) });
+      // words: page-coordinate boxes, used to locate option markers for the
+      // Math OCR helper (kept in memory only; not part of the page record).
+      const words = (l.words || []).filter((wd) => wd.bbox && (wd.text || "").trim()).map((wd) => ({ text: wd.text.trim(), conf: wd.confidence ?? null, ...cc.map(wd.bbox) }));
+      colLines.push({ text, raw: rawText, col, conf: l.confidence ?? null, ...l.bbox, hgt: lh, pageBox: cc.map(l.bbox), words });
     }
     // Question numbers hang in the column's left margin; the text pass
     // sometimes drops that strip entirely. Read it on its own.
