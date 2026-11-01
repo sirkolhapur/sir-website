@@ -4,35 +4,144 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta name="robots" content="noindex, nofollow">
 <title>Activate Your SIR Account | SAGE</title>
 <!--
-  Target of the "Activate Account" button in the SAGE Talent Hunt WhatsApp
-  message (AiSensy template with a dynamic URL button:
-  https://sir.net.in/sage-activate.html?t={{1}}). WhatsApp buttons can only
-  add a value to the end of a URL, so the one-time setup token arrives as
-  ?t=…; this page moves it into the fragment that the existing
-  talent-hunt/set-password.html reads, and removes it from the address bar.
+  SAGE Talent Hunt — account activation / password reset for students who
+  have a Student ID (registered by SIR, or who forgot their password).
+  Student ID + registered WhatsApp number → OTP on WhatsApp (the approved
+  registration OTP template) → the existing talent-hunt/set-password.html.
+  Backend: Edge Function talent-hunt-activate. Only the public
+  publishable key is used here.
+  Also accepts ?t=<one-time token> (a direct link from SIR) and forwards it.
 -->
 <style>
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#071426,#0b203b);color:#fff;padding:16px;box-sizing:border-box}
-  .card{max-width:420px;text-align:center;line-height:1.6}
-  .card h1{font-size:24px;margin:0 0 8px}
-  .card p{color:#b8c5d5;margin:0}
+  :root{--navy:#071426;--navy2:#0b203b;--gold:#f5c542;--ink:#122033;--muted:#657184}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 15% 10%,rgba(245,197,66,.12),transparent 30%),linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;flex-direction:column}
+  .top{padding:18px 5vw;border-bottom:1px solid #20324a}
+  .top strong{display:block;letter-spacing:1.5px}.top small{color:var(--gold);font-size:10px;letter-spacing:1.5px}
+  .wrap{width:min(100% - 32px,460px);margin:auto;padding:32px 0}
+  .card{background:#fff;color:var(--ink);border-radius:22px;padding:clamp(22px,5vw,34px);box-shadow:0 24px 70px #0005}
+  .eyebrow{color:#9a7100;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase}
+  h1{font-size:clamp(26px,7vw,34px);line-height:1.15;margin:10px 0}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 20px}
+  label{display:block;font-size:11px;font-weight:900;letter-spacing:.7px;margin:16px 0 7px}
+  input{width:100%;height:48px;border:1px solid #d5dce6;border-radius:10px;padding:0 13px;font:inherit;color:var(--ink);outline:0}
+  input:focus{border-color:#244b7b;box-shadow:0 0 0 3px #244b7b16}
+  .otp{letter-spacing:8px;font-size:22px;text-align:center}
+  .btn{width:100%;border:0;border-radius:10px;padding:15px;background:var(--gold);color:var(--navy);font-weight:900;margin-top:18px;cursor:pointer;font-size:15px}
+  .btn:disabled{opacity:.6;cursor:wait}
+  .link{background:none;border:0;color:#244b7b;text-decoration:underline;cursor:pointer;font-size:13px;margin-top:12px;padding:0}
+  .link:disabled{color:#9aa6b5;text-decoration:none;cursor:default}
+  .msg{display:none;padding:12px;border-radius:9px;margin:14px 0 0;font-size:13px;line-height:1.5}
+  .msg.show{display:block}.msg.err{background:#fff0f0;color:#9e2020}.msg.ok{background:#eaf8ef;color:#17683a}
+  .help{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
+  .hidden{display:none!important}
+  .foot{text-align:center;color:#9eacbf;font-size:11px;padding:18px}
 </style>
 </head>
 <body>
-<div class="card" id="box"><h1>Opening your account setup…</h1><p>Please wait.</p></div>
+<header class="top"><strong>SIR</strong><small>SAGE PROGRAMME · TALENT HUNT</small></header>
+<main class="wrap">
+  <div class="card" id="card">
+    <div class="eyebrow">Student account</div>
+    <h1>Activate your account</h1>
+    <p class="sub">Use the Student ID from your SIR WhatsApp message and your registered WhatsApp number. You will get an OTP on WhatsApp, then you create your own password. Forgot your password? Use this page too.</p>
+
+    <form id="step1" novalidate>
+      <label for="sid">STUDENT ID</label>
+      <input id="sid" autocomplete="username" placeholder="e.g. SIR2600001" maxlength="10" required>
+      <label for="wa">REGISTERED WHATSAPP NUMBER</label>
+      <input id="wa" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit number" required>
+      <button class="btn" id="sendBtn" type="submit">SEND OTP ON WHATSAPP →</button>
+    </form>
+
+    <form id="step2" class="hidden" novalidate>
+      <label for="otp">6-DIGIT OTP</label>
+      <input id="otp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+      <div class="help" id="otpHelp"></div>
+      <button class="btn" id="verifyBtn" type="submit">VERIFY &amp; CREATE PASSWORD →</button>
+      <button class="link" id="resendBtn" type="button" disabled>Resend OTP</button>
+      <button class="link" id="backBtn" type="button" style="margin-left:14px">Change details</button>
+    </form>
+
+    <div id="msg" class="msg" role="alert"></div>
+  </div>
+</main>
+<div class="foot">Never share your OTP or password with anyone. SIR will never ask for them.</div>
 <script>
-  (function () {
-    var t = new URLSearchParams(location.search).get("t") || "";
+(function () {
+  // Direct link from SIR (?t=<token>): forward to the password page.
+  var t = new URLSearchParams(location.search).get("t");
+  if (t !== null) {
     history.replaceState(null, document.title, location.pathname);
-    if (/^[a-f0-9]{64}$/i.test(t)) {
-      location.replace("talent-hunt/set-password.html#token=" + t);
-    } else {
-      document.getElementById("box").innerHTML = "<h1>This link is not valid</h1><p>Open the link from your WhatsApp message again, or contact SIR for a new link.</p>";
+    if (/^[a-f0-9]{64}$/i.test(t)) { location.replace("talent-hunt/set-password.html#token=" + t); return; }
+    show("This link is not valid or has expired. Activate your account with your Student ID below.", "err");
+  }
+
+  var SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+  var FN = SUPABASE_URL + "/functions/v1/talent-hunt-activate";
+  var $ = function (id) { return document.getElementById(id); };
+  var timer = null;
+
+  function show(text, kind) { var m = document.getElementById("msg"); m.textContent = text || ""; m.className = "msg" + (text ? " show " + kind : ""); }
+  function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
+  function details() { return { studentId: $("sid").value.trim().toUpperCase(), whatsappNumber: $("wa").value.replace(/\D/g, "").slice(-10) }; }
+  async function call(body) {
+    var res = await fetch(FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY }, body: JSON.stringify(body) });
+    var data = {}; try { data = await res.json(); } catch (e) { /* unreadable */ }
+    if (!res.ok || !data.success) { var err = new Error(data.message || "Something went wrong. Please try again."); err.data = data; throw err; }
+    return data;
+  }
+  function cooldown(seconds) {
+    var btn = $("resendBtn"), left = seconds || 60;
+    clearInterval(timer); btn.disabled = true;
+    timer = setInterval(function () {
+      left--; btn.textContent = left > 0 ? "Resend OTP in " + left + "s" : "Resend OTP";
+      if (left <= 0) { clearInterval(timer); btn.disabled = false; }
+    }, 1000);
+  }
+  async function sendOtp(fromResend) {
+    var d = details();
+    if (!/^SIR\d{7}$/.test(d.studentId)) return show("Enter your Student ID exactly as in your WhatsApp message (for example SIR2600001).", "err");
+    if (!/^[6-9]\d{9}$/.test(d.whatsappNumber)) return show("Enter the 10-digit WhatsApp number used for registration.", "err");
+    var btn = fromResend ? $("resendBtn") : $("sendBtn");
+    busy(btn, true, fromResend ? "Sending…" : "SENDING OTP…"); show("");
+    try {
+      var r = await call(Object.assign({ action: "send_otp" }, d));
+      $("step1").classList.add("hidden"); $("step2").classList.remove("hidden");
+      $("otpHelp").textContent = r.message + " It is valid for 5 minutes.";
+      $("otp").value = ""; $("otp").focus();
+      cooldown(r.retryAfterSeconds);
+    } catch (e) {
+      show(e.message, "err");
+      if (e.data && e.data.retryAfterSeconds && fromResend) cooldown(e.data.retryAfterSeconds);
+    } finally {
+      if (!fromResend) busy(btn, false, "SEND OTP ON WHATSAPP →"); else if (btn.textContent === "Sending…") btn.textContent = "Resend OTP";
     }
-  })();
+  }
+  $("wa").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
+  $("otp").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 6); });
+  $("step1").addEventListener("submit", function (e) { e.preventDefault(); sendOtp(false); });
+  $("resendBtn").addEventListener("click", function () { sendOtp(true); });
+  $("backBtn").addEventListener("click", function () { clearInterval(timer); $("step2").classList.add("hidden"); $("step1").classList.remove("hidden"); show(""); });
+  $("step2").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var otp = $("otp").value.trim();
+    if (!/^\d{6}$/.test(otp)) return show("Enter the 6-digit OTP.", "err");
+    busy($("verifyBtn"), true, "VERIFYING…"); show("");
+    try {
+      var r = await call(Object.assign({ action: "verify_otp", otp: otp }, details()));
+      show("Verified. Opening password setup…", "ok");
+      location.replace("talent-hunt/set-password.html#token=" + r.passwordSetupToken);
+    } catch (err) {
+      show(err.message, "err");
+      busy($("verifyBtn"), false, "VERIFY & CREATE PASSWORD →");
+    }
+  });
+  if (!/^[a-f0-9]{64}$/i.test(t || "")) { var sid = new URLSearchParams(location.hash.slice(1)).get("id"); if (sid) $("sid").value = sid; }
+})();
 </script>
 </body>
 </html>
