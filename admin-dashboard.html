@@ -3323,7 +3323,7 @@
         </div>
         <div id="sageRegistrationPanel" class="sage-placeholder-panel" hidden>
           <h3>Register a student for SAGE Talent Hunt</h3>
-          <p>Same details as the public <a href="talent-hunt/registration.html" target="_blank" rel="noopener" style="color:#d9b75b">Talent Hunt registration page</a>, without OTP. On saving, the student's Login ID is created and two WhatsApp messages go to the number below: the congratulation message with the Login ID, and an "Activate Account" message whose button lets the student create their own password.</p>
+          <p>Same details as the public <a href="talent-hunt/registration.html" target="_blank" rel="noopener" style="color:#d9b75b">Talent Hunt registration page</a>, without OTP. On saving, the student's Login ID is created and the congratulation WhatsApp with the Student ID goes to the number below. The student then activates the account at <b>sir.net.in/sage-activate.html</b> (Student ID + WhatsApp OTP) and creates their own password.</p>
           <form id="sageRegForm" class="form-grid" style="margin-top:16px" novalidate>
             <div class="field"><label for="sageRegName">Student name *</label><input id="sageRegName" maxlength="120" autocomplete="off" required></div>
             <div class="field"><label for="sageRegClass">Class *</label><select id="sageRegClass" required><option value="">Select class</option><option>6th</option><option>7th</option><option>8th</option><option>9th</option><option>10th</option></select></div>
@@ -4597,34 +4597,43 @@ const SAGE_WA_TEXT = {
   NOT_CONFIGURED: (what) => `⚠ The ${what} WhatsApp is not set up on the server yet.`,
 };
 const sageWa = (status, what) => (SAGE_WA_TEXT[status] || (() => `${what} WhatsApp: status unknown.`))(what);
-// Link block: copy, or open the admin's own WhatsApp with the message
-// ready (fallback when the automatic message was not sent).
-function sageLinkBlock(r, linkSent) {
-  const link = r.passwordSetupUrl || (r.passwordSetupToken ? new URL(`talent-hunt/set-password.html#token=${encodeURIComponent(r.passwordSetupToken)}`, location.href).href : "");
-  if (!link) return { html: `<br>⚠ ${escapeHtml(r.message || "Password setup link could not be created.")}`, link: "" };
-  const msg = `Hello ${r.studentName}, your SIR Talent Hunt Login ID is ${r.loginId}. Create your password here (one-time link, valid ${r.passwordSetupExpiresInDays} days): ${link}`;
+// Activation: the student opens sage-activate.html, enters the Student ID
+// and the registered WhatsApp number, gets an OTP (approved registration
+// OTP template) and creates their own password. Nothing else has to be
+// sent; the admin can forward the page with a ready WhatsApp message.
+const SAGE_ACTIVATE_URL = new URL("sage-activate.html", location.href).href;
+function sageActivationBlock(r) {
+  const page = `${SAGE_ACTIVATE_URL}#id=${encodeURIComponent(r.loginId)}`;
+  const msg = `Hello ${r.studentName}, your SIR Talent Hunt Student ID is ${r.loginId}. Activate your account and create your own password here: ${page} — enter your Student ID and this WhatsApp number, and you will receive an OTP.`;
   const wa = `https://wa.me/91${encodeURIComponent(r.whatsappNumber)}?text=${encodeURIComponent(msg)}`;
-  return {
-    link,
-    html: `<div class="sage-link-box"><strong>Password setup link</strong> (one-time, valid ${escapeHtml(String(r.passwordSetupExpiresInDays))} days)${linkSent ? " — already sent to the student on WhatsApp; nothing more to do." : " — <span style=\"color:#e5c96e\">not sent automatically; send it with the green button or copy it.</span>"}
-      <input class="sage-link-input" readonly value="${escapeHtml(link)}" style="width:100%;margin:6px 0;padding:8px;background:#08172a;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px">
-      <button type="button" class="secondary-btn" data-sage-copy>Copy link</button>
-      <a class="secondary-btn" style="display:inline-block;text-decoration:none;border-color:#2c8a52;color:#7be3a1" href="${escapeHtml(wa)}" target="_blank" rel="noopener">Send via my WhatsApp</a>
-      <span style="color:#93a4ba;font-size:12px">A new link replaces any older unused link.</span></div>`,
-  };
+  return `<div class="sage-link-box"><strong>How ${escapeHtml(r.studentName)} activates the account</strong><br>
+      Open <a href="${escapeHtml(SAGE_ACTIVATE_URL)}" target="_blank" rel="noopener" style="color:#d9b75b">${escapeHtml(SAGE_ACTIVATE_URL.replace(/^https?:\/\//, ""))}</a> → enter Student ID <b>${escapeHtml(r.loginId)}</b> and WhatsApp ${escapeHtml(r.whatsappNumber)} → OTP on WhatsApp → create own password.
+      <div style="margin-top:8px"><a class="secondary-btn" style="display:inline-block;text-decoration:none;border-color:#2c8a52;color:#7be3a1" href="${escapeHtml(wa)}" target="_blank" rel="noopener">Send activation message via my WhatsApp</a>
+      <button type="button" class="secondary-btn" data-sage-copy="${escapeHtml(SAGE_ACTIVATE_URL)}">Copy activation page link</button></div>
+      <details style="margin-top:8px"><summary style="cursor:pointer;color:#93a4ba;font-size:12px">Student cannot receive the OTP? Create a direct one-time link</summary>
+      <div data-sage-direct="${escapeHtml(r.registrationId || r.id || "")}" style="margin-top:6px"><button type="button" class="secondary-btn" data-sage-direct-btn>Create direct link (valid 7 days)</button></div></details></div>`;
 }
-function sageWireCopy(box, link) {
-  box.querySelector("[data-sage-copy]")?.addEventListener("click", async (e) => {
-    try { await navigator.clipboard.writeText(link); e.target.textContent = "Copied"; } catch { box.querySelector(".sage-link-input")?.select(); }
-  });
+function sageWireActivation(box) {
+  box.querySelectorAll("[data-sage-copy]").forEach((b) => b.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(b.dataset.sageCopy); b.textContent = "Copied"; } catch { prompt("Copy this link:", b.dataset.sageCopy); }
+  }));
+  box.querySelectorAll("[data-sage-direct-btn]").forEach((b) => b.addEventListener("click", async () => {
+    const holder = b.closest("[data-sage-direct]"), id = holder.dataset.sageDirect;
+    if (!confirm("Create a new direct password link? Anyone who opens it can set this student's password. Share it only with the student.")) return;
+    b.disabled = true; b.textContent = "Creating…";
+    try {
+      const res = await sageAdminCall({ action: "send_setup_link", registrationId: id });
+      holder.innerHTML = `<input class="sage-link-input" readonly value="${escapeHtml(res.passwordSetupUrl)}" style="width:100%;margin:6px 0;padding:8px;background:#08172a;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px"><button type="button" class="secondary-btn" data-sage-copy="${escapeHtml(res.passwordSetupUrl)}">Copy direct link</button> <span style="color:#93a4ba;font-size:12px">One-time, valid ${escapeHtml(String(res.passwordSetupExpiresInDays))} days; replaces older unused links.</span>`;
+      sageWireActivation(holder);
+      const row = sageRegRows.find((x) => x.id === id); if (row && row.passwordStatus !== "set") row.passwordStatus = "link_sent";
+    } catch (err) { b.disabled = false; b.textContent = "Create direct link (valid 7 days)"; alert(err instanceof Error ? err.message : "Could not create the link."); }
+  }));
 }
 function sageRegShowResult(r) {
   const box = document.getElementById("sageRegResult");
-  const linkSent = r.setupLinkMessageStatus === "ACCEPTED";
-  const block = sageLinkBlock(r, linkSent);
-  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}<br>${escapeHtml(sageWa(r.setupLinkMessageStatus, "Account-activation"))}${block.html}`;
+  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}${sageActivationBlock(r)}`;
   box.hidden = false;
-  sageWireCopy(box, block.link);
+  sageWireActivation(box);
   sageRegListLoaded = false; // the list refreshes next time it is opened
   box.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -4654,7 +4663,7 @@ async function sageRegLoadList(force = false) {
     ["sageRegSearch", "sageRegFilterClass", "sageRegFilterSource", "sageRegFilterPassword"].forEach((id) => document.getElementById(id).addEventListener("input", sageRegRender));
     document.getElementById("sageRegRefresh").addEventListener("click", () => sageRegLoadList(true));
     document.getElementById("sageRegExport").addEventListener("click", sageRegExport);
-    document.getElementById("sageRegTbody").addEventListener("click", (e) => { const b = e.target.closest("[data-sage-link]"); if (b) sageRegSendLink(b.dataset.sageLink, b); });
+    document.getElementById("sageRegTbody").addEventListener("click", (e) => { const b = e.target.closest("[data-sage-link]"); if (b) sageRegSendLink(b.dataset.sageLink); });
   }
   if (sageRegListLoaded && !force) return;
   document.getElementById("sageRegTbody").innerHTML = '<tr><td colspan="11" class="sage-empty">Loading registered students…</td></tr>';
@@ -4689,28 +4698,18 @@ function sageRegRender() {
       <td>${escapeHtml(r.district || "—")}<br><small>${escapeHtml(r.taluka || "")}</small></td><td>${escapeHtml(r.board || "—")}<br><small>${escapeHtml(r.medium || "")}</small></td><td>${escapeHtml(r.whatsapp_number)}</td>
       <td><span class="sage-pill ${r.registration_source === "admin" ? "warn" : "muted"}">${r.registration_source === "admin" ? "Admin" : "Self (OTP)"}</span></td>
       <td><span class="sage-pill ${cls}">${label}</span></td><td>${d(r.created_at)}</td>
-      <td>${r.hasAccount ? `<button type="button" class="secondary-btn" style="padding:6px 10px;font-size:12px;white-space:nowrap" data-sage-link="${escapeHtml(r.id)}">${r.passwordStatus === "set" ? "Reset password link" : "Send password link"}</button>` : ""}</td></tr>
+      <td>${r.hasAccount ? `<button type="button" class="secondary-btn" style="padding:6px 10px;font-size:12px;white-space:nowrap" data-sage-link="${escapeHtml(r.id)}">Activation help</button>` : ""}</td></tr>
       <tr data-sage-linkrow="${escapeHtml(r.id)}" hidden><td colspan="11"></td></tr>`;
   }).join("") : '<tr><td colspan="11" class="sage-empty">No registrations match.</td></tr>';
   document.getElementById("sageRegListFoot").textContent = `Showing ${rows.length} of ${all.length}. "Self (OTP)" rows show "—" for district, taluka, board and medium: the public registration page does not save them yet.`;
 }
-async function sageRegSendLink(id, button) {
+function sageRegSendLink(id) {
   const r = sageRegRows.find((x) => x.id === id); if (!r) return;
-  const warn = r.passwordStatus === "set" ? `\n\n${r.student_name} has ALREADY set a password. A new link lets whoever opens it set a new password.` : "";
-  if (!confirm(`Send a password-setup link to ${r.student_name} (${r.login_id}) on WhatsApp ${r.whatsapp_number}?${warn}`)) return;
-  button.disabled = true; button.textContent = "Sending…";
-  try {
-    const res = await sageAdminCall({ action: "send_setup_link", registrationId: id });
-    const row = document.querySelector(`[data-sage-linkrow="${CSS.escape(id)}"]`);
-    const block = sageLinkBlock(res, res.setupLinkMessageStatus === "ACCEPTED");
-    row.firstElementChild.innerHTML = `<div class="sage-status-note" style="margin-top:0">${escapeHtml(sageWa(res.setupLinkMessageStatus, "Account-activation"))}${block.html}</div>`;
-    row.hidden = false; sageWireCopy(row, block.link);
-    if (r.passwordStatus !== "set") r.passwordStatus = "link_sent";
-    button.textContent = "Link sent ✓";
-  } catch (err) {
-    sageListMessage(err instanceof Error ? err.message : "Could not send the link.", "error");
-    button.disabled = false; button.textContent = "Send password link";
-  }
+  const row = document.querySelector(`[data-sage-linkrow="${CSS.escape(id)}"]`);
+  if (!row.hidden) { row.hidden = true; return; }
+  const note = r.passwordStatus === "set" ? `<div style="color:#e5c96e;margin-bottom:6px">${escapeHtml(r.student_name)} has already set a password; the same page also resets a forgotten password.</div>` : "";
+  row.firstElementChild.innerHTML = `<div class="sage-status-note" style="margin-top:0">${note}${sageActivationBlock({ id: r.id, registrationId: r.id, studentName: r.student_name, loginId: r.login_id, whatsappNumber: r.whatsapp_number })}</div>`;
+  row.hidden = false; sageWireActivation(row);
 }
 function sageRegExport() {
   const rows = sageRegFiltered();
