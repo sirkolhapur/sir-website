@@ -3269,12 +3269,31 @@
           <button type="button" class="sage-module-card" data-sage-module="analytics"><span class="sage-module-icon">▥</span><strong>Reports & Intelligence</strong><span>Programme funnel, school/digital performance and engagement insights.</span></button>
           <button type="button" class="sage-module-card" data-sage-module="settings"><span class="sage-module-icon">⚙</span><strong>Programme Settings</strong><span>Dates, approved rules, role access and change history.</span></button>
         </div>
-        <div class="sage-status-note"><strong>Implementation status:</strong> Navigation and placeholder screens only. No SAGE data is created, changed, published or sent by these buttons yet. Existing SIR modules remain separate and unchanged.</div>
+        <div class="sage-status-note"><strong>Implementation status:</strong> <em>Registrations &amp; Students</em> is connected: administrators can register a Talent Hunt student (Login ID + congratulation WhatsApp). All other modules are still placeholders — they create, change or send nothing. Existing SIR modules remain separate and unchanged.</div>
       </div>
       <div id="sageModuleDetail" class="sage-module-view">
         <button type="button" class="secondary-btn sage-back-btn" id="sageBackToOverview">← Back to SAGE Overview</button>
         <div class="page-header"><div><div class="dashboard-eyebrow">SAGE PROGRAMME MODULE</div><h1 id="sageModuleTitle">Module</h1><p id="sageModuleDescription">Module description</p></div></div>
-        <div class="sage-placeholder-panel">
+        <div id="sageRegistrationPanel" class="sage-placeholder-panel" hidden>
+          <h3>Register a student for SAGE Talent Hunt</h3>
+          <p>Same details as the public <a href="talent-hunt/registration.html" target="_blank" rel="noopener" style="color:#d9b75b">Talent Hunt registration page</a>, without OTP. On saving, the student's Login ID is created and the congratulation WhatsApp with the Login ID is sent to the number below.</p>
+          <form id="sageRegForm" class="form-grid" style="margin-top:16px" novalidate>
+            <div class="field"><label for="sageRegName">Student name *</label><input id="sageRegName" maxlength="120" autocomplete="off" required></div>
+            <div class="field"><label for="sageRegClass">Class *</label><select id="sageRegClass" required><option value="">Select class</option><option>6th</option><option>7th</option><option>8th</option><option>9th</option><option>10th</option></select></div>
+            <div class="field full"><label for="sageRegSchool">School name *</label><input id="sageRegSchool" maxlength="200" autocomplete="off" required></div>
+            <div class="field"><label for="sageRegState">State *</label><select id="sageRegState" required><option value="Maharashtra" selected>Maharashtra</option></select></div>
+            <div class="field"><label for="sageRegDistrict">District *</label><select id="sageRegDistrict" required disabled><option value="">Loading districts…</option></select></div>
+            <div class="field"><label for="sageRegTaluka">Taluka *</label><select id="sageRegTaluka" required disabled><option value="">Select district first</option></select></div>
+            <div class="field"><label for="sageRegBoard">Board *</label><select id="sageRegBoard" required><option value="">Select board</option><option>CBSE</option><option>ICSE</option><option>IB</option><option>State Board</option></select></div>
+            <div class="field"><label for="sageRegMedium">Medium *</label><select id="sageRegMedium" required><option value="">Select medium</option><option>English</option><option>Marathi</option><option>Semi English</option></select></div>
+            <div class="field"><label for="sageRegWhatsapp">WhatsApp number (student or parent) *</label><input id="sageRegWhatsapp" type="tel" inputmode="numeric" pattern="[6-9][0-9]{9}" placeholder="10-digit number" autocomplete="off" required></div>
+            <div class="field full"><label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#c5d0df"><input id="sageRegConfirm" type="checkbox" style="width:auto;margin-top:2px"> I have confirmed this WhatsApp number with the student or parent. (No OTP is sent — the congratulation message with the Login ID goes to this number immediately.)</label></div>
+            <div class="field full"><div id="sageRegMessage" class="message" role="alert"></div></div>
+            <div class="form-actions" style="grid-column:1/-1;margin-top:4px"><button type="reset" class="secondary-btn">Clear</button><button type="submit" class="primary-btn" id="sageRegSubmit">Register &amp; send WhatsApp</button></div>
+          </form>
+          <div id="sageRegResult" class="sage-status-note" hidden></div>
+        </div>
+        <div id="sageModulePlaceholder" class="sage-placeholder-panel">
           <h3 id="sageModulePanelTitle">Module setup</h3>
           <p id="sageModulePanelDescription">This module is a navigation placeholder in this phase. Before connecting it, we will inspect the relevant existing tables, current workflows and access policies, then implement and test this module without disturbing working SIR functionality.</p>
           <span class="sage-placeholder-tag">NOT CONNECTED YET</span>
@@ -4417,8 +4436,119 @@ document.querySelectorAll("[data-sage-module]").forEach(button => {
     document.getElementById("sageModuleDescription").textContent = info.description;
     document.getElementById("sageModulePanelTitle").textContent = info.panel;
     document.getElementById("sageModulePanelDescription").textContent = "This module is a navigation placeholder in this phase. Before connecting it, we will inspect the relevant existing tables, current workflows and access policies, then implement and test this module without disturbing working SIR functionality.";
+    // Registrations & Students is connected: admin registration form.
+    const isRegistration = key === "registrations";
+    document.getElementById("sageRegistrationPanel").hidden = !isRegistration;
+    document.getElementById("sageModulePlaceholder").hidden = isRegistration;
+    if (isRegistration) sageRegInit();
   });
 });
+
+/* --------------------------------
+   SAGE → REGISTRATIONS & STUDENTS: admin registration
+   Same details as talent-hunt/registration.html, without OTP. The
+   talent-hunt-admin-register Edge Function checks that the caller is an
+   admin, saves the registration, creates the Login ID and sends the
+   congratulation WhatsApp. Districts/talukas come from the same LGD API
+   as the public page.
+-------------------------------- */
+const SAGE_GEO_API = "https://india-lgd-index-api.vercel.app/v1";
+let sageRegReady = false;
+function sageGeoRows(payload) {
+  const rows = Array.isArray(payload?.data) ? payload.data : [];
+  return rows.map((it) => ({
+    name: String((typeof it.name === "string" ? it.name : it.name?.en) || it.district_name || it.subdistrict_name || it.taluka_name || "").trim(),
+    code: it.lgd_code ?? it.lgdCode ?? it.code ?? it.id ?? it.district_code ?? it.subdistrict_code,
+  })).filter((r) => r.name && r.code != null).sort((a, b) => a.name.localeCompare(b.name));
+}
+function sageFillSelect(select, placeholder, rows) {
+  select.replaceChildren(new Option(placeholder, ""));
+  rows.forEach((r) => { const o = new Option(r.name, String(r.code)); o.dataset.name = r.name; select.appendChild(o); });
+}
+async function sageLoadGeo(select, query, placeholder, emptyText) {
+  select.disabled = true;
+  sageFillSelect(select, "Loading…", []);
+  try {
+    const res = await fetch(`${SAGE_GEO_API}/${query}`, { headers: { Accept: "application/json" } });
+    if (!res.ok) throw new Error(String(res.status));
+    const rows = sageGeoRows(await res.json());
+    if (!rows.length) throw new Error("empty");
+    sageFillSelect(select, placeholder, rows);
+    select.disabled = false;
+  } catch {
+    sageFillSelect(select, emptyText, []);
+  }
+}
+function sageRegMessage(text, kind) {
+  const box = document.getElementById("sageRegMessage");
+  box.textContent = text || "";
+  box.className = "message" + (text ? ` show ${kind}` : "");
+}
+function sageRegInit() {
+  if (sageRegReady) return;
+  sageRegReady = true;
+  const district = document.getElementById("sageRegDistrict"), taluka = document.getElementById("sageRegTaluka");
+  sageLoadGeo(district, "districts?state=27", "Select district", "District list unavailable — reopen to retry");
+  district.addEventListener("change", () => {
+    if (!district.value) { taluka.disabled = true; sageFillSelect(taluka, "Select district first", []); return; }
+    sageLoadGeo(taluka, `subdistricts?state=27&district=${encodeURIComponent(district.value)}`, "Select taluka", "Taluka list unavailable — reselect district");
+  });
+  const wa = document.getElementById("sageRegWhatsapp");
+  wa.addEventListener("input", () => { wa.value = wa.value.replace(/\D/g, "").slice(0, 10); });
+  const form = document.getElementById("sageRegForm");
+  form.addEventListener("reset", () => { sageRegMessage(""); setTimeout(() => { taluka.disabled = true; sageFillSelect(taluka, "Select district first", []); }); });
+  form.addEventListener("submit", sageRegSubmit);
+}
+async function sageRegSubmit(event) {
+  event.preventDefault();
+  const v = (id) => document.getElementById(id).value.trim();
+  const sel = (id) => { const s = document.getElementById(id); return s.selectedOptions[0]?.dataset.name || ""; };
+  const payload = {
+    studentName: v("sageRegName"), studentClass: v("sageRegClass"), schoolName: v("sageRegSchool"),
+    state: "Maharashtra", district: sel("sageRegDistrict"), districtCode: v("sageRegDistrict"),
+    taluka: sel("sageRegTaluka"), talukaCode: v("sageRegTaluka"), board: v("sageRegBoard"), medium: v("sageRegMedium"),
+    whatsappNumber: v("sageRegWhatsapp"), confirmNumber: document.getElementById("sageRegConfirm").checked,
+  };
+  if (!payload.studentName || !payload.studentClass || !payload.schoolName || !payload.district || !payload.taluka || !payload.board || !payload.medium) return sageRegMessage("Please complete all required fields.", "error");
+  if (!/^[6-9][0-9]{9}$/.test(payload.whatsappNumber)) return sageRegMessage("Enter a valid 10-digit Indian WhatsApp number starting with 6, 7, 8 or 9.", "error");
+  if (!payload.confirmNumber) return sageRegMessage("Tick the box to confirm the WhatsApp number with the student or parent.", "error");
+  if (!confirm(`Register ${payload.studentName} (${payload.studentClass}) and send the congratulation WhatsApp to ${payload.whatsappNumber}?`)) return;
+
+  const button = document.getElementById("sageRegSubmit");
+  button.disabled = true; button.textContent = "Registering…";
+  sageRegMessage("");
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) throw new Error("Your session has expired. Sign in again.");
+    const { data, error } = await supabaseClient.functions.invoke("talent-hunt-admin-register", { body: payload, headers: { Authorization: `Bearer ${session.access_token}` } });
+    if (error) {
+      let message = error.message || "Registration failed.";
+      try { if (error.context && typeof error.context.json === "function") { const b = await error.context.json(); if (b?.error) message = b.error; } } catch { /* keep message */ }
+      throw new Error(message);
+    }
+    if (!data?.success) throw new Error(data?.error || "Registration failed.");
+    sageRegShowResult(data);
+    document.getElementById("sageRegForm").reset();
+  } catch (err) {
+    sageRegMessage(err instanceof Error ? err.message : "Registration failed.", "error");
+  } finally {
+    button.disabled = false; button.textContent = "Register & send WhatsApp";
+  }
+}
+function sageRegShowResult(r) {
+  const box = document.getElementById("sageRegResult");
+  const wa = { ACCEPTED: "✓ Congratulation WhatsApp sent (accepted by the WhatsApp provider).", FAILED: "⚠ The WhatsApp message could not be sent. The student IS registered — share the Login ID with them directly.", NOT_CONFIGURED: "⚠ WhatsApp sending is not configured on the server. The student IS registered — share the Login ID with them directly." }[r.welcomeMessageStatus] || "WhatsApp status unknown.";
+  const link = r.passwordSetupToken ? new URL(`talent-hunt/set-password.html#token=${encodeURIComponent(r.passwordSetupToken)}`, location.href).href : "";
+  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(wa)}`
+    + (link
+      ? `<br><br><strong>Password setup link</strong> (one-time, valid ${escapeHtml(String(r.passwordSetupExpiresInDays))} days). Share it privately with the student so they can create their password:<br><input id="sageRegLink" readonly value="${escapeHtml(link)}" style="width:100%;margin:6px 0;padding:8px;background:#08172a;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px"><button type="button" class="secondary-btn" id="sageRegCopy">Copy link</button> <span style="color:#93a4ba;font-size:12px">This link is shown only now.</span>`
+      : `<br><br>⚠ ${escapeHtml(r.message || "Password setup link could not be created.")}`);
+  box.hidden = false;
+  document.getElementById("sageRegCopy")?.addEventListener("click", async (e) => {
+    try { await navigator.clipboard.writeText(link); e.target.textContent = "Copied"; } catch { document.getElementById("sageRegLink").select(); }
+  });
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
 const sageBackButton = document.getElementById("sageBackToOverview");
 if (sageBackButton) sageBackButton.addEventListener("click", () => {
   document.getElementById("sageModuleDetail").classList.remove("active");
