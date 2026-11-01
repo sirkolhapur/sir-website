@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Activate Your SIR Account | SAGE</title>
+<!--
+  Target of the "Activate Account" button in the SAGE Talent Hunt WhatsApp
+  message (AiSensy template with a dynamic URL button:
+  https://sir.net.in/sage-activate.html?t={{1}}). WhatsApp buttons can only
+  add a value to the end of a URL, so the one-time setup token arrives as
+  ?t=…; this page moves it into the fragment that the existing
+  talent-hunt/set-password.html reads, and removes it from the address bar.
+-->
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#071426,#0b203b);color:#fff;padding:16px;box-sizing:border-box}
+  .card{max-width:420px;text-align:center;line-height:1.6}
+  .card h1{font-size:24px;margin:0 0 8px}
+  .card p{color:#b8c5d5;margin:0}
+</style>
+</head>
+<body>
+<div class="card" id="box"><h1>Opening your account setup…</h1><p>Please wait.</p></div>
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get("t") || "";
+    history.replaceState(null, document.title, location.pathname);
+    if (/^[a-f0-9]{64}$/i.test(t)) {
+      location.replace("talent-hunt/set-password.html#token=" + t);
+    } else {
+      document.getElementById("box").innerHTML = "<h1>This link is not valid</h1><p>Open the link from your WhatsApp message again, or contact SIR for a new link.</p>";
+    }
+  })();
+</script>
+</body>
+</html>

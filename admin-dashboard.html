@@ -3323,7 +3323,7 @@
         </div>
         <div id="sageRegistrationPanel" class="sage-placeholder-panel" hidden>
           <h3>Register a student for SAGE Talent Hunt</h3>
-          <p>Same details as the public <a href="talent-hunt/registration.html" target="_blank" rel="noopener" style="color:#d9b75b">Talent Hunt registration page</a>, without OTP. On saving, the student's Login ID is created and two WhatsApp messages go to the number below: the congratulation message with the Login ID, and the link for the student to create their own password.</p>
+          <p>Same details as the public <a href="talent-hunt/registration.html" target="_blank" rel="noopener" style="color:#d9b75b">Talent Hunt registration page</a>, without OTP. On saving, the student's Login ID is created and two WhatsApp messages go to the number below: the congratulation message with the Login ID, and an "Activate Account" message whose button lets the student create their own password.</p>
           <form id="sageRegForm" class="form-grid" style="margin-top:16px" novalidate>
             <div class="field"><label for="sageRegName">Student name *</label><input id="sageRegName" maxlength="120" autocomplete="off" required></div>
             <div class="field"><label for="sageRegClass">Class *</label><select id="sageRegClass" required><option value="">Select class</option><option>6th</option><option>7th</option><option>8th</option><option>9th</option><option>10th</option></select></div>
@@ -4622,7 +4622,7 @@ function sageRegShowResult(r) {
   const box = document.getElementById("sageRegResult");
   const linkSent = r.setupLinkMessageStatus === "ACCEPTED";
   const block = sageLinkBlock(r, linkSent);
-  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}<br>${escapeHtml(sageWa(r.setupLinkMessageStatus, "Password-link"))}${block.html}`;
+  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}<br>${escapeHtml(sageWa(r.setupLinkMessageStatus, "Account-activation"))}${block.html}`;
   box.hidden = false;
   sageWireCopy(box, block.link);
   sageRegListLoaded = false; // the list refreshes next time it is opened
@@ -4703,7 +4703,7 @@ async function sageRegSendLink(id, button) {
     const res = await sageAdminCall({ action: "send_setup_link", registrationId: id });
     const row = document.querySelector(`[data-sage-linkrow="${CSS.escape(id)}"]`);
     const block = sageLinkBlock(res, res.setupLinkMessageStatus === "ACCEPTED");
-    row.firstElementChild.innerHTML = `<div class="sage-status-note" style="margin-top:0">${escapeHtml(sageWa(res.setupLinkMessageStatus, "Password-link"))}${block.html}</div>`;
+    row.firstElementChild.innerHTML = `<div class="sage-status-note" style="margin-top:0">${escapeHtml(sageWa(res.setupLinkMessageStatus, "Account-activation"))}${block.html}</div>`;
     row.hidden = false; sageWireCopy(row, block.link);
     if (r.passwordStatus !== "set") r.passwordStatus = "link_sent";
     button.textContent = "Link sent ✓";
