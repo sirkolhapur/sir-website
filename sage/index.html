@@ -113,6 +113,39 @@
   .board .pts{text-align:right;font-weight:800}.board .pts small{display:block;color:var(--muted);font-weight:400;font-size:11px}
   .board .gap{background:none;border:0;text-align:center;color:var(--muted);display:block;padding:0}
   .empty{color:var(--muted);text-align:center;padding:24px 0}
+  /* rank progress */
+  .xpbar{margin:10px 0 18px}.xpbar .track{height:8px;border-radius:9px;background:#132544;overflow:hidden}
+  .xpbar .track i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:9px;transition:width .6s}
+  .xpbar small{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+  /* galaxy */
+  .sechead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+  .sechead h2{margin:0}
+  .galaxy{position:relative;height:min(62vw,440px);min-height:320px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 45%,#13285a 0%,#050b18 70%);margin-bottom:12px}
+  .galaxy canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;display:block}
+  .gx-labels{position:absolute;inset:0;pointer-events:none}
+  .gx-label{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;width:36px;height:36px;border-radius:50%;border:0;background:transparent;cursor:pointer;padding:0}
+  .gx-label span{position:absolute;top:calc(100% - 4px);left:50%;transform:translateX(-50%);font:800 10px system-ui,Arial;color:#fff;background:#05101fcc;border:1px solid #ffffff30;border-radius:7px;padding:1px 5px;white-space:nowrap}
+  .gx-label.sel{box-shadow:0 0 0 2px var(--gold),0 0 18px #f5c54288}.gx-label.sel span{border-color:var(--gold);color:var(--gold)}
+  .gx-hint{position:absolute;left:12px;bottom:10px;color:#8fa3c4;font-size:12px;pointer-events:none}
+  .gx-info{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .gx-info .btn{width:auto;margin:0;padding:12px 18px}
+  /* league */
+  .league{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;margin-bottom:22px}
+  .league .big{font-size:34px}
+  .league .btn{width:auto;margin:0;padding:12px 18px}
+  .board li.up{border-left:4px solid var(--ok)}.board li.down{border-left:4px solid var(--bad)}
+  .zone{font-size:11px;letter-spacing:1px;color:var(--muted);margin:10px 0 0;text-transform:uppercase}
+  /* badges */
+  .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+  .badge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .badge .i{font-size:30px;display:block;margin-bottom:4px}.badge b{display:block;font-size:13px}.badge small{color:var(--muted);font-size:11px;line-height:1.4;display:block;margin-top:3px}
+  .badge.locked{opacity:.38;filter:grayscale(1)}
+  .newbadges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0}
+  .newbadges span{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gold);border-radius:999px;padding:8px 14px;background:#1c1a0b;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal{position:fixed;inset:0;z-index:20;background:#020611cc;display:grid;place-items:center;padding:16px}
+  .modal .panel{max-width:380px;text-align:center}
+  .modal .i{font-size:72px;display:block;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
   @media (max-width:640px){.tiles{grid-template-columns:repeat(2,1fr)}.launch .btn,.launch-actions{width:100%}.launch-actions .btn{flex:1}}
 </style>
 </head>
@@ -184,6 +217,7 @@
       <div><div class="eyebrow">Mission Control</div><h1 style="margin-bottom:4px">Welcome back, Cadet <span id="hName"></span></h1><span class="rank" id="hRank">CADET</span></div>
       <div style="color:var(--muted);font-size:13px;text-align:right" id="hSchool"></div>
     </div>
+    <div class="xpbar"><div class="track"><i id="xpFill"></i></div><small><span id="xpNow"></span><span id="xpNext"></span></small></div>
     <div class="tiles">
       <div class="tile streak"><b id="sStreak">0</b><span>🔥 DAY STREAK</span></div>
       <div class="tile xp"><b id="sXp">0</b><span>⚡ XP</span></div>
@@ -198,9 +232,34 @@
       <button class="btn alt" id="quickBtn" type="button">⚡ Free practice · 10 mixed</button>
       <button class="btn alt" id="boardBtn" type="button">🏆 Leaderboards</button>
     </div>
-    <h2>Explore the galaxy <span style="color:var(--muted);font-weight:400;font-size:14px">· Class 10 Science</span></h2>
+    <div class="panel league hidden" id="leagueCard">
+      <div style="display:flex;gap:14px;align-items:center"><span class="big" id="lgIcon">🌙</span><div><div class="eyebrow">This week's league</div><h2 style="margin:4px 0 2px" id="lgName">Moon League</h2><div style="color:var(--muted);font-size:13px" id="lgLine"></div></div></div>
+      <button class="btn alt" id="lgBtn" type="button">VIEW LEAGUE →</button>
+    </div>
+    <div class="sechead">
+      <h2>Explore the galaxy <span style="color:var(--muted);font-weight:400;font-size:14px">· Class 10 Science</span></h2>
+      <button class="ghost" id="viewToggle" type="button" aria-pressed="false">3D galaxy</button>
+    </div>
+    <div id="galaxyWrap" class="hidden">
+      <div class="galaxy" id="galaxy"><canvas id="gxCanvas" aria-label="3D galaxy of chapters"></canvas><div class="gx-labels" id="gxLabels"></div><div class="gx-hint">Tap a planet · drag to spin</div></div>
+      <div class="gx-info panel" id="gxInfo"><div><strong id="gxName">Choose a planet</strong><div style="color:var(--muted);font-size:13px" id="gxMeta">Each planet is a chapter. It glows brighter as you master it.</div></div><button class="btn hidden" id="gxGo" type="button">LAUNCH MISSION →</button></div>
+    </div>
     <div class="planets" id="planets"></div>
+    <div class="sechead" style="margin-top:26px"><h2>Badges <span style="color:var(--muted);font-weight:400;font-size:14px" id="badgeCount"></span></h2></div>
+    <div class="badges" id="badges"></div>
   </section>
+
+  <!-- league -->
+  <section id="vLeague" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">Weekly league</span><button class="link" type="button" id="lBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px" id="lTitle">League</h1>
+    <p class="sub" id="lSub"></p>
+    <ol class="board" id="lList"></ol>
+  </section>
+
+  <div class="modal hidden" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celTitle">
+    <div class="panel"><span class="i" id="celIcon">🏅</span><div class="eyebrow" style="margin-top:8px">Badge unlocked</div><h1 id="celTitle"></h1><p class="sub" id="celText"></p><button class="btn" id="celOk" type="button">AWESOME!</button></div>
+  </div>
 
   <!-- mission -->
   <section id="vMission" class="panel hidden">
@@ -219,6 +278,7 @@
     <div class="eyebrow">Mission complete</div>
     <div class="score" id="rScore">0/0</div>
     <div class="ranks hidden" id="rRanks"></div>
+    <div class="newbadges" id="rBadges"></div>
     <p class="sub" id="rLine"></p>
     <button class="btn hidden" id="rShare" type="button">SHARE WITH FRIENDS 📤</button>
     <button class="btn alt hidden" id="rBoard" type="button">🏆 SEE LEADERBOARD</button>
@@ -257,7 +317,7 @@
   var FN = SUPABASE_URL + "/functions/v1/sage-learn";
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
   var $ = function (id) { return document.getElementById(id); };
-  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard"];
+  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard", "vLeague"];
   var SHARE_URL = "https://sir.net.in/sage/";
   var state = { me: null, mission: null };
   var COLORS = ["#4fd8ff", "#f5c542", "#3ddc97", "#ff9f43", "#b58cff", "#ff6b81", "#5ee0c8"];
@@ -352,12 +412,20 @@
   });
 
   // ---------------- home ----------------
-  function rankFor(xp) { return xp >= 5000 ? "SAGE SCHOLAR" : xp >= 2500 ? "ADMIRAL" : xp >= 1000 ? "COMMANDER" : xp >= 300 ? "NAVIGATOR" : "CADET"; }
+  var RANKS = [[0, "CADET"], [300, "NAVIGATOR"], [1000, "COMMANDER"], [2500, "ADMIRAL"], [5000, "SAGE SCHOLAR"]];
+  function rankFor(xp) { var r = RANKS[0][1]; RANKS.forEach(function (x) { if (xp >= x[0]) r = x[1]; }); return r; }
+  function rankProgress(xp) {
+    for (var i = RANKS.length - 1; i >= 0; i--) if (xp >= RANKS[i][0]) break;
+    var next = RANKS[i + 1];
+    return next ? { pct: Math.round(((xp - RANKS[i][0]) / (next[0] - RANKS[i][0])) * 100), text: (next[0] - xp) + " XP to " + next[1] } : { pct: 100, text: "Top rank reached!" };
+  }
   function showHome() {
     var me = state.me, st = me.stats;
     $("hName").textContent = me.student.firstName || "";
     $("hSchool").textContent = [me.student.school, me.student.className ? "Class " + me.student.className.replace(/th$/, "") : ""].filter(Boolean).join(" · ");
     $("hRank").textContent = rankFor(st.xp);
+    var rp = rankProgress(st.xp);
+    $("xpFill").style.width = rp.pct + "%"; $("xpNow").textContent = st.xp + " XP"; $("xpNext").textContent = rp.text;
     $("sStreak").textContent = st.streak; $("sXp").textContent = st.xp; $("sAcc").textContent = st.accuracy == null ? "–" : st.accuracy + "%"; $("sMissions").textContent = st.missions;
     var d = me.daily || { state: "new" };
     $("orbitTag").textContent = "Daily Orbit · " + new Date(d.day + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
@@ -379,7 +447,154 @@
       var p = c.total ? Math.round((c.answered / c.total) * 100) : 0;
       return '<button class="planet" type="button" data-slug="' + esc(c.slug) + '"><span class="orb" data-n="' + c.no + '" style="--c:' + COLORS[i % COLORS.length] + ';--p:' + p + '"></span><span><strong>' + esc(c.name) + "</strong><small>" + c.answered + "/" + c.total + " explored" + (c.answered ? " · " + Math.round((c.correct / c.answered) * 100) + "% right" : "") + "</small></span></button>";
     }).join("");
+    // League card
+    var lg = me.league;
+    $("leagueCard").classList.toggle("hidden", !lg);
+    if (lg) {
+      $("lgIcon").textContent = lg.icon; $("lgName").textContent = lg.name;
+      $("lgLine").textContent = (lg.rank ? "#" + lg.rank + " of " + lg.members : lg.members + " cadets") + " · " + lg.xp + " XP this week · ends in " + timeLeft(lg.endsAt) + (lg.upZone ? " · top " + lg.upZone + " move up" : "");
+    }
+    // Badges
+    var earned = me.badges.filter(function (b) { return b.earned; }).length;
+    $("badgeCount").textContent = "· " + earned + " of " + me.badges.length;
+    $("badges").innerHTML = me.badges.map(function (b) {
+      return '<div class="badge' + (b.earned ? "" : " locked") + '" title="' + esc(b.desc) + '"><span class="i">' + b.icon + "</span><b>" + esc(b.name) + "</b><small>" + esc(b.desc) + "</small></div>";
+    }).join("");
     show("vHome");
+    galaxySync();
+    if (me.newBadges && me.newBadges.length) celebrate(me.newBadges);
+  }
+  function timeLeft(iso) { var ms = new Date(iso).getTime() - Date.now(); if (ms <= 0) return "0h"; var d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000); return d ? d + "d " + h + "h" : h + "h"; }
+
+  // ---------------- celebrations ----------------
+  var celQueue = [];
+  function celebrate(list) { celQueue = celQueue.concat(list); if ($("celebrate").classList.contains("hidden")) nextCel(); }
+  function nextCel() {
+    var b = celQueue.shift();
+    if (!b) return $("celebrate").classList.add("hidden");
+    $("celIcon").textContent = b.icon; $("celTitle").textContent = b.name; $("celText").textContent = b.desc;
+    $("celebrate").classList.remove("hidden"); $("celOk").focus();
+  }
+  $("celOk").addEventListener("click", nextCel);
+
+  // ---------------- weekly league ----------------
+  $("lgBtn").addEventListener("click", openLeague);
+  $("lBack").addEventListener("click", boot);
+  async function openLeague() {
+    show("vLeague"); $("lList").innerHTML = '<li class="gap">Loading…</li>';
+    try {
+      var lg = (await api({ action: "league" })).league;
+      $("lTitle").textContent = lg.icon + " " + lg.name;
+      $("lSub").textContent = "XP earned this week (from Monday). Ends in " + timeLeft(lg.endsAt) + "." +
+        (lg.upZone ? " Top " + lg.upZone + " move up." : " This is the top league!") + (lg.downZone ? " Bottom " + lg.downZone + " move down." : "") + " No XP this week also moves you down.";
+      $("lList").innerHTML = lg.standings.map(function (r) {
+        var zone = lg.upZone && r.rank <= lg.upZone && r.xp > 0 ? "up" : lg.downZone && r.rank > lg.members - lg.downZone ? "down" : "";
+        return '<li class="' + (r.isMe ? "me " : "") + zone + '"><span class="pos">' + r.rank + '</span><span class="who"><b>' + esc(r.name) + (r.isMe ? " (you)" : "") + "</b><small>" + esc(r.school || "") + (zone === "up" ? " · ▲ moving up" : zone === "down" ? " · ▼ moving down" : "") + '</small></span><span class="pts">' + r.xp + "<small>XP</small></span></li>";
+      }).join("");
+    } catch (e) { $("lList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+
+  // ---------------- 3D galaxy (Lite mode = the chapter list only) ----------------
+  var GX = { on: false, ready: null, sel: null };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function webglOk() { try { var c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl"))); } catch (e) { return false; } }
+  function wants3D() {
+    var saved = store("sage_view");
+    if (saved === "3d" || saved === "lite") return saved === "3d" && webglOk();
+    var weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) ||
+      (navigator.connection && navigator.connection.saveData) || matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return !weak && webglOk();
+  }
+  function paintToggle() { $("viewToggle").textContent = GX.on ? "🪐 3D galaxy · on" : "📋 Lite mode"; $("viewToggle").setAttribute("aria-pressed", String(GX.on)); }
+  $("viewToggle").addEventListener("click", function () { store("sage_view", GX.on ? "lite" : "3d"); galaxySync(); });
+  function galaxySync() {
+    GX.on = wants3D(); paintToggle();
+    $("galaxyWrap").classList.toggle("hidden", !GX.on);
+    if (!GX.on) { if (GX.api) GX.api.stop(); return; }
+    if (!GX.ready) GX.ready = buildGalaxy().catch(function (e) { console.warn("3D galaxy unavailable", e); store("sage_view", "lite"); GX.ready = null; galaxySync(); });
+    GX.ready.then(function (api) { if (api) { api.update(state.me.chapters); api.start(); } });
+  }
+  function selectPlanet(slug) {
+    var c = state.me.chapters.find(function (x) { return x.slug === slug; }); if (!c) return;
+    GX.sel = slug;
+    $("gxLabels").querySelectorAll(".gx-label").forEach(function (b) { b.classList.toggle("sel", b.dataset.gslug === slug); });
+    $("gxName").textContent = c.no + ". " + c.name;
+    $("gxMeta").textContent = c.answered + "/" + c.total + " explored" + (c.answered ? " · " + Math.round((c.correct / c.answered) * 100) + "% right" : " · not visited yet");
+    $("gxGo").classList.remove("hidden");
+  }
+  $("gxGo").addEventListener("click", function () { if (GX.sel) startMission(GX.sel); });
+  $("gxLabels").addEventListener("click", function (e) { var b = e.target.closest("[data-gslug]"); if (b) selectPlanet(b.dataset.gslug); });
+
+  async function buildGalaxy() {
+    var THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+    var box = $("galaxy"), canvas = $("gxCanvas");
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
+    camera.position.set(0, 17, 22); camera.lookAt(0, 0, 0);
+    var system = new THREE.Group(); scene.add(system);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    var sunLight = new THREE.PointLight(0xffe7a8, 2.2, 0, 0); system.add(sunLight);
+    // soft round glow texture
+    var gc = document.createElement("canvas"); gc.width = gc.height = 64;
+    var gx = gc.getContext("2d"), grad = gx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(0.35, "rgba(255,255,255,.35)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+    gx.fillStyle = grad; gx.fillRect(0, 0, 64, 64);
+    var glowTex = new THREE.CanvasTexture(gc);
+    var glow = function (color, size) { var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s.scale.set(size, size, 1); return s; };
+    // the core
+    var core = new THREE.Mesh(new THREE.SphereGeometry(1.4, 32, 24), new THREE.MeshBasicMaterial({ color: 0xf5c542 }));
+    system.add(core); system.add(glow(0xf5c542, 7));
+    // stars
+    var sp = new Float32Array(900 * 3);
+    for (var i = 0; i < 900; i++) { var r = 60 + Math.random() * 60, t = Math.random() * Math.PI * 2, p = Math.acos(2 * Math.random() - 1); sp[i * 3] = r * Math.sin(p) * Math.cos(t); sp[i * 3 + 1] = r * Math.cos(p); sp[i * 3 + 2] = r * Math.sin(p) * Math.sin(t); }
+    var sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
+    scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, transparent: true, opacity: 0.8 })));
+    var palette = [0x4fd8ff, 0xf5c542, 0x3ddc97, 0xff9f43, 0xb58cff, 0xff6b81, 0x5ee0c8];
+    var planets = [], labels = $("gxLabels"), still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function update(chapters) {
+      planets.forEach(function (pl) {
+        system.remove(pl.pivot); system.remove(pl.orbit);
+        [pl.mesh.geometry, pl.mesh.material, pl.mesh.children[0].material, pl.orbit.geometry, pl.orbit.material].forEach(function (o) { o.dispose(); });
+      });
+      planets = []; labels.innerHTML = "";
+      chapters.forEach(function (c, i) {
+        var radius = 2.9 + i * 0.72, color = palette[i % palette.length];
+        var mastery = c.total ? c.correct / c.total : 0;           // 0…1: glows brighter as the chapter is mastered
+        var orbit = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 96 }, function (_, k) { var a = (k / 96) * Math.PI * 2; return new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius); })),
+          new THREE.LineBasicMaterial({ color: 0x2a4a85, transparent: true, opacity: 0.45 }));
+        var pivot = new THREE.Group(); pivot.rotation.y = i * 2.39996;
+        var mesh = new THREE.Mesh(new THREE.SphereGeometry(0.55 + Math.min(c.answered, 90) / 300, 24, 16),
+          new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.12 + 0.88 * mastery, roughness: 0.55, metalness: 0.1 }));
+        mesh.position.x = radius; pivot.add(mesh);
+        var halo = glow(color, 1.6 + 3 * mastery); halo.material.opacity = 0.25 + 0.75 * mastery; mesh.add(halo);
+        system.add(orbit); system.add(pivot);
+        var b = document.createElement("button"); b.type = "button"; b.className = "gx-label" + (GX.sel === c.slug ? " sel" : ""); b.dataset.gslug = c.slug; b.innerHTML = "<span>" + c.no + "</span>";
+        b.setAttribute("aria-label", c.name + ", " + c.answered + " of " + c.total + " explored"); labels.appendChild(b);
+        planets.push({ pivot: pivot, orbit: orbit, mesh: mesh, label: b, speed: 0.22 / Math.sqrt(radius) });
+      });
+    }
+    var drag = null, spin = 0, raf = 0, last = 0, v = new THREE.Vector3();
+    canvas.addEventListener("pointerdown", function (e) { drag = e.clientX; });
+    window.addEventListener("pointerup", function () { drag = null; });
+    canvas.addEventListener("pointermove", function (e) { if (drag != null) { spin += (e.clientX - drag) * 0.006; drag = e.clientX; } });
+    function resize() { var w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.set(0, w < 500 ? 19 : 16, w < 500 ? 21 : 20); camera.lookAt(0, 0, 0); camera.updateProjectionMatrix(); }
+    window.addEventListener("resize", resize);
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (document.hidden || $("vHome").classList.contains("hidden")) return stop();
+      var dt = last ? Math.min((t - last) / 1000, 0.05) : 0; last = t;
+      if (!still) planets.forEach(function (pl) { pl.pivot.rotation.y += pl.speed * dt; });
+      system.rotation.y += spin * 0.1; spin *= 0.9;
+      renderer.render(scene, camera);
+      var w = box.clientWidth, h = box.clientHeight;
+      planets.forEach(function (pl) { pl.mesh.getWorldPosition(v); v.project(camera); pl.label.style.left = ((v.x + 1) / 2) * w + "px"; pl.label.style.top = ((1 - v.y) / 2) * h + "px"; });
+    }
+    function start() { if (!raf) { resize(); last = 0; raf = requestAnimationFrame(frame); } }
+    function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden && !$("vHome").classList.contains("hidden") && GX.on) start(); });
+    GX.api = { update: update, start: start, stop: stop };
+    return GX.api;
   }
   $("planets").addEventListener("click", function (e) { var b = e.target.closest("[data-slug]"); if (b) startMission(b.dataset.slug); });
   $("quickBtn").addEventListener("click", function () { startMission(null); });
@@ -498,7 +713,10 @@
       $("rLine").textContent = "You earned " + r.xp + " XP" + (daily && r.answered === r.total ? " (incl. +20 Daily Orbit bonus)" : "") + (r.answered < r.total ? " (" + r.answered + " answered)" : "") + ". " +
         (r.correct / Math.max(1, r.total) >= 0.8 ? "Brilliant flying, Cadet!" : r.correct / Math.max(1, r.total) >= 0.5 ? "Good mission — read the explanations and go again." : "Every mistake is data. Review and relaunch!");
       state.lastResult = { correct: r.correct, total: r.total, durationMs: r.durationMs, ranks: ranks };
+      var nb = r.newBadges || [];
+      $("rBadges").innerHTML = nb.map(function (b, i) { return '<span style="animation-delay:' + i * 0.15 + 's">' + b.icon + " New badge: <b>" + esc(b.name) + "</b></span>"; }).join("");
       show("vResult");
+      if (nb.length) celebrate(nb);
     } catch (e) { alert(e.message); }
   }
   $("rHome").addEventListener("click", boot);
