@@ -11,7 +11,7 @@
   Login: the same SIR Talent Hunt account as talent-hunt/student-login.html
   (shared Supabase session). Questions come from the Edge Function
   sage-learn WITHOUT answers; every answer is checked on the server.
-  A parent/guardian gives consent (WhatsApp OTP) before the first mission.
+  Parent consent is taken once, at sign-up (the OTP goes to the parent's WhatsApp).
   Only the public publishable key is used here.
 -->
 <style>
@@ -43,17 +43,12 @@
   label{display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:14px 0 6px;text-transform:uppercase}
   input,select{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:#06101f;color:var(--ink);padding:0 14px;font:inherit;font-size:16px;outline:0}
   input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #4fd8ff22}
-  .otp{letter-spacing:10px;text-align:center;font-size:22px}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:15px 18px;margin-top:18px;background:linear-gradient(90deg,var(--gold),#ffdc73);color:#0a1428;font:inherit;font-weight:900;letter-spacing:.5px;cursor:pointer;font-size:15px}
   .btn:disabled{opacity:.55;cursor:wait}
   .btn.alt{background:#0f2242;color:var(--ink);border:1px solid var(--line)}
   .link{color:var(--cyan);font-size:13px;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font:inherit}
   .msg{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
   .msg.show{display:block}.msg.err{background:#3a0f1a;color:#ffc2cc;border:1px solid #6b2233}.msg.ok{background:#0d3324;color:#b6f5d8;border:1px solid #1d6b49}
-  .check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px;line-height:1.5;color:var(--ink)}
-  .check input{width:20px;height:20px;flex:0 0 20px;margin-top:2px}
-  .consent-text{background:#06101f;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;color:#c8d6ee;max-height:220px;overflow:auto}
-  .consent-text ul{margin:8px 0 0;padding-left:18px}
   .hidden{display:none!important}
   /* home */
   .hello{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:18px}
@@ -178,42 +173,6 @@
       <button class="btn" id="loginBtn" type="submit">ENTER MISSION CONTROL →</button>
     </form>
     <div class="msg" id="loginMsg" role="alert"></div>
-  </section>
-
-  <!-- parent consent -->
-  <section id="vConsent" class="panel narrow hidden">
-    <div class="eyebrow">One-time step · for parents</div>
-    <h1>Parent or guardian consent</h1>
-    <p class="sub">Before <b id="cName">your child</b> starts practising, a parent or guardian needs to agree. We send an OTP to the parent's WhatsApp to confirm.</p>
-    <div class="consent-text" id="consentText">
-      I am the parent or guardian of this student. I allow SIR, Kolhapur to use my child's name, school, class, district/taluka and practice results in the SAGE programme:
-      <ul>
-        <li>to run practice missions and show my child's progress, streaks and scores;</li>
-        <li>to show my child on SAGE leaderboards using only first name, initial, school and class — never the phone number;</li>
-        <li>to contact me on WhatsApp about SAGE and the scholarship.</li>
-      </ul>
-      SIR will not sell this data or show ads to my child. I can withdraw consent at any time by contacting SIR; my child's SAGE practice data will then be deleted.
-    </div>
-    <form id="consentForm" novalidate>
-      <label for="pName">Parent / guardian name</label>
-      <input id="pName" maxlength="80" autocomplete="name">
-      <label for="pRel">Relation to the student</label>
-      <select id="pRel"><option value="">Choose…</option><option>Mother</option><option>Father</option><option>Guardian</option></select>
-      <label class="check" style="text-transform:none;letter-spacing:0;font-weight:400"><input type="checkbox" id="useReg" checked> <span>Send the OTP to the registered WhatsApp number <b id="regNo"></b></span></label>
-      <div id="otherNo" class="hidden">
-        <label for="pPhone">Parent's WhatsApp number</label>
-        <input id="pPhone" type="tel" inputmode="numeric" placeholder="10-digit number">
-      </div>
-      <label class="check" style="text-transform:none;letter-spacing:0;font-weight:400"><input type="checkbox" id="agree"> <span>I am the parent/guardian and I agree to the above.</span></label>
-      <button class="btn" id="cSend" type="submit">SEND OTP TO PARENT →</button>
-    </form>
-    <form id="consentOtp" class="hidden" novalidate>
-      <label for="cOtp">6-digit OTP sent to the parent</label>
-      <input id="cOtp" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
-      <button class="btn" id="cVerify" type="submit">CONFIRM CONSENT →</button>
-      <p class="sub" style="margin-top:12px"><button class="link" type="button" id="cBack">Change details / resend</button></p>
-    </form>
-    <div class="msg" id="consentMsg" role="alert"></div>
   </section>
 
   <!-- home -->
@@ -350,7 +309,7 @@
   var FN = SUPABASE_URL + "/functions/v1/sage-learn";
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
   var $ = function (id) { return document.getElementById(id); };
-  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard", "vLeague", "vDuels"];
+  var VIEWS = ["vBoot", "vLogin", "vHome", "vMission", "vResult", "vBoard", "vLeague", "vDuels"];
   // Invite (?ref=CODE) and duel (?duel=CODE) links: remember them until the student is signed in.
   (function () {
     var q = new URLSearchParams(location.search), keep = function (k, v) { try { if (/^[A-Za-z2-9]{6}$/.test(v || "")) localStorage.setItem(k, v.toUpperCase()); } catch (e) { /* storage off */ } };
@@ -413,7 +372,6 @@
       if (e.code === "NOT_SIGNED_IN" || e.code === "NOT_A_STUDENT") { await sb.auth.signOut({ scope: "local" }); show("vLogin"); return msg("loginMsg", e.code === "NOT_A_STUDENT" ? e.message : ""); }
       show("vLogin"); return msg("loginMsg", e.message);
     }
-    if (!state.me.consent.given) return showConsent();
     showHome();
   }
 
@@ -430,34 +388,6 @@
     $("password").value = ""; boot();
   });
   $("logoutBtn").addEventListener("click", async function () { await sb.auth.signOut({ scope: "local" }); state = { me: null, mission: null }; show("vLogin"); });
-
-  // ---------------- parent consent ----------------
-  function showConsent() {
-    $("cName").textContent = state.me.student.firstName || "your child";
-    $("regNo").textContent = state.me.consent.registeredNumber || "";
-    $("consentForm").classList.remove("hidden"); $("consentOtp").classList.add("hidden"); msg("consentMsg", "");
-    show("vConsent");
-  }
-  $("useReg").addEventListener("change", function () { $("otherNo").classList.toggle("hidden", this.checked); });
-  $("pPhone").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 10); });
-  $("cOtp").addEventListener("input", function () { this.value = this.value.replace(/\D/g, "").slice(0, 6); });
-  $("consentForm").addEventListener("submit", async function (e) {
-    e.preventDefault(); msg("consentMsg", "");
-    $("cSend").disabled = true;
-    try {
-      var r = await api({ action: "consent_send_otp", parentName: $("pName").value, relation: $("pRel").value, useRegisteredNumber: $("useReg").checked, parentWhatsapp: $("pPhone").value, agree: $("agree").checked });
-      $("consentForm").classList.add("hidden"); $("consentOtp").classList.remove("hidden"); $("cOtp").value = ""; $("cOtp").focus();
-      msg("consentMsg", r.message + " Valid for 5 minutes.", "ok");
-    } catch (err) { msg("consentMsg", err.message); }
-    finally { $("cSend").disabled = false; }
-  });
-  $("cBack").addEventListener("click", function () { $("consentOtp").classList.add("hidden"); $("consentForm").classList.remove("hidden"); msg("consentMsg", ""); });
-  $("consentOtp").addEventListener("submit", async function (e) {
-    e.preventDefault(); $("cVerify").disabled = true;
-    try { await api({ action: "consent_verify", otp: $("cOtp").value }); msg("consentMsg", "Consent recorded. Launching…", "ok"); setTimeout(boot, 700); }
-    catch (err) { msg("consentMsg", err.message); }
-    finally { $("cVerify").disabled = false; }
-  });
 
   // ---------------- home ----------------
   var RANKS = [[0, "CADET"], [300, "NAVIGATOR"], [1000, "COMMANDER"], [2500, "ADMIRAL"], [5000, "SAGE SCHOLAR"]];
@@ -686,7 +616,7 @@
       state.mission = { id: r.attemptId, qs: r.questions, i: 0, correct: 0, slug: slug, title: ch ? ch.name : "Free practice" };
       $("mTimer").classList.add("hidden");
       show("vMission"); renderQ();
-    } catch (e) { alert(e.message); if (e.code === "CONSENT_REQUIRED") boot(); }
+    } catch (e) { alert(e.message); }
   }
   // Boss Battle and duels share the mission screen.
   function playResumable(r, title, extra) {
