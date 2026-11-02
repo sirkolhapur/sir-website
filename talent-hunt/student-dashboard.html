@@ -2,22 +2,853 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#050b18">
 <title>SAGE Mission Control | SIR</title>
 <!--
-  The SAGE student dashboard has moved to SAGE Mission Control (/sage/).
-  This page only forwards students there (old links, bookmarks and the
-  Talent Hunt login keep working). The previous dashboard is in Git history.
+  SAGE Mission Control — the SAGE Talent Hunt student dashboard
+  (registration.html → student-login.html → this page).
+  Uses the Supabase session created by student-login.html; a visitor who is
+  not signed in is sent there. Questions come from the Edge Function
+  sage-learn WITHOUT answers; every answer is checked on the server.
+  Parent consent is taken once, at sign-up (the OTP goes to the parent's
+  WhatsApp). Only the public publishable key is used here.
 -->
-<meta http-equiv="refresh" content="0; url=../sage/">
-<script>location.replace("../sage/" + location.search + location.hash);</script>
 <style>
-  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#050b18;color:#e8f0ff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;text-align:center;padding:16px}
-  a{color:#f5c542;font-weight:700}
+  :root{--bg:#050b18;--panel:#0b1730cc;--line:#1d3357;--ink:#e8f0ff;--muted:#8fa3c4;--gold:#f5c542;--cyan:#4fd8ff;--ok:#3ddc97;--bad:#ff6b81}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  body{min-height:100vh;overflow-x:hidden}
+  .stars,.stars:after{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:
+    radial-gradient(1px 1px at 10% 20%,#fff9,transparent),radial-gradient(1px 1px at 30% 70%,#fff7,transparent),radial-gradient(1.5px 1.5px at 55% 35%,#fffb,transparent),
+    radial-gradient(1px 1px at 75% 80%,#fff8,transparent),radial-gradient(1px 1px at 88% 15%,#fff9,transparent),radial-gradient(1.5px 1.5px at 20% 90%,#fff6,transparent),
+    radial-gradient(1px 1px at 65% 55%,#fff7,transparent),radial-gradient(1px 1px at 42% 8%,#fff8,transparent);background-size:420px 420px}
+  .stars:after{content:"";background-size:260px 260px;opacity:.5;animation:drift 120s linear infinite}
+  .glow{position:fixed;inset:-20%;z-index:0;pointer-events:none;background:radial-gradient(circle at 80% 0%,#1b4dff22,transparent 40%),radial-gradient(circle at 0% 100%,#f5c54214,transparent 40%)}
+  @keyframes drift{to{background-position:260px 520px}}
+  @media (prefers-reduced-motion:reduce){.stars:after{animation:none}*{transition:none!important;animation:none!important}}
+  main{position:relative;z-index:1;width:min(100% - 32px,980px);margin:0 auto;padding:18px 0 48px}
+  header.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:2px}
+  .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 14px var(--gold)}
+  .brand small{display:block;font-size:10px;color:var(--cyan);letter-spacing:2.5px;font-weight:700}
+  .ghost{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+  .ghost:hover{color:var(--ink);border-color:var(--cyan)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,28px);backdrop-filter:blur(6px);box-shadow:0 20px 60px #0008}
+  .narrow{max-width:460px;margin:6vh auto 0}
+  .eyebrow{font-size:11px;letter-spacing:2.5px;color:var(--cyan);font-weight:800;text-transform:uppercase}
+  h1{font-size:clamp(24px,6vw,34px);margin:8px 0 10px;line-height:1.15}
+  h2{font-size:20px;margin:0 0 12px}
+  p.sub{color:var(--muted);line-height:1.6;margin:0 0 18px;font-size:14px}
+  label{display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:14px 0 6px;text-transform:uppercase}
+  input,select{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:#06101f;color:var(--ink);padding:0 14px;font:inherit;font-size:16px;outline:0}
+  input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #4fd8ff22}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:12px;padding:15px 18px;margin-top:18px;background:linear-gradient(90deg,var(--gold),#ffdc73);color:#0a1428;font:inherit;font-weight:900;letter-spacing:.5px;cursor:pointer;font-size:15px}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn.alt{background:#0f2242;color:var(--ink);border:1px solid var(--line)}
+  .link{color:var(--cyan);font-size:13px;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font:inherit}
+  .msg{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+  .msg.show{display:block}.msg.err{background:#3a0f1a;color:#ffc2cc;border:1px solid #6b2233}.msg.ok{background:#0d3324;color:#b6f5d8;border:1px solid #1d6b49}
+  .hidden{display:none!important}
+  /* home */
+  .hello{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:18px}
+  .rank{display:inline-block;padding:4px 10px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:11px;font-weight:800;letter-spacing:1.5px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .tile b{display:block;font-size:26px}.tile span{color:var(--muted);font-size:12px;letter-spacing:.5px}
+  .tile.streak b{color:#ff9f43}.tile.xp b{color:var(--gold)}.tile.acc b{color:var(--ok)}
+  .launch{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:22px;background:linear-gradient(120deg,#13285a,#0b1730);border:1px solid #2a4a85}
+  .launch .btn{width:auto;margin:0;padding:14px 22px}
+  .planets{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .planet{display:flex;gap:12px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--ink);font:inherit;cursor:pointer}
+  .planet:hover{border-color:var(--cyan);transform:translateY(-2px)}
+  .orb{flex:0 0 46px;height:46px;border-radius:50%;position:relative;background:conic-gradient(var(--c) calc(var(--p)*1%),#1a2c4d 0)}
+  .orb:after{content:attr(data-n);position:absolute;inset:5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff40,var(--c) 45%,#050b18 120%);display:grid;place-items:center;font-weight:900;font-size:14px;color:#fff}
+  .planet strong{display:block;font-size:14px;line-height:1.3}.planet small{color:var(--muted);font-size:12px}
+  /* mission */
+  .progress{height:6px;background:#132544;border-radius:9px;overflow:hidden;margin:4px 0 16px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));width:0;transition:width .3s}
+  .qmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.5px;margin-bottom:6px}
+  .stem{font-size:16px;line-height:1.65;margin-bottom:14px}
+  .stem p{margin:0 0 10px}.stem ul{margin:0 0 10px;padding-left:4px;list-style:none}.stem li{margin:4px 0;padding:8px 10px;background:#06101f;border-radius:8px;border:1px solid #132544}
+  .stem table{border-collapse:collapse;width:100%;margin:6px 0 12px;font-size:14px}.stem th,.stem td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}.stem th{background:#0f2242}
+  .tablewrap{overflow-x:auto}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#081325;border:1px solid var(--line);border-radius:14px;padding:13px 14px;color:var(--ink);font:inherit;font-size:15px;line-height:1.5;cursor:pointer}
+  .opt .k{flex:0 0 28px;height:28px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--cyan)}
+  .opt:hover:not(:disabled){border-color:var(--cyan)}
+  .opt.sel{border-color:var(--gold);background:#1c1a0b}.opt.sel .k{background:var(--gold);color:#0a1428;border-color:var(--gold)}
+  .opt.right{border-color:var(--ok);background:#0b2b20}.opt.right .k{background:var(--ok);color:#04150e;border-color:var(--ok)}
+  .opt.wrong{border-color:var(--bad);background:#2b0d15}.opt.wrong .k{background:var(--bad);color:#2b0d15;border-color:var(--bad)}
+  .opt:disabled{cursor:default}
+  .numrow{display:flex;gap:10px;align-items:center}.numrow span{color:var(--muted);font-weight:700}
+  .feedback{margin-top:16px;border-radius:14px;padding:14px 16px;line-height:1.6;font-size:14px}
+  .feedback.good{background:#0b2b20;border:1px solid #1d6b49}.feedback.bad{background:#2b0d15;border:1px solid #6b2233}
+  .feedback b.t{display:block;font-size:16px;margin-bottom:4px}
+  .feedback .slip{margin-top:8px;color:#ffd38a}
+  .result{text-align:center}
+  .score{font-size:56px;font-weight:900;margin:6px 0;background:linear-gradient(90deg,var(--cyan),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .foot{color:#6c7fa0;font-size:11px;text-align:center;margin-top:28px;line-height:1.6}
+  /* daily orbit, leaderboard, share */
+  .launch-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .quickrow{display:flex;gap:10px;flex-wrap:wrap;margin:-8px 0 22px}
+  .quickrow .btn{width:auto;flex:1 1 200px;margin:0;padding:12px 16px;font-size:14px}
+  .ranks{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+  .ranks span{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink)}
+  .ranks b{color:var(--gold)}
+  .timer{font-variant-numeric:tabular-nums;color:var(--gold)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .chip{border:1px solid var(--line);background:#081325;color:var(--muted);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+  .chip.on{border-color:var(--gold);color:#0a1428;background:var(--gold);font-weight:800}
+  .board{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  .board li{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:#081325;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .board li.me{border-color:var(--gold);background:#1c1a0b}
+  .board .pos{font-weight:900;font-size:18px;text-align:center;color:var(--cyan)}
+  .board .r1 .pos{color:#ffd54a}.board .r2 .pos{color:#cfd8e3}.board .r3 .pos{color:#e0a46b}
+  .board .who b{display:block;font-size:15px}.board .who small{color:var(--muted);font-size:12px}
+  .board .pts{text-align:right;font-weight:800}.board .pts small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+  .board .gap{background:none;border:0;text-align:center;color:var(--muted);display:block;padding:0}
+  .empty{color:var(--muted);text-align:center;padding:24px 0}
+  /* rank progress */
+  .xpbar{margin:10px 0 18px}.xpbar .track{height:8px;border-radius:9px;background:#132544;overflow:hidden}
+  .xpbar .track i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));border-radius:9px;transition:width .6s}
+  .xpbar small{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+  /* galaxy */
+  .sechead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+  .sechead h2{margin:0}
+  .galaxy{position:relative;height:min(62vw,440px);min-height:320px;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 45%,#13285a 0%,#050b18 70%);margin-bottom:12px}
+  .galaxy canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;display:block}
+  .gx-labels{position:absolute;inset:0;pointer-events:none}
+  .gx-label{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;width:36px;height:36px;border-radius:50%;border:0;background:transparent;cursor:pointer;padding:0}
+  .gx-label span{position:absolute;top:calc(100% - 4px);left:50%;transform:translateX(-50%);font:800 10px system-ui,Arial;color:#fff;background:#05101fcc;border:1px solid #ffffff30;border-radius:7px;padding:1px 5px;white-space:nowrap}
+  .gx-label.sel{box-shadow:0 0 0 2px var(--gold),0 0 18px #f5c54288}.gx-label.sel span{border-color:var(--gold);color:var(--gold)}
+  .gx-hint{position:absolute;left:12px;bottom:10px;color:#8fa3c4;font-size:12px;pointer-events:none}
+  .gx-info{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .gx-info .btn{width:auto;margin:0;padding:12px 18px}
+  /* league */
+  .league{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;margin-bottom:22px}
+  .league .big{font-size:34px}
+  .league .btn{width:auto;margin:0;padding:12px 18px}
+  .board li.up{border-left:4px solid var(--ok)}.board li.down{border-left:4px solid var(--bad)}
+  .zone{font-size:11px;letter-spacing:1px;color:var(--muted);margin:10px 0 0;text-transform:uppercase}
+  /* badges */
+  .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+  .badge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .badge .i{font-size:30px;display:block;margin-bottom:4px}.badge b{display:block;font-size:13px}.badge small{color:var(--muted);font-size:11px;line-height:1.4;display:block;margin-top:3px}
+  .badge.locked{opacity:.38;filter:grayscale(1)}
+  .newbadges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0}
+  .newbadges span{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gold);border-radius:999px;padding:8px 14px;background:#1c1a0b;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .boss{background:linear-gradient(120deg,#3a1408,#170a1e);border-color:#7a3a1a}
+  .invite{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .invite .btn{width:auto;margin:0;padding:12px 18px}
+  .board li.won{border-left:4px solid var(--ok)}.board li.lost{border-left:4px solid var(--bad)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:15;background:#0f2242;border:1px solid var(--gold);color:var(--ink);padding:12px 18px;border-radius:14px;font-size:14px;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)}
+  .modal{position:fixed;inset:0;z-index:20;background:#020611cc;display:grid;place-items:center;padding:16px}
+  .modal .panel{max-width:380px;text-align:center}
+  .modal .i{font-size:72px;display:block;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,1fr)}.launch .btn,.launch-actions{width:100%}.launch-actions .btn{flex:1}}
 </style>
 </head>
 <body>
-  <p>Opening SAGE Mission Control… <br><a href="../sage/">Tap here if it does not open</a></p>
+<div class="glow"></div><div class="stars"></div>
+<main>
+  <header class="bar">
+    <div class="brand"><span class="dot"></span><div>SAGE<small>MISSION CONTROL · SIR</small></div></div>
+    <button class="ghost hidden" id="logoutBtn" type="button">Sign out</button>
+  </header>
+
+  <!-- boot -->
+  <section id="vBoot" class="panel narrow"><div class="eyebrow">Connecting</div><h1>Opening Mission Control…</h1><p class="sub" id="bootMsg" role="alert"></p><button class="btn hidden" id="bootRetry" type="button">TRY AGAIN</button></section>
+
+  <!-- home -->
+  <section id="vHome" class="hidden">
+    <div class="hello">
+      <div><div class="eyebrow">Mission Control</div><h1 style="margin-bottom:4px">Welcome back, Cadet <span id="hName"></span></h1><span class="rank" id="hRank">CADET</span></div>
+      <div style="color:var(--muted);font-size:13px;text-align:right" id="hSchool"></div>
+    </div>
+    <div class="xpbar"><div class="track"><i id="xpFill"></i></div><small><span id="xpNow"></span><span id="xpNext"></span></small></div>
+    <div class="tiles">
+      <div class="tile streak"><b id="sStreak">0</b><span>🔥 DAY STREAK</span></div>
+      <div class="tile xp"><b id="sXp">0</b><span>⚡ XP</span></div>
+      <div class="tile acc"><b id="sAcc">–</b><span>🎯 ACCURACY</span></div>
+      <div class="tile"><b id="sMissions">0</b><span>🚀 MISSIONS</span></div>
+    </div>
+    <div class="panel launch" id="orbitCard">
+      <div><div class="eyebrow" id="orbitTag">Daily Orbit</div><h2 style="margin:6px 0 4px" id="orbitTitle">10 questions · the same for every cadet today</h2><div style="color:var(--muted);font-size:13px" id="orbitSub">Fly it once a day to keep your streak. Ranked by correct answers, then time.</div></div>
+      <div class="launch-actions"><button class="btn" id="orbitBtn" type="button">LAUNCH →</button><button class="btn alt hidden" id="orbitShare" type="button">SHARE 📤</button></div>
+    </div>
+    <div class="quickrow">
+      <button class="btn alt" id="quickBtn" type="button">⚡ Free practice · 10 mixed</button>
+      <button class="btn alt" id="duelBtn" type="button">🤺 1v1 Duel</button>
+      <button class="btn alt" id="boardBtn" type="button">🏆 Leaderboards</button>
+    </div>
+    <div class="panel launch boss" id="bossCard">
+      <div><div class="eyebrow" style="color:#ff9f43">Weekly Boss Battle</div><h2 style="margin:6px 0 4px" id="bossTitle">⚔️ 20 hard questions · Sundays</h2><div style="color:var(--muted);font-size:13px" id="bossSub">Beat the Boss for big XP and a 🛡 Streak Shield.</div></div>
+      <div class="launch-actions"><button class="btn" id="bossBtn" type="button">FIGHT →</button></div>
+    </div>
+    <div class="panel invite" id="inviteCard">
+      <div><div class="eyebrow">Invite friends</div><h2 style="margin:6px 0 4px" id="invTitle">📣 3 friends join → 🛡 Streak Shield</h2><div style="color:var(--muted);font-size:13px" id="invSub"></div></div>
+      <div class="launch-actions"><button class="btn alt" id="invBtn" type="button">SHARE INVITE 📤</button></div>
+    </div>
+    <div class="panel league hidden" id="leagueCard">
+      <div style="display:flex;gap:14px;align-items:center"><span class="big" id="lgIcon">🌙</span><div><div class="eyebrow">This week's league</div><h2 style="margin:4px 0 2px" id="lgName">Moon League</h2><div style="color:var(--muted);font-size:13px" id="lgLine"></div></div></div>
+      <button class="btn alt" id="lgBtn" type="button">VIEW LEAGUE →</button>
+    </div>
+    <div class="sechead">
+      <h2>Explore the galaxy <span style="color:var(--muted);font-weight:400;font-size:14px">· Class 10 Science</span></h2>
+      <button class="ghost" id="viewToggle" type="button" aria-pressed="false">3D galaxy</button>
+    </div>
+    <div id="galaxyWrap" class="hidden">
+      <div class="galaxy" id="galaxy"><canvas id="gxCanvas" aria-label="3D galaxy of chapters"></canvas><div class="gx-labels" id="gxLabels"></div><div class="gx-hint">Tap a planet · drag to spin</div></div>
+      <div class="gx-info panel" id="gxInfo"><div><strong id="gxName">Choose a planet</strong><div style="color:var(--muted);font-size:13px" id="gxMeta">Each planet is a chapter. It glows brighter as you master it.</div></div><button class="btn hidden" id="gxGo" type="button">LAUNCH MISSION →</button></div>
+    </div>
+    <div class="planets" id="planets"></div>
+    <div class="sechead" style="margin-top:26px"><h2>Badges <span style="color:var(--muted);font-weight:400;font-size:14px" id="badgeCount"></span></h2></div>
+    <div class="badges" id="badges"></div>
+  </section>
+
+  <!-- duels -->
+  <section id="vDuels" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">1v1 Duels</span><button class="link" type="button" id="dBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px">Duel arena</h1>
+    <p class="sub">5 questions, the same for both cadets. More correct wins; if it's a tie, the faster one wins. Winner gets +20 XP.</p>
+    <div class="launch-actions">
+      <button class="btn" id="dRandom" type="button">⚡ RANDOM OPPONENT</button>
+      <button class="btn alt" id="dFriend" type="button">👥 CHALLENGE A FRIEND</button>
+    </div>
+    <form id="dJoinForm" class="numrow" style="margin-top:14px" novalidate>
+      <input id="dCode" maxlength="6" placeholder="Friend's duel code" autocomplete="off" style="text-transform:uppercase">
+      <button class="btn alt" id="dJoin" type="submit" style="width:auto;margin:0">JOIN</button>
+    </form>
+    <div class="msg" id="dMsg" role="alert"></div>
+    <p class="zone" id="dStats"></p>
+    <ol class="board" id="dList"></ol>
+  </section>
+
+  <!-- league -->
+  <section id="vLeague" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">Weekly league</span><button class="link" type="button" id="lBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px" id="lTitle">League</h1>
+    <p class="sub" id="lSub"></p>
+    <ol class="board" id="lList"></ol>
+  </section>
+
+  <div class="modal hidden" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celTitle">
+    <div class="panel"><span class="i" id="celIcon">🏅</span><div class="eyebrow" style="margin-top:8px">Badge unlocked</div><h1 id="celTitle"></h1><p class="sub" id="celText"></p><button class="btn" id="celOk" type="button">AWESOME!</button></div>
+  </div>
+
+  <!-- mission -->
+  <section id="vMission" class="panel hidden">
+    <div class="qmeta"><span id="mTitle">Mission</span><span><span class="timer hidden" id="mTimer"></span> <span id="mCount">1 / 10</span></span></div>
+    <div class="progress"><i id="mBar"></i></div>
+    <div class="qmeta"><span id="mFormat"></span><button class="link" type="button" id="mQuit">End mission</button></div>
+    <div class="stem" id="mStem"></div>
+    <div id="mAnswer"></div>
+    <div id="mFeedback"></div>
+    <button class="btn hidden" id="mNext" type="button">NEXT →</button>
+    <div class="msg" id="mMsg" role="alert"></div>
+  </section>
+
+  <!-- result -->
+  <section id="vResult" class="panel narrow result hidden">
+    <div class="eyebrow">Mission complete</div>
+    <div class="score" id="rScore">0/0</div>
+    <div class="ranks hidden" id="rRanks"></div>
+    <div class="newbadges" id="rBadges"></div>
+    <p class="sub" id="rLine"></p>
+    <button class="btn hidden" id="rShare" type="button">SHARE WITH FRIENDS 📤</button>
+    <button class="btn hidden" id="rChallenge" type="button">SEND CHALLENGE TO A FRIEND 📤</button>
+    <button class="btn alt hidden" id="rBoard" type="button">🏆 SEE LEADERBOARD</button>
+    <button class="btn" id="rHome" type="button">BACK TO MISSION CONTROL</button>
+    <button class="btn alt" id="rAgain" type="button">ANOTHER MISSION →</button>
+  </section>
+
+  <!-- leaderboards -->
+  <section id="vBoard" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">Leaderboards</span><button class="link" type="button" id="bBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px">Top cadets</h1>
+    <div class="chips" id="bPeriod" role="tablist">
+      <button class="chip on" type="button" data-period="today">Today's orbit</button>
+      <button class="chip" type="button" data-period="week">This week</button>
+      <button class="chip" type="button" data-period="all">All time</button>
+    </div>
+    <div class="chips" id="bScope" role="tablist">
+      <button class="chip on" type="button" data-scope="school">My school</button>
+      <button class="chip" type="button" data-scope="taluka">Taluka</button>
+      <button class="chip" type="button" data-scope="district">District</button>
+      <button class="chip" type="button" data-scope="all">All SAGE</button>
+    </div>
+    <p class="sub" id="bNote" style="margin:4px 0 0"></p>
+    <ol class="board" id="bList"></ol>
+  </section>
+
+  <div class="foot">SAGE Programme · SIR Kolhapur<br>Never share your password or OTP with anyone.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+  var FN = SUPABASE_URL + "/functions/v1/sage-learn";
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+  var $ = function (id) { return document.getElementById(id); };
+  var VIEWS = ["vBoot", "vHome", "vMission", "vResult", "vBoard", "vLeague", "vDuels"];
+  // Invite (?ref=CODE) and duel (?duel=CODE) links: remember them until the student is signed in.
+  (function () {
+    var q = new URLSearchParams(location.search), keep = function (k, v) { try { if (/^[A-Za-z2-9]{6}$/.test(v || "")) localStorage.setItem(k, v.toUpperCase()); } catch (e) { /* storage off */ } };
+    keep("sage_ref", q.get("ref")); keep("sage_duel", q.get("duel"));
+    if (q.has("ref") || q.has("duel")) history.replaceState(null, document.title, location.pathname);
+  })();
+  function takeStored(k) { try { var v = localStorage.getItem(k); localStorage.removeItem(k); return v; } catch (e) { return null; } }
+  function toast(text) {
+    var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = text; document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 5000);
+  }
+  async function shareText(text) {
+    try { if (navigator.share) { await navigator.share({ text: text }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  }
+  var SHARE_URL = "https://sir.net.in/sage/";
+  var state = { me: null, mission: null };
+  var COLORS = ["#4fd8ff", "#f5c542", "#3ddc97", "#ff9f43", "#b58cff", "#ff6b81", "#5ee0c8"];
+  var FORMAT_LABEL = { statements: "How many statements are correct?", assertion_reason: "Assertion – Reason", match: "Match the pairs", case: "Case-based", multi: "One or more correct — select all", numeric: "Numerical — type your answer" };
+
+  function show(id) { VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== id); }); $("logoutBtn").classList.toggle("hidden", id === "vBoot"); window.scrollTo(0, 0); }
+  function msg(id, text, kind) { var m = $(id); m.textContent = text || ""; m.className = "msg" + (text ? " show " + (kind || "err") : ""); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>"); }
+  // Small, safe renderer for the question text: paragraphs, "- " lists, pipe tables, **bold**.
+  function render(md) {
+    var out = [], lines = String(md || "").split("\n"), i = 0;
+    while (i < lines.length) {
+      var l = lines[i];
+      if (/^\s*\|/.test(l)) {
+        var rows = []; while (i < lines.length && /^\s*\|/.test(lines[i])) rows.push(lines[i++]);
+        var cells = function (r) { return r.trim().replace(/^\||\|$/g, "").split("|").map(function (c) { return c.trim(); }); };
+        var head = cells(rows[0]), body = rows.slice(1).filter(function (r) { return !/^\s*\|\s*-{3}/.test(r); });
+        out.push('<div class="tablewrap"><table><thead><tr>' + head.map(function (c) { return "<th>" + inline(c) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+          body.map(function (r) { return "<tr>" + cells(r).map(function (c) { return "<td>" + inline(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div>");
+        continue;
+      }
+      if (/^- /.test(l)) { var items = []; while (i < lines.length && /^- /.test(lines[i])) items.push("<li>" + inline(lines[i++].slice(2)) + "</li>"); out.push("<ul>" + items.join("") + "</ul>"); continue; }
+      if (l.trim()) out.push("<p>" + inline(l) + "</p>");
+      i++;
+    }
+    return out.join("");
+  }
+
+  async function api(body) {
+    var s = (await sb.auth.getSession()).data.session;
+    if (!s) { var e0 = new Error("Please sign in again."); e0.code = "NOT_SIGNED_IN"; throw e0; }
+    var res = await fetch(FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: "Bearer " + s.access_token }, body: JSON.stringify(body) });
+    var data = {}; try { data = await res.json(); } catch (e) { /* unreadable */ }
+    if (!res.ok || !data.success) { var err = new Error(data.message || "Something went wrong. Please try again."); err.code = data.code; err.data = data; throw err; }
+    return data;
+  }
+
+  async function boot() {
+    show("vBoot");
+    var s = (await sb.auth.getSession()).data.session;
+    if (!s) return goLogin();
+    try { state.me = await api({ action: "me" }); }
+    catch (e) {
+      if (e.code === "NOT_SIGNED_IN" || e.code === "NOT_A_STUDENT") { await signOut(); return goLogin(); }
+      $("bootMsg").textContent = e.message; $("bootRetry").classList.remove("hidden"); return;
+    }
+    showHome();
+  }
+
+  // ---------------- sign in / out (student-login.html) ----------------
+  function goLogin() { location.replace("student-login.html"); }
+  async function signOut() {
+    try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* already signed out */ }
+    ["sage_student_id", "sage_student_name", "sage_student_school", "sage_student_class", "sage_student_whatsapp"].forEach(function (k) { try { sessionStorage.removeItem(k); } catch (e) { /* */ } });
+  }
+  $("logoutBtn").addEventListener("click", async function () { await signOut(); goLogin(); });
+  $("bootRetry").addEventListener("click", function () { $("bootRetry").classList.add("hidden"); $("bootMsg").textContent = ""; boot(); });
+
+  // ---------------- home ----------------
+  var RANKS = [[0, "CADET"], [300, "NAVIGATOR"], [1000, "COMMANDER"], [2500, "ADMIRAL"], [5000, "SAGE SCHOLAR"]];
+  function rankFor(xp) { var r = RANKS[0][1]; RANKS.forEach(function (x) { if (xp >= x[0]) r = x[1]; }); return r; }
+  function rankProgress(xp) {
+    for (var i = RANKS.length - 1; i >= 0; i--) if (xp >= RANKS[i][0]) break;
+    var next = RANKS[i + 1];
+    return next ? { pct: Math.round(((xp - RANKS[i][0]) / (next[0] - RANKS[i][0])) * 100), text: (next[0] - xp) + " XP to " + next[1] } : { pct: 100, text: "Top rank reached!" };
+  }
+  function showHome() {
+    var me = state.me, st = me.stats;
+    $("hName").textContent = me.student.firstName || "";
+    $("hSchool").textContent = [me.student.school, me.student.className ? "Class " + me.student.className.replace(/th$/, "") : ""].filter(Boolean).join(" · ");
+    $("hRank").textContent = rankFor(st.xp);
+    var rp = rankProgress(st.xp);
+    $("xpFill").style.width = rp.pct + "%"; $("xpNow").textContent = st.xp + " XP"; $("xpNext").textContent = rp.text;
+    $("sStreak").textContent = st.streak; $("sXp").textContent = st.xp; $("sAcc").textContent = st.accuracy == null ? "–" : st.accuracy + "%"; $("sMissions").textContent = st.missions;
+    var d = me.daily || { state: "new" };
+    $("orbitTag").textContent = "Daily Orbit · " + new Date(d.day + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    $("orbitShare").classList.toggle("hidden", d.state !== "done");
+    $("orbitBtn").classList.toggle("hidden", d.state === "done");
+    if (d.state === "done") {
+      $("orbitTitle").textContent = "Done ✓ · " + d.correct + "/" + d.total + " in " + clock(d.durationMs);
+      $("orbitSub").textContent = "A new orbit opens at midnight. See where you stand on the leaderboard.";
+    } else if (d.state === "in_progress") {
+      $("orbitTitle").textContent = "In flight · " + d.answered + "/" + d.total + " answered";
+      $("orbitSub").textContent = "The clock is still running — finish today's orbit.";
+      $("orbitBtn").textContent = "RESUME →";
+    } else {
+      $("orbitTitle").textContent = "10 questions · the same for every cadet today";
+      $("orbitSub").textContent = (st.streak ? "🔥 " + st.streak + "-day streak — keep it alive! " : "Start your streak today. ") + "Ranked by correct answers, then time.";
+      $("orbitBtn").textContent = "LAUNCH →";
+    }
+    $("planets").innerHTML = me.chapters.map(function (c, i) {
+      var p = c.total ? Math.round((c.answered / c.total) * 100) : 0;
+      return '<button class="planet" type="button" data-slug="' + esc(c.slug) + '"><span class="orb" data-n="' + c.no + '" style="--c:' + COLORS[i % COLORS.length] + ';--p:' + p + '"></span><span><strong>' + esc(c.name) + "</strong><small>" + c.answered + "/" + c.total + " explored" + (c.answered ? " · " + Math.round((c.correct / c.answered) * 100) + "% right" : "") + "</small></span></button>";
+    }).join("");
+    // League card
+    var lg = me.league;
+    $("leagueCard").classList.toggle("hidden", !lg);
+    if (lg) {
+      $("lgIcon").textContent = lg.icon; $("lgName").textContent = lg.name;
+      $("lgLine").textContent = (lg.rank ? "#" + lg.rank + " of " + lg.members : lg.members + " cadets") + " · " + lg.xp + " XP this week · ends in " + timeLeft(lg.endsAt) + (lg.upZone ? " · top " + lg.upZone + " move up" : "");
+    }
+    // Badges
+    var earned = me.badges.filter(function (b) { return b.earned; }).length;
+    $("badgeCount").textContent = "· " + earned + " of " + me.badges.length;
+    $("badges").innerHTML = me.badges.map(function (b) {
+      return '<div class="badge' + (b.earned ? "" : " locked") + '" title="' + esc(b.desc) + '"><span class="i">' + b.icon + "</span><b>" + esc(b.name) + "</b><small>" + esc(b.desc) + "</small></div>";
+    }).join("");
+    // Boss Battle
+    var bs = me.boss;
+    $("bossBtn").classList.toggle("hidden", !bs.open || bs.state === "done");
+    $("bossBtn").textContent = bs.state === "in_progress" ? "RESUME FIGHT →" : "FIGHT →";
+    $("bossTitle").textContent = bs.state === "done" ? "⚔️ Boss defeated · " + bs.correct + "/" + bs.total : bs.state === "in_progress" ? "⚔️ Battle in progress · " + bs.answered + "/" + bs.total : "⚔️ 20 hard questions · " + (bs.open ? "open today!" : "Sundays");
+    $("bossSub").textContent = bs.state === "done" ? "A new Boss arrives next Sunday." : bs.open ? "Big XP (15 per correct + 50 for finishing) and a 🛡 Streak Shield." :
+      "Next Boss: " + new Date(bs.opensOn + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" }) + ". Beat it for big XP and a 🛡 Streak Shield.";
+    // Streak Shields + invites
+    $("sStreak").textContent = st.streak + (st.shields ? " 🛡" + st.shields : "");
+    var inv = me.invite;
+    $("inviteCard").classList.toggle("hidden", !inv);
+    if (inv) {
+      $("invSub").textContent = inv.qualified + " friend" + (inv.qualified === 1 ? "" : "s") + " joined" + (inv.joined > inv.qualified ? " (+" + (inv.joined - inv.qualified) + " yet to finish a mission)" : "") +
+        " · " + inv.toNextShield + " more for your next shield · your code " + inv.code;
+    }
+    if (st.shieldSavedYesterday && store("sage_shield_toast") !== me.daily.day) { store("sage_shield_toast", me.daily.day); toast("🛡 A Streak Shield saved your streak yesterday!"); }
+    show("vHome");
+    galaxySync();
+    if (me.newBadges && me.newBadges.length) celebrate(me.newBadges);
+    // Links opened before signing in.
+    var ref = takeStored("sage_ref");
+    if (ref) api({ action: "claim_invite", code: ref }).then(function (r) { toast("🤝 " + r.message); }).catch(function () { /* not new / own code */ });
+    var duel = takeStored("sage_duel");
+    if (duel && confirm("A friend challenged you to a SAGE duel! Accept now?")) joinDuelCode(duel);
+  }
+  function timeLeft(iso) { var ms = new Date(iso).getTime() - Date.now(); if (ms <= 0) return "0h"; var d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000); return d ? d + "d " + h + "h" : h + "h"; }
+
+  // ---------------- celebrations ----------------
+  var celQueue = [];
+  function celebrate(list) { celQueue = celQueue.concat(list); if ($("celebrate").classList.contains("hidden")) nextCel(); }
+  function nextCel() {
+    var b = celQueue.shift();
+    if (!b) return $("celebrate").classList.add("hidden");
+    $("celIcon").textContent = b.icon; $("celTitle").textContent = b.name; $("celText").textContent = b.desc;
+    $("celebrate").classList.remove("hidden"); $("celOk").focus();
+  }
+  $("celOk").addEventListener("click", nextCel);
+
+  // ---------------- weekly league ----------------
+  $("lgBtn").addEventListener("click", openLeague);
+  $("lBack").addEventListener("click", boot);
+  async function openLeague() {
+    show("vLeague"); $("lList").innerHTML = '<li class="gap">Loading…</li>';
+    try {
+      var lg = (await api({ action: "league" })).league;
+      $("lTitle").textContent = lg.icon + " " + lg.name;
+      $("lSub").textContent = "XP earned this week (from Monday). Ends in " + timeLeft(lg.endsAt) + "." +
+        (lg.upZone ? " Top " + lg.upZone + " move up." : " This is the top league!") + (lg.downZone ? " Bottom " + lg.downZone + " move down." : "") + " No XP this week also moves you down.";
+      $("lList").innerHTML = lg.standings.map(function (r) {
+        var zone = lg.upZone && r.rank <= lg.upZone && r.xp > 0 ? "up" : lg.downZone && r.rank > lg.members - lg.downZone ? "down" : "";
+        return '<li class="' + (r.isMe ? "me " : "") + zone + '"><span class="pos">' + r.rank + '</span><span class="who"><b>' + esc(r.name) + (r.isMe ? " (you)" : "") + "</b><small>" + esc(r.school || "") + (zone === "up" ? " · ▲ moving up" : zone === "down" ? " · ▼ moving down" : "") + '</small></span><span class="pts">' + r.xp + "<small>XP</small></span></li>";
+      }).join("");
+    } catch (e) { $("lList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+
+  // ---------------- 3D galaxy (Lite mode = the chapter list only) ----------------
+  var GX = { on: false, ready: null, sel: null };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function webglOk() { try { var c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl"))); } catch (e) { return false; } }
+  function wants3D() {
+    var saved = store("sage_view");
+    if (saved === "3d" || saved === "lite") return saved === "3d" && webglOk();
+    var weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) ||
+      (navigator.connection && navigator.connection.saveData) || matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return !weak && webglOk();
+  }
+  function paintToggle() { $("viewToggle").textContent = GX.on ? "🪐 3D galaxy · on" : "📋 Lite mode"; $("viewToggle").setAttribute("aria-pressed", String(GX.on)); }
+  $("viewToggle").addEventListener("click", function () { store("sage_view", GX.on ? "lite" : "3d"); galaxySync(); });
+  function galaxySync() {
+    GX.on = wants3D(); paintToggle();
+    $("galaxyWrap").classList.toggle("hidden", !GX.on);
+    if (!GX.on) { if (GX.api) GX.api.stop(); return; }
+    if (!GX.ready) GX.ready = buildGalaxy().catch(function (e) { console.warn("3D galaxy unavailable", e); store("sage_view", "lite"); GX.ready = null; galaxySync(); });
+    GX.ready.then(function (api) { if (api) { api.update(state.me.chapters); api.start(); } });
+  }
+  function selectPlanet(slug) {
+    var c = state.me.chapters.find(function (x) { return x.slug === slug; }); if (!c) return;
+    GX.sel = slug;
+    $("gxLabels").querySelectorAll(".gx-label").forEach(function (b) { b.classList.toggle("sel", b.dataset.gslug === slug); });
+    $("gxName").textContent = c.no + ". " + c.name;
+    $("gxMeta").textContent = c.answered + "/" + c.total + " explored" + (c.answered ? " · " + Math.round((c.correct / c.answered) * 100) + "% right" : " · not visited yet");
+    $("gxGo").classList.remove("hidden");
+  }
+  $("gxGo").addEventListener("click", function () { if (GX.sel) startMission(GX.sel); });
+  $("gxLabels").addEventListener("click", function (e) { var b = e.target.closest("[data-gslug]"); if (b) selectPlanet(b.dataset.gslug); });
+
+  async function buildGalaxy() {
+    var THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+    var box = $("galaxy"), canvas = $("gxCanvas");
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
+    camera.position.set(0, 17, 22); camera.lookAt(0, 0, 0);
+    var system = new THREE.Group(); scene.add(system);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    var sunLight = new THREE.PointLight(0xffe7a8, 2.2, 0, 0); system.add(sunLight);
+    // soft round glow texture
+    var gc = document.createElement("canvas"); gc.width = gc.height = 64;
+    var gx = gc.getContext("2d"), grad = gx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(0.35, "rgba(255,255,255,.35)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+    gx.fillStyle = grad; gx.fillRect(0, 0, 64, 64);
+    var glowTex = new THREE.CanvasTexture(gc);
+    var glow = function (color, size) { var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); s.scale.set(size, size, 1); return s; };
+    // the core
+    var core = new THREE.Mesh(new THREE.SphereGeometry(1.4, 32, 24), new THREE.MeshBasicMaterial({ color: 0xf5c542 }));
+    system.add(core); system.add(glow(0xf5c542, 7));
+    // stars
+    var sp = new Float32Array(900 * 3);
+    for (var i = 0; i < 900; i++) { var r = 60 + Math.random() * 60, t = Math.random() * Math.PI * 2, p = Math.acos(2 * Math.random() - 1); sp[i * 3] = r * Math.sin(p) * Math.cos(t); sp[i * 3 + 1] = r * Math.cos(p); sp[i * 3 + 2] = r * Math.sin(p) * Math.sin(t); }
+    var sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
+    scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, transparent: true, opacity: 0.8 })));
+    var palette = [0x4fd8ff, 0xf5c542, 0x3ddc97, 0xff9f43, 0xb58cff, 0xff6b81, 0x5ee0c8];
+    var planets = [], labels = $("gxLabels"), still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function update(chapters) {
+      planets.forEach(function (pl) {
+        system.remove(pl.pivot); system.remove(pl.orbit);
+        [pl.mesh.geometry, pl.mesh.material, pl.mesh.children[0].material, pl.orbit.geometry, pl.orbit.material].forEach(function (o) { o.dispose(); });
+      });
+      planets = []; labels.innerHTML = "";
+      chapters.forEach(function (c, i) {
+        var radius = 2.9 + i * 0.72, color = palette[i % palette.length];
+        var mastery = c.total ? c.correct / c.total : 0;           // 0…1: glows brighter as the chapter is mastered
+        var orbit = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 96 }, function (_, k) { var a = (k / 96) * Math.PI * 2; return new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius); })),
+          new THREE.LineBasicMaterial({ color: 0x2a4a85, transparent: true, opacity: 0.45 }));
+        var pivot = new THREE.Group(); pivot.rotation.y = i * 2.39996;
+        var mesh = new THREE.Mesh(new THREE.SphereGeometry(0.55 + Math.min(c.answered, 90) / 300, 24, 16),
+          new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.12 + 0.88 * mastery, roughness: 0.55, metalness: 0.1 }));
+        mesh.position.x = radius; pivot.add(mesh);
+        var halo = glow(color, 1.6 + 3 * mastery); halo.material.opacity = 0.25 + 0.75 * mastery; mesh.add(halo);
+        system.add(orbit); system.add(pivot);
+        var b = document.createElement("button"); b.type = "button"; b.className = "gx-label" + (GX.sel === c.slug ? " sel" : ""); b.dataset.gslug = c.slug; b.innerHTML = "<span>" + c.no + "</span>";
+        b.setAttribute("aria-label", c.name + ", " + c.answered + " of " + c.total + " explored"); labels.appendChild(b);
+        planets.push({ pivot: pivot, orbit: orbit, mesh: mesh, label: b, speed: 0.22 / Math.sqrt(radius) });
+      });
+    }
+    var drag = null, spin = 0, raf = 0, last = 0, v = new THREE.Vector3();
+    canvas.addEventListener("pointerdown", function (e) { drag = e.clientX; });
+    window.addEventListener("pointerup", function () { drag = null; });
+    canvas.addEventListener("pointermove", function (e) { if (drag != null) { spin += (e.clientX - drag) * 0.006; drag = e.clientX; } });
+    function resize() { var w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.set(0, w < 500 ? 19 : 16, w < 500 ? 21 : 20); camera.lookAt(0, 0, 0); camera.updateProjectionMatrix(); }
+    window.addEventListener("resize", resize);
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (document.hidden || $("vHome").classList.contains("hidden")) return stop();
+      var dt = last ? Math.min((t - last) / 1000, 0.05) : 0; last = t;
+      if (!still) planets.forEach(function (pl) { pl.pivot.rotation.y += pl.speed * dt; });
+      system.rotation.y += spin * 0.1; spin *= 0.9;
+      renderer.render(scene, camera);
+      var w = box.clientWidth, h = box.clientHeight;
+      planets.forEach(function (pl) { pl.mesh.getWorldPosition(v); v.project(camera); pl.label.style.left = ((v.x + 1) / 2) * w + "px"; pl.label.style.top = ((1 - v.y) / 2) * h + "px"; });
+    }
+    function start() { if (!raf) { resize(); last = 0; raf = requestAnimationFrame(frame); } }
+    function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden && !$("vHome").classList.contains("hidden") && GX.on) start(); });
+    GX.api = { update: update, start: start, stop: stop };
+    return GX.api;
+  }
+  $("planets").addEventListener("click", function (e) { var b = e.target.closest("[data-slug]"); if (b) startMission(b.dataset.slug); });
+  $("quickBtn").addEventListener("click", function () { startMission(null); });
+  $("orbitBtn").addEventListener("click", startDaily);
+  $("orbitShare").addEventListener("click", async function () {
+    var d = state.me.daily, ranks = {};
+    for (var s of ["school", "district"]) {
+      try { var b = await api({ action: "leaderboard", period: "today", scope: s }); var me = b.rows.find(function (x) { return x.isMe; }); ranks[s] = me ? me.rank : null; } catch (e) { /* share without rank */ }
+    }
+    shareCard({ correct: d.correct, total: d.total, durationMs: d.durationMs, ranks: ranks });
+  });
+  $("boardBtn").addEventListener("click", function () { openBoard("today", "school"); });
+
+  // ---------------- mission ----------------
+  function clock(ms) { if (ms == null) return "–"; var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  async function startMission(slug) {
+    try {
+      var r = await api({ action: "start", chapterSlug: slug, count: 10 });
+      var ch = slug && state.me.chapters.find(function (c) { return c.slug === slug; });
+      state.mission = { id: r.attemptId, qs: r.questions, i: 0, correct: 0, slug: slug, title: ch ? ch.name : "Free practice" };
+      $("mTimer").classList.add("hidden");
+      show("vMission"); renderQ();
+    } catch (e) { alert(e.message); }
+  }
+  // Boss Battle and duels share the mission screen.
+  function playResumable(r, title, extra) {
+    var done = {}; (r.answered || []).forEach(function (a) { done[a.questionId] = a; });
+    var first = r.questions.findIndex(function (q) { return !done[q.id]; });
+    state.mission = Object.assign({ id: r.attemptId, qs: r.questions, i: first < 0 ? r.questions.length : first, title: title, daily: true, started: Date.now(),
+      correct: (r.answered || []).filter(function (a) { return a.correct; }).length }, extra || {});
+    if (first < 0) return finish();
+    $("mTimer").classList.remove("hidden"); tick();
+    show("vMission"); renderQ();
+  }
+  async function startBoss() {
+    try { playResumable(await api({ action: "boss_start" }), "⚔️ Boss Battle"); } catch (e) { alert(e.message); boot(); }
+  }
+  async function startDuel(kind) {
+    msg("dMsg", "");
+    try {
+      var r = await api({ action: "duel_create", kind: kind });
+      playResumable(r, r.role === "opponent" ? "🤺 Duel vs " + r.opponent.name : "🤺 Duel", { duel: { kind: kind, code: r.code, opponent: r.opponent } });
+    } catch (e) { msg("dMsg", e.message); }
+  }
+  async function joinDuelCode(code) {
+    try {
+      var r = await api({ action: "duel_join", code: code });
+      playResumable(r, "🤺 Duel vs " + r.opponent.name, { duel: { kind: "friend", opponent: r.opponent } });
+    } catch (e) { if ($("vDuels").classList.contains("hidden")) alert(e.message); else msg("dMsg", e.message); }
+  }
+  async function startDaily() {
+    try {
+      var r = await api({ action: "daily_start" });
+      var done = {}; r.answered.forEach(function (a) { done[a.questionId] = a; });
+      var first = r.questions.findIndex(function (q) { return !done[q.id]; });
+      state.mission = { id: r.attemptId, qs: r.questions, i: first < 0 ? r.questions.length : first, daily: true, title: "Daily Orbit",
+        correct: r.answered.filter(function (a) { return a.correct; }).length, started: Date.now() };
+      if (first < 0) return finish();
+      $("mTimer").classList.remove("hidden"); tick();
+      show("vMission"); renderQ();
+    } catch (e) { alert(e.message); boot(); }
+  }
+  function tick() {
+    clearInterval(state.timer);
+    var draw = function () { $("mTimer").textContent = "⏱ " + clock(Date.now() - state.mission.started); };
+    draw();
+    state.timer = setInterval(function () {
+      if (!state.mission || !state.mission.daily || $("vMission").classList.contains("hidden")) return clearInterval(state.timer);
+      draw();
+    }, 500);
+  }
+  function renderQ() {
+    var m = state.mission, q = m.qs[m.i];
+    $("mTitle").textContent = m.title + (m.slug ? "" : " · " + q.chapter);
+    $("mCount").textContent = (m.i + 1) + " / " + m.qs.length;
+    $("mBar").style.width = (m.i / m.qs.length * 100) + "%";
+    $("mFormat").textContent = FORMAT_LABEL[q.format] || "";
+    $("mStem").innerHTML = render(q.stem); $("mStem").dataset.qid = q.id;
+    $("mFeedback").innerHTML = ""; $("mNext").classList.add("hidden"); msg("mMsg", "");
+    m.t0 = Date.now(); m.selected = [];
+    var box = $("mAnswer");
+    if (q.qtype === "numeric") {
+      box.innerHTML = '<div class="numrow"><input id="numIn" inputmode="decimal" autocomplete="off" placeholder="Your answer">' + (q.unit ? "<span>" + esc(q.unit) + "</span>" : "") + '</div><button class="btn" id="lockBtn" type="button">LOCK ANSWER</button>';
+      $("numIn").focus();
+      $("numIn").addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+    } else {
+      box.innerHTML = '<div class="opts">' + q.options.map(function (o) { return '<button class="opt" type="button" data-k="' + esc(o.key) + '"><span class="k">' + esc(o.key) + "</span><span>" + inline(o.text) + "</span></button>"; }).join("") + "</div>" +
+        (q.qtype === "multi" ? '<button class="btn" id="lockBtn" type="button" disabled>LOCK ANSWER</button>' : "");
+      box.querySelectorAll(".opt").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var k = b.dataset.k;
+          if (q.qtype === "single") { m.selected = [k]; b.classList.add("sel"); submit(); return; }
+          var at = m.selected.indexOf(k); if (at >= 0) m.selected.splice(at, 1); else m.selected.push(k);
+          b.classList.toggle("sel", at < 0); $("lockBtn").disabled = !m.selected.length;
+        });
+      });
+    }
+    var lock = $("lockBtn"); if (lock) lock.addEventListener("click", submit);
+  }
+  async function submit() {
+    var m = state.mission, q = m.qs[m.i];
+    if (m.busy) return;
+    var response = q.qtype === "numeric" ? $("numIn").value.trim() : q.qtype === "multi" ? m.selected.slice() : m.selected[0];
+    if (q.qtype === "numeric" && !/^[−-]?\d+(\.\d+)?$/.test(response.replace(/,/g, ""))) return msg("mMsg", "Type a number, for example 12 or 0.5.");
+    m.busy = true; $("mAnswer").querySelectorAll("button,input").forEach(function (el) { el.disabled = true; });
+    try {
+      var r = await api({ action: "answer", attemptId: m.id, questionId: q.id, response: response, timeMs: Date.now() - m.t0 });
+      if (r.correct) m.correct++;
+      if ($("lockBtn")) $("lockBtn").classList.add("hidden");
+      if (q.qtype !== "numeric") {
+        var right = Array.isArray(r.correctAnswer) ? r.correctAnswer : [r.correctAnswer];
+        $("mAnswer").querySelectorAll(".opt").forEach(function (b) {
+          var k = b.dataset.k; b.classList.remove("sel");
+          if (right.indexOf(k) >= 0) b.classList.add("right"); else if (m.selected.indexOf(k) >= 0) b.classList.add("wrong");
+        });
+      }
+      var ans = Array.isArray(r.correctAnswer) ? r.correctAnswer.join(", ") : r.correctAnswer;
+      $("mFeedback").innerHTML = '<div class="feedback ' + (r.correct ? "good" : "bad") + '"><b class="t">' + (r.correct ? "✓ Correct! +10 XP" : "✗ Not quite — answer: " + esc(ans)) + "</b>" +
+        (r.explanation ? "<div>" + inline(r.explanation) + "</div>" : "") + (r.trap ? '<div class="slip">⚠ Where thinking slips: ' + inline(r.trap) + "</div>" : "") + "</div>";
+      $("mNext").textContent = m.i + 1 < m.qs.length ? "NEXT →" : "SEE RESULTS →";
+      $("mNext").classList.remove("hidden"); $("mNext").focus();
+    } catch (e) {
+      msg("mMsg", e.message);
+      if (e.code !== "ALREADY_ANSWERED") $("mAnswer").querySelectorAll("button,input").forEach(function (el) { el.disabled = false; });
+    } finally { m.busy = false; }
+  }
+  $("mNext").addEventListener("click", function () { var m = state.mission; if (m.i + 1 < m.qs.length) { m.i++; renderQ(); } else finish(); });
+  $("mQuit").addEventListener("click", function () { if (confirm("End this mission now? Answers so far are saved.")) finish(); });
+  async function finish() {
+    var m = state.mission;
+    clearInterval(state.timer);
+    try {
+      var r = await api({ action: "finish", attemptId: m.id });
+      var daily = r.mode === "daily";
+      $("rScore").textContent = r.correct + "/" + r.total;
+      var ranks = r.ranks || {};
+      $("rRanks").innerHTML = daily ? '<span>⏱ <b>' + clock(r.durationMs) + "</b></span>" + [["school", "school"], ["taluka", "taluka"], ["district", "district"]].map(function (s) {
+        return ranks[s[0]] ? "<span>#<b>" + ranks[s[0]] + "</b> in " + s[1] + "</span>" : "";
+      }).join("") : "";
+      $("rRanks").classList.toggle("hidden", !daily);
+      $("rShare").classList.toggle("hidden", !daily); $("rBoard").classList.toggle("hidden", !daily); $("rAgain").classList.toggle("hidden", daily);
+      $("rLine").textContent = "You earned " + r.xp + " XP" + (daily && r.answered === r.total ? " (incl. +20 Daily Orbit bonus)" : "") + (r.answered < r.total ? " (" + r.answered + " answered)" : "") + ". " +
+        (r.correct / Math.max(1, r.total) >= 0.8 ? "Brilliant flying, Cadet!" : r.correct / Math.max(1, r.total) >= 0.5 ? "Good mission — read the explanations and go again." : "Every mistake is data. Review and relaunch!");
+      $("rChallenge").classList.add("hidden");
+      if (r.mode === "boss") {
+        $("rRanks").innerHTML = "<span>⏱ <b>" + clock(r.durationMs) + "</b></span><span>#<b>" + r.bossRank + "</b> of " + r.bossPilots + " Boss fighters</span>";
+        $("rRanks").classList.remove("hidden"); $("rAgain").classList.add("hidden");
+        $("rLine").textContent = "You earned " + r.xp + " XP." + (r.shieldEarned ? " 🛡 You won a Streak Shield — it protects your streak if you miss a day." : "") + " The next Boss arrives on Sunday.";
+      }
+      if (r.mode === "duel" && r.duel) {
+        var d = r.duel;
+        $("rAgain").classList.add("hidden"); $("rRanks").classList.remove("hidden");
+        if (d.result === "waiting") {
+          $("rRanks").innerHTML = "<span>⏳ Waiting for " + (d.opponent ? esc(d.opponent.name) : d.kind === "friend" ? "your friend" : "an opponent") + "</span>";
+          $("rLine").textContent = "You earned " + r.xp + " XP. We'll show the result in the Duel arena once your opponent has flown the same 5 questions.";
+          if (d.code) { state.challenge = d.code; $("rChallenge").classList.remove("hidden"); }
+        } else {
+          $("rRanks").innerHTML = "<span>You <b>" + d.you.correct + "/5</b> · " + clock(d.you.durationMs) + "</span><span>" + esc(d.opponent.name) + " <b>" + d.them.correct + "/5</b> · " + clock(d.them.durationMs) + "</span>";
+          $("rScore").textContent = d.result === "won" ? "🏆 WIN" : d.result === "lost" ? "DEFEAT" : "DRAW";
+          $("rLine").textContent = d.result === "won" ? "You won the duel! +20 XP bonus." : d.result === "lost" ? "So close! Challenge someone else and win it back." : "A perfect tie!";
+        }
+      }
+      state.lastResult = { correct: r.correct, total: r.total, durationMs: r.durationMs, ranks: ranks };
+      var nb = r.newBadges || [];
+      $("rBadges").innerHTML = nb.map(function (b, i) { return '<span style="animation-delay:' + i * 0.15 + 's">' + b.icon + " New badge: <b>" + esc(b.name) + "</b></span>"; }).join("");
+      show("vResult");
+      if (nb.length) celebrate(nb);
+    } catch (e) { alert(e.message); }
+  }
+  $("rHome").addEventListener("click", boot);
+  $("rAgain").addEventListener("click", function () { startMission(state.mission && state.mission.slug); });
+  $("rShare").addEventListener("click", function () { shareCard(state.lastResult); });
+  $("rChallenge").addEventListener("click", function () {
+    shareText("🤺 I challenge you to a SAGE science duel! 5 questions — can you beat my score? Duel code " + state.challenge + ": " + SHARE_URL + "?duel=" + state.challenge);
+  });
+
+  // ---------------- duel arena ----------------
+  $("duelBtn").addEventListener("click", openDuels);
+  $("dBack").addEventListener("click", boot);
+  $("dRandom").addEventListener("click", function () { startDuel("random"); });
+  $("dFriend").addEventListener("click", function () { startDuel("friend"); });
+  $("dCode").addEventListener("input", function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); });
+  $("dJoinForm").addEventListener("submit", function (e) { e.preventDefault(); msg("dMsg", ""); joinDuelCode($("dCode").value); });
+  async function openDuels() {
+    show("vDuels"); msg("dMsg", ""); $("dList").innerHTML = '<li class="gap">Loading…</li>';
+    try {
+      var r = await api({ action: "duels" });
+      $("dStats").textContent = r.wins + " win" + (r.wins === 1 ? "" : "s") + (r.winStreak > 1 ? " · 🔥 " + r.winStreak + " in a row" : "");
+      if (!r.duels.length) { $("dList").innerHTML = '<li class="gap empty">No duels yet — pick an opponent above!</li>'; return; }
+      var label = { won: "🏆 Won", lost: "Lost", draw: "Draw", waiting: "⏳ Waiting for opponent", playing: "⚔️ In progress", expired: "Expired" };
+      $("dList").innerHTML = r.duels.map(function (d) {
+        var score = d.you && d.them ? d.you.correct + "–" + d.them.correct : d.you ? d.you.correct + "/5" : "–";
+        var onTime = d.you && d.them && d.you.correct === d.them.correct && (d.state === "won" || d.state === "lost") ? " on time" : "";
+        return '<li class="' + (d.state === "won" || d.state === "lost" ? d.state : "") + '"><span class="pos">' + (d.state === "won" ? "🏆" : d.kind === "friend" ? "👥" : "⚡") + '</span><span class="who"><b>' + (d.opponent ? esc(d.opponent.name) : d.kind === "friend" ? "Friend challenge" : "Random opponent") + "</b><small>" + label[d.state] + onTime +
+          (d.code ? ' · code <b>' + esc(d.code) + '</b> <button class="link" type="button" data-share="' + esc(d.code) + '">share</button>' : "") + '</small></span><span class="pts">' + score + "</span></li>";
+      }).join("");
+    } catch (e) { $("dList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+  $("dList").addEventListener("click", function (e) { var b = e.target.closest("[data-share]"); if (b) { state.challenge = b.dataset.share; $("rChallenge").click(); } });
+
+  // ---------------- Boss Battle + invites ----------------
+  $("bossBtn").addEventListener("click", startBoss);
+  $("invBtn").addEventListener("click", function () {
+    var c = state.me.invite.code;
+    shareText("🚀 Join me on SAGE Mission Control — daily science missions, leagues and duels! Use my invite: " + SHARE_URL + "?ref=" + c);
+  });
+  $("rBoard").addEventListener("click", function () { openBoard("today", "school"); });
+
+  // ---------------- leaderboards ----------------
+  var board = { period: "today", scope: "school" };
+  function openBoard(period, scope) { board.period = period; board.scope = scope; show("vBoard"); loadBoard(); }
+  function markChips() {
+    $("bPeriod").querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.period === board.period); });
+    $("bScope").querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.scope === board.scope); });
+  }
+  async function loadBoard() {
+    markChips();
+    $("bList").innerHTML = '<li class="gap">Loading…</li>';
+    $("bNote").textContent = board.period === "today" ? "Today's Daily Orbit: most correct answers, then fastest time." : board.period === "week" ? "XP earned since Monday." : "All XP ever earned.";
+    try {
+      var r = await api({ action: "leaderboard", period: board.period, scope: board.scope });
+      if (!r.rows.length) { $("bList").innerHTML = '<li class="gap empty">No cadets on this board yet — be the first!</li>'; return; }
+      var html = "", prev = 0;
+      r.rows.forEach(function (row) {
+        if (prev && row.rank > prev + 1 && row.isMe) html += '<li class="gap">⋯</li>';
+        prev = row.rank;
+        var pts = board.period === "today" ? row.score + "/10<small>" + clock(row.durationMs) + "</small>" : row.score + "<small>XP</small>";
+        html += '<li class="' + (row.isMe ? "me " : "") + (row.rank <= 3 ? "r" + row.rank : "") + '"><span class="pos">' + row.rank + '</span><span class="who"><b>' + esc(row.name) + (row.isMe ? " (you)" : "") + "</b><small>" + esc(row.school || "") + "</small></span><span class=\"pts\">" + pts + "</span></li>";
+      });
+      $("bList").innerHTML = html;
+    } catch (e) { $("bList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+  $("bPeriod").addEventListener("click", function (e) { var c = e.target.closest("[data-period]"); if (c) { board.period = c.dataset.period; loadBoard(); } });
+  $("bScope").addEventListener("click", function (e) { var c = e.target.closest("[data-scope]"); if (c) { board.scope = c.dataset.scope; loadBoard(); } });
+  $("bBack").addEventListener("click", boot);
+
+  // ---------------- share card ----------------
+  function cardName() { var n = String(state.me.student.name || "").trim().split(/\s+/); return n.length > 1 ? n[0] + " " + n[n.length - 1][0] + "." : n[0]; }
+  function drawCard(res) {
+    var c = document.createElement("canvas"); c.width = 1080; c.height = 1350;
+    var x = c.getContext("2d"), st = state.me.stats;
+    var g = x.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, "#0b1f4a"); g.addColorStop(1, "#050b18");
+    x.fillStyle = g; x.fillRect(0, 0, 1080, 1350);
+    for (var i = 0; i < 140; i++) { x.fillStyle = "rgba(255,255,255," + (0.2 + ((i * 37) % 60) / 100) + ")"; x.fillRect((i * 389) % 1080, (i * 613) % 1350, i % 3 + 1, i % 3 + 1); }
+    x.textAlign = "center";
+    x.fillStyle = "#4fd8ff"; x.font = "bold 40px system-ui, Arial"; x.fillText("SAGE · DAILY ORBIT", 540, 150);
+    x.fillStyle = "#e8f0ff"; x.font = "bold 64px system-ui, Arial"; x.fillText("Cadet " + cardName(), 540, 250);
+    x.fillStyle = "#8fa3c4"; x.font = "34px system-ui, Arial"; x.fillText(String(state.me.student.school || "").slice(0, 44), 540, 310);
+    x.fillStyle = "#f5c542"; x.font = "bold 230px system-ui, Arial"; x.fillText(res.correct + "/" + res.total, 540, 590);
+    x.fillStyle = "#e8f0ff"; x.font = "44px system-ui, Arial"; x.fillText("⏱ " + clock(res.durationMs) + "   ·   🔥 " + st.streak + "-day streak", 540, 690);
+    var r = res.ranks || {}, line = r.school ? "#" + r.school + " in my school" : r.taluka ? "#" + r.taluka + " in my taluka" : "";
+    if (r.district) line += (line ? "  ·  " : "") + "#" + r.district + " in " + (state.me.student.district || "district");
+    x.fillStyle = "#3ddc97"; x.font = "bold 46px system-ui, Arial"; if (line) x.fillText(line, 540, 800);
+    x.fillStyle = "#e8f0ff"; x.font = "bold 58px system-ui, Arial"; x.fillText("Can you beat me? 🚀", 540, 1010);
+    x.fillStyle = "#4fd8ff"; x.font = "40px system-ui, Arial"; x.fillText("sir.net.in/sage", 540, 1080);
+    x.fillStyle = "#6c7fa0"; x.font = "30px system-ui, Arial"; x.fillText("SAGE Programme · SIR Kolhapur", 540, 1270);
+    return c;
+  }
+  function shareCard(res) {
+    if (!res) return;
+    var text = "I scored " + res.correct + "/" + res.total + " in today's SAGE Daily Orbit 🚀 Can you beat me? " + SHARE_URL;
+    drawCard(res).toBlob(async function (blob) {
+      var file = new File([blob], "sage-daily-orbit.png", { type: "image/png" });
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: text }); return; }
+      } catch (e) { if (e && e.name === "AbortError") return; }
+      // No file sharing (most computers): save the image and open WhatsApp with the text.
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sage-daily-orbit.png"; document.body.appendChild(a); a.click(); a.remove();
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }, "image/png");
+  }
+
+  boot();
+})();
+</script>
 </body>
 </html>
