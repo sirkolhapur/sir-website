@@ -135,6 +135,47 @@
       text-transform: uppercase;
     }
 
+    /* "Already a member? Login" — top right */
+    .login-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      padding: 9px 16px;
+
+      border: 1.5px solid var(--gold);
+      border-radius: 999px;
+
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+
+      transition: .2s;
+    }
+
+    .login-link b {
+      color: var(--gold);
+    }
+
+    .login-link:hover,
+    .login-link:focus-visible {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .login-link:hover b,
+    .login-link:focus-visible b {
+      color: var(--navy);
+    }
+
+    @media (max-width: 560px) {
+      .login-link span {
+        display: none;
+      }
+    }
+
     .progress {
       display: flex;
       gap: 7px;
@@ -1033,6 +1074,11 @@
       <div class="progress-dot"></div>
 
     </div>
+
+
+    <a class="login-link" href="student-login.html">
+      <span>Already a member?</span> <b>Login →</b>
+    </a>
 
   </header>
 
