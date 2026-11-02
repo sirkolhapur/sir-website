@@ -93,7 +93,27 @@
   .result{text-align:center}
   .score{font-size:56px;font-weight:900;margin:6px 0;background:linear-gradient(90deg,var(--cyan),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   .foot{color:#6c7fa0;font-size:11px;text-align:center;margin-top:28px;line-height:1.6}
-  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,1fr)}.launch .btn{width:100%}}
+  /* daily orbit, leaderboard, share */
+  .launch-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .quickrow{display:flex;gap:10px;flex-wrap:wrap;margin:-8px 0 22px}
+  .quickrow .btn{width:auto;flex:1 1 200px;margin:0;padding:12px 16px;font-size:14px}
+  .ranks{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+  .ranks span{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--ink)}
+  .ranks b{color:var(--gold)}
+  .timer{font-variant-numeric:tabular-nums;color:var(--gold)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .chip{border:1px solid var(--line);background:#081325;color:var(--muted);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+  .chip.on{border-color:var(--gold);color:#0a1428;background:var(--gold);font-weight:800}
+  .board{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  .board li{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:#081325;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .board li.me{border-color:var(--gold);background:#1c1a0b}
+  .board .pos{font-weight:900;font-size:18px;text-align:center;color:var(--cyan)}
+  .board .r1 .pos{color:#ffd54a}.board .r2 .pos{color:#cfd8e3}.board .r3 .pos{color:#e0a46b}
+  .board .who b{display:block;font-size:15px}.board .who small{color:var(--muted);font-size:12px}
+  .board .pts{text-align:right;font-weight:800}.board .pts small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+  .board .gap{background:none;border:0;text-align:center;color:var(--muted);display:block;padding:0}
+  .empty{color:var(--muted);text-align:center;padding:24px 0}
+  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,1fr)}.launch .btn,.launch-actions{width:100%}.launch-actions .btn{flex:1}}
 </style>
 </head>
 <body>
@@ -111,7 +131,7 @@
   <section id="vLogin" class="panel narrow hidden">
     <div class="eyebrow">Cadet sign-in</div>
     <h1>Welcome to SAGE</h1>
-    <p class="sub">Sign in with your SIR Student ID and password. New here or forgot your password? <a class="link" href="../sage-activate.html">Activate your account</a>.</p>
+    <p class="sub">Sign in with your SIR Student ID and password. Have a Student ID but no password, or forgot it? <a class="link" href="../sage-activate.html">Activate your account</a>. New student? <a class="link" href="../talent-hunt/registration.html">Register for the Talent Hunt</a>.</p>
     <form id="loginForm" novalidate>
       <label for="loginId">Student ID</label>
       <input id="loginId" autocomplete="username" placeholder="e.g. SIR2600001" maxlength="10">
@@ -170,9 +190,13 @@
       <div class="tile acc"><b id="sAcc">–</b><span>🎯 ACCURACY</span></div>
       <div class="tile"><b id="sMissions">0</b><span>🚀 MISSIONS</span></div>
     </div>
-    <div class="panel launch">
-      <div><div class="eyebrow" id="todayTag">Today's orbit</div><h2 style="margin:6px 0 4px">Quick mission · 10 mixed questions</h2><div style="color:var(--muted);font-size:13px">Keep your streak alive — one mission a day.</div></div>
-      <button class="btn" id="quickBtn" type="button">LAUNCH →</button>
+    <div class="panel launch" id="orbitCard">
+      <div><div class="eyebrow" id="orbitTag">Daily Orbit</div><h2 style="margin:6px 0 4px" id="orbitTitle">10 questions · the same for every cadet today</h2><div style="color:var(--muted);font-size:13px" id="orbitSub">Fly it once a day to keep your streak. Ranked by correct answers, then time.</div></div>
+      <div class="launch-actions"><button class="btn" id="orbitBtn" type="button">LAUNCH →</button><button class="btn alt hidden" id="orbitShare" type="button">SHARE 📤</button></div>
+    </div>
+    <div class="quickrow">
+      <button class="btn alt" id="quickBtn" type="button">⚡ Free practice · 10 mixed</button>
+      <button class="btn alt" id="boardBtn" type="button">🏆 Leaderboards</button>
     </div>
     <h2>Explore the galaxy <span style="color:var(--muted);font-weight:400;font-size:14px">· Class 10 Science</span></h2>
     <div class="planets" id="planets"></div>
@@ -180,7 +204,7 @@
 
   <!-- mission -->
   <section id="vMission" class="panel hidden">
-    <div class="qmeta"><span id="mTitle">Mission</span><span id="mCount">1 / 10</span></div>
+    <div class="qmeta"><span id="mTitle">Mission</span><span><span class="timer hidden" id="mTimer"></span> <span id="mCount">1 / 10</span></span></div>
     <div class="progress"><i id="mBar"></i></div>
     <div class="qmeta"><span id="mFormat"></span><button class="link" type="button" id="mQuit">End mission</button></div>
     <div class="stem" id="mStem"></div>
@@ -194,9 +218,31 @@
   <section id="vResult" class="panel narrow result hidden">
     <div class="eyebrow">Mission complete</div>
     <div class="score" id="rScore">0/0</div>
+    <div class="ranks hidden" id="rRanks"></div>
     <p class="sub" id="rLine"></p>
+    <button class="btn hidden" id="rShare" type="button">SHARE WITH FRIENDS 📤</button>
+    <button class="btn alt hidden" id="rBoard" type="button">🏆 SEE LEADERBOARD</button>
     <button class="btn" id="rHome" type="button">BACK TO MISSION CONTROL</button>
     <button class="btn alt" id="rAgain" type="button">ANOTHER MISSION →</button>
+  </section>
+
+  <!-- leaderboards -->
+  <section id="vBoard" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">Leaderboards</span><button class="link" type="button" id="bBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px">Top cadets</h1>
+    <div class="chips" id="bPeriod" role="tablist">
+      <button class="chip on" type="button" data-period="today">Today's orbit</button>
+      <button class="chip" type="button" data-period="week">This week</button>
+      <button class="chip" type="button" data-period="all">All time</button>
+    </div>
+    <div class="chips" id="bScope" role="tablist">
+      <button class="chip on" type="button" data-scope="school">My school</button>
+      <button class="chip" type="button" data-scope="taluka">Taluka</button>
+      <button class="chip" type="button" data-scope="district">District</button>
+      <button class="chip" type="button" data-scope="all">All SAGE</button>
+    </div>
+    <p class="sub" id="bNote" style="margin:4px 0 0"></p>
+    <ol class="board" id="bList"></ol>
   </section>
 
   <div class="foot">SAGE Programme · SIR Kolhapur<br>Never share your password or OTP with anyone.</div>
@@ -211,7 +257,8 @@
   var FN = SUPABASE_URL + "/functions/v1/sage-learn";
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
   var $ = function (id) { return document.getElementById(id); };
-  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult"];
+  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard"];
+  var SHARE_URL = "https://sir.net.in/sage/";
   var state = { me: null, mission: null };
   var COLORS = ["#4fd8ff", "#f5c542", "#3ddc97", "#ff9f43", "#b58cff", "#ff6b81", "#5ee0c8"];
   var FORMAT_LABEL = { statements: "How many statements are correct?", assertion_reason: "Assertion – Reason", match: "Match the pairs", case: "Case-based", multi: "One or more correct — select all", numeric: "Numerical — type your answer" };
@@ -312,7 +359,22 @@
     $("hSchool").textContent = [me.student.school, me.student.className ? "Class " + me.student.className.replace(/th$/, "") : ""].filter(Boolean).join(" · ");
     $("hRank").textContent = rankFor(st.xp);
     $("sStreak").textContent = st.streak; $("sXp").textContent = st.xp; $("sAcc").textContent = st.accuracy == null ? "–" : st.accuracy + "%"; $("sMissions").textContent = st.missions;
-    $("todayTag").textContent = st.todayDone ? "Today's orbit · done ✓" : "Today's orbit · not done yet";
+    var d = me.daily || { state: "new" };
+    $("orbitTag").textContent = "Daily Orbit · " + new Date(d.day + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    $("orbitShare").classList.toggle("hidden", d.state !== "done");
+    $("orbitBtn").classList.toggle("hidden", d.state === "done");
+    if (d.state === "done") {
+      $("orbitTitle").textContent = "Done ✓ · " + d.correct + "/" + d.total + " in " + clock(d.durationMs);
+      $("orbitSub").textContent = "A new orbit opens at midnight. See where you stand on the leaderboard.";
+    } else if (d.state === "in_progress") {
+      $("orbitTitle").textContent = "In flight · " + d.answered + "/" + d.total + " answered";
+      $("orbitSub").textContent = "The clock is still running — finish today's orbit.";
+      $("orbitBtn").textContent = "RESUME →";
+    } else {
+      $("orbitTitle").textContent = "10 questions · the same for every cadet today";
+      $("orbitSub").textContent = (st.streak ? "🔥 " + st.streak + "-day streak — keep it alive! " : "Start your streak today. ") + "Ranked by correct answers, then time.";
+      $("orbitBtn").textContent = "LAUNCH →";
+    }
     $("planets").innerHTML = me.chapters.map(function (c, i) {
       var p = c.total ? Math.round((c.answered / c.total) * 100) : 0;
       return '<button class="planet" type="button" data-slug="' + esc(c.slug) + '"><span class="orb" data-n="' + c.no + '" style="--c:' + COLORS[i % COLORS.length] + ';--p:' + p + '"></span><span><strong>' + esc(c.name) + "</strong><small>" + c.answered + "/" + c.total + " explored" + (c.answered ? " · " + Math.round((c.correct / c.answered) * 100) + "% right" : "") + "</small></span></button>";
@@ -321,15 +383,47 @@
   }
   $("planets").addEventListener("click", function (e) { var b = e.target.closest("[data-slug]"); if (b) startMission(b.dataset.slug); });
   $("quickBtn").addEventListener("click", function () { startMission(null); });
+  $("orbitBtn").addEventListener("click", startDaily);
+  $("orbitShare").addEventListener("click", async function () {
+    var d = state.me.daily, ranks = {};
+    for (var s of ["school", "district"]) {
+      try { var b = await api({ action: "leaderboard", period: "today", scope: s }); var me = b.rows.find(function (x) { return x.isMe; }); ranks[s] = me ? me.rank : null; } catch (e) { /* share without rank */ }
+    }
+    shareCard({ correct: d.correct, total: d.total, durationMs: d.durationMs, ranks: ranks });
+  });
+  $("boardBtn").addEventListener("click", function () { openBoard("today", "school"); });
 
   // ---------------- mission ----------------
+  function clock(ms) { if (ms == null) return "–"; var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
   async function startMission(slug) {
     try {
       var r = await api({ action: "start", chapterSlug: slug, count: 10 });
       var ch = slug && state.me.chapters.find(function (c) { return c.slug === slug; });
-      state.mission = { id: r.attemptId, qs: r.questions, i: 0, correct: 0, slug: slug, title: ch ? ch.name : "Quick mission" };
+      state.mission = { id: r.attemptId, qs: r.questions, i: 0, correct: 0, slug: slug, title: ch ? ch.name : "Free practice" };
+      $("mTimer").classList.add("hidden");
       show("vMission"); renderQ();
     } catch (e) { alert(e.message); if (e.code === "CONSENT_REQUIRED") boot(); }
+  }
+  async function startDaily() {
+    try {
+      var r = await api({ action: "daily_start" });
+      var done = {}; r.answered.forEach(function (a) { done[a.questionId] = a; });
+      var first = r.questions.findIndex(function (q) { return !done[q.id]; });
+      state.mission = { id: r.attemptId, qs: r.questions, i: first < 0 ? r.questions.length : first, daily: true, title: "Daily Orbit",
+        correct: r.answered.filter(function (a) { return a.correct; }).length, started: Date.now() };
+      if (first < 0) return finish();
+      $("mTimer").classList.remove("hidden"); tick();
+      show("vMission"); renderQ();
+    } catch (e) { alert(e.message); boot(); }
+  }
+  function tick() {
+    clearInterval(state.timer);
+    var draw = function () { $("mTimer").textContent = "⏱ " + clock(Date.now() - state.mission.started); };
+    draw();
+    state.timer = setInterval(function () {
+      if (!state.mission || !state.mission.daily || $("vMission").classList.contains("hidden")) return clearInterval(state.timer);
+      draw();
+    }, 500);
   }
   function renderQ() {
     var m = state.mission, q = m.qs[m.i];
@@ -337,7 +431,7 @@
     $("mCount").textContent = (m.i + 1) + " / " + m.qs.length;
     $("mBar").style.width = (m.i / m.qs.length * 100) + "%";
     $("mFormat").textContent = FORMAT_LABEL[q.format] || "";
-    $("mStem").innerHTML = render(q.stem);
+    $("mStem").innerHTML = render(q.stem); $("mStem").dataset.qid = q.id;
     $("mFeedback").innerHTML = ""; $("mNext").classList.add("hidden"); msg("mMsg", "");
     m.t0 = Date.now(); m.selected = [];
     var box = $("mAnswer");
@@ -390,15 +484,91 @@
   $("mQuit").addEventListener("click", function () { if (confirm("End this mission now? Answers so far are saved.")) finish(); });
   async function finish() {
     var m = state.mission;
+    clearInterval(state.timer);
     try {
       var r = await api({ action: "finish", attemptId: m.id });
+      var daily = r.mode === "daily";
       $("rScore").textContent = r.correct + "/" + r.total;
-      $("rLine").textContent = "You earned " + r.xp + " XP" + (r.answered < r.total ? " (" + r.answered + " answered)" : "") + ". " + (r.correct / Math.max(1, r.total) >= 0.8 ? "Brilliant flying, Cadet!" : r.correct / Math.max(1, r.total) >= 0.5 ? "Good mission — read the explanations and go again." : "Every mistake is data. Review and relaunch!");
+      var ranks = r.ranks || {};
+      $("rRanks").innerHTML = daily ? '<span>⏱ <b>' + clock(r.durationMs) + "</b></span>" + [["school", "school"], ["taluka", "taluka"], ["district", "district"]].map(function (s) {
+        return ranks[s[0]] ? "<span>#<b>" + ranks[s[0]] + "</b> in " + s[1] + "</span>" : "";
+      }).join("") : "";
+      $("rRanks").classList.toggle("hidden", !daily);
+      $("rShare").classList.toggle("hidden", !daily); $("rBoard").classList.toggle("hidden", !daily); $("rAgain").classList.toggle("hidden", daily);
+      $("rLine").textContent = "You earned " + r.xp + " XP" + (daily && r.answered === r.total ? " (incl. +20 Daily Orbit bonus)" : "") + (r.answered < r.total ? " (" + r.answered + " answered)" : "") + ". " +
+        (r.correct / Math.max(1, r.total) >= 0.8 ? "Brilliant flying, Cadet!" : r.correct / Math.max(1, r.total) >= 0.5 ? "Good mission — read the explanations and go again." : "Every mistake is data. Review and relaunch!");
+      state.lastResult = { correct: r.correct, total: r.total, durationMs: r.durationMs, ranks: ranks };
       show("vResult");
     } catch (e) { alert(e.message); }
   }
   $("rHome").addEventListener("click", boot);
   $("rAgain").addEventListener("click", function () { startMission(state.mission && state.mission.slug); });
+  $("rShare").addEventListener("click", function () { shareCard(state.lastResult); });
+  $("rBoard").addEventListener("click", function () { openBoard("today", "school"); });
+
+  // ---------------- leaderboards ----------------
+  var board = { period: "today", scope: "school" };
+  function openBoard(period, scope) { board.period = period; board.scope = scope; show("vBoard"); loadBoard(); }
+  function markChips() {
+    $("bPeriod").querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.period === board.period); });
+    $("bScope").querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c.dataset.scope === board.scope); });
+  }
+  async function loadBoard() {
+    markChips();
+    $("bList").innerHTML = '<li class="gap">Loading…</li>';
+    $("bNote").textContent = board.period === "today" ? "Today's Daily Orbit: most correct answers, then fastest time." : board.period === "week" ? "XP earned since Monday." : "All XP ever earned.";
+    try {
+      var r = await api({ action: "leaderboard", period: board.period, scope: board.scope });
+      if (!r.rows.length) { $("bList").innerHTML = '<li class="gap empty">No cadets on this board yet — be the first!</li>'; return; }
+      var html = "", prev = 0;
+      r.rows.forEach(function (row) {
+        if (prev && row.rank > prev + 1 && row.isMe) html += '<li class="gap">⋯</li>';
+        prev = row.rank;
+        var pts = board.period === "today" ? row.score + "/10<small>" + clock(row.durationMs) + "</small>" : row.score + "<small>XP</small>";
+        html += '<li class="' + (row.isMe ? "me " : "") + (row.rank <= 3 ? "r" + row.rank : "") + '"><span class="pos">' + row.rank + '</span><span class="who"><b>' + esc(row.name) + (row.isMe ? " (you)" : "") + "</b><small>" + esc(row.school || "") + "</small></span><span class=\"pts\">" + pts + "</span></li>";
+      });
+      $("bList").innerHTML = html;
+    } catch (e) { $("bList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+  $("bPeriod").addEventListener("click", function (e) { var c = e.target.closest("[data-period]"); if (c) { board.period = c.dataset.period; loadBoard(); } });
+  $("bScope").addEventListener("click", function (e) { var c = e.target.closest("[data-scope]"); if (c) { board.scope = c.dataset.scope; loadBoard(); } });
+  $("bBack").addEventListener("click", boot);
+
+  // ---------------- share card ----------------
+  function cardName() { var n = String(state.me.student.name || "").trim().split(/\s+/); return n.length > 1 ? n[0] + " " + n[n.length - 1][0] + "." : n[0]; }
+  function drawCard(res) {
+    var c = document.createElement("canvas"); c.width = 1080; c.height = 1350;
+    var x = c.getContext("2d"), st = state.me.stats;
+    var g = x.createLinearGradient(0, 0, 1080, 1350); g.addColorStop(0, "#0b1f4a"); g.addColorStop(1, "#050b18");
+    x.fillStyle = g; x.fillRect(0, 0, 1080, 1350);
+    for (var i = 0; i < 140; i++) { x.fillStyle = "rgba(255,255,255," + (0.2 + ((i * 37) % 60) / 100) + ")"; x.fillRect((i * 389) % 1080, (i * 613) % 1350, i % 3 + 1, i % 3 + 1); }
+    x.textAlign = "center";
+    x.fillStyle = "#4fd8ff"; x.font = "bold 40px system-ui, Arial"; x.fillText("SAGE · DAILY ORBIT", 540, 150);
+    x.fillStyle = "#e8f0ff"; x.font = "bold 64px system-ui, Arial"; x.fillText("Cadet " + cardName(), 540, 250);
+    x.fillStyle = "#8fa3c4"; x.font = "34px system-ui, Arial"; x.fillText(String(state.me.student.school || "").slice(0, 44), 540, 310);
+    x.fillStyle = "#f5c542"; x.font = "bold 230px system-ui, Arial"; x.fillText(res.correct + "/" + res.total, 540, 590);
+    x.fillStyle = "#e8f0ff"; x.font = "44px system-ui, Arial"; x.fillText("⏱ " + clock(res.durationMs) + "   ·   🔥 " + st.streak + "-day streak", 540, 690);
+    var r = res.ranks || {}, line = r.school ? "#" + r.school + " in my school" : r.taluka ? "#" + r.taluka + " in my taluka" : "";
+    if (r.district) line += (line ? "  ·  " : "") + "#" + r.district + " in " + (state.me.student.district || "district");
+    x.fillStyle = "#3ddc97"; x.font = "bold 46px system-ui, Arial"; if (line) x.fillText(line, 540, 800);
+    x.fillStyle = "#e8f0ff"; x.font = "bold 58px system-ui, Arial"; x.fillText("Can you beat me? 🚀", 540, 1010);
+    x.fillStyle = "#4fd8ff"; x.font = "40px system-ui, Arial"; x.fillText("sir.net.in/sage", 540, 1080);
+    x.fillStyle = "#6c7fa0"; x.font = "30px system-ui, Arial"; x.fillText("SAGE Programme · SIR Kolhapur", 540, 1270);
+    return c;
+  }
+  function shareCard(res) {
+    if (!res) return;
+    var text = "I scored " + res.correct + "/" + res.total + " in today's SAGE Daily Orbit 🚀 Can you beat me? " + SHARE_URL;
+    drawCard(res).toBlob(async function (blob) {
+      var file = new File([blob], "sage-daily-orbit.png", { type: "image/png" });
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: text }); return; }
+      } catch (e) { if (e && e.name === "AbortError") return; }
+      // No file sharing (most computers): save the image and open WhatsApp with the text.
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sage-daily-orbit.png"; document.body.appendChild(a); a.click(); a.remove();
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }, "image/png");
+  }
 
   boot();
 })();
