@@ -143,6 +143,11 @@
   .newbadges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0}
   .newbadges span{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gold);border-radius:999px;padding:8px 14px;background:#1c1a0b;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both}
   @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .boss{background:linear-gradient(120deg,#3a1408,#170a1e);border-color:#7a3a1a}
+  .invite{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .invite .btn{width:auto;margin:0;padding:12px 18px}
+  .board li.won{border-left:4px solid var(--ok)}.board li.lost{border-left:4px solid var(--bad)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:15;background:#0f2242;border:1px solid var(--gold);color:var(--ink);padding:12px 18px;border-radius:14px;font-size:14px;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)}
   .modal{position:fixed;inset:0;z-index:20;background:#020611cc;display:grid;place-items:center;padding:16px}
   .modal .panel{max-width:380px;text-align:center}
   .modal .i{font-size:72px;display:block;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
@@ -230,7 +235,16 @@
     </div>
     <div class="quickrow">
       <button class="btn alt" id="quickBtn" type="button">⚡ Free practice · 10 mixed</button>
+      <button class="btn alt" id="duelBtn" type="button">🤺 1v1 Duel</button>
       <button class="btn alt" id="boardBtn" type="button">🏆 Leaderboards</button>
+    </div>
+    <div class="panel launch boss" id="bossCard">
+      <div><div class="eyebrow" style="color:#ff9f43">Weekly Boss Battle</div><h2 style="margin:6px 0 4px" id="bossTitle">⚔️ 20 hard questions · Sundays</h2><div style="color:var(--muted);font-size:13px" id="bossSub">Beat the Boss for big XP and a 🛡 Streak Shield.</div></div>
+      <div class="launch-actions"><button class="btn" id="bossBtn" type="button">FIGHT →</button></div>
+    </div>
+    <div class="panel invite" id="inviteCard">
+      <div><div class="eyebrow">Invite friends</div><h2 style="margin:6px 0 4px" id="invTitle">📣 3 friends join → 🛡 Streak Shield</h2><div style="color:var(--muted);font-size:13px" id="invSub"></div></div>
+      <div class="launch-actions"><button class="btn alt" id="invBtn" type="button">SHARE INVITE 📤</button></div>
     </div>
     <div class="panel league hidden" id="leagueCard">
       <div style="display:flex;gap:14px;align-items:center"><span class="big" id="lgIcon">🌙</span><div><div class="eyebrow">This week's league</div><h2 style="margin:4px 0 2px" id="lgName">Moon League</h2><div style="color:var(--muted);font-size:13px" id="lgLine"></div></div></div>
@@ -247,6 +261,24 @@
     <div class="planets" id="planets"></div>
     <div class="sechead" style="margin-top:26px"><h2>Badges <span style="color:var(--muted);font-weight:400;font-size:14px" id="badgeCount"></span></h2></div>
     <div class="badges" id="badges"></div>
+  </section>
+
+  <!-- duels -->
+  <section id="vDuels" class="panel hidden">
+    <div class="qmeta"><span class="eyebrow">1v1 Duels</span><button class="link" type="button" id="dBack">← Mission Control</button></div>
+    <h1 style="margin-top:4px">Duel arena</h1>
+    <p class="sub">5 questions, the same for both cadets. More correct wins; if it's a tie, the faster one wins. Winner gets +20 XP.</p>
+    <div class="launch-actions">
+      <button class="btn" id="dRandom" type="button">⚡ RANDOM OPPONENT</button>
+      <button class="btn alt" id="dFriend" type="button">👥 CHALLENGE A FRIEND</button>
+    </div>
+    <form id="dJoinForm" class="numrow" style="margin-top:14px" novalidate>
+      <input id="dCode" maxlength="6" placeholder="Friend's duel code" autocomplete="off" style="text-transform:uppercase">
+      <button class="btn alt" id="dJoin" type="submit" style="width:auto;margin:0">JOIN</button>
+    </form>
+    <div class="msg" id="dMsg" role="alert"></div>
+    <p class="zone" id="dStats"></p>
+    <ol class="board" id="dList"></ol>
   </section>
 
   <!-- league -->
@@ -281,6 +313,7 @@
     <div class="newbadges" id="rBadges"></div>
     <p class="sub" id="rLine"></p>
     <button class="btn hidden" id="rShare" type="button">SHARE WITH FRIENDS 📤</button>
+    <button class="btn hidden" id="rChallenge" type="button">SEND CHALLENGE TO A FRIEND 📤</button>
     <button class="btn alt hidden" id="rBoard" type="button">🏆 SEE LEADERBOARD</button>
     <button class="btn" id="rHome" type="button">BACK TO MISSION CONTROL</button>
     <button class="btn alt" id="rAgain" type="button">ANOTHER MISSION →</button>
@@ -317,7 +350,22 @@
   var FN = SUPABASE_URL + "/functions/v1/sage-learn";
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
   var $ = function (id) { return document.getElementById(id); };
-  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard", "vLeague"];
+  var VIEWS = ["vBoot", "vLogin", "vConsent", "vHome", "vMission", "vResult", "vBoard", "vLeague", "vDuels"];
+  // Invite (?ref=CODE) and duel (?duel=CODE) links: remember them until the student is signed in.
+  (function () {
+    var q = new URLSearchParams(location.search), keep = function (k, v) { try { if (/^[A-Za-z2-9]{6}$/.test(v || "")) localStorage.setItem(k, v.toUpperCase()); } catch (e) { /* storage off */ } };
+    keep("sage_ref", q.get("ref")); keep("sage_duel", q.get("duel"));
+    if (q.has("ref") || q.has("duel")) history.replaceState(null, document.title, location.pathname);
+  })();
+  function takeStored(k) { try { var v = localStorage.getItem(k); localStorage.removeItem(k); return v; } catch (e) { return null; } }
+  function toast(text) {
+    var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = text; document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 5000);
+  }
+  async function shareText(text) {
+    try { if (navigator.share) { await navigator.share({ text: text }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+  }
   var SHARE_URL = "https://sir.net.in/sage/";
   var state = { me: null, mission: null };
   var COLORS = ["#4fd8ff", "#f5c542", "#3ddc97", "#ff9f43", "#b58cff", "#ff6b81", "#5ee0c8"];
@@ -460,9 +508,30 @@
     $("badges").innerHTML = me.badges.map(function (b) {
       return '<div class="badge' + (b.earned ? "" : " locked") + '" title="' + esc(b.desc) + '"><span class="i">' + b.icon + "</span><b>" + esc(b.name) + "</b><small>" + esc(b.desc) + "</small></div>";
     }).join("");
+    // Boss Battle
+    var bs = me.boss;
+    $("bossBtn").classList.toggle("hidden", !bs.open || bs.state === "done");
+    $("bossBtn").textContent = bs.state === "in_progress" ? "RESUME FIGHT →" : "FIGHT →";
+    $("bossTitle").textContent = bs.state === "done" ? "⚔️ Boss defeated · " + bs.correct + "/" + bs.total : bs.state === "in_progress" ? "⚔️ Battle in progress · " + bs.answered + "/" + bs.total : "⚔️ 20 hard questions · " + (bs.open ? "open today!" : "Sundays");
+    $("bossSub").textContent = bs.state === "done" ? "A new Boss arrives next Sunday." : bs.open ? "Big XP (15 per correct + 50 for finishing) and a 🛡 Streak Shield." :
+      "Next Boss: " + new Date(bs.opensOn + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" }) + ". Beat it for big XP and a 🛡 Streak Shield.";
+    // Streak Shields + invites
+    $("sStreak").textContent = st.streak + (st.shields ? " 🛡" + st.shields : "");
+    var inv = me.invite;
+    $("inviteCard").classList.toggle("hidden", !inv);
+    if (inv) {
+      $("invSub").textContent = inv.qualified + " friend" + (inv.qualified === 1 ? "" : "s") + " joined" + (inv.joined > inv.qualified ? " (+" + (inv.joined - inv.qualified) + " yet to finish a mission)" : "") +
+        " · " + inv.toNextShield + " more for your next shield · your code " + inv.code;
+    }
+    if (st.shieldSavedYesterday && store("sage_shield_toast") !== me.daily.day) { store("sage_shield_toast", me.daily.day); toast("🛡 A Streak Shield saved your streak yesterday!"); }
     show("vHome");
     galaxySync();
     if (me.newBadges && me.newBadges.length) celebrate(me.newBadges);
+    // Links opened before signing in.
+    var ref = takeStored("sage_ref");
+    if (ref) api({ action: "claim_invite", code: ref }).then(function (r) { toast("🤝 " + r.message); }).catch(function () { /* not new / own code */ });
+    var duel = takeStored("sage_duel");
+    if (duel && confirm("A friend challenged you to a SAGE duel! Accept now?")) joinDuelCode(duel);
   }
   function timeLeft(iso) { var ms = new Date(iso).getTime() - Date.now(); if (ms <= 0) return "0h"; var d = Math.floor(ms / 86400000), h = Math.floor((ms % 86400000) / 3600000); return d ? d + "d " + h + "h" : h + "h"; }
 
@@ -619,6 +688,32 @@
       show("vMission"); renderQ();
     } catch (e) { alert(e.message); if (e.code === "CONSENT_REQUIRED") boot(); }
   }
+  // Boss Battle and duels share the mission screen.
+  function playResumable(r, title, extra) {
+    var done = {}; (r.answered || []).forEach(function (a) { done[a.questionId] = a; });
+    var first = r.questions.findIndex(function (q) { return !done[q.id]; });
+    state.mission = Object.assign({ id: r.attemptId, qs: r.questions, i: first < 0 ? r.questions.length : first, title: title, daily: true, started: Date.now(),
+      correct: (r.answered || []).filter(function (a) { return a.correct; }).length }, extra || {});
+    if (first < 0) return finish();
+    $("mTimer").classList.remove("hidden"); tick();
+    show("vMission"); renderQ();
+  }
+  async function startBoss() {
+    try { playResumable(await api({ action: "boss_start" }), "⚔️ Boss Battle"); } catch (e) { alert(e.message); boot(); }
+  }
+  async function startDuel(kind) {
+    msg("dMsg", "");
+    try {
+      var r = await api({ action: "duel_create", kind: kind });
+      playResumable(r, r.role === "opponent" ? "🤺 Duel vs " + r.opponent.name : "🤺 Duel", { duel: { kind: kind, code: r.code, opponent: r.opponent } });
+    } catch (e) { msg("dMsg", e.message); }
+  }
+  async function joinDuelCode(code) {
+    try {
+      var r = await api({ action: "duel_join", code: code });
+      playResumable(r, "🤺 Duel vs " + r.opponent.name, { duel: { kind: "friend", opponent: r.opponent } });
+    } catch (e) { if ($("vDuels").classList.contains("hidden")) alert(e.message); else msg("dMsg", e.message); }
+  }
   async function startDaily() {
     try {
       var r = await api({ action: "daily_start" });
@@ -712,6 +807,25 @@
       $("rShare").classList.toggle("hidden", !daily); $("rBoard").classList.toggle("hidden", !daily); $("rAgain").classList.toggle("hidden", daily);
       $("rLine").textContent = "You earned " + r.xp + " XP" + (daily && r.answered === r.total ? " (incl. +20 Daily Orbit bonus)" : "") + (r.answered < r.total ? " (" + r.answered + " answered)" : "") + ". " +
         (r.correct / Math.max(1, r.total) >= 0.8 ? "Brilliant flying, Cadet!" : r.correct / Math.max(1, r.total) >= 0.5 ? "Good mission — read the explanations and go again." : "Every mistake is data. Review and relaunch!");
+      $("rChallenge").classList.add("hidden");
+      if (r.mode === "boss") {
+        $("rRanks").innerHTML = "<span>⏱ <b>" + clock(r.durationMs) + "</b></span><span>#<b>" + r.bossRank + "</b> of " + r.bossPilots + " Boss fighters</span>";
+        $("rRanks").classList.remove("hidden"); $("rAgain").classList.add("hidden");
+        $("rLine").textContent = "You earned " + r.xp + " XP." + (r.shieldEarned ? " 🛡 You won a Streak Shield — it protects your streak if you miss a day." : "") + " The next Boss arrives on Sunday.";
+      }
+      if (r.mode === "duel" && r.duel) {
+        var d = r.duel;
+        $("rAgain").classList.add("hidden"); $("rRanks").classList.remove("hidden");
+        if (d.result === "waiting") {
+          $("rRanks").innerHTML = "<span>⏳ Waiting for " + (d.opponent ? esc(d.opponent.name) : d.kind === "friend" ? "your friend" : "an opponent") + "</span>";
+          $("rLine").textContent = "You earned " + r.xp + " XP. We'll show the result in the Duel arena once your opponent has flown the same 5 questions.";
+          if (d.code) { state.challenge = d.code; $("rChallenge").classList.remove("hidden"); }
+        } else {
+          $("rRanks").innerHTML = "<span>You <b>" + d.you.correct + "/5</b> · " + clock(d.you.durationMs) + "</span><span>" + esc(d.opponent.name) + " <b>" + d.them.correct + "/5</b> · " + clock(d.them.durationMs) + "</span>";
+          $("rScore").textContent = d.result === "won" ? "🏆 WIN" : d.result === "lost" ? "DEFEAT" : "DRAW";
+          $("rLine").textContent = d.result === "won" ? "You won the duel! +20 XP bonus." : d.result === "lost" ? "So close! Challenge someone else and win it back." : "A perfect tie!";
+        }
+      }
       state.lastResult = { correct: r.correct, total: r.total, durationMs: r.durationMs, ranks: ranks };
       var nb = r.newBadges || [];
       $("rBadges").innerHTML = nb.map(function (b, i) { return '<span style="animation-delay:' + i * 0.15 + 's">' + b.icon + " New badge: <b>" + esc(b.name) + "</b></span>"; }).join("");
@@ -722,6 +836,40 @@
   $("rHome").addEventListener("click", boot);
   $("rAgain").addEventListener("click", function () { startMission(state.mission && state.mission.slug); });
   $("rShare").addEventListener("click", function () { shareCard(state.lastResult); });
+  $("rChallenge").addEventListener("click", function () {
+    shareText("🤺 I challenge you to a SAGE science duel! 5 questions — can you beat my score? Duel code " + state.challenge + ": " + SHARE_URL + "?duel=" + state.challenge);
+  });
+
+  // ---------------- duel arena ----------------
+  $("duelBtn").addEventListener("click", openDuels);
+  $("dBack").addEventListener("click", boot);
+  $("dRandom").addEventListener("click", function () { startDuel("random"); });
+  $("dFriend").addEventListener("click", function () { startDuel("friend"); });
+  $("dCode").addEventListener("input", function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); });
+  $("dJoinForm").addEventListener("submit", function (e) { e.preventDefault(); msg("dMsg", ""); joinDuelCode($("dCode").value); });
+  async function openDuels() {
+    show("vDuels"); msg("dMsg", ""); $("dList").innerHTML = '<li class="gap">Loading…</li>';
+    try {
+      var r = await api({ action: "duels" });
+      $("dStats").textContent = r.wins + " win" + (r.wins === 1 ? "" : "s") + (r.winStreak > 1 ? " · 🔥 " + r.winStreak + " in a row" : "");
+      if (!r.duels.length) { $("dList").innerHTML = '<li class="gap empty">No duels yet — pick an opponent above!</li>'; return; }
+      var label = { won: "🏆 Won", lost: "Lost", draw: "Draw", waiting: "⏳ Waiting for opponent", playing: "⚔️ In progress", expired: "Expired" };
+      $("dList").innerHTML = r.duels.map(function (d) {
+        var score = d.you && d.them ? d.you.correct + "–" + d.them.correct : d.you ? d.you.correct + "/5" : "–";
+        var onTime = d.you && d.them && d.you.correct === d.them.correct && (d.state === "won" || d.state === "lost") ? " on time" : "";
+        return '<li class="' + (d.state === "won" || d.state === "lost" ? d.state : "") + '"><span class="pos">' + (d.state === "won" ? "🏆" : d.kind === "friend" ? "👥" : "⚡") + '</span><span class="who"><b>' + (d.opponent ? esc(d.opponent.name) : d.kind === "friend" ? "Friend challenge" : "Random opponent") + "</b><small>" + label[d.state] + onTime +
+          (d.code ? ' · code <b>' + esc(d.code) + '</b> <button class="link" type="button" data-share="' + esc(d.code) + '">share</button>' : "") + '</small></span><span class="pts">' + score + "</span></li>";
+      }).join("");
+    } catch (e) { $("dList").innerHTML = '<li class="gap">' + esc(e.message) + "</li>"; }
+  }
+  $("dList").addEventListener("click", function (e) { var b = e.target.closest("[data-share]"); if (b) { state.challenge = b.dataset.share; $("rChallenge").click(); } });
+
+  // ---------------- Boss Battle + invites ----------------
+  $("bossBtn").addEventListener("click", startBoss);
+  $("invBtn").addEventListener("click", function () {
+    var c = state.me.invite.code;
+    shareText("🚀 Join me on SAGE Mission Control — daily science missions, leagues and duels! Use my invite: " + SHARE_URL + "?ref=" + c);
+  });
   $("rBoard").addEventListener("click", function () { openBoard("today", "school"); });
 
   // ---------------- leaderboards ----------------
