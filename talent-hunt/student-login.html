@@ -2761,7 +2761,9 @@ loginForm.addEventListener("submit", async function (event) {
     loginSubmit.textContent = "ACCESS GRANTED ✓";
 
     window.setTimeout(function () {
-      window.location.href = "student-dashboard.html";
+      // replace(): the login page does not stay in history, so Back from the
+      // dashboard does not land on the login form again.
+      window.location.replace("student-dashboard.html");
     }, 600);
 
   } catch (error) {

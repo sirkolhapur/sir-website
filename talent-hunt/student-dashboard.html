@@ -508,17 +508,64 @@
   var COLORS = ["#4fd8ff", "#f5c542", "#3ddc97", "#ff9f43", "#b58cff", "#ff6b81", "#5ee0c8"];
   var FORMAT_LABEL = { statements: "How many statements are correct?", assertion_reason: "Assertion – Reason", match: "Match the pairs", case: "Case-based", multi: "One or more correct — select all", numeric: "Numerical — type your answer" };
 
+  // ---------------- browser Back / phone swipe-back ----------------
+  // Every tab and screen gets a history entry, so Back returns to the
+  // previous tab or screen instead of leaving the dashboard. A screen opened
+  // from the dashboard is pushed; moving on inside it (mission → result,
+  // test → result, retake) replaces that entry, so one Back returns to
+  // where the student started.
+  var NAV = { popping: false, forceTab: null };
+  function currentView() { return VIEWS.find(function (v) { return !$(v).classList.contains("hidden"); }); }
+  function navRecord(v, t) {
+    if (NAV.popping || v === "vBoot") return;
+    var cur = history.state || {}, next = { sage: 1, v: v, t: t || state.tab || "tabHome" };
+    if (cur.sage && cur.v === next.v && cur.t === next.t) return;
+    var fromHome = cur.sage && cur.v === "vHome";
+    if (cur.sage && (v !== "vHome" ? fromHome : cur.v === "vHome")) history.pushState(next, "");
+    else history.replaceState(next, "");
+  }
+  // In-app "Back" buttons: step back through the same history.
+  function navBack(tab) {
+    if (typeof tab !== "string") tab = null;
+    var cur = history.state || {};
+    NAV.forceTab = tab || null;                 // e.g. "BACK TO TESTS" always lands on the Tests tab
+    if (!(cur.sage && cur.v !== "vHome") && tab) state.tab = tab;
+    if (cur.sage && cur.v !== "vHome") history.back(); else boot();
+  }
+  window.addEventListener("popstate", async function (e) {
+    var s = e.state;
+    if (!s || !s.sage || !state.me) return;
+    var was = currentView();
+    NAV.popping = true;
+    try {
+      if (s.v === "vHome") {
+        state.tab = NAV.forceTab || s.t || "tabHome";
+        if (NAV.forceTab) history.replaceState({ sage: 1, v: "vHome", t: state.tab }, "");
+        NAV.forceTab = null;
+        if (was === "vHome") setTab(state.tab); else await boot();   // back from a screen: refresh XP, streak, tests
+      } else if (s.v === "vDuels") await openDuels();
+      else if (s.v === "vBoard") openBoard(board.period, board.scope);
+      else if (s.v === "vLeague") await openLeague();
+      else { state.tab = s.t || state.tab; await boot(); }           // a finished test / mission can't be re-entered
+    } finally { NAV.popping = false; }
+  });
+
   function show(id) {
+    var was = currentView();
+    // Leaving a test (Back, swipe or a button): keep the answers, stop the clock on this page.
+    if (was === "vExam" && id !== "vExam" && EX) { clearInterval(EX.timer); if (!EX.submitting) flushPending(); }
     VIEWS.forEach(function (v) { $(v).classList.toggle("hidden", v !== id); });
     $("logoutBtn").classList.toggle("hidden", id === "vBoot");
     // The tab bar belongs to the dashboard only (not inside a test or mission).
     $("tabbar").classList.toggle("hidden", id !== "vHome"); document.body.classList.toggle("has-tabs", id === "vHome");
+    navRecord(id, id === "vHome" ? state.tab : undefined);
     window.scrollTo(0, 0);
   }
   // ---------------- tabs ----------------
   function setTab(tab) {
     if (TABS.indexOf(tab) < 0) tab = "tabHome";
     state.tab = tab; store("sage_tab", tab);
+    if (currentView() === "vHome") navRecord("vHome", tab);
     TABS.forEach(function (t) { $(t).classList.toggle("hidden", t !== tab); });
     $("tabbar").querySelectorAll("[data-tab]").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === tab); b.setAttribute("aria-current", b.dataset.tab === tab ? "page" : "false"); });
     if (tab === "tabPractice") galaxySync(); else if (GX.api) GX.api.stop();
@@ -550,12 +597,25 @@
     return out.join("");
   }
 
+  // Read-only calls are retried on a network error or a server hiccup (5xx),
+  // so a weak connection or a cold server start does not leave an error screen.
+  var READ_ONLY = { me: 1, mocks: 1, leaderboard: 1, league: 1, duels: 1 };
   async function api(body) {
     var s = (await sb.auth.getSession()).data.session;
     if (!s) { var e0 = new Error("Please sign in again."); e0.code = "NOT_SIGNED_IN"; throw e0; }
-    var res = await fetch(FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: "Bearer " + s.access_token }, body: JSON.stringify(body) });
-    var data = {}; try { data = await res.json(); } catch (e) { /* unreadable */ }
-    if (!res.ok || !data.success) { var err = new Error(data.message || "Something went wrong. Please try again."); err.code = data.code; err.data = data; throw err; }
+    var tries = READ_ONLY[body.action] ? 3 : 1, res, data;
+    for (var i = 0; i < tries; i++) {
+      data = {};
+      try {
+        res = await fetch(FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY, Authorization: "Bearer " + s.access_token }, body: JSON.stringify(body) });
+        try { data = await res.json(); } catch (e) { /* unreadable */ }
+        if (res.status < 500) break;
+      } catch (e) {
+        res = null; data = { message: "No internet connection. Please check your network and try again." };
+      }
+      if (i < tries - 1) await new Promise(function (ok) { setTimeout(ok, 1200 * (i + 1)); });
+    }
+    if (!res || !res.ok || !data.success) { var err = new Error(data.message || "Something went wrong. Please try again."); err.code = data.code; err.data = data; throw err; }
     return data;
   }
 
@@ -651,8 +711,10 @@
     $("pName").textContent = me.student.name || "";
     $("pMeta").textContent = [me.student.school, me.student.className ? "Class " + me.student.className.replace(/th$/, "") : "", [me.student.taluka, me.student.district].filter(Boolean).join(", ")].filter(Boolean).join(" · ");
     $("pId").textContent = me.student.loginId ? "Student ID: " + me.student.loginId + " · " + rankFor(st.xp) + " · " + st.xp + " XP" : "";
+    var wantTab = state.tab || store("sage_tab");
+    state.tab = TABS.indexOf(wantTab) >= 0 ? wantTab : "tabHome";
     show("vHome");
-    setTab(state.tab || store("sage_tab") || "tabHome");
+    setTab(state.tab);
     if (state.tab !== "tabTests") loadMocks();              // for the "continue test" card on Home
     if (me.newBadges && me.newBadges.length) celebrate(me.newBadges);
     // Links opened before signing in.
@@ -676,7 +738,7 @@
 
   // ---------------- weekly league ----------------
   $("lgBtn").addEventListener("click", openLeague);
-  $("lBack").addEventListener("click", boot);
+  $("lBack").addEventListener("click", function () { navBack(); });
   async function openLeague() {
     show("vLeague"); $("lList").innerHTML = '<li class="gap">Loading…</li>';
     try {
@@ -733,7 +795,7 @@
     if (live) { $("resumeTitle").textContent = mockTitle(live); $("resumeBtn").dataset.mock = live.id; } else delete $("resumeBtn").dataset.mock;
   }
   document.addEventListener("click", function (e) { var b = e.target.closest("[data-mock]"); if (b) openMockIntro(b.dataset.mock); });
-  function backToTests() { if (EX) clearInterval(EX.timer); state.tab = "tabTests"; boot(); }
+  function backToTests() { if (EX) clearInterval(EX.timer); navBack("tabTests"); }
   function openMockIntro(id) {
     var m = findMock(id); if (!m) return;
     EX = { mock: m };
@@ -752,7 +814,7 @@
     try { r = await api({ action: "mock_start", chapterSlug: m.chapterSlug, setNo: m.setNo }); }
     catch (e) { $("eiStart").disabled = false; alert(e.message); return backToTests(); }
     $("eiStart").disabled = false;
-    EX.id = r.attemptId; EX.qs = r.questions; EX.resp = r.saved || {}; EX.endAt = Date.now() + r.remainingSeconds * 1000;
+    EX.id = r.attemptId; EX.qs = r.questions; EX.resp = r.saved || {}; EX.unsaved = {}; EX.endAt = Date.now() + r.remainingSeconds * 1000;
     try { EX.marked = JSON.parse(store("sage_mark_" + r.attemptId) || "[]"); } catch (e) { EX.marked = []; }
     var first = EX.qs.findIndex(function (q) { return !hasResp(EX.resp[q.id]); });
     EX.i = first < 0 ? 0 : first;
@@ -810,13 +872,26 @@
     $("exNext").textContent = EX.i === EX.qs.length - 1 ? "SUBMIT →" : "NEXT →";
     exNav();
   }
+  // Saves one answer; a failed save is retried, and anything still unsaved is
+  // sent again before submitting (weak mobile networks must not lose answers).
   async function saveResp(q, v) {
-    EX.resp[q.id] = v; $("exSaved").textContent = "Saving…"; exNav();
-    try { await api({ action: "mock_save", attemptId: EX.id, questionId: q.id, response: v }); $("exSaved").textContent = "Saved ✓"; msg("exMsg", ""); }
-    catch (e) {
-      if (e.code === "TIME_UP" || e.code === "SUBMITTED") return submitMock(true);
-      $("exSaved").textContent = ""; msg("exMsg", e.message + " Please check your connection; your answer is saved again when you change it.");
+    EX.resp[q.id] = v; EX.unsaved[q.id] = true; $("exSaved").textContent = "Saving…"; exNav();
+    for (var tries = 0; tries < 3; tries++) {
+      try {
+        await api({ action: "mock_save", attemptId: EX.id, questionId: q.id, response: v });
+        if (EX.resp[q.id] === v) delete EX.unsaved[q.id];
+        $("exSaved").textContent = "Saved ✓"; msg("exMsg", ""); return true;
+      } catch (e) {
+        if (e.code === "TIME_UP" || e.code === "SUBMITTED") { submitMock(true); return false; }
+        if (tries < 2) await new Promise(function (ok) { setTimeout(ok, 800 * (tries + 1)); });
+      }
     }
+    $("exSaved").textContent = "Not saved"; msg("exMsg", "Could not save your answer — please check your internet. It will be sent again before you submit.");
+    return false;
+  }
+  async function saveUnsaved() {
+    for (var id in Object.assign({}, EX.unsaved)) { var q = EX.qs.find(function (x) { return x.id === id; }); if (q) await saveResp(q, EX.resp[id]); }
+    return Object.keys(EX.unsaved).length === 0;
   }
   async function flushPending() { clearTimeout(EX.deb); var p = EX.pending; EX.pending = null; if (p && String(EX.resp[p.q.id] ?? "") !== String(p.v ?? "")) await saveResp(p.q, p.v); }
   async function goQ(i) { await flushPending(); EX.i = Math.max(0, Math.min(EX.qs.length - 1, i)); renderExamQ(); window.scrollTo(0, 0); }
@@ -833,12 +908,13 @@
   $("exExit").addEventListener("click", async function () { await flushPending(); backToTests(); });
   async function confirmSubmit() {
     await flushPending();
+    if (!(await saveUnsaved()) && !confirm("Some answers could not be saved because of the internet connection. Submit anyway? (Unsaved answers will count as not answered.)")) return;
     var left = EX.qs.filter(function (q) { return !hasResp(EX.resp[q.id]); }).length;
     if (confirm("Submit the test now?" + (left ? "\n" + left + " question" + (left > 1 ? "s are" : " is") + " not answered." : "") + (EX.marked.length ? "\n" + EX.marked.length + " marked for review." : "") + "\nYou cannot change answers after submitting.")) submitMock(false);
   }
   async function submitMock(auto) {
     if (EX.submitting) return; EX.submitting = true; clearInterval(EX.timer);
-    if (!auto) await flushPending();
+    if (!auto) { await flushPending(); await saveUnsaved(); }
     var r;
     try { r = await api({ action: "finish", attemptId: EX.id }); }
     catch (e) { EX.submitting = false; alert(e.message); return; }
@@ -1155,7 +1231,7 @@
       if (nb.length) celebrate(nb);
     } catch (e) { alert(e.message); }
   }
-  $("rHome").addEventListener("click", boot);
+  $("rHome").addEventListener("click", function () { navBack(); });
   $("rAgain").addEventListener("click", function () { startMission(state.mission && state.mission.slug); });
   $("rShare").addEventListener("click", function () { shareCard(state.lastResult); });
   $("rChallenge").addEventListener("click", function () {
@@ -1164,7 +1240,7 @@
 
   // ---------------- duel arena ----------------
   $("duelBtn").addEventListener("click", openDuels);
-  $("dBack").addEventListener("click", boot);
+  $("dBack").addEventListener("click", function () { navBack(); });
   $("dRandom").addEventListener("click", function () { startDuel("random"); });
   $("dFriend").addEventListener("click", function () { startDuel("friend"); });
   $("dCode").addEventListener("input", function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); });
@@ -1220,7 +1296,7 @@
   }
   $("bPeriod").addEventListener("click", function (e) { var c = e.target.closest("[data-period]"); if (c) { board.period = c.dataset.period; loadBoard(); } });
   $("bScope").addEventListener("click", function (e) { var c = e.target.closest("[data-scope]"); if (c) { board.scope = c.dataset.scope; loadBoard(); } });
-  $("bBack").addEventListener("click", boot);
+  $("bBack").addEventListener("click", function () { navBack(); });
 
   // ---------------- share card ----------------
   function cardName() { var n = String(state.me.student.name || "").trim().split(/\s+/); return n.length > 1 ? n[0] + " " + n[n.length - 1][0] + "." : n[0]; }
