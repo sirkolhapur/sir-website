@@ -219,4 +219,22 @@ function exportData(){download('sir-omr-lab-session.json',JSON.stringify({runs:s
 function exportCSV(){const rows=[['Run ID','Test','Exam','Files','Questions','Created','Status'],...state.runs.map(r=>[r.id,r.name,r.exam,r.fileCount,r.questions,r.created,r.status])];download('sir-omr-run-history.csv',rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');audit('Run history exported','CSV export downloaded.')}
 function exportAudit(){const rows=[['Time','Action','Details','Source'],...state.audit.map(a=>[a.time,a.action,a.details,a.source])];download('sir-omr-audit-preview.csv',rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');audit('Audit log exported','Preview audit log exported.')}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+ const PROJECT_URL="https://asbyosqpupqspzvqqhfj.supabase.co";
+ const PUBLIC_KEY="sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+ const ENGINE="https://sir-omr-engine.onrender.com";
+ const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY);
+ const gate=document.getElementById("labAuthGate"),err=document.getElementById("labAuthError"),btn=document.getElementById("labLoginButton");
+ const authStatus=document.getElementById("labAuthStatus"),engineStatus=document.getElementById("labEngineStatus");
+ function paint(el,msg,ok){el.textContent=msg;el.className="conn "+(ok?"ok":"bad");}
+ async function engineCheck(){try{const h=await fetch(ENGINE+"/health");if(!h.ok)throw new Error();const d=await fetch(ENGINE+"/api/v1/system/database-health");const j=await d.json();paint(engineStatus,j.connected===true?"Engine + Supabase DB: connected":"Engine online · DB not connected",j.connected===true);}catch(e){paint(engineStatus,"Engine: unreachable",false);}}
+ async function verify(session){if(!session||!session.access_token){gate.style.display="grid";paint(authStatus,"Admin: sign in required",false);return false;}paint(authStatus,"Admin: verifying…",false);try{const r=await fetch(ENGINE+"/api/v1/lab/session",{headers:{Authorization:"Bearer "+session.access_token}});const j=await r.json();if(!r.ok||j.authorized!==true||j.role!=="admin")throw new Error(j.detail||"SIR administrator access is required.");gate.style.display="none";paint(authStatus,"Admin: verified",true);document.getElementById("labSignOut").style.display="inline-block";await engineCheck();return true;}catch(e){gate.style.display="grid";err.textContent=e.message;paint(authStatus,"Admin: not verified",false);return false;}}
+ document.getElementById("labLoginForm").addEventListener("submit",async function(e){e.preventDefault();err.textContent="";btn.disabled=true;btn.textContent="Signing in…";try{const q=await client.auth.signInWithPassword({email:document.getElementById("labEmail").value.trim(),password:document.getElementById("labPassword").value});if(q.error)throw q.error;if(!q.data.session)throw new Error("Supabase did not return a session.");await verify(q.data.session);}catch(e){err.textContent=e.message||"Sign-in failed.";}finally{btn.disabled=false;btn.textContent="Verify administrator access";}});
+ window.labSignOut=async function(){await client.auth.signOut();gate.style.display="grid";paint(authStatus,"Admin: signed out",false);document.getElementById("labSignOut").style.display="none";};
+ window.testLabConnections=engineCheck;
+ (async function(){try{const q=await client.auth.getSession();if(q.error)throw q.error;if(q.data.session)await verify(q.data.session);else{gate.style.display="grid";paint(authStatus,"Admin: sign in required",false);paint(engineStatus,"Engine: not checked",false);}}catch(e){gate.style.display="grid";err.textContent="Unable to read Supabase session. Please sign in again.";}})();
+})();
+</script>
 </body></html>
