@@ -169,7 +169,7 @@ footer{text-align:center;color:#9aa4b2;font-size:9px;padding:17px}
 <div class="field"><label>Exam name</label><input id="keyExamName" value="SIR RCC NEET 180" maxlength="120"></div>
 <div class="field"><label>Template ID</label><input id="keyTemplateId" value="SIR-RCC-NEET-180" maxlength="120"></div>
 <div class="field"><label>Question count</label><input id="keyQuestionCount" type="number" min="1" max="500" value="180"></div>
-</div><div class="field" style="margin-top:12px"><label>Upload answer key (.xlsx, .xlsm, .csv or .json)</label><input id="answerKeyFile" type="file" accept=".xlsx,.xlsm,.csv,.json"></div><p class="pdesc">Question numbers must run from 1 to the configured question count. Options are validated against the configured option map.</p><div class="actions" style="margin-top:12px"><button class="btn primary" id="validateAnswerKeyBtn" onclick="validateAnswerKey()">Upload & validate answer key</button><button class="btn" onclick="downloadUniversalAnswerKeyTemplate()">Download CSV template (Excel compatible)</button><button class="btn" onclick="restoreSelectedAnswerKey()">Restore selected exam key</button></div><div class="callout" id="answerKeyStatus" style="margin-top:12px">Select exam configuration and upload its answer key. Each exam is stored independently.</div>
+</div><div class="field" style="margin-top:12px"><label>Upload answer key (.xlsx, .xlsm, .csv or .json)</label><input id="answerKeyFile" type="file" accept=".xlsx,.xlsm,.csv,.json"></div><p class="pdesc">Question numbers must run from 1 to the configured question count. Options are validated against the configured option map.</p><div class="actions" style="margin-top:12px"><button class="btn primary" id="validateAnswerKeyBtn" onclick="validateAnswerKey()">Upload & validate answer key</button><button class="btn" onclick="downloadUniversalAnswerKeyTemplate()">Download CSV template (Excel compatible)</button><button class="btn" id="restoreAnswerKeyBtn" onclick="restoreSelectedAnswerKey()">Restore selected exam key</button><button class="btn gold" id="copyMasterAnswerKeyBtn" style="display:none" onclick="copyMasterAnswerKeyToTest()">Copy NEET master key to this test</button></div><div class="callout" id="answerKeyStatus" style="margin-top:12px">Select exam configuration and upload its answer key. Each exam is stored independently.</div>
 <div class="panel" id="questionKeyEditor" style="display:none;margin-top:14px">
 <div class="phead"><div><div class="ptitle">Question-level answer editor</div><div class="pdesc" id="questionKeyEditorMeta">Review and edit the saved answer key.</div></div><button class="btn" onclick="closeQuestionKeyEditor()">Close editor</button></div>
 <div class="pbody">
@@ -325,7 +325,46 @@ async function createRun(){
 
 function currentMarkingScheme(){return {correct_marks:Number($('positive').value),incorrect_marks:Number($('negative').value),unattempted_marks:Number($('unattempted').value),multiple_marked_policy:$('multipleMarkedPolicy').value};}
 function selectedExamConfig(){const exam_code=$('keyExamCode').value.trim(),exam_name=$('keyExamName').value.trim(),template_id=$('keyTemplateId').value.trim(),question_count=Number($('keyQuestionCount').value);if(!exam_code||!exam_name||!template_id||!Number.isInteger(question_count)||question_count<1||question_count>500)throw new Error('Enter a valid exam code, name, template ID and question count (1–500).');return {exam_code,exam_name,template_id,question_count};}
-async function restoreSelectedAnswerKey(){try{const cfg=selectedExamConfig();const saved=await window.labApi('/api/v1/evaluation/answer-key/versions/latest?exam_code='+encodeURIComponent(cfg.exam_code));if(saved.status!=='restored'||!saved.answer_key){$('answerKeyStatus').textContent='No saved answer key for '+cfg.exam_name+'.';return}if(Number(saved.version.question_count)!==cfg.question_count)throw new Error('Saved version question count does not match this exam configuration.');state.answerKey=saved.answer_key;state.answerKeyVersionId=saved.version.id;state.answerKeyVersionNumber=saved.version.version_number;state.answerKeyFileName=saved.version.source_filename||'Saved answer key';const scheme=saved.version.marking_scheme||{};$('positive').value=scheme.correct_marks??4;$('negative').value=scheme.incorrect_marks??-1;$('unattempted').value=scheme.unattempted_marks??0;$('multipleMarkedPolicy').value=scheme.multiple_marked_policy||'review';$('answerKeyBadge').textContent=cfg.question_count+' / '+cfg.question_count+' · v'+saved.version.version_number+' restored';$('answerKeyBadge').className='tag green';$('answerKeyStatus').textContent='Restored from Supabase: '+state.answerKeyFileName+' · '+cfg.question_count+' questions · version v'+saved.version.version_number+'.';}catch(e){$('answerKeyStatus').textContent=e.message;}}
+async function restoreSelectedAnswerKey(){
+ const btn=$('restoreAnswerKeyBtn'),copyBtn=$('copyMasterAnswerKeyBtn');
+ if(btn){btn.disabled=true;btn.textContent='Checking saved key…';}
+ if(copyBtn)copyBtn.style.display='none';
+ try{
+  const cfg=selectedExamConfig();
+  const saved=await window.labApi('/api/v1/evaluation/answer-key/versions/latest?exam_code='+encodeURIComponent(cfg.exam_code));
+  if(saved.status!=='restored'||!saved.answer_key){
+   state.answerKey=null;state.answerKeyVersionId=null;state.answerKeyVersionNumber=null;
+   $('answerKeyBadge').textContent='No test key saved';$('answerKeyBadge').className='tag gold';
+   $('answerKeyStatus').textContent='No answer key is saved for '+cfg.exam_name+' ('+cfg.exam_code+'). The master NEET key is separate and has not been changed.';
+   if(copyBtn&&cfg.template_id==='SIR-RCC-NEET-180'&&cfg.question_count===180&&cfg.exam_code!=='SIR-RCC-NEET-180')copyBtn.style.display='inline-block';
+   return;
+  }
+  if(Number(saved.version.question_count)!==cfg.question_count)throw new Error('Saved version question count does not match this test configuration.');
+  if(saved.exam.template_id!==cfg.template_id)throw new Error('Saved answer-key template does not match this test configuration.');
+  state.answerKey=saved.answer_key;state.answerKeyVersionId=saved.version.id;state.answerKeyVersionNumber=saved.version.version_number;state.answerKeyFileName=saved.version.source_filename||'Saved answer key';
+  const scheme=saved.version.marking_scheme||{};$('positive').value=scheme.correct_marks??4;$('negative').value=scheme.incorrect_marks??-1;$('unattempted').value=scheme.unattempted_marks??0;$('multipleMarkedPolicy').value=scheme.multiple_marked_policy||'review';
+  $('answerKeyBadge').textContent=cfg.question_count+' / '+cfg.question_count+' · v'+saved.version.version_number+' restored';$('answerKeyBadge').className='tag green';
+  $('answerKeyStatus').textContent='Restored from Supabase: '+state.answerKeyFileName+' · '+cfg.question_count+' questions · draft/version v'+saved.version.version_number+'.';
+  toast('Answer key restored for '+cfg.exam_name+'.');
+ }catch(e){
+  $('answerKeyBadge').textContent='Restore failed';$('answerKeyBadge').className='tag red';
+  $('answerKeyStatus').textContent='Could not restore answer key: '+(e.message||'Unknown error');
+  toast(e.message||'Could not restore answer key.');
+ }finally{if(btn){btn.disabled=false;btn.textContent='Restore selected exam key';}}
+}
+async function copyMasterAnswerKeyToTest(){
+ const btn=$('copyMasterAnswerKeyBtn');if(!btn)return;
+ btn.disabled=true;btn.textContent='Copying safely…';
+ try{
+  const cfg=selectedExamConfig();
+  if(cfg.template_id!=='SIR-RCC-NEET-180'||cfg.question_count!==180)throw new Error('The NEET master key can only be copied to a test using the same NEET template and 180-question layout.');
+  const result=await window.labApi('/api/v1/evaluation/answer-key/versions/copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...cfg,source_exam_code:'SIR-RCC-NEET-180'})});
+  await restoreSelectedAnswerKey();
+  $('answerKeyStatus').textContent='A separate draft copy was created for '+cfg.exam_name+' from NEET master v'+result.source_version_number+'. Original master key remains unchanged.';
+  toast('Independent answer-key copy created for '+cfg.exam_name+'.');
+ }catch(e){$('answerKeyStatus').textContent='Copy not completed: '+(e.message||'Unknown error');toast(e.message||'Could not copy master answer key.');}
+ finally{btn.disabled=false;btn.textContent='Copy NEET master key to this test';}
+}
 async function validateAnswerKey(){const file=$('answerKeyFile').files[0];if(!file){toast('Choose an Excel, CSV or JSON answer key first.');return}const btn=$('validateAnswerKeyBtn');btn.disabled=true;btn.textContent='Validating & saving…';try{const cfg=selectedExamConfig();const form=new FormData();form.append('file',file,file.name);const result=await window.labApi('/api/v1/evaluation/answer-key/inspect',{method:'POST',body:form});if(!result.answer_key||Number(result.question_count)!==cfg.question_count)throw new Error(cfg.exam_name+' requires exactly '+cfg.question_count+' questions; uploaded key has '+(result.question_count||0)+'.');const allowed=new Set(['A','B','C','D','1','2','3','4']);const invalid=result.answer_key.questions.filter(q=>!allowed.has(String(q.correct_option).trim().toUpperCase()));if(invalid.length)throw new Error('Invalid option in question(s): '+invalid.slice(0,12).map(x=>x.question_number).join(', '));const saved=await window.labApi('/api/v1/evaluation/answer-key/versions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...cfg,answer_key:result.answer_key,marking_scheme:currentMarkingScheme(),option_map:{A:'1',B:'2',C:'3',D:'4'},source_filename:file.name})});state.answerKey=result.answer_key;state.answerKeyFileName=file.name;state.answerKeyVersionId=saved.answer_key_version_id;state.answerKeyVersionNumber=saved.version_number;$('answerKeyBadge').textContent=cfg.question_count+' / '+cfg.question_count+' · v'+saved.version_number+' saved';$('answerKeyBadge').className='tag green';$('answerKeyStatus').textContent='Saved independently in Supabase: '+cfg.exam_name+' · '+cfg.question_count+' questions · draft v'+saved.version_number+'.';audit('Answer key persisted',cfg.exam_code+' · v'+saved.version_number);toast('Answer key saved for '+cfg.exam_name+'.');}catch(e){$('answerKeyBadge').textContent='Save failed';$('answerKeyBadge').className='tag red';$('answerKeyStatus').textContent=e.message||'Answer-key save failed.';toast(e.message||'Answer-key save failed.');}finally{btn.disabled=false;btn.textContent='Upload & validate answer key';}}
 let questionKeyDraft=[];
 function openQuestionKeyEditor(){
