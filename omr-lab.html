@@ -335,13 +335,13 @@ async function loadReviewQueue(){
  try{
   const data=await window.labApi('/api/v1/lab/review/queue?limit='+reviewState.limit+'&offset='+reviewState.offset);
   reviewState.items=Array.isArray(data.items)?data.items:[];reviewState.total=Number(data.total)||0;
-  const pending=reviewState.items.filter(x=>x.processing_status==='needs_review').length;
+  const pending=reviewState.items.filter(x=>['queued','processing','needs_review'].includes(x.processing_status)).length;
   const reviewed=reviewState.items.filter(x=>x.processing_status==='reviewed').length;
   const approved=reviewState.items.filter(x=>x.processing_status==='approved').length;
   $('reviewPendingCount').textContent=pending;$('reviewedCount').textContent=reviewed;$('reviewApprovedCount').textContent=approved;$('reviewTotalCount').textContent=reviewState.total;
   $('reviewPageInfo').textContent='Showing '+(reviewState.total?reviewState.offset+1:0)+'–'+Math.min(reviewState.offset+reviewState.items.length,reviewState.total)+' of '+reviewState.total;
   $('reviewPrevBtn').disabled=reviewState.offset===0;$('reviewNextBtn').disabled=reviewState.offset+reviewState.limit>=reviewState.total;
-  $('reviewQueueBody').innerHTML=reviewState.items.map(x=>'<tr><td>'+esc(x.source_filename||'Uploaded sheet')+' · p'+esc(x.page_number??'—')+'</td><td>'+esc(x.roll_number||'Not identified')+'</td><td>'+reviewTag(x.identity_status)+'</td><td>'+reviewTag(x.processing_status)+'</td><td>'+Number(x.reviewed_question_count||0)+' / '+Number(x.question_count||0)+'</td><td>'+esc(reviewDate(x.updated_at))+'</td><td><button class="btn primary" onclick="openReviewDetail('+JSON.stringify(String(x.id))+')">Review</button></td></tr>').join('')||'<tr><td colspan="7" class="empty">No sheets are currently waiting in the human-review queue.</td></tr>';
+  $('reviewQueueBody').innerHTML=reviewState.items.map(x=>'<tr><td>'+esc(x.source_filename||'Uploaded sheet')+' · p'+esc(x.page_number??'—')+'</td><td>'+esc(x.roll_number||'Not identified')+'</td><td>'+reviewTag(x.identity_status)+'</td><td>'+reviewTag(x.processing_status)+'</td><td>'+Number(x.reviewed_question_count||0)+' / '+Number(x.question_count||0)+'</td><td>'+esc(reviewDate(x.updated_at))+'</td><td>'+(x.processing_status==='needs_review'||x.processing_status==='reviewed'?'<button class="btn primary" onclick="openReviewDetail('+JSON.stringify(String(x.id))+')">Review</button>':x.processing_status==='failed'?'<span class="tag red">Processing failed</span>':'<span class="tag gold">Waiting for worker</span>')+'</td></tr>').join('')||'<tr><td colspan="7" class="empty">No sheets are currently waiting in the human-review queue.</td></tr>';
   status.textContent='Connected · '+reviewState.items.length+' loaded';status.className='tag green';
  }catch(e){status.textContent='Load failed';status.className='tag red';$('reviewQueueBody').innerHTML='<tr><td colspan="7" class="empty">'+esc(e.message||'Could not load review queue.')+'</td></tr>';toast(e.message||'Review queue could not be loaded.');}
 }
