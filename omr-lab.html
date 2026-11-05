@@ -281,7 +281,8 @@ async function createRun(){
    toast('Batch safely queued, but recognition failed: '+recognitionError.message);
   }
   renderRuns();clearQuick();$('statFiles').textContent=receipts.length;
-  $('recognitionEngineBadge').textContent='Engine connected · NEET 180';$('recognitionEngineBadge').className='tag green';
+  if(run.processedSheets>0){$('recognitionEngineBadge').textContent='Engine connected · NEET 180';$('recognitionEngineBadge').className='tag green';}
+  else{$('recognitionEngineBadge').textContent='Recognition needs retry';$('recognitionEngineBadge').className='tag red';}
   navigate('recognition');
   await loadReviewQueue();
  }catch(e){
