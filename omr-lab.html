@@ -240,7 +240,7 @@ footer{text-align:center;color:#9aa4b2;font-size:9px;padding:17px}
 <div class="toast" id="toast"></div>
 <div id="labAuthGate"><form class="authcard" id="labLoginForm"><h2>SIR OMR Intelligence Lab</h2><p>Sign in with your existing SIR administrator account. Supabase and the OMR Engine will verify your access.</p><label for="labEmail">Administrator email</label><input id="labEmail" type="email" autocomplete="username" required><label for="labPassword">Password</label><input id="labPassword" type="password" autocomplete="current-password" required><button id="labLoginButton" type="submit">Verify administrator access</button><div id="labAuthError" role="alert"></div></form></div>
 <script>
-const state={files:[],runs:[],batches:[],batchConfigs:[],activeBatchConfigId:null,editingBatchConfigId:null,templates:[],editingTemplateVersionId:null,templateSample:null,audit:[],answerKey:null,answerKeyFileName:null,answerKeyVersionId:null,answerKeyVersionNumber:null,neetResults:[]};
+const state={files:[],runs:[],batches:[],batchConfigs:[],activeBatchConfigId:null,answerKeyBatchConfigId:null,editingBatchConfigId:null,templates:[],editingTemplateVersionId:null,templateSample:null,audit:[],answerKey:null,answerKeyFileName:null,answerKeyVersionId:null,answerKeyVersionNumber:null,neetResults:[]};
 const $=id=>document.getElementById(id);
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>t.classList.remove('show'),3300)}
 function modal(title,msg){$('modalTitle').textContent=title;$('modalText').textContent=msg;$('modal').classList.add('show')}
