@@ -111,7 +111,7 @@ footer{text-align:center;color:#9aa4b2;font-size:9px;padding:17px}
 <div class="field"><label>Page height (pixels at calibration DPI)</label><input id="tplHeight" type="number" min="1" max="20000" value="3508"></div>
 <div class="field full"><label>Option labels (comma-separated)</label><input id="tplOptions" value="A,B,C,D" placeholder="A,B,C,D"></div>
 <div class="field full"><label>Answer geometry JSON · normalized 0–1 coordinates</label><textarea id="tplGeometry" rows="9" placeholder='{"answer_regions":[{"question_start":1,"question_end":100,"option_labels":["A","B","C","D"],"first_bubble_x":0.2,"first_bubble_y":0.15,"option_step_x":0.12,"question_step_y":0.007,"bubble_width":0.04,"bubble_height":0.004,"bubble_shape":"circle"}]}'></textarea></div>
-<div class="field full"><label>Student identity profile JSON</label><textarea id="tplIdentity" rows="3" placeholder='{"methods":["qr","printed_roll_number"],"notes":"QR plus printed roll number"}>{}</textarea></div>
+<div class="field full"><label>Student identity profile JSON</label><input id="tplIdentity" type="text" value="{}" autocomplete="off" spellcheck="false"></div>
 <div class="field full"><label>Blank/sample OMR (PDF or image, max 25 MB)</label><input id="tplFile" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff"><div class="filelist" id="tplSampleStatus">No sample uploaded.</div><button class="btn" style="margin-top:8px" id="tplUploadSampleBtn" onclick="uploadTemplateSample()">Upload sample to private storage</button></div>
 </div>
 <div class="actions" style="margin-top:14px"><button class="btn primary" id="tplSaveBtn" onclick="saveTemplateVersion()">Save draft version</button><button class="btn" onclick="resetTemplateEditor()">New template</button></div>
