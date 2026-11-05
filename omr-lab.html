@@ -224,7 +224,49 @@ $('quickFiles').addEventListener('change',e=>{addFiles(e.target.files);e.target.
 const dz=$('quickDrop');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 $('quickExam').addEventListener('change',e=>{const q={'Talent Hunt':100,'NEET':180,'JEE Main':75};if(q[e.target.value])$('quickQ').value=q[e.target.value];if(e.target.value==='NEET')$('quickLayout').value='Existing approved template';});
 function clearQuick(){state.files=[];$('statFiles').textContent='0';$('quickFileList').textContent='No files selected';$('createRunBtn').disabled=true;$('quickFiles').value='';audit('Upload selection cleared','Selected files cleared from this browser session.')}
-async function createRun(){const q=Number($('quickQ').value);const exam=$('quickExam').value;if(exam!=='NEET'){toast('This first live milestone is limited to the SIR RCC NEET 180 template.');return}if(q!==180){toast('The SIR RCC NEET template requires exactly 180 questions.');return}if(!state.answerKey){toast('Upload and validate the 180-question answer key first.');navigate('answerkey');return}if(!state.files.length){toast('Select at least one OMR PDF or image first.');return}const button=$('createRunBtn');button.disabled=true;button.textContent='Uploading originals…';try{const selectedFiles=[...state.files];const receipts=await window.uploadLabFiles(selectedFiles);const id='LAB-'+Date.now();const run={id,name:$('quickName').value.trim()||'NEET 180',exam,files:receipts.map(x=>({name:x.filename,size:x.file_size_bytes,type:x.file_type,upload_id:x.upload_id,object_path:x.storage.object_path,page_count:x.page_count})),fileCount:receipts.length,questions:180,layout:'SIR-RCC-NEET-180',created:new Date().toLocaleString(),status:'Uploaded · processing'};state.runs.unshift(run);audit('NEET originals uploaded',id+' · '+receipts.length+' file(s)');renderRuns();$('statFiles').textContent=receipts.length;button.textContent='Processing NEET scans…';const completed=[];for(let i=0;i<selectedFiles.length;i++){const file=selectedFiles[i],receipt=receipts[i];const isPdf=file.name.toLowerCase().endsWith('.pdf');if(!isPdf&&Number(receipt.page_count||1)>1)throw new Error(file.name+': multi-frame TIFF is not supported in this first NEET milestone. Export each OMR page as a separate JPG or PNG.');const pages=isPdf?Number(receipt.page_count||0):1;if(!pages)throw new Error('Could not determine page count for '+file.name);for(let page=1;page<=pages;page++){const pageFile=file.name.toLowerCase().endsWith('.pdf')?await renderNeetPdfPage(file,page):file;const result=await processNeetPage(pageFile,file.name,page);completed.push(result);state.neetResults.unshift(result);renderNeetResults();$('statProcessed').textContent=completed.length;}}run.status='Recognition complete · review required';run.processedSheets=completed.length;renderRuns();clearQuick();$('statFiles').textContent=receipts.length;audit('NEET recognition completed',id+' · '+completed.length+' page(s) processed');modal('NEET recognition completed',completed.length+' page(s) were processed with the existing SIR RCC NEET 180 template. Recognition and answer-key comparison are provisional. Review uncertain answers and roll-number identity before approving any marks.');navigate('recognition');}catch(e){toast(e.message||'NEET processing failed. Uploaded originals remain in private storage; you can retry the selected scans.');}finally{button.textContent='Create test run';button.disabled=!state.files.length;}}
+async function sha256File(file){
+ const bytes=await file.arrayBuffer();
+ const digest=await crypto.subtle.digest('SHA-256',bytes);
+ return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function createRun(){
+ const q=Number($('quickQ').value),exam=$('quickExam').value;
+ if(exam!=='NEET'){toast('This live recognition pipeline currently supports the configured SIR RCC NEET 180 template only.');return;}
+ if(q!==180){toast('The active SIR RCC NEET template requires exactly 180 questions.');return;}
+ if(!state.answerKey||!state.answerKeyVersionId){toast('Restore or save the 180-question answer key first.');navigate('answerkey');return;}
+ if(!state.files.length){toast('Select at least one OMR PDF or image first.');return;}
+ const button=$('createRunBtn'),selectedFiles=[...state.files];
+ button.disabled=true;button.textContent='Uploading originals…';
+ try{
+  const receipts=await window.uploadLabFiles(selectedFiles);
+  if(receipts.length!==selectedFiles.length)throw new Error('Not every selected file was uploaded. No batch was created.');
+  const files=[];
+  for(let i=0;i<selectedFiles.length;i++){
+   const file=selectedFiles[i],receipt=receipts[i];
+   if(!receipt.storage?.object_path||!receipt.page_count)throw new Error(file.name+': upload receipt is incomplete; batch was not created.');
+   files.push({filename:receipt.filename||file.name,object_path:receipt.storage.object_path,sha256:await sha256File(file),page_count:Number(receipt.page_count),file_type:receipt.file_type||'unknown'});
+  }
+  button.textContent='Creating persistent processing batch…';
+  const cfg=selectedExamConfig();
+  const batch=await window.labApi('/api/v1/lab/batches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+   exam_code:cfg.exam_code,
+   answer_key_version_id:state.answerKeyVersionId,
+   batch_name:$('quickName').value.trim()||('NEET 180 · '+new Date().toLocaleString()),
+   files
+  })});
+  const run={id:batch.batch_id,name:$('quickName').value.trim()||'NEET 180',exam,files:receipts.map(x=>({name:x.filename,size:x.file_size_bytes,type:x.file_type,upload_id:x.upload_id,object_path:x.storage.object_path,page_count:x.page_count})),fileCount:receipts.length,questions:180,layout:'SIR-RCC-NEET-180',created:new Date().toLocaleString(),status:'Persisted · queued for worker',processedSheets:0,batchId:batch.batch_id};
+  state.runs.unshift(run);audit('OMR batch durably queued',batch.batch_id+' · '+batch.submission_count+' sheet(s)');
+  renderRuns();$('statFiles').textContent=receipts.length;$('statProcessed').textContent='0';
+  clearQuick();$('statFiles').textContent=receipts.length;
+  modal('OMR batch queued',batch.submission_count+' sheet(s) have been saved to the OMR database queue. The background worker will recognize and evaluate them. Once processing completes, refresh Exception Review. Every result remains provisional and requires human verification; nothing is published.');
+  navigate('exceptions');
+  await loadReviewQueue();
+ }catch(e){
+  toast(e.message||'Could not create the persistent OMR batch. Uploaded originals, if any, remain safely in private storage; no result has been approved.');
+ }finally{
+  button.textContent='Create test run';button.disabled=!state.files.length;
+ }
+}
 
 function currentMarkingScheme(){return {correct_marks:Number($('positive').value),incorrect_marks:Number($('negative').value),unattempted_marks:Number($('unattempted').value),multiple_marked_policy:$('multipleMarkedPolicy').value};}
 function selectedExamConfig(){const exam_code=$('keyExamCode').value.trim(),exam_name=$('keyExamName').value.trim(),template_id=$('keyTemplateId').value.trim(),question_count=Number($('keyQuestionCount').value);if(!exam_code||!exam_name||!template_id||!Number.isInteger(question_count)||question_count<1||question_count>500)throw new Error('Enter a valid exam code, name, template ID and question count (1–500).');return {exam_code,exam_name,template_id,question_count};}
