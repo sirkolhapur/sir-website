@@ -273,8 +273,8 @@ async function createRun(){
   const batch=await window.labApi('/api/v1/lab/batches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
    exam_code:cfg.exam_code,
    answer_key_version_id:state.answerKeyVersionId,
-   batch_name:$('quickName').value.trim()||('NEET 180 · '+new Date().toLocaleString()),
-   batch_config_id:state.activeBatchConfigId||null,
+   batch_name:selectedBatch.batch_name,
+   batch_config_id:selectedBatch.id,
    files
   })});
   const run={id:batch.batch_id,name:selectedBatch.batch_name,exam,files:receipts.map(x=>({name:x.filename,size:x.file_size_bytes,type:x.file_type,upload_id:x.upload_id,object_path:x.storage.object_path,page_count:x.page_count})),fileCount:receipts.length,questions:180,layout:'SIR-RCC-NEET-180',created:new Date().toLocaleString(),status:'Persisted · queued for worker',processedSheets:0,batchId:batch.batch_id};
