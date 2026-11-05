@@ -462,9 +462,18 @@ function exportCSV(){const rows=[['Run ID','Test','Exam','Files','Questions','Cr
 function exportAudit(){const rows=[['Time','Action','Details','Source'],...state.audit.map(a=>[a.time,a.action,a.details,a.source])];download('sir-omr-audit-preview.csv',rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');audit('Audit log exported','Preview audit log exported.')}
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
+ let sdkSettled=false;
+ const sdk=document.createElement("script");
+ sdk.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+ sdk.async=true;
+ const sdkTimer=setTimeout(function(){if(sdkSettled)return;sdkSettled=true;const a=document.getElementById("labAuthStatus"),e=document.getElementById("labEngineStatus"),g=document.getElementById("labAuthGate"),er=document.getElementById("labAuthError");a.textContent="Admin: sign-in library timeout";a.className="conn bad";e.textContent="Engine: not checked";e.className="conn";g.style.display="grid";er.textContent="Secure sign-in library did not load within 12 seconds. Check the network/CDN connection and refresh. No admin verification was attempted.";},12000);
+ sdk.onload=function(){if(sdkSettled)return;sdkSettled=true;clearTimeout(sdkTimer);initAuth();};
+ sdk.onerror=function(){if(sdkSettled)return;sdkSettled=true;clearTimeout(sdkTimer);const a=document.getElementById("labAuthStatus"),e=document.getElementById("labEngineStatus"),g=document.getElementById("labAuthGate"),er=document.getElementById("labAuthError");a.textContent="Admin: sign-in library unavailable";a.className="conn bad";e.textContent="Engine: not checked";e.className="conn";g.style.display="grid";er.textContent="Secure sign-in library failed to load. Check the network/CDN connection and refresh. No admin verification was attempted.";};
+ document.head.appendChild(sdk);
+ function initAuth(){
+ (function(){
  const PROJECT_URL="https://hqnwgerkltsavbsqztvm.supabase.co",PUBLIC_KEY="sb_publishable_gZv8GAwq8zQHcfdK0RlFyQ_4nMdBDJg",ENGINE="https://sir-omr-engine.onrender.com";
  const gate=document.getElementById("labAuthGate"),err=document.getElementById("labAuthError"),btn=document.getElementById("labLoginButton"),authStatus=document.getElementById("labAuthStatus"),engineStatus=document.getElementById("labEngineStatus");
  function paint(el,msg,ok){el.textContent=msg;el.className="conn "+(ok?"ok":"bad");}
@@ -478,7 +487,9 @@ function exportAudit(){const rows=[['Time','Action','Details','Source'],...state
  document.getElementById("labLoginForm").addEventListener("submit",async function(e){e.preventDefault();showError("");btn.disabled=true;btn.textContent="Signing in…";try{const q=await client.auth.signInWithPassword({email:document.getElementById("labEmail").value.trim(),password:document.getElementById("labPassword").value});if(q.error)throw q.error;if(!q.data.session)throw new Error("Supabase did not return a session.");await verify(q.data.session);}catch(e){showError(e.message||"Sign-in failed.");}finally{btn.disabled=false;btn.textContent="Verify administrator access";}});
  window.labSignOut=async function(){await client.auth.signOut();gate.style.display="grid";paint(authStatus,"Admin: signed out",false);document.getElementById("labSignOut").style.display="none";};
  window.testLabConnections=engineCheck;
- (async function(){try{const q=await client.auth.getSession();if(q.error)throw q.error;if(q.data.session)await verify(q.data.session);else{gate.style.display="grid";paint(authStatus,"Admin: sign in required",false);paint(engineStatus,"Engine: not checked",false);}}catch(e){gate.style.display="grid";showError("Unable to read Supabase session. Please sign in again.");}})();
+ (async function(){try{const q=await client.auth.getSession();if(q.error)throw q.error;if(q.data.session)await verify(q.data.session);else{gate.style.display="grid";paint(authStatus,"Admin: sign in required",false);paint(engineStatus,"Engine: not checked",false);}}catch(e){gate.style.display="grid";showError("Unable to read Supabase session. Please try signing in again.");paint(authStatus,"Admin: session check failed",false);paint(engineStatus,"Engine: not checked",false);}})();
+ })();
+ }
 })();
 </script>
 </body></html>
