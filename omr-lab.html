@@ -117,9 +117,9 @@ footer{text-align:center;color:#9aa4b2;font-size:9px;padding:17px}
 
 <!-- RECOGNITION -->
 <section class="page" id="page-recognition">
-<div class="pagehead"><div><div class="eyebrow">VISION & MARK DETECTION</div><h1>Recognition Results</h1><div class="sub">Inspect page alignment, bubble candidates, answer classification and per-question confidence.</div></div><span class="tag gold">ENGINE NOT CONNECTED</span></div>
+<div class="pagehead"><div><div class="eyebrow">VISION & MARK DETECTION</div><h1>Recognition Results</h1><div class="sub">Inspect page alignment, bubble candidates, answer classification and per-question confidence.</div></div><span class="tag gold" id="recognitionEngineBadge">Checking engine…</span></div>
 <div class="grid"><div class="panel"><div class="phead"><div class="ptitle">Recognition pipeline controls</div></div><div class="pbody"><div class="cards">
-<div class="feature"><b>Page detection</b><span>Page boundaries, page count, blank-page classification.</span></div><div class="feature"><b>Image correction</b><span>Rotation, skew, perspective, crop and contrast recovery.</span></div><div class="feature"><b>Anchor alignment</b><span>Registration mark detection and geometric correction.</span></div><div class="feature"><b>Bubble localization</b><span>Locate candidate answer regions from approved template.</span></div><div class="feature"><b>Mark classification</b><span>Filled, blank, faint, multiple, erased or changed.</span></div><div class="feature"><b>Confidence scoring</b><span>Per-bubble, per-answer and per-sheet confidence.</span></div></div><div class="actions" style="margin-top:14px"><button class="btn primary" onclick="toast('Recognition is waiting for the image-processing backend.')">Run recognition</button><button class="btn" onclick="toast('Debug overlays will appear here after recognition is connected.')">Show debug overlays</button><button class="btn" onclick="toast('Reprocess selected page will activate with the job service.')">Reprocess selected page</button></div></div></div>
+<div class="feature"><b>Page detection</b><span>Page boundaries, page count, blank-page classification.</span></div><div class="feature"><b>Image correction</b><span>Rotation, skew, perspective, crop and contrast recovery.</span></div><div class="feature"><b>Anchor alignment</b><span>Registration mark detection and geometric correction.</span></div><div class="feature"><b>Bubble localization</b><span>Locate candidate answer regions from approved template.</span></div><div class="feature"><b>Mark classification</b><span>Filled, blank, faint, multiple, erased or changed.</span></div><div class="feature"><b>Confidence scoring</b><span>Per-bubble, per-answer and per-sheet confidence.</span></div></div><div class="actions" style="margin-top:14px"><button class="btn primary" onclick="rerunLastRecognition()">Run recognition</button><button class="btn" onclick="showLatestRecognitionDebug()">Show debug overlays</button><button class="btn" onclick="rerunLastRecognition()">Reprocess selected page</button></div></div></div>
 <div class="panel"><div class="phead"><div class="ptitle">Recognition policy</div></div><div class="pbody"><div class="field"><label>Minimum answer confidence threshold</label><input type="number" value="95" min="0" max="100"></div><div class="field" style="margin-top:10px"><label>Low-confidence action</label><select><option>Send to manual review (recommended)</option><option>Mark as uncertain</option><option>Reject sheet</option></select></div><label class="checkrow"><input type="checkbox" checked> Never auto-guess uncertain answers</label><label class="checkrow"><input type="checkbox" checked> Keep original and processed images</label><label class="checkrow"><input type="checkbox" checked> Save debug image for exceptions</label></div></div></div>
 <div class="panel"><div class="phead"><div class="ptitle">NEET 180 recognition and answer-key comparison</div><span class="tag gold" id="recognitionBadge">Awaiting OMR scans</span></div><div class="pbody"><div class="kpis"><div class="kpi"><small>Sheets processed</small><b id="neetSheetsProcessed">0</b></div><div class="kpi"><small>Single-marked answers</small><b id="neetSingleMarked">—</b></div><div class="kpi"><small>Needs review</small><b id="neetNeedsReview">—</b></div></div><div class="callout" style="margin-top:12px">Answer-key comparisons are provisional. Recognition thresholds are not production-calibrated; no marks are finalized or published. Every sheet remains subject to operator review.</div></div><div class="tablewrap"><table><thead><tr><th>Sheet</th><th>Roll number</th><th>Question</th><th>Detected</th><th>Correct key</th><th>Comparison</th><th>Classification</th></tr></thead><tbody id="neetResultsBody"><tr><td colspan="7" class="empty">Process a NEET OMR from Overview to see its 180 answers here.</td></tr></tbody></table></div></div>
 </section>
@@ -257,9 +257,33 @@ async function createRun(){
   const run={id:batch.batch_id,name:$('quickName').value.trim()||'NEET 180',exam,files:receipts.map(x=>({name:x.filename,size:x.file_size_bytes,type:x.file_type,upload_id:x.upload_id,object_path:x.storage.object_path,page_count:x.page_count})),fileCount:receipts.length,questions:180,layout:'SIR-RCC-NEET-180',created:new Date().toLocaleString(),status:'Persisted · queued for worker',processedSheets:0,batchId:batch.batch_id};
   state.runs.unshift(run);audit('OMR batch durably queued',batch.batch_id+' · '+batch.submission_count+' sheet(s)');
   renderRuns();$('statFiles').textContent=receipts.length;$('statProcessed').textContent='0';
-  clearQuick();$('statFiles').textContent=receipts.length;
-  modal('OMR batch queued',batch.submission_count+' sheet(s) have been saved to the OMR database queue. The background worker will recognize and evaluate them. Once processing completes, refresh Exception Review. Every result remains provisional and requires human verification; nothing is published.');
-  navigate('exceptions');
+  // Keep the original interactive recognition experience: render each selected page,
+  // run the existing NEET detector, identify the roll number and compare with the key.
+  state.lastRecognitionFiles=selectedFiles;state.lastRecognitionReceipts=receipts;
+  try{
+   button.textContent='Running OMR recognition…';
+   const results=[];
+   for(let i=0;i<selectedFiles.length;i++){
+    const file=selectedFiles[i],receipt=receipts[i],isPdf=/\.pdf$/i.test(file.name);
+    if(!isPdf&&Number(receipt.page_count||1)>1)throw new Error(file.name+': multi-page TIFF must be exported as separate images for this NEET test.');
+    const pages=isPdf?Number(receipt.page_count||0):1;
+    if(!pages)throw new Error('Could not determine PDF page count for '+file.name);
+    for(let page=1;page<=pages;page++){
+     const pageFile=isPdf?await renderNeetPdfPage(file,page):file;
+     const result=await processNeetPage(pageFile,file.name,page);
+     results.push(result);state.neetResults.unshift(result);
+     $('statProcessed').textContent=results.length;renderNeetResults();
+    }
+   }
+   run.processedSheets=results.length;run.status='Recognition complete · provisional';audit('NEET recognition completed',batch.batch_id+' · '+results.length+' page(s)');
+  }catch(recognitionError){
+   run.status='Queued · recognition needs retry';audit('Recognition attempt failed',batch.batch_id+' · '+recognitionError.message);
+   toast('Batch safely queued, but recognition failed: '+recognitionError.message);
+  }
+  renderRuns();clearQuick();$('statFiles').textContent=receipts.length;
+  if(run.processedSheets>0){$('recognitionEngineBadge').textContent='Engine connected · NEET 180';$('recognitionEngineBadge').className='tag green';}
+  else{$('recognitionEngineBadge').textContent='Recognition needs retry';$('recognitionEngineBadge').className='tag red';}
+  navigate('recognition');
   await loadReviewQueue();
  }catch(e){
   toast(e.message||'Could not create the persistent OMR batch. Uploaded originals, if any, remain safely in private storage; no result has been approved.');
@@ -278,6 +302,28 @@ async function restoreLatestAnswerKey(){return restoreSelectedAnswerKey();try{co
 function downloadNeetAnswerKeyTemplate(){const rows=[['Question Number','Correct Option','Subject']];for(let q=1;q<=180;q++){const subject=q<=45?'Physics':q<=90?'Chemistry':'Biology';rows.push([q,'',subject]);}const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');download('SIR-NEET-180-Answer-Key-Template.csv',csv,'text/csv');}
 async function renderNeetPdfPage(file,pageNumber){const form=new FormData();form.append('file',file,file.name);form.append('page_number',String(pageNumber));form.append('dpi','150');const blob=await window.labApi('/api/v1/render/pdf/page',{method:'POST',body:form,responseType:'blob'});return new File([blob],file.name.replace(/\.pdf$/i,'')+'-page-'+pageNumber+'.png',{type:'image/png'});}
 async function processNeetPage(pageFile,sourceName,pageNumber){const recognitionForm=new FormData();recognitionForm.append('file',pageFile,pageFile.name);recognitionForm.append('template','SIR-RCC-NEET-180');const recognition=await window.labApi('/api/v1/recognition/inspect',{method:'POST',body:recognitionForm});if(!Array.isArray(recognition.questions)||recognition.questions.length!==180)throw new Error(sourceName+' page '+pageNumber+': engine returned '+(recognition.questions||[]).length+' questions instead of 180. Check scan orientation, rectification and template fit.');const identityForm=new FormData();identityForm.append('file',pageFile,pageFile.name);identityForm.append('profile_id','SIR-RCC-ROLL-7D-V1');let identity=null;try{identity=await window.labApi('/api/v1/identification/inspect',{method:'POST',body:identityForm});}catch(e){identity={status:'identity_requires_review',detail:e.message};}const keyByNumber=new Map(state.answerKey.questions.map(q=>[Number(q.question_number),String(q.correct_option).trim().toUpperCase()]));const optionMap={A:'1',B:'2',C:'3',D:'4'};const comparisons=recognition.questions.map(q=>{const classification=q.classification||{};const detected=classification.selected_option==null?null:String(classification.selected_option).toUpperCase();const key=keyByNumber.get(Number(q.question_number));const mapped=optionMap[key]||key;const comparable=classification.status==='single_marked'&&detected!==null;return {question_number:q.question_number,detected,correct:key,match:comparable?detected===mapped:null,status:classification.status,confidence:classification.confidence??classification.fill_score??null};});const evaluation=await window.labApi('/api/v1/evaluation/evaluate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answer_key:state.answerKey,recognition_result:recognition,marking_scheme:{correct_marks:Number($('positive').value),incorrect_marks:Number($('negative').value),unattempted_marks:Number($('unattempted').value),multiple_marked_policy:$('multipleMarkedPolicy').value},option_map:optionMap})});const counts={single:recognition.classification_summary?.single_marked||0,blank:recognition.classification_summary?.blank||0,multiple:recognition.classification_summary?.multiple_marked||0,ambiguous:recognition.classification_summary?.ambiguous||0};return {sourceName,pageNumber,rollNumber:identity?.roll_number_bubbles?.roll_number||null,identityStatus:identity?.identity_status||identity?.status||'requires_review',recognition,identity,evaluation,comparisons,counts,processedAt:new Date().toISOString()};}
+async function rerunLastRecognition(){
+ const files=state.lastRecognitionFiles||[],receipts=state.lastRecognitionReceipts||[];
+ if(!files.length||!state.answerKey){toast('Create a NEET test run first and restore its answer key.');return;}
+ try{
+  state.neetResults=[];renderNeetResults();
+  for(let i=0;i<files.length;i++){
+   const file=files[i],receipt=receipts[i]||{},isPdf=/\.pdf$/i.test(file.name),pages=isPdf?Number(receipt.page_count||0):1;
+   if(!pages)throw new Error('PDF page count is unavailable for '+file.name);
+   for(let page=1;page<=pages;page++){
+    const pageFile=isPdf?await renderNeetPdfPage(file,page):file;
+    state.neetResults.unshift(await processNeetPage(pageFile,file.name,page));renderNeetResults();
+   }
+  }
+  $('recognitionEngineBadge').textContent='Engine connected · NEET 180';$('recognitionEngineBadge').className='tag green';
+  toast('Recognition rerun completed. Results remain provisional.');
+ }catch(e){$('recognitionEngineBadge').textContent='Recognition error';$('recognitionEngineBadge').className='tag red';toast(e.message||'Recognition rerun failed.');}
+}
+function showLatestRecognitionDebug(){
+ const r=state.neetResults[0];if(!r){toast('Run recognition first.');return;}
+ const s=r.recognition?.classification_summary||{};
+ modal('Latest recognition diagnostics','Page: '+r.sourceName+' · '+r.pageNumber+'\nSingle marked: '+(s.single_marked||0)+'\nBlank: '+(s.blank||0)+'\nMultiple marked: '+(s.multiple_marked||0)+'\nAmbiguous: '+(s.ambiguous||0)+'\nAll results remain provisional and require human review.');
+}
 function renderNeetResults(){const all=state.neetResults;const processed=all.length;$('neetSheetsProcessed').textContent=processed;$('neetSingleMarked').textContent=all.reduce((n,r)=>n+r.counts.single,0);$('neetNeedsReview').textContent=all.reduce((n,r)=>n+r.counts.blank+r.counts.multiple+r.counts.ambiguous,0);$('recognitionBadge').textContent=processed?processed+' sheet(s) · provisional':'Awaiting OMR scans';$('recognitionBadge').className=processed?'tag green':'tag gold';const rows=[];for(const r of all){for(const q of r.comparisons){const match=q.match===true?'Key match · provisional':q.match===false?'Key mismatch · provisional':'Not auto-compared';rows.push('<tr><td>'+esc(r.sourceName)+' · p'+r.pageNumber+'</td><td>'+esc(r.rollNumber||'Needs review')+'</td><td>'+q.question_number+'</td><td>'+esc(q.detected||'—')+'</td><td>'+esc(q.correct||'—')+'</td><td>'+esc(match)+'</td><td>'+esc(q.status||'unknown')+'</td></tr>');}}$('neetResultsBody').innerHTML=rows.join('')||'<tr><td colspan="7" class="empty">Process a NEET OMR from Overview to see its 180 answers here.</td></tr>';}
 
 
@@ -290,13 +336,13 @@ async function loadReviewQueue(){
  try{
   const data=await window.labApi('/api/v1/lab/review/queue?limit='+reviewState.limit+'&offset='+reviewState.offset);
   reviewState.items=Array.isArray(data.items)?data.items:[];reviewState.total=Number(data.total)||0;
-  const pending=reviewState.items.filter(x=>x.processing_status==='needs_review').length;
+  const pending=reviewState.items.filter(x=>['queued','processing','needs_review'].includes(x.processing_status)).length;
   const reviewed=reviewState.items.filter(x=>x.processing_status==='reviewed').length;
   const approved=reviewState.items.filter(x=>x.processing_status==='approved').length;
   $('reviewPendingCount').textContent=pending;$('reviewedCount').textContent=reviewed;$('reviewApprovedCount').textContent=approved;$('reviewTotalCount').textContent=reviewState.total;
   $('reviewPageInfo').textContent='Showing '+(reviewState.total?reviewState.offset+1:0)+'–'+Math.min(reviewState.offset+reviewState.items.length,reviewState.total)+' of '+reviewState.total;
   $('reviewPrevBtn').disabled=reviewState.offset===0;$('reviewNextBtn').disabled=reviewState.offset+reviewState.limit>=reviewState.total;
-  $('reviewQueueBody').innerHTML=reviewState.items.map(x=>'<tr><td>'+esc(x.source_filename||'Uploaded sheet')+' · p'+esc(x.page_number??'—')+'</td><td>'+esc(x.roll_number||'Not identified')+'</td><td>'+reviewTag(x.identity_status)+'</td><td>'+reviewTag(x.processing_status)+'</td><td>'+Number(x.reviewed_question_count||0)+' / '+Number(x.question_count||0)+'</td><td>'+esc(reviewDate(x.updated_at))+'</td><td><button class="btn primary" onclick="openReviewDetail('+JSON.stringify(String(x.id))+')">Review</button></td></tr>').join('')||'<tr><td colspan="7" class="empty">No sheets are currently waiting in the human-review queue.</td></tr>';
+  $('reviewQueueBody').innerHTML=reviewState.items.map(x=>'<tr><td>'+esc(x.source_filename||'Uploaded sheet')+' · p'+esc(x.page_number??'—')+'</td><td>'+esc(x.roll_number||'Not identified')+'</td><td>'+reviewTag(x.identity_status)+'</td><td>'+reviewTag(x.processing_status)+'</td><td>'+Number(x.reviewed_question_count||0)+' / '+Number(x.question_count||0)+'</td><td>'+esc(reviewDate(x.updated_at))+'</td><td>'+(x.processing_status==='needs_review'||x.processing_status==='reviewed'?'<button class="btn primary" onclick="openReviewDetail('+JSON.stringify(String(x.id))+')">Review</button>':x.processing_status==='failed'?'<span class="tag red">Processing failed</span>':'<span class="tag gold">Waiting for worker</span>')+'</td></tr>').join('')||'<tr><td colspan="7" class="empty">No sheets are currently waiting in the human-review queue.</td></tr>';
   status.textContent='Connected · '+reviewState.items.length+' loaded';status.className='tag green';
  }catch(e){status.textContent='Load failed';status.className='tag red';$('reviewQueueBody').innerHTML='<tr><td colspan="7" class="empty">'+esc(e.message||'Could not load review queue.')+'</td></tr>';toast(e.message||'Review queue could not be loaded.');}
 }
