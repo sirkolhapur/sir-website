@@ -112,8 +112,19 @@ footer{text-align:center;color:#9aa4b2;font-size:9px;padding:17px}
 <div class="field"><label>Page height (pixels at calibration DPI)</label><input id="tplHeight" type="number" min="1" max="20000" value="3508"></div>
 <div class="field full"><label>Option labels (comma-separated)</label><input id="tplOptions" value="A,B,C,D" placeholder="A,B,C,D"></div>
 <div class="field full"><label>Answer geometry JSON · normalized 0–1 coordinates</label><textarea id="tplGeometry" rows="9" placeholder='{"answer_regions":[{"question_start":1,"question_end":100,"option_labels":["A","B","C","D"],"first_bubble_x":0.2,"first_bubble_y":0.15,"option_step_x":0.12,"question_step_y":0.007,"bubble_width":0.04,"bubble_height":0.004,"bubble_shape":"circle"}]}'></textarea></div>
+<div class="field full"><label>Visual calibration · image sample</label>
+<div class="callout">Choose an image sample above. Click three bubble centres in this order: first option of the first question, next option in the same row, then the first option of the next question. The tool calculates normalized coordinates and adds one answer region. Repeat for each separate block/column.</div>
+<div class="formgrid" style="margin-top:10px">
+<div class="field"><label>Region first question</label><input id="tplCalStart" type="number" min="1" value="1"></div>
+<div class="field"><label>Region last question</label><input id="tplCalEnd" type="number" min="1" value="35"></div>
+</div>
+<div class="actions" style="margin:10px 0"><span class="tag" id="tplCalStep">Waiting for image</span><button class="btn" type="button" onclick="resetTemplateCalibrationPoints()">Reset 3 points</button></div>
+<canvas id="tplCalCanvas" style="display:none;max-width:100%;max-height:680px;width:auto;height:auto;border:1px solid var(--line);border-radius:8px;cursor:crosshair;background:#fff" onclick="pickTemplateCalibrationPoint(event)"></canvas>
+<div class="filelist" id="tplCalStatus">Image preview and calibration points will appear here. PDF preview is not included in this first calibration pass.</div>
+<div class="actions" style="margin-top:10px"><button class="btn primary" type="button" id="tplCalAddRegion" onclick="addTemplateCalibrationRegion()" disabled>Add calibrated region to geometry</button></div>
+</div></div>
 <div class="field full"><label>Student identity profile JSON</label><input id="tplIdentity" type="text" value="{}" autocomplete="off" spellcheck="false"></div>
-<div class="field full"><label>Blank/sample OMR (PDF or image, max 25 MB)</label><input id="tplFile" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff"><div class="filelist" id="tplSampleStatus">No sample uploaded.</div><button class="btn" style="margin-top:8px" id="tplUploadSampleBtn" onclick="uploadTemplateSample()">Upload sample to private storage</button></div>
+<div class="field full"><label>Blank/sample OMR (PDF or image, max 25 MB)</label><input id="tplFile" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff" onchange="loadTemplateCalibrationPreview(this)"><div class="filelist" id="tplSampleStatus">No sample uploaded.</div><button class="btn" style="margin-top:8px" id="tplUploadSampleBtn" onclick="uploadTemplateSample()">Upload sample to private storage</button></div>
 </div>
 <div class="actions" style="margin-top:14px"><button class="btn primary" id="tplSaveBtn" onclick="saveTemplateVersion()">Save draft version</button><button class="btn" onclick="resetTemplateEditor()">New template</button></div>
 </div></div>
@@ -525,6 +536,48 @@ function templatePayload(){let geometry,identity;try{geometry=JSON.parse($('tplG
  if(!Number.isInteger(q)||q<1||q>500||!Number.isInteger(w)||w<1||!Number.isInteger(h)||h<1)throw new Error('Enter valid page dimensions and a question count from 1 to 500.');
  if(labels.length<2||new Set(labels).size!==labels.length)throw new Error('Enter at least two unique option labels.');
  return {template_id:$('tplId').value.trim(),name:$('tplName').value.trim(),template_code:$('tplCode').value.trim(),page_width:w,page_height:h,question_count:q,option_labels:labels,geometry,identity_profile:identity,calibration_checklist:templateChecklist(),validation_summary:{blank_samples:Number($('tplCountBlank').value)||0,filled_samples:Number($('tplCountFilled').value)||0,multiple_mark_samples:Number($('tplCountMultiple').value)||0,erasure_samples:Number($('tplCountErasure').value)||0},sample_bucket:state.templateSample?.bucket||null,sample_object_path:state.templateSample?.object_path||null};}
+let templateCalibrationImage=null;
+let templateCalibrationPoints=[];
+let templateCalibrationDraft=null;
+function resetTemplateCalibrationPoints(){templateCalibrationPoints=[];templateCalibrationDraft=null;$('tplCalAddRegion').disabled=true;$('tplCalStep').textContent=templateCalibrationImage?'Point 1 of 3: click the first option bubble for the first question':'Waiting for image';drawTemplateCalibrationPreview();}
+function loadTemplateCalibrationPreview(input){
+ const file=input.files&&input.files[0];if(!file)return;
+ if(!file.type.startsWith('image/')){$('tplCalCanvas').style.display='none';$('tplCalStatus').textContent='This file is stored as a sample, but visual calibration preview currently supports image files (PNG/JPG/TIFF supported where the browser can decode them). For PDF, use a page exported as PNG/JPG for calibration.';templateCalibrationImage=null;resetTemplateCalibrationPoints();return;}
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{templateCalibrationImage=img;const canvas=$('tplCalCanvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;canvas.style.display='block';$('tplWidth').value=img.naturalWidth;$('tplHeight').value=img.naturalHeight;$('tplCalStatus').textContent='Preview loaded: '+file.name+' · '+img.naturalWidth+' × '+img.naturalHeight+' px. Click bubble centres in the instructed order.';resetTemplateCalibrationPoints();URL.revokeObjectURL(url);};
+ img.onerror=()=>{$('tplCalStatus').textContent='Browser could not preview this image. Convert one page to PNG/JPG for visual calibration.';URL.revokeObjectURL(url);};
+ img.src=url;
+}
+function drawTemplateCalibrationPreview(){
+ const canvas=$('tplCalCanvas');if(!canvas||!templateCalibrationImage)return;
+ const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(templateCalibrationImage,0,0);
+ templateCalibrationPoints.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,Math.max(8,canvas.width*0.008),0,Math.PI*2);ctx.strokeStyle='#d12f27';ctx.lineWidth=Math.max(2,canvas.width*0.002);ctx.stroke();ctx.fillStyle='#d12f27';ctx.font='bold '+Math.max(16,canvas.width*0.018)+'px sans-serif';ctx.fillText(String(i+1),p.x+10,p.y-10);});
+}
+function pickTemplateCalibrationPoint(event){
+ if(!templateCalibrationImage||templateCalibrationPoints.length>=3)return;
+ const canvas=$('tplCalCanvas'),rect=canvas.getBoundingClientRect();
+ const x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height;
+ templateCalibrationPoints.push({x,y});drawTemplateCalibrationPreview();
+ const next=['Click point 2: next option bubble in the same question row','Click point 3: first option bubble in the next question row'];
+ if(templateCalibrationPoints.length<3){$('tplCalStep').textContent=next[templateCalibrationPoints.length-1];return;}
+ const [a,b,c]=templateCalibrationPoints,dx=b.x-a.x,dy=c.y-a.y,start=Number($('tplCalStart').value),end=Number($('tplCalEnd').value),labels=$('tplOptions').value.split(',').map(x=>x.trim()).filter(Boolean);
+ if(Math.abs(dx)<2||dy<2||!Number.isInteger(start)||!Number.isInteger(end)||start<1||end<start||end>Number($('tplQuestions').value)||labels.length<2){$('tplCalStep').textContent='Invalid points or question range. Reset and select again.';return;}
+ const width=Math.min(Math.abs(dx),Math.abs(dy))*0.58;
+ templateCalibrationDraft={question_start:start,question_end:end,option_labels:labels,first_bubble_x:a.x/canvas.width,first_bubble_y:a.y/canvas.height,option_step_x:dx/canvas.width,question_step_y:dy/canvas.height,bubble_width:width/canvas.width,bubble_height:width/canvas.height,bubble_shape:'circle'};
+ $('tplCalStep').textContent='3 points captured · Q'+start+'–'+end+' · review preview, then add region';
+ $('tplCalAddRegion').disabled=false;
+}
+function addTemplateCalibrationRegion(){
+ if(!templateCalibrationDraft)return;
+ let geometry;try{geometry=JSON.parse($('tplGeometry').value||'{"answer_regions":[]}');}catch(e){toast('Existing geometry JSON is invalid. Correct it before adding a region.');return;}
+ if(!Array.isArray(geometry.answer_regions))geometry.answer_regions=[];
+ const candidate=templateCalibrationDraft;
+ if(geometry.answer_regions.some(r=>!(candidate.question_end<r.question_start||candidate.question_start>r.question_end))){toast('This question range overlaps an existing region. Choose a different range.');return;}
+ geometry.answer_regions.push(candidate);geometry.answer_regions.sort((a,b)=>a.question_start-b.question_start);
+ $('tplGeometry').value=JSON.stringify(geometry,null,2);$('tplCalStatus').textContent='Added region Q'+candidate.question_start+'–'+candidate.question_end+'. This is a geometric estimate; validate it against real filled sheets before approval.';
+ $('tplCalStep').textContent='Region added · reset points to calibrate the next block';
+ templateCalibrationDraft=null;templateCalibrationPoints=[];$('tplCalAddRegion').disabled=true;drawTemplateCalibrationPreview();
+}
 async function uploadTemplateSample(){const file=$('tplFile').files[0];if(!file){toast('Choose a blank/sample OMR file first.');return;}const b=$('tplUploadSampleBtn');b.disabled=true;b.textContent='Uploading securely…';try{const form=new FormData();form.append('file',file,file.name);const r=await window.labApi('/api/v1/lab/templates/samples',{method:'POST',body:form});state.templateSample={bucket:r.bucket,object_path:r.object_path,filename:r.filename};$('tplSampleStatus').textContent='Uploaded privately: '+r.filename+' · '+r.page_count+' page(s) · not calibrated';audit('Template sample uploaded',r.object_path);toast('Sample saved to private storage.');}catch(e){toast(e.message||'Sample upload failed.');}finally{b.disabled=false;b.textContent='Upload sample to private storage';}}
 async function saveTemplateVersion(){const b=$('tplSaveBtn');b.disabled=true;b.textContent='Saving draft…';try{const payload=templatePayload();if(!payload.name||!payload.template_code)throw new Error('Template name and code are required.');const id=state.editingTemplateVersionId,path=id?'/api/v1/lab/templates/'+encodeURIComponent(id):'/api/v1/lab/templates';const r=await window.labApi(path,{method:id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const item=r.item;state.editingTemplateVersionId=item.id;state.templateSample=item.sample_object_path?{bucket:item.sample_bucket,object_path:item.sample_object_path,filename:'Attached sample'}:state.templateSample;audit(id?'Template draft updated':'Template draft version saved',item.template_id+' v'+item.version_number);toast('Template draft version saved in Supabase.');await loadTemplateVersions();$('tplEditorMode').textContent='Editing draft '+item.template_id+' · version '+item.version_number;$('tplDraftBadge').textContent='DRAFT v'+item.version_number;}catch(e){toast(e.message||'Template could not be saved.');}finally{b.disabled=false;b.textContent='Save draft version';}}
 async function loadTemplateVersions(){try{const r=await window.labApi('/api/v1/lab/templates');state.templates=r.items||[];$('tplRegistryCount').textContent=state.templates.length+' version(s)';const rows=state.templates.map(x=>{const id=esc(String(x.id)),status=String(x.status||'draft'),color=status==='active'?'green':status==='archived'?'red':status==='approved'?'gold':'';let actions='<button class="btn" onclick="editTemplateVersion(\''+id+'\')">View / edit</button>';if(status==='draft')actions+='<button class="btn" onclick="validateTemplateVersion(\''+id+'\')">Validate</button>';if(status==='validated')actions+='<button class="btn gold" onclick="approveTemplateVersion(\''+id+'\')">Approve</button>';if(status==='approved'||status==='inactive')actions+='<button class="btn gold" onclick="setTemplateStatus(\''+id+'\',\'active\')">Activate</button>';if(status==='active')actions+='<button class="btn danger" onclick="setTemplateStatus(\''+id+'\',\'inactive\')">Deactivate</button>';if(status!=='archived'&&status!=='draft')actions+='<button class="btn" onclick="setTemplateStatus(\''+id+'\',\'archived\')">Archive</button>';return '<tr><td>'+esc(x.name)+'<div class="pdesc">'+esc(x.template_id)+'</div></td><td>v'+x.version_number+'</td><td>'+esc(x.template_code)+'</td><td>'+x.question_count+'</td><td>'+esc((x.option_labels||[]).join(', '))+'</td><td><span class="tag '+color+'">'+esc(status)+'</span></td><td><div class="actions">'+actions+'</div></td></tr>';}).join('');$('templateTable').innerHTML=rows||'<tr><td colspan="7" class="empty">No template versions saved yet.</td></tr>';}catch(e){$('templateTable').innerHTML='<tr><td colspan="7" class="empty">'+esc(e.message||'Could not load template registry.')+'</td></tr>';}}
