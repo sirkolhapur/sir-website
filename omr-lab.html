@@ -341,7 +341,7 @@ function renderQuestionKeyRows(){
  const body=$('questionKeyRows');if(!questionKeyDraft.length){body.innerHTML='<tr><td colspan="3" class="empty">No answer key loaded.</td></tr>';return;}
  const query=$('questionKeySearch').value.trim().toLowerCase(),subject=$('questionKeySubject').value;
  const rows=questionKeyDraft.filter(q=>(!query||String(q.question_number).includes(query)||String(q.subject||'').toLowerCase().includes(query))&&(!subject||String(q.subject||'').toLowerCase()===subject.toLowerCase()));
- body.innerHTML=rows.map(q=>'<tr><td>'+q.question_number+'</td><td>'+esc(q.subject||'—')+'</td><td><select aria-label="Correct option for question '+q.question_number+'" onchange="updateQuestionKeyAnswer('+q.question_number+',this.value)">'+['A','B','C','D'].map(v=>'<option value="'+v+'" '+(q.correct_option===v?'selected':'')+'>'+v+'</option>').join('')+'</select></td></tr>').join('')||'<tr><td colspan="3" class="empty">No matching questions.</td></tr>';
+ body.innerHTML=rows.map(q=>'<tr><td>'+q.question_number+'</td><td>'+esc(q.subject||'—')+'</td><td><select aria-label="Correct option for question '+q.question_number+'" onchange="updateQuestionKeyAnswer('+q.question_number+',this.value)">'+['A','B','C','D','1','2','3','4'].map(v=>'<option value="'+v+'" '+(q.correct_option===v?'selected':'')+'>'+v+'</option>').join('')+'</select></td></tr>').join('')||'<tr><td colspan="3" class="empty">No matching questions.</td></tr>';
  $('questionKeyEditorStatus').textContent='Showing '+rows.length+' of '+questionKeyDraft.length+' questions. Changes are local until saved.';
 }
 async function saveQuestionKeyDraft(){
