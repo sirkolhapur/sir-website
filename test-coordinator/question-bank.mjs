@@ -15,6 +15,7 @@ import { helperHealth, runMathOcr, MATH_OCR_VERSION } from "../tools/qb/math-ocr
 import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261030-mathocr1";
 import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261030-mathocr1";
 import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261030-mathocr1";
+import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261110-gemini1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -109,7 +110,9 @@ async function loadTaxonomy() {
     sb.from("qb_exam_tags").select("*").order("sort_order"),
   ]);
   for (const r of [s, c, t, st, e]) if (r.error) throw r.error;
-  S.tax = { subjects: s.data, chapters: c.data, topics: t.data, subtopics: st.data, examTags: e.data };
+  // Question sets (Classwork, PYQ NEET, …): optional until the 20261110 migration is applied.
+  const qs = await sb.from("qb_question_sets").select("*").order("sort_order");
+  S.tax = { subjects: s.data, chapters: c.data, topics: t.data, subtopics: st.data, examTags: e.data, questionSets: qs.error ? [] : qs.data };
   S.taxonomy = {
     exam_tags: e.data.map((x) => x.id),
     subjects: s.data.map((sub) => ({ id: sub.id, code: sub.code, name: sub.name, branches: sub.branches,
@@ -118,15 +121,18 @@ async function loadTaxonomy() {
           subtopics: st.data.filter((x) => x.topic_id === tp.id).map((x) => [x.slug, x.label]) })) })) })),
   };
 }
-const chaptersOf = (sid) => S.tax.chapters.filter((c) => c.subject_id === sid);
-const topicsOf = (cid) => S.tax.topics.filter((t) => t.chapter_id === cid);
-const subtopicsOf = (tid) => S.tax.subtopics.filter((t) => t.topic_id === tid);
+// Pickers list active chapters/topics only (replaced ones are hidden, never deleted).
+const chaptersOf = (sid) => S.tax.chapters.filter((c) => c.subject_id === sid && c.is_active !== false);
+const topicsOf = (cid) => S.tax.topics.filter((t) => t.chapter_id === cid && t.is_active !== false);
+const subtopicsOf = (tid) => S.tax.subtopics.filter((t) => t.topic_id === tid && t.is_active !== false);
 const chapterBySlug = (sid, slug) => S.tax.chapters.find((c) => c.subject_id === sid && c.slug === slug);
 const chapterById = (id) => S.tax.chapters.find((c) => c.id === id);
 const topicById = (id) => S.tax.topics.find((t) => t.id === id);
 const opt = (v, label, sel) => `<option value="${esc(v)}"${String(v) === String(sel ?? "") ? " selected" : ""}>${esc(label)}</option>`;
 const subjectOpts = (sel) => S.tax.subjects.map((s) => opt(s.id, s.name, sel)).join("");
-const chapterOpts = (sid, sel, blank = "All chapters") => opt("", blank, sel) + chaptersOf(sid).map((c) => opt(c.id, c.name, sel)).join("");
+const chapterOpts = (sid, sel, blank = "All chapters") => opt("", blank, sel) + chaptersOf(sid).map((c) => opt(c.id, c.class_level ? `${c.name} (Class ${c.class_level})` : c.name, sel)).join("");
+const setOpts = (sel, blank) => opt("", blank, sel) + (S.tax.questionSets || []).map((q) => opt(q.id, q.label, sel)).join("");
+const setLabels = () => Object.fromEntries((S.tax.questionSets || []).map((q) => [q.id, q.label]));
 const topicOpts = (cid, sel, blank = "All topics") => opt("", blank, sel) + topicsOf(cid).map((t) => opt(t.id, t.label, sel)).join("");
 function matchChapter(sid, name) {
   const n = String(name || "").trim().toLowerCase(); if (!n) return null;
@@ -336,40 +342,73 @@ if (window.QB_PENDING) { const [k, r] = window.QB_PENDING; window.QB_PENDING = n
 // ---------- Upload Documents ----------
 async function pageUpload(root) {
   const subj = S.tax.subjects[0]?.id;
-  root.innerHTML = `<div class="notice"><b>Nothing is verified by uploading.</b> Files are read in this browser with free, open-source tools (PDF.js, Tesseract OCR, JSZip, SheetJS) — nothing is sent to an AI service. Each original file is stored unchanged with its SHA-256 fingerprint, and every extracted question waits in <b>Review &amp; Edit</b>.</div>
-  <div class="card"><h3 class="ctitle">Upload documents</h3><p class="csub">PDF (text or scanned), Word (.docx) and Excel (.xlsx, SIR template) — up to 50 MB each. For Excel rows that name an <code>Image_Ref</code>, add those image files to the same upload.</p>
+  const hasSets = (S.tax.questionSets || []).length > 0;
+  root.innerHTML = `<div class="notice" id="upNotice"></div>
+  <div class="card"><h3 class="ctitle">Upload documents</h3><p class="csub">Book pages as PDF or photos (JPEG/PNG), Word (.docx) and Excel (.xlsx, SIR template) — up to 50 MB each.</p>
    <div class="formgrid">
+    <div class="full"><label class="darklabel">How should questions be read?</label>
+     <div class="toolbar" style="margin:0">
+      <label class="checkline"><input type="radio" name="upEngine" value="gemini" checked> <b>Gemini AI</b> — accurate maths, fractions, diagrams and topics (needs internet; recommended)</label>
+      <label class="checkline"><input type="radio" name="upEngine" value="local"> Free local reader (PDF.js / Tesseract, offline)</label>
+     </div></div>
     <div class="full"><label class="darklabel">Files</label><input class="lightfield" type="file" id="upFiles" multiple accept=".pdf,.docx,.xlsx,image/png,image/jpeg,image/webp,image/gif,image/svg+xml"></div>
-    <div><label class="darklabel">Subject (default for all files)</label><select class="lightfield" id="upSubject">${subjectOpts(subj)}</select></div>
-    <div><label class="darklabel">Chapter (optional)</label><select class="lightfield" id="upChapter">${chapterOpts(subj, null, "Mixed / suggest per question")}</select></div>
-    <div><label class="darklabel">Source name</label><input class="lightfield" id="upSource" placeholder="e.g. RCC Electrostatics-I"></div>
+    <div><label class="darklabel">Subject</label><select class="lightfield" id="upSubject">${subjectOpts(subj)}</select></div>
+    <div><label class="darklabel" id="upChapterLabel">Chapter</label><select class="lightfield" id="upChapter">${chapterOpts(subj, null, "Mixed / suggest per question")}</select></div>
+    ${hasSets ? `<div><label class="darklabel">Question set</label><select class="lightfield" id="upSet">${setOpts("", "Detect from the page heading")}</select></div>` : ""}
+    <div><label class="darklabel">Source name</label><input class="lightfield" id="upSource" placeholder="e.g. RCC NEET Physics 11"></div>
     <div><label class="darklabel">PDF pages (optional)</label><input class="lightfield" id="upPages" placeholder="All, or e.g. 1-5, 9"></div>
-    <div class="full"><label class="checkline"><input type="checkbox" id="upMathOcr"> Read formulas with the SIR Math OCR helper on this PC (scanned PDFs only — start <code>start_helper.bat</code> first; see tools/mathocr/README.md)</label></div>
+    <div class="full" id="upMathOcrRow"><label class="checkline"><input type="checkbox" id="upMathOcr"> Read formulas with the SIR Math OCR helper on this PC (scanned PDFs only — start <code>start_helper.bat</code> first; see tools/mathocr/README.md)</label></div>
     <div class="full"><label class="darklabel">Exam suitability</label><div class="toolbar" style="margin:0">${S.tax.examTags.map((t) => `<label class="checkline"><input type="checkbox" value="${esc(t.id)}" data-upexam> ${esc(t.label)}</label>`).join("")}</div></div>
    </div>
    <div id="upList" style="margin-top:12px"></div>
    <div class="toolbar"><button class="btn primary" id="upStart" disabled>Upload and extract</button><button class="btn outline" id="upTemplate">Download Excel template</button></div>
    <div id="upLog"></div></div>`;
+  const engine = () => $("[name=upEngine]:checked", root).value;
+  const paint = () => {
+    const g = engine() === "gemini";
+    $("#upNotice", root).innerHTML = g
+      ? `<b>Nothing is verified by uploading.</b> Each page image is sent to <b>Google Gemini</b> (Google AI Studio key, kept on the server) to read the questions, formulas and diagrams; Gemini picks the topic only from the chosen chapter's list. The original file is stored unchanged with its SHA-256 fingerprint, and every question waits in <b>Review &amp; Edit</b>. <span class="muted">On Google's free tier, Google may use what is sent to improve its products — do not upload confidential papers.</span>`
+      : `<b>Nothing is verified by uploading.</b> Files are read in this browser with free, open-source tools (PDF.js, Tesseract OCR, JSZip, SheetJS) — nothing is sent to an AI service. Each original file is stored unchanged with its SHA-256 fingerprint, and every extracted question waits in <b>Review &amp; Edit</b>.`;
+    $("#upChapterLabel", root).textContent = g ? "Chapter (required for Gemini)" : "Chapter (optional)";
+    $("#upMathOcrRow", root).style.display = g ? "none" : "";
+    $("#upFiles", root).onchange();
+  };
   $("#upSubject", root).onchange = (e) => { $("#upChapter", root).innerHTML = chapterOpts(e.target.value, null, "Mixed / suggest per question"); };
   $("#upTemplate", root).onclick = () => (typeof downloadTemplate === "function" ? downloadTemplate() : toast("Template not available"));
   const files = () => [...$("#upFiles", root).files];
   $("#upFiles", root).onchange = () => {
     const { docs, images, rejected } = classifyFiles(files());
-    $("#upList", root).innerHTML = `<div class="tablewrap"><table><thead><tr><th>File</th><th>Type</th><th>Size</th><th>Status</th></tr></thead><tbody>${[...docs.map((f) => [f, f.kind, "ready"]), ...images.map((f) => [f, "image (for Excel Image_Ref)", "ready"]), ...rejected.map(([f, why]) => [f, "—", why])].map(([f, k, st]) => `<tr><td>${esc(f.name)}</td><td>${esc(k)}</td><td>${(f.size / 1048576).toFixed(2)} MB</td><td>${st === "ready" ? '<span class="tag">ready</span>' : `<span class="tag red">${esc(st)}</span>`}</td></tr>`).join("")}</tbody></table></div>`;
-    $("#upStart", root).disabled = !docs.length;
+    const g = engine() === "gemini";
+    const imgKind = g ? "page photo → Gemini" : "image (for Excel Image_Ref)";
+    $("#upList", root).innerHTML = files().length ? `<div class="tablewrap"><table><thead><tr><th>File</th><th>Type</th><th>Size</th><th>Status</th></tr></thead><tbody>${[...docs.map((f) => [f, f.kind === "pdf" && g ? "pdf → Gemini" : f.kind, "ready"]), ...images.map((f) => [f, imgKind, "ready"]), ...rejected.map(([f, why]) => [f, "—", why])].map(([f, k, st]) => `<tr><td>${esc(f.name)}</td><td>${esc(k)}</td><td>${(f.size / 1048576).toFixed(2)} MB</td><td>${st === "ready" ? '<span class="tag">ready</span>' : `<span class="tag red">${esc(st)}</span>`}</td></tr>`).join("")}</tbody></table></div>` : "";
+    $("#upStart", root).disabled = !(docs.length || (g && images.length));
   };
+  $$("[name=upEngine]", root).forEach((r) => (r.onchange = paint));
+  paint();
   $("#upStart", root).onclick = async (e) => {
     const startBtn = e.currentTarget; // currentTarget is cleared after the first await
-    startBtn.disabled = true;
+    const g = engine() === "gemini";
     const { docs, images } = classifyFiles(files());
     const common = { subject: $("#upSubject", root).value, chapterId: $("#upChapter", root).value || null, sourceLabel: $("#upSource", root).value.trim(),
-      exam: $$("[data-upexam]:checked", root).map((x) => x.value), pages: $("#upPages", root).value, mathOcr: $("#upMathOcr", root).checked };
-    for (const f of docs) {
+      exam: $$("[data-upexam]:checked", root).map((x) => x.value), pages: $("#upPages", root).value, mathOcr: !g && $("#upMathOcr", root).checked,
+      extractor: g ? "gemini" : "local", questionSet: $("#upSet", root)?.value || null };
+    if (g && !common.chapterId) { toast("Choose the chapter first — Gemini picks topics only from that chapter's list."); return; }
+    startBtn.disabled = true;
+    const logRow = (name) => {
       const row = document.createElement("div"); row.className = "card"; row.style.marginTop = "10px";
-      row.innerHTML = `<b>${esc(f.name)}</b><div class="msg" data-s>Starting…</div><div class="qb-progress"><div></div></div>`;
+      row.innerHTML = `<b>${esc(name)}</b><div class="msg" data-s>Starting…</div><div class="qb-progress"><div></div></div>`;
       $("#upLog", root).appendChild(row);
-      const status = (t, pct) => { $("[data-s]", row).textContent = t; if (pct != null) $(".qb-progress div", row).style.width = pct + "%"; };
-      try { await processFile(f, f.kind, { ...common, images }, status); }
+      return { row, status: (t, pct) => { $("[data-s]", row).textContent = t; if (pct != null) $(".qb-progress div", row).style.width = pct + "%"; } };
+    };
+    for (const f of docs) {
+      const { row, status } = logRow(f.name);
+      try { await processFile(f, f.kind, { ...common, extractor: f.kind === "pdf" ? common.extractor : "local", images }, status); }
+      catch (err) { console.error(err); status(`Failed: ${err.message}`, 100); $("[data-s]", row).className = "msg bad"; }
+    }
+    // Page photos: one job with the photos as pages, in file-name order.
+    if (g && images.length) {
+      const { row, status } = logRow(images.length === 1 ? images[0].name : `${images.length} page photos`);
+      try { await processImageSet(images, common, status); }
       catch (err) { console.error(err); status(`Failed: ${err.message}`, 100); $("[data-s]", row).className = "msg bad"; }
     }
     startBtn.disabled = false;
@@ -407,7 +446,7 @@ async function processFile(file, kind, opts, status) {
   if (dupJob?.length && !confirm(`${file.name} was already uploaded (${dupJob[0].file_name}, ${new Date(dupJob[0].created_at).toLocaleDateString()}). Upload it again?`)) { status("Skipped — already uploaded", 100); return; }
   const { data: job, error } = await sb.from("qb_import_jobs").insert({
     file_name: file.name, file_type: kind, original_sha256: hash, original_size: file.size, subject_id: opts.subject, chapter_id: opts.chapterId,
-    source_label: opts.sourceLabel || file.name.replace(/\.[^.]+$/, ""), exam_tags: opts.exam, status: "uploaded", created_by: T.userId(),
+    source_label: opts.sourceLabel || file.name.replace(/\.[^.]+$/, ""), exam_tags: opts.exam, status: "uploaded", created_by: T.userId(), ...jobExtras(opts),
   }).select().single();
   if (error) throw error;
   try {
@@ -418,21 +457,130 @@ async function processFile(file, kind, opts, status) {
 
     const ctx = { subject: opts.subject, chapter: chapterById(opts.chapterId)?.slug ?? null, exam: opts.exam, sourceLabel: job.source_label };
     let items;
-    if (kind === "pdf") items = await extractPdf(buf, job, ctx, opts, status);
+    if (kind === "pdf" && opts.extractor === "gemini") items = await extractPdfGemini(buf, job, { ...ctx, questionSet: opts.questionSet, setLabels: setLabels() }, opts, status);
+    else if (kind === "pdf") items = await extractPdf(buf, job, ctx, opts, status);
     else if (kind === "docx") items = await extractDocx(buf, job, ctx, status);
     else items = await extractXlsx(buf, job, ctx, opts, status);
+    await saveItems(items, job, opts, status);
+  } catch (err) {
+    await sb.from("qb_import_jobs").update({ status: "failed", error: String(err.message || err).slice(0, 1000) }).eq("id", job.id);
+    throw err;
+  }
+}
+// Extractor and question set are recorded only when used (columns added by the 20261110 migration).
+function jobExtras(opts) {
+  const x = {};
+  if (opts.extractor === "gemini") x.extractor = "gemini";
+  if (opts.questionSet) x.question_set = opts.questionSet;
+  return x;
+}
+async function saveItems(items, job, opts, status) {
+  status("Checking for duplicates and suggesting topics…", 92);
+  await finishItems(items, job, opts);
+  const rows = items.map((it, i) => ({ job_id: job.id, page_no: it.page_no, seq: i + 1, source_number: it.source_number, source_location: it.source_location,
+    extracted: it.extracted, draft: it.draft, confidence: it.confidence, issues: it.issues, blocking_issues: it.issues }));
+  for (let i = 0; i < rows.length; i += 200) {
+    const { error: ie } = await sb.from("qb_import_items").insert(rows.slice(i, i + 200));
+    if (ie) throw ie;
+  }
+  await sb.from("qb_import_jobs").update({ status: rows.length ? "review_required" : "done", page_count: job.page_count || 1 }).eq("id", job.id);
+  const low = items.filter((x) => x.confidence === "low").length;
+  status(`Done: ${rows.length} question(s) extracted${low ? `, ${low} uncertain` : ""}. Open Review & Edit.`, 100);
+}
 
-    status("Checking for duplicates and suggesting topics…", 92);
-    await finishItems(items, job, opts);
-    const rows = items.map((it, i) => ({ job_id: job.id, page_no: it.page_no, seq: i + 1, source_number: it.source_number, source_location: it.source_location,
-      extracted: it.extracted, draft: it.draft, confidence: it.confidence, issues: it.issues, blocking_issues: it.issues }));
-    for (let i = 0; i < rows.length; i += 200) {
-      const { error: ie } = await sb.from("qb_import_items").insert(rows.slice(i, i + 200));
-      if (ie) throw ie;
+// ---------- Gemini extraction (Edge Function qb-gemini-extract) ----------
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Longest side ≤ 2400 px: enough for small print and subscripts, keeps uploads ~1 MB.
+function pageForGemini(source, w, h) {
+  const k = Math.min(1, 2400 / Math.max(w, h));
+  const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+  const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(source, 0, 0, c.width, c.height);
+  return c;
+}
+async function geminiRead(canvas, pageNo, ctx, prevTail, status, label) {
+  const image = canvas.toDataURL("image/jpeg", 0.9).split(",")[1];
+  for (let attempt = 0; ; attempt++) {
+    const { data, error } = await sb.functions.invoke("qb-gemini-extract", { body: { image, mime: "image/jpeg", pageNo, subject: ctx.subject, chapterSlug: ctx.chapter, previousTail: prevTail } });
+    if (!error && data?.success) return data;
+    let body = data;
+    if (error?.context && typeof error.context.json === "function") { try { body = await error.context.json(); } catch { /* not JSON */ } }
+    const code = body?.code, msg = body?.message || error?.message || "Gemini extraction failed";
+    // Free-tier limit or a passing error: wait and try again a few times.
+    if (["QUOTA", "NETWORK", "BAD_JSON", "GEMINI"].includes(code) && attempt < 3) {
+      const wait = code === "QUOTA" ? 35 : 6;
+      for (let s = wait; s > 0; s--) { status(`${label}: ${code === "QUOTA" ? "Gemini free limit reached" : "Gemini hiccup"} — trying again in ${s}s…`); await sleep(1000); }
+      continue;
     }
-    await sb.from("qb_import_jobs").update({ status: rows.length ? "review_required" : "done", page_count: job.page_count || 1 }).eq("id", job.id);
-    const low = items.filter((x) => x.confidence === "low").length;
-    status(`Done: ${rows.length} question(s) extracted${low ? `, ${low} uncertain` : ""}. Open Review & Edit.`, 100);
+    throw Object.assign(new Error(msg), { code, fatal: ["NO_KEY", "MODEL"].includes(code) || /Only the Test/.test(msg) });
+  }
+}
+// One page: store the image (Review & Edit shows it next to each question), then read it with Gemini.
+async function geminiPage(canvas, pageNo, job, ctx, state, status, label, pct) {
+  status(`${label}: storing page image…`, pct);
+  const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.92));
+  const path = `jobs/${job.id}/pages/p${String(pageNo).padStart(4, "0")}.jpg`;
+  await storePrivate(path, blob, "image/jpeg", job, "page", { page_no: pageNo });
+  status(`${label}: Gemini is reading the page…`, pct);
+  try {
+    const send = pageForGemini(canvas, canvas.width, canvas.height);
+    const r = await geminiRead(send, pageNo, ctx, state.tail, status, label);
+    state.tail = openTail(r); state.model = r.model;
+    state.pages.push({ pageNo, model: r.model, result: r });
+    const qs = r.questions || [];
+    const { error: pe } = await sb.from("qb_import_pages").insert({ job_id: job.id, page_no: pageNo, image_path: path, width: canvas.width, height: canvas.height,
+      text_source: "gemini", line_count: qs.length, raw_text: qs.map((q) => `Q${q.number ?? "?"}. ${q.question}`).join("\n\n").slice(0, 100000),
+      status: "done", extracted_at: new Date().toISOString() });
+    if (pe) throw pe;
+  } catch (err) {
+    if (err.fatal) throw err; // no key / no model / not allowed: stop the whole upload
+    state.tail = "";
+    await sb.from("qb_import_pages").upsert({ job_id: job.id, page_no: pageNo, image_path: path, status: "failed", error: String(err.message || err).slice(0, 500) }, { onConflict: "job_id,page_no" });
+  }
+}
+async function extractPdfGemini(buf, job, ctx, opts, status) {
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+  const pageNos = parsePageList(opts.pages, pdf.numPages);
+  job.page_count = pageNos.length;
+  await sb.from("qb_import_jobs").update({ page_count: pageNos.length }).eq("id", job.id);
+  const state = { tail: "", pages: [], model: null };
+  for (const [i, pageNo] of pageNos.entries()) {
+    const label = `Page ${pageNo} (${i + 1}/${pageNos.length})`;
+    status(`${label}: rendering…`, 8 + (i / pageNos.length) * 82);
+    const canvas = await renderPage(await pdf.getPage(pageNo), 2200);
+    await geminiPage(canvas, pageNo, job, ctx, state, status, label, 8 + ((i + 0.5) / pageNos.length) * 82);
+  }
+  status("Joining questions across pages and matching answer keys…", 90);
+  return pagesToItems(state.pages, ctx);
+}
+// Page photos (JPEG/PNG) as one job, pages in file-name order.
+async function processImageSet(files, opts, status) {
+  const list = [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  const bufs = await Promise.all(list.map((f) => f.arrayBuffer()));
+  const hashes = await Promise.all(bufs.map(sha256));
+  const hash = await sha256(new TextEncoder().encode(hashes.join(",")).buffer);
+  const name = list.length === 1 ? list[0].name : `${list[0].name} + ${list.length - 1} more page(s)`;
+  const { data: dupJob } = await sb.from("qb_import_jobs").select("id,file_name,created_at").eq("original_sha256", hash).neq("status", "cancelled").limit(1);
+  if (dupJob?.length && !confirm(`These photos were already uploaded (${dupJob[0].file_name}, ${new Date(dupJob[0].created_at).toLocaleDateString()}). Upload them again?`)) { status("Skipped — already uploaded", 100); return; }
+  const { data: job, error } = await sb.from("qb_import_jobs").insert({
+    file_name: name, file_type: "image", original_sha256: hash, original_size: list.reduce((s, f) => s + f.size, 0), subject_id: opts.subject, chapter_id: opts.chapterId,
+    source_label: opts.sourceLabel || list[0].name.replace(/\.[^.]+$/, ""), exam_tags: opts.exam, status: "uploaded", created_by: T.userId(), page_count: list.length, ...jobExtras(opts),
+  }).select().single();
+  if (error) throw error;
+  try {
+    const ctx = { subject: opts.subject, chapter: chapterById(opts.chapterId)?.slug ?? null, exam: opts.exam, sourceLabel: job.source_label, questionSet: opts.questionSet, setLabels: setLabels() };
+    const state = { tail: "", pages: [], model: null };
+    for (const [i, f] of list.entries()) {
+      const pageNo = i + 1, label = `Photo ${pageNo}/${list.length} (${f.name})`;
+      status(`${label}: storing the original…`, 5 + (i / list.length) * 85);
+      const origPath = `jobs/${job.id}/original/${String(pageNo).padStart(3, "0")}_${safeName(f.name)}`;
+      await storePrivate(origPath, new Blob([bufs[i]], { type: f.type }), f.type, job, "original", { sha256: hashes[i] });
+      if (i === 0) await sb.from("qb_import_jobs").update({ original_path: origPath, status: "processing" }).eq("id", job.id);
+      const bmp = await createImageBitmap(f, { imageOrientation: "from-image" });
+      const canvas = pageForGemini(bmp, bmp.width, bmp.height); bmp.close?.();
+      await geminiPage(canvas, pageNo, job, ctx, state, status, label, 5 + ((i + 0.5) / list.length) * 85);
+    }
+    status("Joining questions across pages and matching answer keys…", 90);
+    await saveItems(pagesToItems(state.pages, ctx), job, opts, status);
   } catch (err) {
     await sb.from("qb_import_jobs").update({ status: "failed", error: String(err.message || err).slice(0, 1000) }).eq("id", job.id);
     throw err;
@@ -785,7 +933,7 @@ async function openItem(itemId, queue = []) {
 
   const { data: dups } = await sb.rpc("qb_find_similar", { p_texts: [plainStem(draft.question)], p_subject: draft.subject, p_threshold: 0.55 });
   const pageMeta = pages?.find((p) => p.page_no === item.page_no);
-  const method = { text: "PDF text layer (exact characters)", ocr: `OCR (Tesseract)${pageMeta?.ocr_confidence ? `, page confidence ${Math.round(pageMeta.ocr_confidence)}%` : ""}`, docx: "Word document (exact text, equations converted)", xlsx: "Excel template row" }[ex.source_method] || ex.source_method;
+  const method = { text: "PDF text layer (exact characters)", ocr: `OCR (Tesseract)${pageMeta?.ocr_confidence ? `, page confidence ${Math.round(pageMeta.ocr_confidence)}%` : ""}`, docx: "Word document (exact text, equations converted)", xlsx: "Excel template row", gemini: `Google Gemini (${ex.model || "AI"}) — compare formulas and diagrams with the page` }[ex.source_method] || ex.source_method;
   const idx = queue.indexOf(itemId);
 
   root.innerHTML = `<div class="toolbar"><button class="btn outline small" data-back>‹ Back to list</button>${idx > 0 ? `<button class="btn outline small" data-prev>Previous</button>` : ""}${idx >= 0 && idx < queue.length - 1 ? `<button class="btn outline small" data-next>Next</button>` : ""}<span class="tag amber">${esc(ITEM_LABEL[item.status])}</span>${item.confidence ? `<span class="tag ${item.confidence === "low" ? "red" : item.confidence === "medium" ? "amber" : ""}">${esc(item.confidence)} confidence</span>` : ""}</div>
