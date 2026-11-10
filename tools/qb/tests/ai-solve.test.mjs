@@ -87,3 +87,23 @@ test("batches: grouped by page, at most MAX_PER_CALL each", () => {
   const b = solveBatches(items);
   assert.deepEqual(b.map((x) => [x.page, x.items.length]), [[1, MAX_PER_CALL], [1, 10 - MAX_PER_CALL], [2, 6]]);
 });
+
+test("subjective: text answers compared loosely; AI answer suggested; MCQ version made from the AI's options", () => {
+  const subj = (d = {}) => item({ type: "subjective", options: null, question: "Find the dimensions of Planck's constant $h$ from $E = h\nu$", ...d });
+  const mcq = { question: "The dimensions of Planck's constant are", options: [{ key: "A", text: "$[ML^2T^{-1}]$" }, { key: "B", text: "$[ML^2T^{-2}]$" }, { key: "C", text: "$[MLT^{-1}]$" }, { key: "D", text: "$[ML^2T]$" }], answer: "A", option_notes: [{ key: "B", note: "That is energy." }] };
+  const r = applySolution(subj(), { a: sol("$[ML^2T^{-1}]$", { option_notes: [], mcq }), b: sol("[M L^{2} T^{-1}]"), model: "m" });
+  assert.equal(r.draft.answer, "$[ML^2T^{-1}]$");
+  assert.ok(r.blocking.some((w) => /suggested by AI \(two independent solutions agree\)/.test(w)), "loose match counts as agreeing");
+  assert.equal(r.mcq.draft.type, "single");
+  assert.equal(r.mcq.draft.answer, "A");
+  assert.deepEqual(r.mcq.draft.options.map((o) => o.key), ["A", "B", "C", "D"]);
+  assert.ok(r.mcq.draft.tags.includes("ai:mcq-options"));
+  assert.match(r.mcq.draft.solution, /\*\*B\*\*: That is energy\./);
+  assert.match(r.mcq.issues[0], /^AI: MCQ version made by AI/);
+  const book = applySolution(subj({ answer: "$[ML^2T^{-1}]$" }), { a: sol("$[MLT^{-1}]$", { option_notes: [] }), model: "m" });
+  assert.match(book.blocking[0], /differs from the book's answer/);
+  const bad = applySolution(subj(), { a: sol("x", { option_notes: [], mcq: { ...mcq, options: mcq.options.slice(0, 3) } }), model: "m" });
+  assert.equal(bad.mcq, null);
+  assert.ok(bad.issues.some((w) => /MCQ version was unusable/.test(w)));
+  assert.equal(toSolveQuestion(subj({ unit: "J s" })).options, null);
+});

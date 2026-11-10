@@ -13,7 +13,10 @@
 //   * the question set (Classwork, PYQ NEET, …) becomes tag "set:<id>" and,
 //     for previous-year sets, the exam tag;
 //   * anything Gemini was unsure about, or a missing answer, becomes an issue
-//     the coordinator must look at. Nothing is ever marked verified here.
+//     the coordinator must look at. Nothing is ever marked verified here;
+//   * short-answer questions ("Find the dimensions of …") are type
+//     "subjective" with a text answer; separate parts (i), (ii) / a)–d) come
+//     as separate entries with "part" and become questions "22(i)", "22(ii)".
 // =====================================================================
 export const GEMINI_EXTRACT_VERSION = "gemini-1";
 
@@ -47,6 +50,7 @@ export function letterOf(v) {
 function answerFor(type, raw) {
   const s = String(raw ?? "").trim();
   if (!s) return null;
+  if (type === "subjective") return s;
   if (type === "multi") {
     const parts = s.replace(/\band\b/gi, ",").split(/[\s,;/&]+/).map(letterOf).filter(Boolean);
     return parts.length ? [...new Set(parts)].sort() : null;
@@ -116,8 +120,11 @@ export function pagesToItems(pages, ctx) {
       }
       const placed = placeFigures(q, pg.pageNo, 0);
       const rawType = q.type || "single";
-      const type = rawType === "assertion_reason" || (rawType === "matrix_match" && placed.options.length >= 2) ? "single" : rawType;
+      // Match-the-columns without any columns is really a short-answer question.
+      const type = rawType === "assertion_reason" || (rawType === "matrix_match" && placed.options.length >= 2) ? "single" : rawType === "matrix_match" ? "subjective" : rawType;
       const n = Number(q.number) || null;
+      const part = String(q.part || "").trim().replace(/^[([]|[)\].]$/g, "");
+      const label = n != null ? `${n}${part ? `(${part})` : ""}` : null;
       const setLabel = set ? (ctx.setLabels?.[set] || set) : null;
       const exam = [...new Set([...(ctx.exam || []), ...(set && SET_EXAM[set] ? [SET_EXAM[set]] : [])])];
       const year = String(q.exam_year || "").match(/(19|20)\d{2}/)?.[0];
@@ -126,19 +133,19 @@ export function pagesToItems(pages, ctx) {
         _open: !!q.continues_on_next_page, _answerRaw: q.answer_printed !== false ? q.answer || "" : "", _uncertain: q.uncertain ? [q.uncertain_reason || "unsure about part of this question"] : [],
         _set: set,
         page_no: pg.pageNo,
-        source_number: n != null ? String(n) : "?",
+        source_number: label ?? "?",
         source_location: `page ${pg.pageNo}`,
         confidence: "high",
         issues: [],
         extracted: {
-          source_method: "gemini", model: pg.model || null, extractor_version: GEMINI_EXTRACT_VERSION, number: n, section: setLabel, section_no: 1,
+          source_method: "gemini", model: pg.model || null, extractor_version: GEMINI_EXTRACT_VERSION, number: n, part: part || null, section: setLabel, section_no: 1,
           page_from: pg.pageNo, page_to: pg.pageNo, kind: rawType, exam_year: q.exam_year || null, regions: [], source_text: q.question || "", option_markers: null, assumed: false,
           suggestion: { chapter: ctx.chapter, topic: q.topic, subtopic: q.subtopic, basis: "chosen by Gemini from this chapter's topic list" },
         },
         draft: {
           code: null, subject: ctx.subject ?? null, chapter: ctx.chapter ?? null, topic: q.topic || null, subtopic: q.subtopic && q.subtopic !== "none" ? q.subtopic : null, branch: null,
           type, difficulty: null, exam, tags,
-          source: ["book", ctx.sourceLabel, setLabel, `p.${pg.pageNo}`, n != null ? `Q${n}` : null].filter(Boolean).join(":"),
+          source: ["book", ctx.sourceLabel, setLabel, `p.${pg.pageNo}`, label ? `Q${label}` : null].filter(Boolean).join(":"),
           status: "live", marks: 4, negative: type === "single" || type === "multi" ? 1 : 0,
           question: placed.question, options: type === "single" || type === "multi" ? placed.options : null,
           hint: null, solution: q.solution ? String(q.solution) : null, unit: null, answer: null, tolerance: 0, figures: placed.figures,
@@ -153,7 +160,7 @@ export function pagesToItems(pages, ctx) {
   // Answer key (often printed at the end of a set): match by set + number,
   // and by number alone when only one question has that number.
   for (const it of items) {
-    if (!it._answerRaw && it.extracted.number != null) {
+    if (!it._answerRaw && it.extracted.number != null && !it.extracted.part) {
       const sameSet = keys.filter((k) => k.number === it.extracted.number && k.set === it._set);
       const any = keys.filter((k) => k.number === it.extracted.number);
       const only = items.filter((x) => x.extracted.number === it.extracted.number).length === 1;
@@ -169,7 +176,8 @@ export function pagesToItems(pages, ctx) {
     if ((d.type === "single" || d.type === "multi") && (d.options || []).length < 4) it.issues.push(`Only ${(d.options || []).length} option(s) read — compare with the page`);
     if (d.type === "single" && Array.isArray(d.answer)) d.answer = d.answer[0];
     for (const u of it._uncertain) it.issues.push(`Gemini was unsure: ${u} — compare with the page image`);
-    if (it.extracted.kind === "matrix_match" && d.type !== "matrix_match") it.issues.push("Match-the-columns question stored as a single-answer question with coded options — check the table");
+    if (it.extracted.kind === "matrix_match" && d.type === "single") it.issues.push("Match-the-columns question stored as a single-answer question with coded options — check the table");
+    if (it.extracted.kind === "matrix_match" && d.type === "subjective") it.issues.push("Read as match-the-columns but no columns were found — stored as a subjective question; check the type");
     if (d.figures.length) it.issues.push(`${d.figures.length} diagram(s) cropped automatically — check each crop holds the whole diagram`);
     if (it._open) it.issues.push("This question continues on a page that was not uploaded — complete it");
     if (!d.topic) it.issues.push("No topic chosen — choose the topic");
