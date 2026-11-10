@@ -505,10 +505,12 @@ async function geminiRead(canvas, pageNo, ctx, prevTail, status, label) {
     let body = data;
     if (error?.context && typeof error.context.json === "function") { try { body = await error.context.json(); } catch { /* not JSON */ } }
     const code = body?.code, msg = body?.message || error?.message || "Gemini extraction failed";
-    // Free-tier limit or a passing error: wait and try again a few times.
-    if (["QUOTA", "NETWORK", "BAD_JSON", "GEMINI"].includes(code) && attempt < 3) {
-      const wait = code === "QUOTA" ? 35 : 6;
-      for (let s = wait; s > 0; s--) { status(`${label}: ${code === "QUOTA" ? "Gemini free limit reached" : "Gemini hiccup"} — trying again in ${s}s…`); await sleep(1000); }
+    // Free-tier limit, Google's servers busy, or a passing error: wait and try
+    // again (busy spikes can last a minute or two, so those waits grow).
+    if ((code === "BUSY" && attempt < 5) || (["QUOTA", "NETWORK", "BAD_JSON", "GEMINI"].includes(code) && attempt < 3)) {
+      const wait = code === "BUSY" ? [15, 30, 60, 90, 90][attempt] : code === "QUOTA" ? 35 : 6;
+      const why = code === "BUSY" ? "Gemini servers busy (Google side)" : code === "QUOTA" ? "Gemini free limit reached" : "Gemini hiccup";
+      for (let s = wait; s > 0; s--) { status(`${label}: ${why} — trying again in ${s}s (attempt ${attempt + 2})…`); await sleep(1000); }
       continue;
     }
     throw Object.assign(new Error(msg), { code, fatal: ["NO_KEY", "MODEL"].includes(code) || /Only the Test/.test(msg) });
