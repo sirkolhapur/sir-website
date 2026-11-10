@@ -8,15 +8,15 @@
 // is a server function that re-checks permissions and gates; the buttons
 // here are convenience only.
 // =====================================================================
-import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261030-mathocr1";
-import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261030-mathocr1";
+import { validateQuestion, QUESTION_TYPES } from "../tools/qb/parser.mjs?v=20261113-subj1";
+import { linesFromPdfItems, segmentQuestions, reconcileExtraction, pageRecordText, PARSER_VERSION, UNREADABLE } from "../tools/qb/pdf-parser.mjs?v=20261113-subj1";
 import { renderPage, ocrPage } from "../tools/qb/ocr-page.mjs?v=20261030-mathocr1";
 import { helperHealth, runMathOcr, MATH_OCR_VERSION } from "../tools/qb/math-ocr.mjs?v=20261030-mathocr1";
-import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261030-mathocr1";
-import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261030-mathocr1";
+import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261113-subj1";
+import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261113-subj1";
 import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261030-mathocr1";
-import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261110-gemini1";
-import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261112-bulk1";
+import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261113-subj1";
+import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261113-subj1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -30,7 +30,7 @@ const MAX_BYTES = 50 * 1024 * 1024;
 const BANDS = { easy: [1, 2], medium: [3], hard: [4, 5] };
 const DIFF_LABEL = { 1: "1 · Easy", 2: "2 · Easy", 3: "3 · Medium", 4: "4 · Hard", 5: "5 · Hard (hardest)" };
 const bandOf = (d) => Object.keys(BANDS).find((k) => BANDS[k].includes(Number(d)));
-const TYPE_LABEL = { single: "Single correct", multi: "Multiple correct", integer: "Integer", numerical: "Numerical", matrix_match: "Matrix match" };
+const TYPE_LABEL = { single: "Single correct", multi: "Multiple correct", integer: "Integer", numerical: "Numerical", matrix_match: "Matrix match", subjective: "Subjective (short answer)" };
 const ITEM_LABEL = { review_required: "Review required", corrected: "Corrected", returned: "Returned for correction", verified: "Verified", rejected: "Rejected" };
 const JOB_LABEL = { uploaded: "Uploaded", processing: "Processing", review_required: "Review required", done: "Done", failed: "Failed", cancelled: "Cancelled" };
 const $ = (s, el = document) => el.querySelector(s);
@@ -91,7 +91,9 @@ function questionView(q, { answer, solution, maps } = {}) {
     }
     wrap.appendChild(m);
   }
-  if (answer != null && !(q.type === "single" || q.type === "multi")) {
+  if (answer != null && q.type === "subjective") {
+    const a = document.createElement("div"); a.className = "qb-sol"; a.innerHTML = "<b>Answer</b>"; a.appendChild(mdDiv(String(answer), maps)); wrap.appendChild(a);
+  } else if (answer != null && !(q.type === "single" || q.type === "multi")) {
     const a = document.createElement("div"); a.className = "qb-sol";
     a.innerHTML = `<b>Answer:</b> ${esc(answerText(answer))}${q.unit ? " " + esc(q.unit) : ""}${q.tolerance ? ` (± ${esc(q.tolerance)})` : ""}`;
     wrap.appendChild(a);
@@ -227,6 +229,9 @@ function questionEditor(existing, { maps } = {}) {
     } else if (q.type === "matrix_match") {
       if (!q.options || Array.isArray(q.options)) q.options = { left: ["A", "B", "C", "D"].map((key) => ({ key, text: "" })), right: ["P", "Q", "R", "S"].map((key) => ({ key, text: "" })) };
       box.innerHTML = ["left", "right"].map((side) => `<label class="darklabel">${side === "left" ? "Column I" : "Column II"}</label>` + q.options[side].map((o, i) => `<div class="qb-optrow"><b>${esc(o.key)}</b><textarea class="lightfield qb-mono" rows="1" data-side="${side}" data-opt="${i}">${esc(o.text)}</textarea><span></span></div>`).join("")).join("");
+    } else if (q.type === "subjective") {
+      q.options = null;
+      box.innerHTML = `<div class="msg">Subjective: no options. Not auto-marked — used in worksheets, PDFs and self-check practice, never in online tests. AI can add a separate single-correct MCQ version.</div>`;
     } else {
       q.options = null;
       box.innerHTML = `<div class="qb-row3"><div><label class="darklabel">Unit (optional)</label><input class="lightfield" data-f="unit" value="${esc(q.unit || "")}"></div>${q.type === "numerical" ? `<div><label class="darklabel">Tolerance (±)</label><input class="lightfield" type="number" step="any" min="0" data-f="tol" value="${esc(q.tolerance ?? 0)}"></div>` : ""}</div>`;
@@ -252,6 +257,9 @@ function questionEditor(existing, { maps } = {}) {
         const out = {}; $$("[data-mk]", box).forEach((x) => { const v = x.value.toUpperCase().split(/[\s,]+/).filter(Boolean); if (v.length) out[x.dataset.mk] = v.sort(); });
         q.answer = out; update();
       });
+    } else if (q.type === "subjective") {
+      box.innerHTML = `<label class="darklabel">Expected answer (Markdown + LaTeX, e.g. <code>$[ML^2T^{-1}]$</code>)</label><textarea class="lightfield qb-mono" rows="2" data-f="stext">${esc(typeof q.answer === "string" ? q.answer : "")}</textarea>`;
+      $("[data-f=stext]", box).oninput = (e) => { q.answer = e.target.value.trim() ? e.target.value : null; update(); };
     } else {
       box.innerHTML = `<label class="darklabel">Correct answer</label><input class="lightfield" type="number" step="${q.type === "integer" ? 1 : "any"}" data-f="num" value="${esc(q.answer ?? "")}">`;
       $("[data-f=num]", box).oninput = (e) => { q.answer = e.target.value === "" ? null : Number(e.target.value); update(); };
@@ -687,7 +695,7 @@ async function callGemini(fn, payload, status, label) {
 // are never sent; questions without one are solved twice, independently.
 // What to keep is decided in tools/qb/ai-solve.mjs; qb_ai_apply_solution
 // stores it and turns the AI answer warnings into blocking ones.
-const AI_TYPES = new Set(["single", "multi", "integer", "numerical"]);
+const AI_TYPES = new Set(["single", "multi", "integer", "numerical", "subjective"]);
 const pageB64Cache = new Map();
 async function pageImageB64(jobId, pageNo) {
   const k = `${jobId}:${pageNo}`;
@@ -725,6 +733,8 @@ async function aiSolveItems(items, status) {
       const r = applySolution(it, { a, b: B?.by.get(it.id) || null, model: A.model });
       const { error } = await sb.rpc("qb_ai_apply_solution", { p_item_id: it.id, p_draft: r.draft, p_ai: r.ai, p_issues: r.issues, p_blocking: r.blocking });
       if (error) { if (/qb_ai_apply_solution/.test(error.message)) throw new Error("The database update for AI solutions is not applied yet — run: npx supabase db push --remote"); failed++; continue; }
+      // Short-answer question: its AI-made MCQ version becomes a separate item to check.
+      if (r.mcq) { const { error: me } = await sb.rpc("qb_ai_add_mcq_version", { p_item_id: it.id, p_draft: r.mcq.draft, p_issues: r.mcq.issues }); if (me) console.warn("MCQ version not saved:", me.message); }
       done++;
     }
   }

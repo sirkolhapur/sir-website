@@ -10,6 +10,8 @@
 //     warning the coordinator must tick; if they disagree, no answer is set.
 // The approach goes to draft.hint, the worked solution (plus why each wrong
 // option is wrong) to draft.solution. Human-written text is never replaced.
+// Subjective (short-answer) questions get a text answer and, from the AI,
+// a separate single-correct MCQ version (mcqVersion) for online tests.
 // Difficulty (1–5; 1–2 easy, 3 medium, 4–5 hard) is filled when empty or
 // set by an earlier AI run. Every AI warning starts with "AI: " so a re-run
 // replaces the old ones.
@@ -22,6 +24,7 @@ const OPT_TYPES = new Set(["single", "multi"]);
 export function normAnswer(type, raw, optionKeys = ["A", "B", "C", "D"]) {
   const s = String(raw ?? "").trim();
   if (!s) return null;
+  if (type === "subjective") return s;
   if (OPT_TYPES.has(type)) {
     const letters = [...new Set((s.toUpperCase().replace(/\bAND\b/g, ",").match(/\b[A-F]\b/g) || []))].filter((l) => optionKeys.includes(l)).sort();
     if (!letters.length) return null;
@@ -31,8 +34,11 @@ export function normAnswer(type, raw, optionKeys = ["A", "B", "C", "D"]) {
   return n ? Number(n[0]) : null;
 }
 
+// "$[ML^2T^{-1}]$" and "[M L^{2} T^{-1}]" are the same written answer.
+const squash = (t) => String(t).toLowerCase().replace(/\\(text|mathrm|rm|left|right|,|;|!|\s)/g, "").replace(/[\s${}]/g, "").replace(/\\cdot|\\times|×|·|\*/g, "");
 export function sameAnswer(type, a, b, tolerance = 0) {
   if (a == null || b == null) return false;
+  if (type === "subjective") return squash(a) === squash(b);
   if (Array.isArray(a) || Array.isArray(b)) return JSON.stringify([].concat(a).sort()) === JSON.stringify([].concat(b).sort());
   if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) <= Math.max(Number(tolerance) || 0, Math.abs(b) * 0.01, 1e-9);
   return String(a) === String(b);
@@ -43,7 +49,7 @@ export const showAnswer = (a) => (a == null ? "—" : Array.isArray(a) ? a.join(
 // What the function is sent: never the answer.
 export function toSolveQuestion(item) {
   const d = item.draft || {};
-  return { ref: item.id, type: d.type || "single", question: d.question || "", options: OPT_TYPES.has(d.type) ? (d.options || []).map((o) => ({ key: o.key, text: o.text })) : null, unit: d.unit || null };
+  return { ref: item.id, type: d.type || "single", question: d.question || "", options: OPT_TYPES.has(d.type) ? (d.options || []).map((o) => ({ key: o.key, text: o.text })) : null, unit: d.type === "subjective" ? null : d.unit || null };
 }
 
 // The answer printed in the book (not one an earlier AI run filled in).
@@ -67,6 +73,24 @@ function solutionText(sol, type) {
   const notes = OPT_TYPES.has(type) ? (sol?.option_notes || []).filter((n) => n?.key && String(n.note || "").trim()) : [];
   if (notes.length) text += `\n\n**Why the other options are wrong**\n${notes.map((n) => `- **${String(n.key).replace(/[^A-F]/gi, "").toUpperCase() || n.key}**: ${String(n.note).trim()}`).join("\n")}`;
   return text || null;
+}
+
+const LETTERS = ["A", "B", "C", "D"];
+const letter = (v) => { const m = String(v ?? "").toUpperCase().match(/\b([A-D])\b/); return m ? m[1] : null; };
+// A single-correct MCQ made by the AI from a subjective question, or null
+// when its options are unusable (not four, empty or repeated, answer not A–D).
+export function mcqVersion(draft, mcq, model) {
+  const opts = (mcq?.options || []).map((o, i) => ({ key: letter(o?.key) || LETTERS[i], text: String(o?.text ?? "").trim() }));
+  const ans = letter(mcq?.answer);
+  if (opts.length !== 4 || opts.some((o) => !o.text) || new Set(opts.map((o) => o.key)).size !== 4 || new Set(opts.map((o) => o.text)).size !== 4 || !ans) return null;
+  opts.sort((x, y) => x.key.localeCompare(y.key));
+  const notes = (mcq.option_notes || []).filter((n) => letter(n?.key) && letter(n.key) !== ans && String(n.note || "").trim());
+  const tags = [...new Set([...(draft.tags || []).filter((t) => t !== "ai:answer"), "ai:mcq-options", "ai:answer"])];
+  return {
+    draft: { ...structuredClone(draft), type: "single", question: String(mcq.question || "").trim() || draft.question, options: opts, answer: ans, unit: null, tolerance: 0,
+      marks: 4, negative: 1, tags, solution: [draft.solution, notes.length ? `**Why the other options are wrong**\n${notes.map((n) => `- **${letter(n.key)}**: ${String(n.note).trim()}`).join("\n")}` : null].filter(Boolean).join("\n\n") || null },
+    issues: [`AI: MCQ version made by AI (${model}) from a short-answer question — its options were written by AI: check that exactly one option (${ans}) is correct and the other three are wrong`],
+  };
 }
 
 // item: { id, draft, extracted, issues, blocking_issues }
@@ -120,5 +144,7 @@ export function applySolution(item, { a, b = null, model, at = new Date().toISOS
     version: AI_SOLVE_VERSION, model, at, book_answer: book, answers: [A, ...(b ? [B] : [])], answer_from_ai: answerFromAi,
     confidence: a?.confidence || null, doubt: a?.doubt || null, difficulty: wroteLevel ? level : null, difficulty_reason: a?.difficulty_reason || null, hint: d.hint === approach ? approach : null, solution: d.solution === sol ? sol : null,
   };
-  return { draft: d, ai, issues: [...kept, ...notes, ...blocking], blocking };
+  const mcq = type === "subjective" && a?.mcq ? mcqVersion(d, a.mcq, model) : null;
+  if (type === "subjective" && a?.mcq && !mcq) notes.push(`${AI}AI's MCQ version was unusable (options missing or repeated) — no MCQ version made`);
+  return { draft: d, ai, issues: [...kept, ...notes, ...blocking], blocking, mcq };
 }

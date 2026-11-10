@@ -12,7 +12,7 @@
 //   subject: physics
 //   chapter: kinematics
 //   topic: motion-under-gravity
-//   type: single            # single | multi | integer | numerical | matrix_match
+//   type: single            # single | multi | integer | numerical | matrix_match | subjective
 //   difficulty: 1           # 1–5
 //   exam: [jee-main, neet]
 //   answer: B               # multi: [A, C]  numerical: 0.25  matrix: {A: [Q], B: [P, R]}
@@ -26,7 +26,8 @@
 //   ## Solution
 // =====================================================================
 
-export const QUESTION_TYPES = ["single", "multi", "integer", "numerical", "matrix_match"];
+// subjective = short answer written out (Markdown/LaTeX); never auto-marked, so online tests skip it.
+export const QUESTION_TYPES = ["single", "multi", "integer", "numerical", "matrix_match", "subjective"];
 export const STATUSES = ["draft", "live", "retired"];
 
 const CODE_RE = /^[A-Z]{2,4}-[A-Z0-9]{2,4}-[0-9]{4,6}$/;
@@ -225,6 +226,7 @@ function normaliseAnswer(type, a) {
   if (type === "single") return String(a).trim().replace(/[()]/g, "").toUpperCase();
   if (type === "multi") return toList(a).map(x => String(x).trim().replace(/[()]/g, "").toUpperCase()).sort();
   if (type === "integer" || type === "numerical") return typeof a === "number" ? a : Number(String(a).trim());
+  if (type === "subjective") return String(a).trim();
   if (type === "matrix_match") {
     if (typeof a !== "object" || Array.isArray(a)) return a;
     const out = {};
@@ -288,6 +290,8 @@ export function validateQuestion(q, taxonomy) {
   } else if (q.type === "numerical") {
     if (typeof q.answer !== "number" || Number.isNaN(q.answer)) err("numerical answer must be a number");
     if (typeof q.tolerance !== "number" || q.tolerance < 0) err("tolerance must be a number ≥ 0");
+  } else if (q.type === "subjective") {
+    if (typeof q.answer !== "string" || !q.answer.trim()) err("subjective answer must be the expected answer written out (Markdown/LaTeX)");
   } else if (q.type === "matrix_match") {
     const left = q.options?.left?.map(o => o.key) || [];
     const right = q.options?.right?.map(o => o.key) || [];

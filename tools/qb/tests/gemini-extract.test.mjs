@@ -78,3 +78,22 @@ test("assertion–reason and match-the-columns become single-answer with a note;
   assert.equal(items[1].confidence, "low");
   assert.deepEqual(items[0].draft.tags, ["set:classwork"], "chosen set wins over page headings");
 });
+
+test("short-answer questions: subjective type, text answer, separate parts become 22(i), 22(ii); column-less 'matrix' becomes subjective", () => {
+  const items = pagesToItems([{ pageNo: 15, result: { section_heading: "", questions: [
+    { number: 22, part: "i", type: "subjective", question: "Find the dimensions of linear momentum $(P)$", topic: "dimensions-of-some-units" },
+    { number: 22, part: "(ii)", type: "subjective", question: "Find the dimensions of frequency $(f)$", topic: "dimensions-of-some-units" },
+    { number: 24, type: "matrix_match", question: "Find the dimensions of Planck's constant $h$ from $E = h\nu$", options: [], topic: "dimensions-of-some-units" },
+    { number: 30, type: "single", question: "Young's modulus of steel …", options: opts("1", "2", "3", "4"), answer: "", topic: "dimensions-of-some-units" },
+  ] } }], ctx);
+  assert.deepEqual(items.map((i) => i.source_number), ["22(i)", "22(ii)", "24", "30"]);
+  assert.equal(items[0].draft.type, "subjective");
+  assert.equal(items[0].draft.options, null);
+  assert.equal(items[0].draft.source, "book:RCC NEET Physics 11:p.15:Q22(i)");
+  assert.equal(items[1].extracted.part, "ii");
+  assert.equal(items[2].draft.type, "subjective");
+  assert.ok(items[2].issues.some((x) => /no columns were found — stored as a subjective question/.test(x)));
+  assert.equal(items[3].draft.type, "single");
+  const withKey = pagesToItems([{ pageNo: 1, result: { questions: [{ number: 5, type: "subjective", question: "Find …", answer: "$[MLT^{-2}]$", answer_printed: true, topic: "x" }] } }], ctx);
+  assert.equal(withKey[0].draft.answer, "$[MLT^{-2}]$");
+});
