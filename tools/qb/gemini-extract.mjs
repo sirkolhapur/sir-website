@@ -46,7 +46,7 @@ export function repairLatex(v) {
   return v;
 }
 
-export const SET_EXAM = { "pyq-neet": "neet", "pyq-aiims": "aiims", "pyq-jipmer": "jipmer" };
+export const SET_EXAM = { "pyq-neet": "neet", "pyq-aiims": "aiims", "pyq-jipmer": "jipmer", "pyq-jee-main": "jee-main", "pyq-jee-adv": "jee-adv" };
 
 // "Previous Year NEET MCQs" → "pyq-neet", "NCERT Exemplar" → "ncert-exemplar", …
 export function setFromHeading(heading) {
@@ -55,7 +55,8 @@ export function setFromHeading(heading) {
   if (/exemplar/.test(h)) return "ncert-exemplar";
   if (/ncert/.test(h) && /unsolved/.test(h)) return "ncert-unsolved";
   if (/ncert/.test(h) && /solved/.test(h)) return "ncert-solved";
-  if (/(previous|pyq|past|year)/.test(h) || /\b(neet|aiims|jipmer)\b/.test(h)) {
+  if (/(previous|pyq|past|year)/.test(h) || /\b(neet|aiims|jipmer|jee)\b/.test(h)) {
+    if (/jee/.test(h)) return /adv/.test(h) ? "pyq-jee-adv" : "pyq-jee-main";
     if (/aiims/.test(h)) return "pyq-aiims";
     if (/jipmer/.test(h)) return "pyq-jipmer";
     if (/neet|aipmt/.test(h)) return "pyq-neet";

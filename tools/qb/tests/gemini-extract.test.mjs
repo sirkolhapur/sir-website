@@ -12,6 +12,8 @@ test("question sets from page headings", () => {
   assert.equal(setFromHeading("Previous Year NEET MCQs"), "pyq-neet");
   assert.equal(setFromHeading("Previous Year AIIMS MCQs"), "pyq-aiims");
   assert.equal(setFromHeading("NCERT Unsolved"), "ncert-unsolved");
+  assert.equal(setFromHeading("PREVIOUS YEAR JEE MCQS"), "pyq-jee-main");
+  assert.equal(setFromHeading("Previous Year JEE Advanced Questions"), "pyq-jee-adv");
   assert.equal(setFromHeading("NCERT Exemplar"), "ncert-exemplar");
   assert.equal(setFromHeading("Assignment"), "assignment");
   assert.equal(setFromHeading(""), null);
