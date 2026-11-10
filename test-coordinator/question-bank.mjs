@@ -16,7 +16,7 @@ import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261030-mat
 import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261030-mathocr1";
 import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261030-mathocr1";
 import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261110-gemini1";
-import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261111-ai1";
+import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261112-bulk1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -347,7 +347,7 @@ if (window.QB_PENDING) { const [k, r] = window.QB_PENDING; window.QB_PENDING = n
 async function pageUpload(root) {
   const subj = S.tax.subjects[0]?.id;
   const hasSets = (S.tax.questionSets || []).length > 0;
-  root.innerHTML = `<div class="notice" id="upNotice"></div>
+  root.innerHTML = `<div id="pipeCard"></div><div id="bulkCard"></div><div class="notice" id="upNotice"></div>
   <div class="card"><h3 class="ctitle">Upload documents</h3><p class="csub">Book pages as PDF or photos (JPEG/PNG), Word (.docx) and Excel (.xlsx, SIR template) — up to 50 MB each.</p>
    <div class="formgrid">
     <div class="full"><label class="darklabel">How should questions be read?</label>
@@ -367,6 +367,8 @@ async function pageUpload(root) {
    <div id="upList" style="margin-top:12px"></div>
    <div class="toolbar"><button class="btn primary" id="upStart" disabled>Upload and extract</button><button class="btn outline" id="upTemplate">Download Excel template</button></div>
    <div id="upLog"></div></div>`;
+  bulkCard($("#bulkCard", root), () => pipelineCard($("#pipeCard", root)));
+  pipelineCard($("#pipeCard", root));
   const engine = () => $("[name=upEngine]:checked", root).value;
   const paint = () => {
     const g = engine() === "gemini";
@@ -418,6 +420,160 @@ async function pageUpload(root) {
     startBtn.disabled = false;
   };
 }
+// ---------- Bulk upload: folders of page photos, processed on the server ----------
+// Each folder is one chapter (one job). Photos are made smaller (2400 px
+// JPEG) and stored as pages; the server worker (qb-pipeline-worker, run by
+// pg_cron every minute) reads them with Gemini, joins questions across pages,
+// writes AI answers / approaches / solutions / difficulty. The browser can be
+// closed after the upload. Photos already uploaded (same SHA-256) are skipped;
+// an interrupted folder continues in the same job.
+const PHOTO = /\.(jpe?g|png|webp)$/i;
+const naturalSort = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+const words = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter((w) => w.length > 2 && !["and", "the", "class", "chapter", "module"].includes(w));
+function guessChapter(folder, subject) {
+  const fw = new Set(words(folder.split("/").pop()));
+  let best = null, bestScore = 0;
+  for (const c of chaptersOf(subject)) {
+    const cw = words(c.name);
+    const score = cw.length ? cw.filter((w) => fw.has(w)).length / cw.length : 0;
+    if (score > bestScore) { best = c; bestScore = score; }
+  }
+  return bestScore >= 0.5 ? best?.id : "";
+}
+function bulkCard(box, onQueued) {
+  const subj = S.tax.subjects[0]?.id;
+  const hasSets = (S.tax.questionSets || []).length > 0;
+  box.innerHTML = `<div class="card"><h3 class="ctitle">Bulk upload — scanned book pages, one folder per chapter</h3>
+   <p class="csub">Choose a module folder (its sub-folders are the chapters) or a single chapter folder. Photos are made smaller and stored; the <b>server</b> then reads every page with Google Gemini and writes the answer, approach, step-by-step solution and difficulty — <b>you can close this page</b>. Nothing is verified until you check it in Review &amp; Edit.</p>
+   <div class="formgrid">
+    <div><label class="darklabel">Subject</label><select class="lightfield" id="bkSubject">${subjectOpts(subj)}</select></div>
+    <div><label class="darklabel">Source name</label><input class="lightfield" id="bkSource" placeholder="e.g. RCC NEET Physics Vol 1"></div>
+    ${hasSets ? `<div><label class="darklabel">Question set</label><select class="lightfield" id="bkSet">${setOpts("", "Detect from the page heading")}</select></div>` : ""}
+    <div class="full"><label class="darklabel">Exam suitability</label><div class="toolbar" style="margin:0">${S.tax.examTags.map((t) => `<label class="checkline"><input type="checkbox" value="${esc(t.id)}" data-bkexam> ${esc(t.label)}</label>`).join("")}</div></div>
+    <div class="full"><label class="darklabel">Folder of page photos (JPEG / PNG)</label><input class="lightfield" type="file" id="bkFolder" webkitdirectory multiple></div>
+   </div>
+   <div id="bkList" style="margin-top:12px"></div>
+   <div class="toolbar"><button class="btn gold" id="bkStart" disabled>Upload folders to the server queue</button><span id="bkStatus" style="color:var(--m)"></span></div></div>`;
+  let groups = [];
+  const paint = () => {
+    const subject = $("#bkSubject", box).value;
+    $("#bkList", box).innerHTML = groups.length ? `<div class="tablewrap"><table><thead><tr><th>Folder</th><th>Photos</th><th>Chapter</th><th>Status</th></tr></thead><tbody>${groups.map((g, i) => `<tr>
+      <td>${esc(g.folder)}</td><td>${g.files.length}</td>
+      <td><select class="lightfield" data-bkch="${i}">${chapterOpts(subject, g.chapterId, "Choose the chapter…")}</select></td>
+      <td data-bkst="${i}">${esc(g.status || "ready")}</td></tr>`).join("")}</tbody></table></div>` : "";
+    $$("[data-bkch]", box).forEach((sel) => (sel.onchange = () => { groups[Number(sel.dataset.bkch)].chapterId = sel.value; check(); }));
+    check();
+  };
+  const check = () => { $("#bkStart", box).disabled = !groups.length || groups.some((g) => !g.chapterId); };
+  $("#bkSubject", box).onchange = () => { const subject = $("#bkSubject", box).value; groups.forEach((g) => (g.chapterId = guessChapter(g.folder, subject))); paint(); };
+  $("#bkFolder", box).onchange = () => {
+    const by = new Map();
+    for (const f of $("#bkFolder", box).files) {
+      if (!PHOTO.test(f.name) || f.size > MAX_BYTES) continue;
+      const rel = f.webkitRelativePath || f.name, folder = rel.includes("/") ? rel.slice(0, rel.lastIndexOf("/")) : "(selected files)";
+      if (!by.has(folder)) by.set(folder, []);
+      by.get(folder).push(f);
+    }
+    const subject = $("#bkSubject", box).value;
+    groups = [...by].sort((a, b) => naturalSort(a[0], b[0])).map(([folder, files]) => ({ folder, files: files.sort((a, b) => naturalSort(a.name, b.name)), chapterId: guessChapter(folder, subject) }));
+    paint();
+  };
+  $("#bkStart", box).onclick = async () => {
+    const btn = $("#bkStart", box); btn.disabled = true;
+    const opts = { subject: $("#bkSubject", box).value, sourceLabel: $("#bkSource", box).value.trim(), questionSet: $("#bkSet", box)?.value || null,
+      exam: $$("[data-bkexam]:checked", box).map((x) => x.value) };
+    const total = groups.reduce((n, g) => n + g.files.length, 0);
+    let doneAll = 0;
+    for (const [i, g] of groups.entries()) {
+      const st = (t) => { g.status = t; const c = $(`[data-bkst="${i}"]`, box); if (c) c.textContent = t; };
+      try {
+        await uploadFolder(g, opts, (n, t) => { st(t); $("#bkStatus", box).textContent = `${doneAll + n} of ${total} photos`; });
+      } catch (err) { console.error(err); st(`Failed: ${err.message}`); }
+      doneAll += g.files.length;
+      onQueued?.();
+    }
+    $("#bkStatus", box).textContent = `Upload finished — ${total} photo(s). The server is reading them now; progress is shown above.`;
+    btn.disabled = false;
+  };
+}
+async function uploadFolder(g, opts, progress) {
+  progress(0, "fingerprinting photos…");
+  const hashes = [];
+  for (const f of g.files) hashes.push(await sha256(await f.arrayBuffer()));
+  // Already stored anywhere (an earlier upload)?
+  const known = new Map();
+  for (let i = 0; i < hashes.length; i += 150) {
+    const { data, error } = await sb.from("qb_import_pages").select("sha256,job_id,page_no").in("sha256", hashes.slice(i, i + 150));
+    if (error) throw new Error(/sha256/.test(error.message) ? "The database update for bulk upload is not applied yet — run: npx supabase db push --remote" : error.message);
+    for (const r of data || []) known.set(r.sha256, r);
+  }
+  // An interrupted upload of this folder continues in the same job.
+  const { data: open } = await sb.from("qb_import_jobs").select("*").eq("pipeline", "server").eq("upload_done", false).eq("file_name", g.folder).eq("chapter_id", g.chapterId).limit(1);
+  let job = open?.[0];
+  const todo = g.files.map((f, i) => ({ f, i, hash: hashes[i] })).filter((x) => !known.has(x.hash));
+  if (!todo.length && !job) { progress(g.files.length, `already uploaded (${g.files.length} photos skipped)`); return; }
+  if (!job) {
+    const { data, error } = await sb.from("qb_import_jobs").insert({
+      file_name: g.folder, file_type: "image", original_sha256: await sha256(new TextEncoder().encode(hashes.join(",")).buffer), original_size: g.files.reduce((n, f) => n + f.size, 0),
+      subject_id: opts.subject, chapter_id: g.chapterId, source_label: opts.sourceLabel || g.folder.split("/").pop(), exam_tags: opts.exam, status: "uploaded",
+      created_by: T.userId(), page_count: g.files.length, extractor: "gemini", pipeline: "server", upload_done: false, ...(opts.questionSet ? { question_set: opts.questionSet } : {}),
+    }).select().single();
+    if (error) throw error;
+    job = data;
+  }
+  let done = g.files.length - todo.length;
+  const next = async () => {
+    for (let x = todo.shift(); x; x = todo.shift()) {
+      const pageNo = x.i + 1; // position in the folder (natural file-name order)
+      const bmp = await createImageBitmap(x.f, { imageOrientation: "from-image" });
+      const canvas = pageForGemini(bmp, bmp.width, bmp.height); bmp.close?.();
+      const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.85));
+      const path = `jobs/${job.id}/pages/p${String(pageNo).padStart(4, "0")}.jpg`;
+      // A retry after an interrupted upload may find the file / record already there.
+      const { error: ue } = await sb.storage.from("qb-import").upload(path, blob, { contentType: "image/jpeg", upsert: false });
+      if (ue && !/exists|duplicate/i.test(ue.message)) throw new Error(`${x.f.name}: ${ue.message}`);
+      const { error: ae } = await sb.from("qb_question_assets").insert({ import_job_id: job.id, bucket: "qb-import", path, kind: "page", mime_type: "image/jpeg", byte_size: blob.size, page_no: pageNo, sha256: x.hash, created_by: T.userId() });
+      if (ae && !/duplicate key/.test(ae.message)) throw ae;
+      const { error: pe } = await sb.from("qb_import_pages").insert({ job_id: job.id, page_no: pageNo, image_path: path, width: canvas.width, height: canvas.height, status: "pending", sha256: x.hash });
+      if (pe && !/duplicate key/.test(pe.message)) throw pe;
+      done++; progress(done, `uploading ${done}/${g.files.length}…`);
+    }
+  };
+  await Promise.all([next(), next(), next()]);
+  const { error: de } = await sb.rpc("qb_pipeline_upload_done", { p_job_id: job.id });
+  if (de) throw de;
+  const skipped = g.files.length - hashes.filter((h) => !known.has(h)).length;
+  progress(g.files.length, `queued ✓${skipped ? ` (${skipped} already uploaded earlier, skipped)` : ""}`);
+}
+
+// ---------- Server queue progress ----------
+let pipeTimer = null;
+async function pipelineCard(box) {
+  clearTimeout(pipeTimer);
+  if (!box.isConnected) return;
+  const { data: st, error } = await sb.rpc("qb_pipeline_status");
+  if (error) { box.innerHTML = /qb_pipeline_status/.test(error.message) ? "" : `<div class="msg bad">${esc(error.message)}</div>`; return; }
+  const p = st.pages || {}, q = st.questions || {};
+  const busy = (p.waiting || 0) + (q.waiting || 0) > 0;
+  const paused = !st.enabled ? "Paused by you" : st.paused_until && new Date(st.paused_until) > new Date() ? `${st.pause_reason || "Paused"} (until ${new Date(st.paused_until).toLocaleString()})` : "";
+  const rate = p.read_last_hour || 0;
+  const eta = rate && p.waiting ? `${Math.ceil(p.waiting / rate)} h at the last hour's speed` : "";
+  box.innerHTML = `<div class="card"><h3 class="ctitle">Server queue ${busy ? (paused ? '<span class="tag amber">paused</span>' : '<span class="tag">working</span>') : '<span class="tag">idle</span>'}</h3>
+    <p class="csub">Pages are read and solved on the server every minute, also when this page is closed. Gemini calls today: ${esc(st.calls_today ?? 0)}.${st.last_run_at ? ` Last run: ${esc(new Date(st.last_run_at).toLocaleTimeString())}.` : ""}</p>
+    ${paused ? `<div class="msg">${esc(paused)}</div>` : ""}${st.last_error ? `<div class="msg bad">Last error: ${esc(st.last_error)}</div>` : ""}
+    <div class="toolbar" style="margin:6px 0">
+      <span class="tag">${esc(p.waiting || 0)} page(s) waiting</span><span class="tag">${esc(p.read || 0)} read</span>${p.failed ? `<span class="tag red">${esc(p.failed)} failed</span>` : ""}
+      <span class="tag">${esc(q.solved || 0)} / ${esc(q.total || 0)} questions solved by AI</span>${q.ai_failed ? `<span class="tag red">${esc(q.ai_failed)} AI failed</span>` : ""}
+      ${rate ? `<span class="tag">${esc(rate)} pages in the last hour${eta ? ` · ≈ ${esc(eta)}` : ""}</span>` : ""}
+    </div>
+    ${(st.jobs || []).length ? `<div class="tablewrap"><table><thead><tr><th>Folder</th><th>Status</th><th>Pages read</th><th>Failed</th></tr></thead><tbody>${st.jobs.map((j) => `<tr><td>${esc(j.file_name)}</td><td>${esc(!j.upload_done ? "uploading" : j.status === "processing" ? "reading" : j.status === "review_required" ? "ready for review" : j.status)}</td><td>${esc(j.read)} / ${esc((j.read || 0) + (j.waiting || 0) + (j.failed || 0))}</td><td>${j.failed ? `<span class="tag red">${esc(j.failed)}</span>` : "0"}</td></tr>`).join("")}</tbody></table></div>` : ""}
+    <div class="toolbar"><button class="btn outline small" data-pp>${st.enabled ? "Pause the queue" : "Resume the queue"}</button>${p.failed || q.ai_failed || paused ? `<button class="btn outline small" data-pr>Retry failed / resume now</button>` : ""}<button class="btn outline small" data-pf>Refresh</button></div></div>`;
+  $("[data-pp]", box).onclick = async () => { const { error: e } = await sb.rpc("qb_pipeline_set_enabled", { p_enabled: !st.enabled }); if (e) return fail(e); pipelineCard(box); };
+  const pr = $("[data-pr]", box); if (pr) pr.onclick = async () => { const { data: n, error: e } = await sb.rpc("qb_pipeline_retry_failed"); if (e) return fail(e); toast(`${n} item(s) queued again`); pipelineCard(box); };
+  $("[data-pf]", box).onclick = () => pipelineCard(box);
+  if (busy) pipeTimer = setTimeout(() => pipelineCard(box), 20000);
+}
+
 function classifyFiles(list) {
   const docs = [], images = [], rejected = [];
   for (const f of list) {
@@ -513,6 +669,8 @@ async function callGemini(fn, payload, status, label) {
     let body = data;
     if (error?.context && typeof error.context.json === "function") { try { body = await error.context.json(); } catch { /* not JSON */ } }
     const code = body?.code, msg = body?.message || error?.message || "Gemini extraction failed";
+    // Today's free limit is used up on every model: waiting a few seconds will not help.
+    if (code === "QUOTA" && body?.daily) throw Object.assign(new Error(`${msg} Large uploads: use Bulk upload — the server queue continues by itself after the reset.`), { code, fatal: true });
     // Free-tier limit, Google's servers busy, or a passing error: wait and try
     // again (busy spikes can last a minute or two, so those waits grow).
     if ((code === "BUSY" && attempt < 5) || (["QUOTA", "NETWORK", "BAD_JSON", "GEMINI"].includes(code) && attempt < 3)) {
@@ -558,7 +716,8 @@ async function aiSolveItems(items, status) {
     };
     let A, B = null;
     try { A = await solve(batch.items, "first solution"); } catch (err) { if (err.fatal) throw err; failed += batch.items.length; status(`${label}: ${err.message}`); continue; }
-    const blind = batch.items.filter((it) => bookAnswerOf(it) == null && A.by.has(it.id));
+    // Second, independent solution only where the book has no answer and the AI was not sure (saves the free daily limit).
+    const blind = batch.items.filter((it) => bookAnswerOf(it) == null && A.by.has(it.id) && A.by.get(it.id).confidence !== "high");
     if (blind.length) { try { B = await solve(blind, "second, independent solution"); } catch (err) { if (err.fatal) throw err; } }
     for (const it of batch.items) {
       const a = A.by.get(it.id);

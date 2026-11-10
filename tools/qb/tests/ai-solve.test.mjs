@@ -70,6 +70,18 @@ test("unsure AI and numerical tolerance", () => {
   assert.equal(n.draft.answer, 9.8, "within 1 % counts as agreeing");
 });
 
+test("difficulty: filled when empty or set by AI before, never over a person's choice", () => {
+  const r = applySolution(item({ difficulty: null }), { a: sol("C", { difficulty: "2", difficulty_reason: "recall" }), b: sol("C"), model: "m" });
+  assert.equal(r.draft.difficulty, 2);
+  assert.equal(r.ai.difficulty, 2);
+  assert.ok(r.issues.some((w) => /difficulty 2 \(Easy\) set by AI/.test(w)));
+  const again = applySolution(item(r.draft, { extracted: { page_from: 1, ai: r.ai }, issues: r.issues }), { a: sol("C", { difficulty: "4" }), b: sol("C"), model: "m" });
+  assert.equal(again.draft.difficulty, 4, "earlier AI level is replaced");
+  const human = applySolution(item({ difficulty: 3 }), { a: sol("C", { difficulty: "5" }), b: sol("C"), model: "m" });
+  assert.equal(human.draft.difficulty, 3);
+  assert.equal(human.ai.difficulty, null);
+});
+
 test("batches: grouped by page, at most MAX_PER_CALL each", () => {
   const items = Array.from({ length: 16 }, (_, i) => ({ id: `q${i}`, page_no: i < 10 ? 1 : 2, extracted: { page_from: i < 10 ? 1 : 2 } }));
   const b = solveBatches(items);

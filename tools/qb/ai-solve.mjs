@@ -10,7 +10,9 @@
 //     warning the coordinator must tick; if they disagree, no answer is set.
 // The approach goes to draft.hint, the worked solution (plus why each wrong
 // option is wrong) to draft.solution. Human-written text is never replaced.
-// Every AI warning starts with "AI: " so a re-run replaces the old ones.
+// Difficulty (1–5; 1–2 easy, 3 medium, 4–5 hard) is filled when empty or
+// set by an earlier AI run. Every AI warning starts with "AI: " so a re-run
+// replaces the old ones.
 // =====================================================================
 export const AI_SOLVE_VERSION = "ai-solve-1";
 export const MAX_PER_CALL = 7;
@@ -35,6 +37,7 @@ export function sameAnswer(type, a, b, tolerance = 0) {
   if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) <= Math.max(Number(tolerance) || 0, Math.abs(b) * 0.01, 1e-9);
   return String(a) === String(b);
 }
+export const LEVEL_NAME = (n) => (n == null ? "—" : n <= 2 ? "Easy" : n === 3 ? "Medium" : "Hard");
 export const showAnswer = (a) => (a == null ? "—" : Array.isArray(a) ? a.join(", ") : String(a));
 
 // What the function is sent: never the answer.
@@ -100,7 +103,11 @@ export function applySolution(item, { a, b = null, model, at = new Date().toISOS
   if (approach && (!d.hint || aiWrote("hint"))) d.hint = approach;
   if (sol && (!d.solution || aiWrote("solution"))) d.solution = sol;
   if (d.solution !== sol && sol) notes.push(`${AI}A solution was already written, so the AI solution was not used`);
-  if (d.solution === sol || d.hint === approach) notes.push(`${AI}Approach and solution written by AI (${model}) — read them before verifying`);
+  const lv = Math.round(Number(a?.difficulty));
+  const level = lv >= 1 && lv <= 5 ? lv : null;
+  if (level && (d.difficulty == null || (prev && prev.difficulty === item.draft?.difficulty))) d.difficulty = level;
+  const wroteLevel = level != null && d.difficulty === level;
+  if (d.solution === sol || d.hint === approach || wroteLevel) notes.push(`${AI}${[d.solution === sol || d.hint === approach ? "Approach and solution" : null, wroteLevel ? `difficulty ${level} (${LEVEL_NAME(level)})` : null].filter(Boolean).join(" and ")} set by AI (${model}) — read them before verifying`);
 
   const tags = new Set((d.tags || []).filter((t) => t !== "ai:answer"));
   if (d.solution === sol || d.hint === approach) tags.add("ai:solution");
@@ -111,7 +118,7 @@ export function applySolution(item, { a, b = null, model, at = new Date().toISOS
   const kept = (item.issues || []).filter((w) => !w.startsWith(AI) && !(answerFromAi && /^No answer printed/.test(w)));
   const ai = {
     version: AI_SOLVE_VERSION, model, at, book_answer: book, answers: [A, ...(b ? [B] : [])], answer_from_ai: answerFromAi,
-    confidence: a?.confidence || null, doubt: a?.doubt || null, hint: d.hint === approach ? approach : null, solution: d.solution === sol ? sol : null,
+    confidence: a?.confidence || null, doubt: a?.doubt || null, difficulty: wroteLevel ? level : null, difficulty_reason: a?.difficulty_reason || null, hint: d.hint === approach ? approach : null, solution: d.solution === sol ? sol : null,
   };
   return { draft: d, ai, issues: [...kept, ...notes, ...blocking], blocking };
 }
