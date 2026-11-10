@@ -16,6 +16,7 @@ import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261030-mat
 import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261030-mathocr1";
 import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261030-mathocr1";
 import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261110-gemini1";
+import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261111-ai1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -95,6 +96,7 @@ function questionView(q, { answer, solution, maps } = {}) {
     a.innerHTML = `<b>Answer:</b> ${esc(answerText(answer))}${q.unit ? " " + esc(q.unit) : ""}${q.tolerance ? ` (± ${esc(q.tolerance)})` : ""}`;
     wrap.appendChild(a);
   }
+  if (q.hint) { const h = document.createElement("div"); h.className = "qb-sol"; h.innerHTML = "<b>Approach</b>"; h.appendChild(mdDiv(q.hint, maps)); wrap.appendChild(h); }
   if (solution) { const s = document.createElement("div"); s.className = "qb-sol"; s.innerHTML = "<b>Solution</b>"; s.appendChild(mdDiv(solution, maps)); wrap.appendChild(s); }
   return wrap;
 }
@@ -179,7 +181,8 @@ function questionEditor(existing, { maps } = {}) {
     <textarea class="lightfield qb-mono" data-f="question" rows="6">${esc(q.question)}</textarea>
     <div class="toolbar"><label class="btn outline small">Insert image<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" data-f="image" hidden></label></div>
     <div data-f="options"></div><div data-f="answer"></div>
-    <label class="darklabel">Solution (optional — only a real worked solution)</label><textarea class="lightfield qb-mono" data-f="solution" rows="4">${esc(q.solution || "")}</textarea>
+    <label class="darklabel">Approach — how to start thinking (students see it after the test)</label><textarea class="lightfield qb-mono" data-f="hint" rows="3">${esc(q.hint || "")}</textarea>
+    <label class="darklabel">Solution — step by step (students see it after the test)</label><textarea class="lightfield qb-mono" data-f="solution" rows="6">${esc(q.solution || "")}</textarea>
     <div class="qb-row3">
      <div><label class="darklabel">Tags (comma separated)</label><input class="lightfield" data-f="tags" value="${esc(q.tags.join(", "))}"></div>
      <div><label class="darklabel">Source</label><input class="lightfield" data-f="source" value="${esc(q.source || "")}"></div>
@@ -262,6 +265,7 @@ function questionEditor(existing, { maps } = {}) {
   };
   f("question").oninput = (e) => { q.question = e.target.value; update(); };
   f("solution").oninput = (e) => { q.solution = e.target.value || null; update(); };
+  f("hint").oninput = (e) => { q.hint = e.target.value || null; update(); };
   f("image").onchange = async (e) => {
     const file = e.target.files[0]; if (!file) return;
     try {
@@ -499,8 +503,12 @@ function pageForGemini(source, w, h) {
 }
 async function geminiRead(canvas, pageNo, ctx, prevTail, status, label) {
   const image = canvas.toDataURL("image/jpeg", 0.9).split(",")[1];
+  return callGemini("qb-gemini-extract", { image, mime: "image/jpeg", pageNo, subject: ctx.subject, chapterSlug: ctx.chapter, previousTail: prevTail }, status, label);
+}
+// One Gemini Edge Function call, retried on passing errors.
+async function callGemini(fn, payload, status, label) {
   for (let attempt = 0; ; attempt++) {
-    const { data, error } = await sb.functions.invoke("qb-gemini-extract", { body: { image, mime: "image/jpeg", pageNo, subject: ctx.subject, chapterSlug: ctx.chapter, previousTail: prevTail } });
+    const { data, error } = await sb.functions.invoke(fn, { body: payload });
     if (!error && data?.success) return data;
     let body = data;
     if (error?.context && typeof error.context.json === "function") { try { body = await error.context.json(); } catch { /* not JSON */ } }
@@ -515,6 +523,53 @@ async function geminiRead(canvas, pageNo, ctx, prevTail, status, label) {
     }
     throw Object.assign(new Error(msg), { code, fatal: ["NO_KEY", "MODEL"].includes(code) || /Only the Test/.test(msg) });
   }
+}
+// ---------- AI answer, approach & solution (Edge Function qb-ai-solve) ----------
+// Questions go per page with that page's image (for diagrams). Book answers
+// are never sent; questions without one are solved twice, independently.
+// What to keep is decided in tools/qb/ai-solve.mjs; qb_ai_apply_solution
+// stores it and turns the AI answer warnings into blocking ones.
+const AI_TYPES = new Set(["single", "multi", "integer", "numerical"]);
+const pageB64Cache = new Map();
+async function pageImageB64(jobId, pageNo) {
+  const k = `${jobId}:${pageNo}`;
+  if (!pageB64Cache.has(k)) {
+    let b64 = null;
+    const { data: pg } = await sb.from("qb_import_pages").select("image_path").eq("job_id", jobId).eq("page_no", pageNo).maybeSingle();
+    if (pg?.image_path) {
+      const { data: blob } = await sb.storage.from("qb-import").download(pg.image_path);
+      if (blob) { const bmp = await createImageBitmap(blob); b64 = pageForGemini(bmp, bmp.width, bmp.height).toDataURL("image/jpeg", 0.9).split(",")[1]; }
+    }
+    pageB64Cache.set(k, b64);
+  }
+  return pageB64Cache.get(k);
+}
+async function aiSolveItems(items, status) {
+  const todo = items.filter((it) => AI_TYPES.has(it.draft?.type) && String(it.draft?.question || "").trim());
+  let done = 0, failed = 0;
+  for (const batch of solveBatches(todo)) {
+    const first = batch.items[0], label = `Page ${batch.page ?? "?"}`;
+    const image = batch.page != null ? await pageImageB64(first.job_id, batch.page) : null;
+    const ctx = { subject: first.draft.subject, chapterSlug: first.draft.chapter, ...(image ? { image, mime: "image/jpeg" } : {}) };
+    const solve = async (list, pass) => {
+      status(`${label}: AI is solving ${list.length} question(s) — ${pass} (${done} of ${todo.length} done)…`);
+      const r = await callGemini("qb-ai-solve", { ...ctx, questions: list.map(toSolveQuestion) }, status, label);
+      return { model: r.model, by: new Map((r.solutions || []).map((x) => [String(x.ref), x])) };
+    };
+    let A, B = null;
+    try { A = await solve(batch.items, "first solution"); } catch (err) { if (err.fatal) throw err; failed += batch.items.length; status(`${label}: ${err.message}`); continue; }
+    const blind = batch.items.filter((it) => bookAnswerOf(it) == null && A.by.has(it.id));
+    if (blind.length) { try { B = await solve(blind, "second, independent solution"); } catch (err) { if (err.fatal) throw err; } }
+    for (const it of batch.items) {
+      const a = A.by.get(it.id);
+      if (!a) { failed++; continue; }
+      const r = applySolution(it, { a, b: B?.by.get(it.id) || null, model: A.model });
+      const { error } = await sb.rpc("qb_ai_apply_solution", { p_item_id: it.id, p_draft: r.draft, p_ai: r.ai, p_issues: r.issues, p_blocking: r.blocking });
+      if (error) { if (/qb_ai_apply_solution/.test(error.message)) throw new Error("The database update for AI solutions is not applied yet — run: npx supabase db push --remote"); failed++; continue; }
+      done++;
+    }
+  }
+  return { done, failed, skipped: items.length - todo.length };
 }
 // One page: store the image (Review & Edit shows it next to each question), then read it with Gemini.
 async function geminiPage(canvas, pageNo, job, ctx, state, status, label, pct) {
@@ -818,17 +873,30 @@ async function showReconciliation(box, jobId) {
 // opts.onReject: show a Reject button per row (existing server function
 // qb_reject_import_item: open items only, records who/when/why).
 async function itemList(root, statuses, title, sub, opts = {}) {
-  const { data, error } = await sb.from("qb_import_items").select("id,job_id,seq,source_number,source_location,status,confidence,issues,review_note,draft,qb_import_jobs(source_label,file_name,file_type)")
+  const { data, error } = await sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)")
     .in("status", statuses).order("job_id").order("seq").limit(500);
   if (error) throw error;
   const box = document.createElement("div"); box.className = "card";
-  box.innerHTML = `<h3 class="ctitle">${esc(title)} (${data.length})</h3><p class="csub">${esc(sub)}</p>${data.length ? `<div class="tablewrap"><table><thead><tr><th>Source</th><th>Location</th><th>Question</th><th>Status</th><th>Warnings</th><th></th></tr></thead><tbody>${data.map((i) => `<tr>
+  const noAi = data.filter((i) => !i.extracted?.ai && AI_TYPES.has(i.draft?.type));
+  const aiBar = opts.ai && data.length ? `<div class="toolbar"><button class="btn gold small" data-aiall${noAi.length ? "" : " disabled"}>AI: answer, approach &amp; solution — ${noAi.length} question(s) without</button><span data-aistatus style="color:var(--m)"></span></div>` : "";
+  box.innerHTML = `<h3 class="ctitle">${esc(title)} (${data.length})</h3><p class="csub">${esc(sub)}</p>${aiBar}${data.length ? `<div class="tablewrap"><table><thead><tr><th>Source</th><th>Location</th><th>Question</th><th>Status</th><th>Warnings</th><th></th></tr></thead><tbody>${data.map((i) => `<tr>
     <td>${esc(i.qb_import_jobs?.source_label || i.qb_import_jobs?.file_name)}<br><span style="color:var(--m)">${esc(i.qb_import_jobs?.file_type)}</span></td>
     <td>${esc(i.source_location || "")} · Q${esc(i.source_number || "?")}</td><td>${esc(plainStem(i.draft?.question).slice(0, 110))}</td>
-    <td><span class="tag ${i.status === "returned" ? "red" : "amber"}">${esc(ITEM_LABEL[i.status])}</span>${i.confidence === "low" ? ' <span class="tag red">uncertain</span>' : ""}${i.review_note ? `<br><span style="color:var(--m)">${esc(i.review_note)}</span>` : ""}</td>
+    <td><span class="tag ${i.status === "returned" ? "red" : "amber"}">${esc(ITEM_LABEL[i.status])}</span>${i.confidence === "low" ? ' <span class="tag red">uncertain</span>' : ""}${i.extracted?.ai ? ` <span class="tag">AI ${i.extracted.ai.answer_from_ai ? "answer + " : ""}solution</span>` : ""}${i.review_note ? `<br><span style="color:var(--m)">${esc(i.review_note)}</span>` : ""}</td>
     <td>${(i.issues || []).length}</td><td style="white-space:nowrap"><button class="btn primary small" data-item="${esc(i.id)}">Open</button>${opts.onReject ? ` <button class="btn danger small" data-rej="${esc(i.id)}" data-label="${esc(`Q${i.source_number || "?"} · ${i.source_location || ""}`)}">Reject</button>` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Nothing here.</div>`}`;
   root.appendChild(box);
   $$("[data-item]", box).forEach((b) => b.onclick = () => openItem(b.dataset.item, data.map((x) => x.id)).catch(fail));
+  const aiAll = $("[data-aiall]", box);
+  if (aiAll) aiAll.onclick = async () => {
+    if (!confirm(`Ask AI (Google Gemini) for the answer, an approach and a step-by-step solution of ${noAi.length} question(s)?\n\nThe questions and their page images are sent to Google. Questions without a printed answer are solved twice. Every AI answer stays a suggestion: you must tick it before verifying.`)) return;
+    aiAll.disabled = true;
+    const st = (m) => { $("[data-aistatus]", box).textContent = m; };
+    try {
+      const r = await aiSolveItems(noAi, st);
+      toast(`AI solved ${r.done} question(s)${r.failed ? `, ${r.failed} failed (try again later)` : ""}`);
+      opts.reload?.();
+    } catch (err) { aiAll.disabled = false; st(""); fail(err); }
+  };
   $$("[data-rej]", box).forEach((b) => b.onclick = async () => {
     const reason = prompt(`Reject ${b.dataset.label}?\n\nReason (duplicate, not a question, unreadable, subjective…):`);
     if (reason === null) return; // cancelled
@@ -883,11 +951,11 @@ async function rejectedCard(card, onChange) {
 }
 async function pageReviewList(root) {
   root.innerHTML = "";
-  await itemList(root, ["review_required", "returned"], "Review & Edit", "Extracted questions that need checking against their source. Correct them and save, or verify directly.");
+  await itemList(root, ["review_required", "returned"], "Review & Edit", "Extracted questions that need checking against their source. Correct them and save, or verify directly.", { ai: true, reload: () => pageReviewList(root).catch(fail) });
 }
 async function pageVerifyList(root) {
   root.innerHTML = "";
-  await itemList(root, ["corrected"], "Corrected imports awaiting verification", "Verifying runs every gate on the server and adds the question to the final bank.");
+  await itemList(root, ["corrected"], "Corrected imports awaiting verification", "Verifying runs every gate on the server and adds the question to the final bank.", { ai: true, reload: () => pageVerifyList(root).catch(fail) });
   const { data, error } = await sb.from("qb_questions").select("*").eq("status", "draft").order("updated_at", { ascending: false }).limit(200);
   if (error) throw error;
   const box = document.createElement("div"); box.className = "card"; box.style.marginTop = "14px";
@@ -1049,7 +1117,7 @@ async function openItem(itemId, queue = []) {
     ${(item.issues || []).length ? `<div class="darklabel">Extraction warnings</div>${item.issues.map((w, i) => `<label class="checkline"><input type="checkbox" data-ack="${i}"> ${esc(w)}</label>`).join("")}` : `<div class="msg success">No extraction warnings.</div>`}
     ${(dups || []).length ? `<div class="darklabel" style="margin-top:10px">Similar questions already in the bank</div>${dups.map((d) => `<label class="checkline">${d.similarity >= 0.9 ? `<input type="checkbox" data-notdup="${esc(d.question_id)}">` : "•"} ${esc(d.code)} (${esc(d.status)}, ${Math.round(d.similarity * 100)}% similar)${d.similarity >= 0.9 ? " — tick only if this is a <b>different</b> question" : ""}</label>`).join("")}` : ""}
     <div data-gatefail class="msg bad"></div>
-    <div class="toolbar"><button class="btn gold" data-verify>Verify &amp; add to Question Bank</button><button class="btn outline" data-save>Save corrections</button><button class="btn outline" data-return>Return for correction</button><button class="btn danger" data-reject>Reject</button></div>`;
+    <div class="toolbar"><button class="btn gold" data-verify>Verify &amp; add to Question Bank</button><button class="btn outline" data-save>Save corrections</button><button class="btn outline" data-ai>AI: answer, approach &amp; solution</button><button class="btn outline" data-return>Return for correction</button><button class="btn danger" data-reject>Reject</button></div>`;
   const acks = () => $$("[data-ack]:checked", gates).map((c) => item.issues[Number(c.dataset.ack)]);
   const notDups = () => $$("[data-notdup]:checked", gates).map((c) => c.dataset.notdup);
   const showFail = (list) => { $("[data-gatefail]", gates).innerHTML = list.length ? `<ul style="padding-left:18px;margin:6px 0">${list.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""; };
@@ -1059,6 +1127,17 @@ async function openItem(itemId, queue = []) {
   $("[data-save]", gates).onclick = async () => {
     const { error: se } = await sb.rpc("qb_save_import_item", { p_item_id: item.id, p_draft: draftForSave() });
     if (se) return fail(se); toast("Corrections saved — waiting in the Verification Queue"); after();
+  };
+  $("[data-ai]", gates).onclick = async (ev) => {
+    const btn = ev.currentTarget, label = btn.textContent;
+    if (!AI_TYPES.has(editor.getQ().type)) return toast("AI solutions are available for single, multi, integer and numerical questions");
+    btn.disabled = true;
+    try {
+      const r = await aiSolveItems([{ ...item, draft: draftForSave() }], (m) => { btn.textContent = m.slice(0, 70); });
+      if (!r.done) throw new Error("AI could not solve this question — try again in a minute.");
+      toast("AI answer, approach and solution added — read them, then tick the AI warnings");
+      openItem(item.id, queue).catch(fail);
+    } catch (err) { fail(err); } finally { btn.disabled = false; btn.textContent = label; }
   };
   $("[data-return]", gates).onclick = async () => {
     const note = prompt("What needs correcting?"); if (!note) return;
