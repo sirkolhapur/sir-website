@@ -97,3 +97,26 @@ test("short-answer questions: subjective type, text answer, separate parts becom
   const withKey = pagesToItems([{ pageNo: 1, result: { questions: [{ number: 5, type: "subjective", question: "Find …", answer: "$[MLT^{-2}]$", answer_printed: true, topic: "x" }] } }], ctx);
   assert.equal(withKey[0].draft.answer, "$[MLT^{-2}]$");
 });
+
+test("LaTeX written with single backslashes is repaired (frac → form feed, text/times → tab, nu → newline)", async () => {
+  const { repairLatex } = await import("../gemini-extract.mjs");
+  // exactly what JSON.parse makes of "\frac", "\text", "\times", "\beta", "\nu", "\right" written unescaped
+  const broken = JSON.parse(String.raw`"($P = \text{mass} \times \text{velocity}$) $f = \frac{1}{T}$ $\beta$ $E = h\nu$ $\\left( x \right)$\nNext line"`);
+  assert.equal(repairLatex(broken), String.raw`($P = \text{mass} \times \text{velocity}$) $f = \frac{1}{T}$ $\beta$ $E = h\nu$ $\left( x \right)$` + "\nNext line");
+  assert.deepEqual(repairLatex({ a: [JSON.parse(String.raw`"$\frac{a}{b}$"`)], n: 3 }), { a: [String.raw`$\frac{a}{b}$`], n: 3 });
+  assert.equal(repairLatex("Line one\nLine two"), "Line one\nLine two", "real newlines outside maths stay");
+  const items = pagesToItems([{ pageNo: 1, result: JSON.parse(String.raw`{"questions": [{"number": 1, "type": "single", "question": "Find $\frac{1}{2}mv^2$", "options": [{"key": "A", "text": "$\times$"}, {"key": "B", "text": "b"}, {"key": "C", "text": "c"}, {"key": "D", "text": "d"}], "answer": "A", "topic": "t"}]}`) }], ctx);
+  assert.equal(items[0].draft.question, String.raw`Find $\frac{1}{2}mv^2$`);
+  assert.equal(items[0].draft.options[0].text, String.raw`$\times$`);
+});
+
+test("an MCQ read without any options becomes a subjective question with a warning", () => {
+  const items = pagesToItems([{ pageNo: 1, result: { questions: [
+    { number: 23, type: "single", question: "Find the dimensions of angular speed $(\omega)$", options: [], topic: "t" },
+    { number: 24, type: "multi", question: "Find the dimensions of Planck's constant", options: [{ key: "a", text: "x" }], topic: "t" }] } }], ctx);
+  assert.deepEqual(items.map((i) => i.draft.type), ["subjective", "subjective"]);
+  assert.equal(items[0].draft.options, null);
+  assert.equal(items[0].draft.negative, 0);
+  assert.ok(items[0].issues.some((w) => /No answer choices were read — stored as a subjective/.test(w)));
+  assert.ok(!items[0].issues.some((w) => /option\(s\) read/.test(w)));
+});

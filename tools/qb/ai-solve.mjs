@@ -16,6 +16,7 @@
 // set by an earlier AI run. Every AI warning starts with "AI: " so a re-run
 // replaces the old ones.
 // =====================================================================
+import { repairLatex } from "./gemini-extract.mjs";
 export const AI_SOLVE_VERSION = "ai-solve-1";
 export const MAX_PER_CALL = 7;
 const AI = "AI: ";
@@ -96,7 +97,8 @@ export function mcqVersion(draft, mcq, model) {
 // item: { id, draft, extracted, issues, blocking_issues }
 // a, b: solutions from two blind runs (b may be null), model, at: ISO time.
 // → { draft, ai, issues, blocking } ready for qb_ai_apply_solution.
-export function applySolution(item, { a, b = null, model, at = new Date().toISOString() }) {
+export function applySolution(item, { a: rawA, b: rawB = null, model, at = new Date().toISOString() }) {
+  const a = repairLatex(rawA), b = repairLatex(rawB);
   const prev = item.extracted?.ai || null;
   const d = structuredClone(item.draft || {});
   const type = d.type || "single";

@@ -20,6 +20,32 @@
 // =====================================================================
 export const GEMINI_EXTRACT_VERSION = "gemini-1";
 
+// Some models write LaTeX inside JSON with single backslashes, so "\frac",
+// "\text", "\times", "\beta", "\nu" arrive as control characters (form feed,
+// tab, backspace, newline) followed by the rest of the command. Put the
+// backslash back: form feed / backspace / vertical tab always; tab or
+// carriage return before a letter; a newline only inside $…$ and before a
+// LaTeX command name. Works on strings, arrays and objects.
+const NL_CMD = /^(?:u|abla|eq|e(?![a-z])|ot|eg|i(?![a-z])|onumber|exists|parallel|mid|ewline|leftarrow|rightarrow|subset|cong|sim|vdash|Rightarrow|Leftarrow|ormalsize|atural)/;
+function repairText(s) {
+  if (!/[\f\b\v\t\r\n]/.test(s)) return s;
+  let out = s.replace(/\f/g, "\\f").replace(/\x08/g, "\\b").replace(/\v/g, "\\v").replace(/\t(?=[A-Za-z])/g, "\\t").replace(/\r(?=[A-Za-z])/g, "\\r");
+  if (!out.includes("\n") || !out.includes("$")) return out;
+  let res = "", math = false;
+  for (let i = 0; i < out.length; i++) {
+    const c = out[i];
+    if (c === "$" && out[i - 1] !== "\\") math = !math;
+    res += c === "\n" && math && NL_CMD.test(out.slice(i + 1, i + 12)) ? "\\n" : c;
+  }
+  return res;
+}
+export function repairLatex(v) {
+  if (typeof v === "string") return repairText(v);
+  if (Array.isArray(v)) return v.map(repairLatex);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, repairLatex(x)]));
+  return v;
+}
+
 export const SET_EXAM = { "pyq-neet": "neet", "pyq-aiims": "aiims", "pyq-jipmer": "jipmer" };
 
 // "Previous Year NEET MCQs" → "pyq-neet", "NCERT Exemplar" → "ncert-exemplar", …
@@ -96,7 +122,7 @@ export function pagesToItems(pages, ctx) {
   const items = [], keys = [];
   let detectedSet = null;
   for (const pg of pages) {
-    const r = pg.result || {};
+    const r = repairLatex(pg.result || {});
     const fromHeading = setFromHeading(r.section_heading);
     if (fromHeading) detectedSet = fromHeading;
     const set = ctx.questionSet || detectedSet || null;
@@ -173,7 +199,11 @@ export function pagesToItems(pages, ctx) {
     d.answer = answerFor(d.type, it._answerRaw);
     if (it._answerRaw && d.answer == null) it.issues.push(`Answer "${String(it._answerRaw).slice(0, 40)}" could not be matched to an option — set the correct answer`);
     if (!it._answerRaw) it.issues.push("No answer printed on these pages — add the correct answer before verifying");
-    if ((d.type === "single" || d.type === "multi") && (d.options || []).length < 4) it.issues.push(`Only ${(d.options || []).length} option(s) read — compare with the page`);
+    if ((d.type === "single" || d.type === "multi") && (d.options || []).length < 2 && !it._open) {
+      // No answer choices were read: treat it as a short-answer question.
+      d.type = "subjective"; d.options = null; d.negative = 0; d.answer = answerFor("subjective", it._answerRaw);
+      it.issues.push("No answer choices were read — stored as a subjective (short-answer) question; if the page shows options, change the type and type them");
+    } else if ((d.type === "single" || d.type === "multi") && (d.options || []).length < 4) it.issues.push(`Only ${(d.options || []).length} option(s) read — compare with the page`);
     if (d.type === "single" && Array.isArray(d.answer)) d.answer = d.answer[0];
     for (const u of it._uncertain) it.issues.push(`Gemini was unsure: ${u} — compare with the page image`);
     if (it.extracted.kind === "matrix_match" && d.type === "single") it.issues.push("Match-the-columns question stored as a single-answer question with coded options — check the table");

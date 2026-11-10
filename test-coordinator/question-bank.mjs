@@ -15,8 +15,8 @@ import { helperHealth, runMathOcr, MATH_OCR_VERSION } from "../tools/qb/math-ocr
 import { parseDocx, WEB_IMAGE } from "../tools/qb/docx-parser.mjs?v=20261113-subj1";
 import { parseXlsx } from "../tools/qb/xlsx-parser.mjs?v=20261113-subj1";
 import { suggestClassification } from "../tools/qb/suggest.mjs?v=20261030-mathocr1";
-import { pagesToItems, openTail, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261113-subj1";
-import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261113-subj1";
+import { pagesToItems, openTail, repairLatex, GEMINI_EXTRACT_VERSION } from "../tools/qb/gemini-extract.mjs?v=20261113-latex1";
+import { applySolution, bookAnswerOf, solveBatches, toSolveQuestion } from "../tools/qb/ai-solve.mjs?v=20261113-latex1";
 
 const T = window.SIR_TC;
 const sb = T.sb;
@@ -1140,7 +1140,8 @@ async function openItem(itemId, queue = []) {
   const { data: item, error } = await sb.from("qb_import_items").select("*, qb_import_jobs(*)").eq("id", itemId).single();
   if (error) throw error;
   const job = item.qb_import_jobs, ex = item.extracted || {};
-  const draft = structuredClone(item.draft);
+  // Older AI readings may hold LaTeX whose backslashes became control characters.
+  const draft = repairLatex(structuredClone(item.draft));
   const figures = (draft.figures || []).map((f) => ({ ...f, box: [...f.box] }));
   const { data: pages } = await sb.from("qb_import_pages").select("page_no,image_path,ocr_confidence,text_source").eq("job_id", job.id).order("page_no");
   const regions = ex.regions || [];
