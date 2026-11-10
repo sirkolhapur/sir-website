@@ -914,7 +914,11 @@ async function openItem(itemId, queue = []) {
     const img = new Image(); img.src = URL.createObjectURL(blob); await img.decode(); return img;
   };
   const mathItems = (ex.math || []).filter((m) => m.box);
-  for (const pg of new Set([...regions.map((r) => r.page), ...figures.map((f) => f.page), ...mathItems.map((m) => m.page)])) {
+  // The page(s) the question came from — Gemini readings carry no regions, so
+  // a question without a diagram still needs its page shown.
+  const sourcePages = [];
+  for (let pg = ex.page_from ?? item.page_no, last = ex.page_to ?? pg; pg != null && pg <= last; pg++) sourcePages.push(pg);
+  for (const pg of new Set([...sourcePages, ...regions.map((r) => r.page), ...figures.map((f) => f.page), ...mathItems.map((m) => m.page)])) {
     const p = pages?.find((x) => x.page_no === pg);
     if (p?.image_path) pageImgs[pg] = await loadImg(p.image_path);
   }
@@ -948,7 +952,7 @@ async function openItem(itemId, queue = []) {
 
   // Source page with the question region and diagram crops.
   const wrap = $("[data-page]", root);
-  let viewPage = regions[0]?.page ?? figures[0]?.page ?? null, cropping = null;
+  let viewPage = regions[0]?.page ?? figures[0]?.page ?? sourcePages[0] ?? null, cropping = null;
   const drawPage = () => {
     wrap.innerHTML = "";
     if (viewPage == null || !pageImgs[viewPage]) { wrap.innerHTML = `<div class="empty">${ex.source_method === "docx" || ex.source_method === "xlsx" ? "No page image for this file type — compare with the source text below." : "Page image unavailable."}</div>`; return; }
