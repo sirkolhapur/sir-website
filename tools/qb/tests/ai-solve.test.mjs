@@ -107,3 +107,11 @@ test("subjective: text answers compared loosely; AI answer suggested; MCQ versio
   assert.ok(bad.issues.some((w) => /MCQ version was unusable/.test(w)));
   assert.equal(toSolveQuestion(subj({ unit: "J s" })).options, null);
 });
+
+test("AI text with single-backslash LaTeX is repaired before it is stored", () => {
+  // what JSON.parse makes of "\frac" / "\text" / "\times" written with one backslash
+  const broken = JSON.parse(String.raw`{"approach": "Use $\frac{d}{t}$.", "solution": "1. $P = \text{mass} \times v$"}`);
+  const r = applySolution(item({}), { a: sol("C", broken), b: sol("C"), model: "m" });
+  assert.equal(r.draft.hint, String.raw`Use $\frac{d}{t}$.`);
+  assert.equal(r.draft.solution.split("\n")[0], String.raw`1. $P = \text{mass} \times v$`);
+});
