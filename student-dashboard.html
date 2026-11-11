@@ -2382,9 +2382,14 @@ header, main, footer {
         await loadAcademicRecords(student.id);
 
       currentAcademicRecords = academicRecords;
-      renderDashboardActions(academicRecords);
-      renderSubjectPerformance(academicRecords);
-      renderJourney(academicRecords);
+
+      // Absent tests stay in Test History but never count as a score:
+      // "latest", averages, trends and subject performance use only the
+      // tests the student actually took.
+      const appearedRecords = academicRecords.filter(row => !isAbsentRecord(row));
+      renderDashboardActions(appearedRecords);
+      renderSubjectPerformance(appearedRecords);
+      renderJourney(appearedRecords);
 
 
       /* =================================================
@@ -2399,7 +2404,7 @@ header, main, footer {
          RENDER EVERYTHING
          ================================================= */
 
-      renderAnalytics(academicRecords);
+      renderAnalytics(appearedRecords);
       renderTests(academicRecords);
       renderReviews(reviews);
 
@@ -4179,18 +4184,24 @@ dspDateEl.value = dspToday;
      PERCENTAGE
      ===================================================== */
 
+  function isAbsentRecord(row) {
+    const status = String(row?.status || "").trim().toLowerCase().replace(/[ _-]+/g, "");
+    return ["absent", "ab", "notattended", "notattempted", "cancelled", "canceled"].includes(status);
+  }
+
+  // Percentage = marks ÷ max × 100 (negative marking can make it < 0).
+  // The stored value is only a fallback when marks are missing; it is
+  // never an accuracy figure (the database recomputes it from marks).
   function getPercentage(row) {
-    if (!row) return null;
-    const status = String(row.status || "").trim().toLowerCase().replace(/[ _-]+/g, "");
-    if (["absent", "ab", "notattended", "notattempted", "cancelled", "canceled"].includes(status)) return null;
+    if (!row || isAbsentRecord(row)) return null;
     const score = getScore(row);
     const maxMarks = getMaxMarks(row);
-    if (score !== null && maxMarks !== null && maxMarks > 0 && score >= 0) {
+    if (score !== null && maxMarks !== null && maxMarks > 0) {
       const calculated = (score / maxMarks) * 100;
-      if (Number.isFinite(calculated) && calculated >= 0 && calculated <= 100) return calculated;
+      if (Number.isFinite(calculated) && calculated <= 100) return calculated;
     }
     const stored = finiteNumber(row.percentage);
-    if (stored !== null && stored >= 0 && stored <= 100) return stored;
+    if (stored !== null && stored >= -100 && stored <= 100) return stored;
     return null;
   }
 
@@ -4386,16 +4397,17 @@ dspDateEl.value = dspToday;
   function getQuestionCounts(row){const c=finiteNumber(row?.correct_answers),w=finiteNumber(row?.incorrect_answers),s=finiteNumber(row?.unanswered);if(c===null||w===null||s===null)return null;return{correct:c,wrong:w,skipped:s}}
   function getTotalQuestions(row){const x=getQuestionCounts(row);if(x)return x.correct+x.wrong+x.skipped;const q=Array.isArray(row?.question_results)?row.question_results.length:0;return q||null}
   function getAttemptedQuestions(row){const x=getQuestionCounts(row);return x?x.correct+x.wrong:null}
+  function marksPerQuestion(testType,subject){return /cet/i.test(String(testType||''))?(/^math/i.test(String(subject||''))?2:1):4}
   function getAccuracy(row){const x=getQuestionCounts(row);if(!x)return null;const a=x.correct+x.wrong;return a>0?(x.correct/a)*100:null}
   function getResultComparison(row){return{percentile:finiteNumber(row?.percentile),batchRank:finiteNumber(row?.batch_rank),overallRank:finiteNumber(row?.overall_rank)}}
   function getSortedChronologicalRecords(records){return[...records].filter(r=>getAcademicDate(r)>0).sort((a,b)=>getAcademicDate(a)-getAcademicDate(b))}
   function renderJourney(records){renderJourneyStats(records);renderPerformanceStory(records);renderConsistency(records);renderJourneyTrends(records);renderBatchComparison(records);renderSubjectJourney(records)}
   function renderJourneyStats(records){const a=document.getElementById('journeyTestCount'),b=document.getElementById('journeyLatestPerformance'),c=document.getElementById('journeyLatestAccuracy'),d=document.getElementById('journeyLatestPercentile');if(!records.length){a.textContent='0';b.textContent=c.textContent=d.textContent='—';return}const r=records[0],p=getPercentage(r),acc=getAccuracy(r),cmp=getResultComparison(r);a.textContent=records.length;b.textContent=p===null?'—':formatPercent(p);c.textContent=acc===null?'—':formatPercent(acc);d.textContent=cmp.percentile!==null?formatPercent(cmp.percentile):cmp.batchRank!==null?`#${cmp.batchRank}`:'—'}
   function renderPerformanceStory(records){const h=document.getElementById('performanceStoryHeadline'),i=document.getElementById('performanceStoryIntro'),l=document.getElementById('performanceStoryList'),box=document.getElementById('latestCheckpointStory');if(!records.length){h.textContent='Your journey begins with your first result.';i.textContent='No academic result history is available yet.';l.innerHTML='<div class="data-unavailable">No result history is available.</div>';box.innerHTML='<div class="data-unavailable">No latest checkpoint is available.</div>';return}const latest=records[0],chron=getSortedChronologicalRecords(records),vals=chron.map(getPercentage).filter(v=>v!==null),lp=getPercentage(latest),fp=vals[0]??null,bp=vals.length?Math.max(...vals):null,acc=getAccuracy(latest),att=getAttemptedQuestions(latest),total=getTotalQuestions(latest),cmp=getResultComparison(latest);h.textContent=vals.length>=2&&lp!==null?(lp-fp>0.05?'Your performance has moved upward.':lp-fp<-0.05?'Your latest result is below your starting point.':'Your performance is currently stable.'):'Your latest result is now a checkpoint.';i.textContent='These observations are calculated only from result fields available to your account.';const items=[];if(lp!==null)items.push(['LATEST PERFORMANCE',formatPercent(lp),latest.exam_name||latest.test?.title||'Latest assessment']);if(vals.length>=2&&lp!==null)items.push(['CHANGE FROM FIRST RECORDED RESULT',`${lp-fp>=0?'+':''}${(lp-fp).toFixed(1)} percentage points`,'Compared with your earliest recorded percentage.']);if(bp!==null)items.push(['BEST RECORDED PERFORMANCE',formatPercent(bp),'Highest percentage in the available result history.']);if(acc!==null)items.push(['LATEST ACCURACY',formatPercent(acc),`${att} attempted question${att===1?'':'s'} in the latest result.`]);if(cmp.percentile!==null)items.push(['LATEST PEER POSITION',`${cmp.percentile.toFixed(1)} percentile`,'Official percentile supplied by the result.']);else if(cmp.batchRank!==null)items.push(['LATEST BATCH POSITION',`#${cmp.batchRank}`,'Official batch rank supplied by the result.']);l.innerHTML=items.length?items.slice(0,5).map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">Not enough supported data for a richer story yet.</div>';const latestItems=[];if(total!==null){const q=getQuestionCounts(latest);latestItems.push(['QUESTION ACCOUNTING',`${total} total questions`,q?`${q.correct} correct · ${q.wrong} wrong · ${q.skipped} skipped/unanswered`:'Question-level records are available.'])}if(acc!==null)latestItems.push(['ATTEMPT ACCURACY',formatPercent(acc),'Correct answers divided by attempted questions.']);if(cmp.batchRank!==null)latestItems.push(['BATCH RANK',`#${cmp.batchRank}`,'Taken directly from the latest result.']);if(cmp.overallRank!==null)latestItems.push(['OVERALL RANK',`#${cmp.overallRank}`,'Taken directly from the latest result.']);box.innerHTML=latestItems.length?latestItems.map(x=>`<div class="story-item"><small>${escapeHTML(x[0])}</small><strong>${escapeHTML(x[1])}</strong><span>${escapeHTML(x[2])}</span></div>`).join(''):'<div class="data-unavailable">The latest result does not contain enough supported fields for a richer checkpoint story.</div>'}
-  function renderConsistency(records){const t=document.getElementById('consistencyTimeline'),s=document.getElementById('consistencySnapshot'),rows=getSortedChronologicalRecords(records);if(!rows.length){t.innerHTML='<div class="data-unavailable">No test dates are available.</div>';s.innerHTML='<div class="consistency-line"><span>Tests with a date</span><strong>0</strong></div>';return}t.innerHTML='';rows.slice(-10).forEach((r,i)=>{const w=document.createElement('div');w.className='trend-bar-wrap';w.innerHTML=`<div class="trend-bar-value">${i+1}</div><div class="trend-bar" style="height:${Math.max(18,35+i*6)}%"></div><div class="trend-bar-label">${escapeHTML(formatDate(r.test_date||r.test?.test_date).replace(/\s+\d{4}$/,''))}</div>`;t.appendChild(w)});const span=Math.max(0,Math.round((getAcademicDate(rows.at(-1))-getAcademicDate(rows[0]))/86400000)),gap=rows.length>1?span/(rows.length-1):null;s.innerHTML=`<div class="consistency-line"><span>Tests with a date</span><strong>${rows.length}</strong></div><div class="consistency-line"><span>Days between first & latest</span><strong>${span}</strong></div><div class="consistency-line"><span>Average gap</span><strong>${gap===null?'—':gap.toFixed(1)+' days'}</strong></div>`}
+  function renderConsistency(records){const t=document.getElementById('consistencyTimeline'),s=document.getElementById('consistencySnapshot'),rows=getSortedChronologicalRecords(records);if(!rows.length){t.innerHTML='<div class="data-unavailable">No test dates are available.</div>';s.innerHTML='<div class="consistency-line"><span>Tests with a date</span><strong>0</strong></div>';return}t.innerHTML='';rows.slice(-10).forEach((r,i)=>{const w=document.createElement('div');w.className='trend-bar-wrap';w.innerHTML=`<div class="trend-bar-value">${i+1}</div><div class="trend-bar" style="height:60%"></div><div class="trend-bar-label">${escapeHTML(formatDate(r.test_date||r.test?.test_date).replace(/\s+\d{4}$/,''))}</div>`;t.appendChild(w)});const span=Math.max(0,Math.round((getAcademicDate(rows.at(-1))-getAcademicDate(rows[0]))/86400000)),gap=rows.length>1?span/(rows.length-1):null;s.innerHTML=`<div class="consistency-line"><span>Tests with a date</span><strong>${rows.length}</strong></div><div class="consistency-line"><span>Days between first & latest</span><strong>${span}</strong></div><div class="consistency-line"><span>Average gap</span><strong>${gap===null?'—':gap.toFixed(1)+' days'}</strong></div>`}
   function renderJourneyTrends(records){const p=document.getElementById('journeyPerformanceTrend'),a=document.getElementById('journeyAccuracyTrend'),rows=getSortedChronologicalRecords(records).slice(-10);p.innerHTML=a.innerHTML='';rows.forEach((r,i)=>{const pct=getPercentage(r);if(pct!==null){const w=document.createElement('div');w.className='trend-bar-wrap';w.innerHTML=`<div class="trend-bar-value">${Math.round(pct)}%</div><div class="trend-bar" style="height:${Math.max(5,Math.min(100,pct))}%"></div><div class="trend-bar-label">${escapeHTML((r.exam_name||r.test?.title||`Test ${i+1}`).slice(0,12))}</div>`;p.appendChild(w)}const acc=getAccuracy(r);if(acc!==null){const w=document.createElement('div');w.className='accuracy-bar-wrap';w.innerHTML=`<div class="accuracy-bar-value">${Math.round(acc)}%</div><div class="accuracy-bar" style="height:${Math.max(5,Math.min(100,acc))}%"></div><div class="accuracy-bar-label">${escapeHTML((r.exam_name||r.test?.title||`Test ${i+1}`).slice(0,12))}</div>`;a.appendChild(w)}});if(!p.children.length)p.innerHTML='<div class="data-unavailable">No supported percentage data is available.</div>';if(!a.children.length)a.innerHTML='<div class="data-unavailable">Accuracy requires correct and wrong/skipped data.</div>'}
   function renderBatchComparison(records){const c=document.getElementById('batchComparison'),s=document.getElementById('batchStory');if(!records.length)return;const x=getResultComparison(records[0]);c.innerHTML=`<div class="batch-stat"><small>PERCENTILE</small><strong>${x.percentile===null?'—':x.percentile.toFixed(1)}</strong><span>${x.percentile===null?'Not supplied.':'Official percentile.'}</span></div><div class="batch-stat"><small>BATCH RANK</small><strong>${x.batchRank===null?'—':'#'+x.batchRank}</strong><span>${x.batchRank===null?'Not supplied.':'Official batch rank.'}</span></div><div class="batch-stat"><small>OVERALL RANK</small><strong>${x.overallRank===null?'—':'#'+x.overallRank}</strong><span>${x.overallRank===null?'Not supplied.':'Official overall rank.'}</span></div>`;s.innerHTML=x.percentile!==null?`Your latest result places you at the <strong>${x.percentile.toFixed(1)} percentile</strong>.`:x.batchRank!==null?`Your latest batch position is <strong>#${x.batchRank}</strong>.`:'The latest result does not contain supported peer-position data, so no number is invented.'}
-  function renderSubjectJourney(records){const c=document.getElementById('subjectJourney'),r=records[0];if(!r||!Array.isArray(r.subjects)||!r.subjects.length){c.innerHTML='<div class="data-unavailable">Subject journey requires subject-level result records.</div>';return}const rows=r.subjects.map(s=>{let m=finiteNumber(s.marks_obtained),mx=finiteNumber(s.max_marks),cc=finiteNumber(s.correct),ww=finiteNumber(s.wrong),sk=finiteNumber(s.skipped);if((mx===null||mx<=0)&&cc!==null&&ww!==null&&sk!==null&&(cc+ww+sk)>0)mx=(cc+ww+sk)*4;let p=m!==null&&mx!==null&&mx>0?m/mx*100:finiteNumber(s.percentage);return{name:s.subject||'Subject',p,m,mx,c:cc,w:ww,sk}}).filter(x=>x.p!==null).sort((a,b)=>b.p-a.p);c.innerHTML=rows.length?rows.map(x=>`<div class="subject-journey-row"><div class="subject-journey-name">${escapeHTML(x.name)}</div><div class="subject-journey-track"><div class="subject-journey-fill" style="width:${Math.max(0,Math.min(100,x.p))}%"></div></div><div class="subject-journey-value">${Math.round(x.p)}%</div><div class="subject-journey-meta">${x.m!==null&&x.mx!==null?`${escapeHTML(x.m)} / ${escapeHTML(x.mx)}`:'Marks not available'}${x.c!==null?` · ${x.c} correct`:''}${x.w!==null?` · ${x.w} wrong`:''}${x.sk!==null?` · ${x.sk} skipped`:''}</div></div>`).join(''):'<div class="data-unavailable">Subject records exist, but no supported percentage is available.</div>'}
+  function renderSubjectJourney(records){const c=document.getElementById('subjectJourney'),r=records[0];if(!r||!Array.isArray(r.subjects)||!r.subjects.length){c.innerHTML='<div class="data-unavailable">Subject journey requires subject-level result records.</div>';return}const rows=r.subjects.map(s=>{let m=finiteNumber(s.marks_obtained),mx=finiteNumber(s.max_marks),cc=finiteNumber(s.correct),ww=finiteNumber(s.wrong),sk=finiteNumber(s.skipped);if((mx===null||mx<=0)&&cc!==null&&ww!==null&&sk!==null&&(cc+ww+sk)>0)mx=(cc+ww+sk)*marksPerQuestion(r.test_type,s.subject);let p=m!==null&&mx!==null&&mx>0?m/mx*100:finiteNumber(s.percentage);return{name:s.subject||'Subject',p,m,mx,c:cc,w:ww,sk}}).filter(x=>x.p!==null).sort((a,b)=>b.p-a.p);c.innerHTML=rows.length?rows.map(x=>`<div class="subject-journey-row"><div class="subject-journey-name">${escapeHTML(x.name)}</div><div class="subject-journey-track"><div class="subject-journey-fill" style="width:${Math.max(0,Math.min(100,x.p))}%"></div></div><div class="subject-journey-value">${Math.round(x.p)}%</div><div class="subject-journey-meta">${x.m!==null&&x.mx!==null?`${escapeHTML(x.m)} / ${escapeHTML(x.mx)}`:'Marks not available'}${x.c!==null?` · ${x.c} correct`:''}${x.w!==null?` · ${x.w} wrong`:''}${x.sk!==null?` · ${x.sk} skipped`:''}</div></div>`).join(''):'<div class="data-unavailable">Subject records exist, but no supported percentage is available.</div>'}
 
   /* =====================================================
      ANALYTICS
@@ -4503,13 +4515,13 @@ dspDateEl.value = dspToday;
         const marks = finiteNumber(subject.marks_obtained);
         let max = finiteNumber(subject.max_marks);
         const correct = finiteNumber(subject.correct), wrong = finiteNumber(subject.wrong), skipped = finiteNumber(subject.skipped);
-        if ((max === null || max <= 0) && correct !== null && wrong !== null && skipped !== null && correct + wrong + skipped > 0) max = (correct + wrong + skipped) * 4;
-        let pct = marks !== null && max !== null && max > 0 && marks >= 0 ? marks / max * 100 : null;
+        if ((max === null || max <= 0) && correct !== null && wrong !== null && skipped !== null && correct + wrong + skipped > 0) max = (correct + wrong + skipped) * marksPerQuestion(record.test_type, name);
+        let pct = marks !== null && max !== null && max > 0 ? marks / max * 100 : null;
         if (pct === null) { const stored = finiteNumber(subject.percentage); if (stored !== null && stored >= 0 && stored <= 100) pct = stored; }
         if (pct === null || !Number.isFinite(pct)) return;
         if (!aggregate.has(name)) aggregate.set(name, { marks: 0, max: 0, fallbackTotal: 0, fallbackCount: 0 });
         const item = aggregate.get(name);
-        if (marks !== null && max !== null && max > 0 && marks >= 0) { item.marks += marks; item.max += max; }
+        if (marks !== null && max !== null && max > 0) { item.marks += marks; item.max += max; }
         else { item.fallbackTotal += pct; item.fallbackCount += 1; }
       });
     });
@@ -5104,8 +5116,8 @@ dspDateEl.value = dspToday;
             const subjectMarks = finiteNumber(subject.marks_obtained);
             let subjectMax = finiteNumber(subject.max_marks);
             const subjectCorrect = finiteNumber(subject.correct), subjectWrong = finiteNumber(subject.wrong), subjectSkipped = finiteNumber(subject.skipped);
-            if ((subjectMax === null || subjectMax <= 0) && subjectCorrect !== null && subjectWrong !== null && subjectSkipped !== null && subjectCorrect + subjectWrong + subjectSkipped > 0) subjectMax = (subjectCorrect + subjectWrong + subjectSkipped) * 4;
-            let safePct = subjectMarks !== null && subjectMax !== null && subjectMax > 0 && subjectMarks >= 0 ? subjectMarks / subjectMax * 100 : null;
+            if ((subjectMax === null || subjectMax <= 0) && subjectCorrect !== null && subjectWrong !== null && subjectSkipped !== null && subjectCorrect + subjectWrong + subjectSkipped > 0) subjectMax = (subjectCorrect + subjectWrong + subjectSkipped) * marksPerQuestion(row.test_type, subject.subject);
+            let safePct = subjectMarks !== null && subjectMax !== null && subjectMax > 0 ? subjectMarks / subjectMax * 100 : null;
             if (safePct === null) { const storedPct = finiteNumber(subject.percentage); if (storedPct !== null && storedPct >= 0 && storedPct <= 100) safePct = storedPct; }
 
             return `
