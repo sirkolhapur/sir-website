@@ -27,6 +27,14 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Question rendering (maths, figures) for the Test Composer -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/mhchem.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+    <script src="js/sir-paper.js?v=20261116"></script>
+
 
     <style>
 
@@ -2260,6 +2268,151 @@
 #testEngineRoot .ptotal{background:var(--ink);color:#fff;border-radius:12px;padding:18px 22px;display:flex;justify-content:space-between;font-family:var(--display);font-weight:700}
 
 
+/* ---- Test Composer v2 (mobile first) ---- */
+#testEngineRoot{--navy:#0b1f44;--gold:#d7a62a;--gold-tint:#fff6dd;--ink:#101b2d;--slate:#5a6b85;--line:#e3e8ef;--paper:#f5f7fa;--green:#1c8a4e;--green-tint:#e4f5eb;--red:#c23b3b;--red-tint:#fbeded;--blue:#1e56f0;background:transparent;font-size:15px;font-family:inherit}
+#testEngineRoot #topbar{background:transparent;border:0;padding:0;margin:0 0 12px}
+#testEngineRoot .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;font-family:inherit}
+#testEngineRoot .step{text-align:center;font-size:12px;font-weight:700;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--slate)}
+#testEngineRoot .step.active{background:var(--navy);border-color:var(--navy);color:#fff}
+#testEngineRoot .step.done{background:var(--green-tint);border-color:#b7e2c8;color:var(--green)}
+#testEngineRoot #app{max-width:900px;margin:0;padding:0 0 90px}
+#testEngineRoot .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 12px;box-shadow:0 1px 2px rgba(16,27,45,.04)}
+#testEngineRoot .card + .card{margin-top:0}
+#testEngineRoot .card.slim{padding:14px 16px}
+#testEngineRoot h1.pt{font-size:20px;line-height:1.25;margin:0 0 4px;color:var(--navy);font-family:inherit;letter-spacing:0}
+#testEngineRoot .h2{font-size:16px;margin:0 0 10px;color:var(--navy)}
+#testEngineRoot p.sub{font-size:13.5px;color:var(--slate);margin:0 0 14px;line-height:1.5}
+#testEngineRoot .muted{color:var(--slate);font-size:13px}
+#testEngineRoot .muted.count{margin:4px 0 8px}
+#testEngineRoot label{display:block;font-size:12.5px;font-weight:600;color:#344054;margin:12px 0 6px}
+#testEngineRoot input[type=text],#testEngineRoot input[type=number],#testEngineRoot select,#testEngineRoot textarea{width:100%;min-height:46px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;background:#fff;color:var(--ink)}
+#testEngineRoot input:focus,#testEngineRoot select:focus,#testEngineRoot textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(215,166,42,.18)}
+#testEngineRoot textarea{min-height:70px}
+#testEngineRoot .row2{display:grid;grid-template-columns:1fr;gap:0 12px}
+#testEngineRoot .grid4{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 10px}
+#testEngineRoot .grid4 .wide{grid-column:1/-1}
+#testEngineRoot button.btn,#testEngineRoot .btn{min-height:46px;padding:10px 18px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .08s,background .15s}
+#testEngineRoot .btn:active{transform:scale(.98)}
+#testEngineRoot button.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+#testEngineRoot button.btn.primary:hover{background:#13306a;color:#fff}
+#testEngineRoot .btn.big{width:100%;min-height:52px;font-size:16px}
+#testEngineRoot button.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#testEngineRoot .wide-btn{width:100%;margin:4px 0 12px}
+#testEngineRoot .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#testEngineRoot .btnrow .btn{flex:1}
+#testEngineRoot .btnrow.center{justify-content:center}
+#testEngineRoot .linkbtn{background:none;border:0;color:var(--blue);font-weight:700;font-size:13px;padding:6px 2px;cursor:pointer}
+#testEngineRoot .titlebar{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+#testEngineRoot .titlebar p.sub{margin:0}
+#testEngineRoot .tag{display:inline-block;background:var(--gold-tint);color:#7a5700;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+#testEngineRoot .tag.big{font-size:14px;padding:5px 12px}
+#testEngineRoot .subjhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+#testEngineRoot .subjhead .muted{flex-basis:100%;font-size:12.5px}
+#testEngineRoot .bigchoice{display:grid;grid-template-columns:1fr;gap:10px}
+#testEngineRoot .choice,#testEngineRoot .patcard{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;border:1.5px solid var(--line);border-radius:14px;padding:16px;background:#fff;cursor:pointer;color:var(--ink);font:inherit;transition:border-color .15s,box-shadow .15s}
+#testEngineRoot .choice:hover,#testEngineRoot .patcard:hover{border-color:var(--gold);box-shadow:0 4px 14px rgba(11,31,68,.08)}
+#testEngineRoot .choice b,#testEngineRoot .patcard b{display:block;font-size:16px;color:var(--navy)}
+#testEngineRoot .choice small,#testEngineRoot .patcard small{display:block;font-size:13px;color:var(--slate);line-height:1.45;margin-top:3px}
+#testEngineRoot .choice-ic{font-size:26px;line-height:1}
+#testEngineRoot .patgrid{display:grid;grid-template-columns:1fr;gap:10px}
+#testEngineRoot .patcard{flex-direction:column;gap:2px}
+#testEngineRoot .patcard .warn{font-size:11.5px;color:#9a6a00;background:var(--gold-tint);border-radius:6px;padding:2px 8px;margin-top:6px}
+#testEngineRoot .resume{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--gold-tint);border-color:#f0d891}
+#testEngineRoot .resume .btnrow{margin:0}
+#testEngineRoot .mytest{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+#testEngineRoot .h2 + .mytest{border-top:0}
+#testEngineRoot .mytest-title{font-weight:700;color:var(--navy)}
+#testEngineRoot .mytest-sub{font-size:12.5px;color:var(--slate);margin-top:2px}
+#testEngineRoot .mytest-comment{font-size:12.5px;color:var(--red);background:var(--red-tint);border-radius:8px;padding:6px 8px;margin-top:6px}
+#testEngineRoot .status{flex:none;font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap}
+#testEngineRoot .status.wait{background:var(--gold-tint);color:#7a5700}
+#testEngineRoot .status.ok{background:var(--green-tint);color:var(--green)}
+#testEngineRoot .status.live{background:#e8f0ff;color:var(--blue)}
+#testEngineRoot .status.bad{background:var(--red-tint);color:var(--red)}
+#testEngineRoot .scopehead{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;font-size:13px;font-weight:700;color:#344054}
+#testEngineRoot .scopehead em{font-style:normal;color:var(--slate);font-weight:500;margin-left:4px}
+#testEngineRoot .chapterlist{max-height:340px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:4px;background:#fff;margin:0}
+#testEngineRoot .chaprow{border-radius:10px;padding:2px 8px;display:flex;flex-wrap:wrap;align-items:center}
+#testEngineRoot .chaprow.on{background:#f3f7ff}
+#testEngineRoot .chaprow-head{flex:1;display:flex;align-items:center;gap:10px;margin:0;padding:8px 0;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;min-width:0}
+#testEngineRoot .chaprow-head input{width:20px;height:20px;flex:none;accent-color:var(--navy)}
+#testEngineRoot .chapname{flex:1;min-width:0}
+#testEngineRoot .qcount{font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-tint);border-radius:999px;padding:2px 8px}
+#testEngineRoot .qcount.zero{color:var(--slate);background:#f0f2f5}
+#testEngineRoot .topicbtn{font-size:12px;margin-left:6px}
+#testEngineRoot .topiclist{flex-basis:100%;margin:0 0 8px 30px;padding:4px 0 4px 10px;border-left:2px solid var(--line);display:grid;gap:2px}
+#testEngineRoot .topiclist label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate);margin:0;padding:5px 0;font-weight:400}
+#testEngineRoot .topiclist input{width:18px;height:18px;accent-color:var(--navy)}
+#testEngineRoot .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#testEngineRoot .chip-check{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;color:#344054;background:#fff;margin:0;cursor:pointer}
+#testEngineRoot .chip-check em{font-style:normal;font-weight:400;color:var(--slate)}
+#testEngineRoot .chip-check input{width:16px;height:16px;margin:0;accent-color:var(--navy)}
+#testEngineRoot .chip-check:has(input:checked){border-color:var(--navy);background:#eef2fb}
+#testEngineRoot .subjcard{background:#fff;border:1px solid var(--line);border-radius:16px;margin:0 0 12px;padding:0;overflow:hidden}
+#testEngineRoot .subjcard.open{border-color:#c9d3e3;box-shadow:0 4px 18px rgba(11,31,68,.07);overflow:visible}
+#testEngineRoot .subjtop{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:none;border:0;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+#testEngineRoot .subjinfo{flex:1}
+#testEngineRoot .subjinfo b{display:block;font-size:16px;color:var(--navy)}
+#testEngineRoot .subjinfo small{color:var(--slate);font-size:13px}
+#testEngineRoot .chev{color:var(--slate);font-size:14px}
+#testEngineRoot .ring{--p:0;width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p)*1%),#eef1f5 0)}
+#testEngineRoot .ring.ok{background:conic-gradient(var(--green) 100%,#eef1f5 0)}
+#testEngineRoot .ring span{width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--navy)}
+#testEngineRoot .ring.ok span{color:var(--green)}
+#testEngineRoot .picker{border-top:1px solid var(--line);padding:12px 14px 16px;background:#fbfcfe;border-radius:0 0 16px 16px}
+#testEngineRoot .reqbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+#testEngineRoot .reqchip{font-family:inherit;font-size:12px;background:var(--gold-tint);color:#7a5700;border-radius:10px;padding:6px 10px}
+#testEngineRoot .reqchip em{font-style:normal;opacity:.75;margin-left:2px}
+#testEngineRoot .reqchip.met{background:var(--green-tint);color:var(--green)}
+#testEngineRoot .filters{display:grid;grid-template-columns:1fr;gap:0 10px}
+#testEngineRoot .qcard{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px;transition:border-color .15s,background .15s}
+#testEngineRoot .qcard.picked{border-color:#8fd0a9;background:#f6fcf8}
+#testEngineRoot .qtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+#testEngineRoot .qtag{font-size:11.5px;font-weight:600;color:#475467;background:#f0f2f5;border-radius:999px;padding:3px 9px}
+#testEngineRoot .qtag.band-easy{background:#e4f5eb;color:#1c8a4e}
+#testEngineRoot .qtag.band-medium{background:#fff3d6;color:#8a5a00}
+#testEngineRoot .qtag.band-hard{background:#fbeded;color:#b42318}
+#testEngineRoot .qfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+#testEngineRoot .code{font-size:11px;color:#98a2b3;font-family:ui-monospace,monospace}
+#testEngineRoot .add{min-height:42px;min-width:110px;border-radius:12px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);font-weight:800;font-size:14px;cursor:pointer}
+#testEngineRoot .add.added{background:var(--green);border-color:var(--green);color:#fff}
+#testEngineRoot .add:disabled{opacity:.4;cursor:not-allowed}
+#testEngineRoot .empty{padding:24px;text-align:center;color:var(--slate);background:#f5f7fa;border-radius:12px;font-size:14px}
+#testEngineRoot .stickybar{position:sticky;bottom:10px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--navy);color:#fff;border-radius:16px;padding:10px 10px 10px 18px;box-shadow:0 10px 30px rgba(11,31,68,.3);margin-top:12px}
+#testEngineRoot .stickybar button.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+#testEngineRoot .stickybar button.btn:disabled{opacity:1;background:#2a3d63;border-color:#2a3d63;color:#c9d3e3}
+#testEngineRoot .hero{background:linear-gradient(135deg,#0b1f44,#1a3a78);color:#fff;border:0}
+#testEngineRoot .hero h1.pt{color:#fff}
+#testEngineRoot .hero .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:800}
+#testEngineRoot .stats{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:14px;color:#c9d3e3}
+#testEngineRoot .stats b{color:#fff;font-size:20px;margin-right:3px}
+#testEngineRoot .delivery{display:grid;grid-template-columns:1fr;gap:12px}
+#testEngineRoot .dcard{border:1.5px solid var(--line);border-radius:14px;padding:14px}
+#testEngineRoot .dcard.online{border-color:#c6d5f5;background:#f6f9ff}
+#testEngineRoot .dhead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+#testEngineRoot .dhead b{display:block;font-size:16px;color:var(--navy)}
+#testEngineRoot .dhead small{display:block;font-size:13px;color:var(--slate)}
+#testEngineRoot .dic{font-size:26px}
+#testEngineRoot .tick{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px;margin:8px 0;color:var(--ink)}
+#testEngineRoot .tick input{width:18px;height:18px;accent-color:var(--navy)}
+#testEngineRoot .dcard .btn.big{margin-top:6px}
+#testEngineRoot .warnbox{font-size:13px;color:#8a5a00;background:var(--gold-tint);border-radius:10px;padding:8px 10px;margin:6px 0}
+#testEngineRoot .psection{margin-top:12px}
+#testEngineRoot .psection h3{font-size:15px;color:var(--navy);margin:0;padding-bottom:4px;border-bottom:2px solid var(--gold)}
+#testEngineRoot .psection > .muted{margin:4px 0 6px;font-size:12.5px}
+#testEngineRoot .pq{padding:12px 0;border-bottom:1px dashed var(--line)}
+#testEngineRoot .success{text-align:center}
+#testEngineRoot .bigtick{width:64px;height:64px;margin:6px auto 10px;border-radius:50%;background:var(--green-tint);color:var(--green);display:grid;place-items:center;font-size:32px;font-weight:800}
+@media(min-width:700px){
+  #testEngineRoot .row2{grid-template-columns:1fr 180px}
+  #testEngineRoot .grid4{grid-template-columns:1.5fr 1fr 1fr 1fr}
+  #testEngineRoot .grid4 .wide{grid-column:auto}
+  #testEngineRoot .bigchoice,#testEngineRoot .patgrid,#testEngineRoot .delivery{grid-template-columns:1fr 1fr}
+  #testEngineRoot .filters{grid-template-columns:1fr 1fr}
+  #testEngineRoot .card{padding:22px}
+  #testEngineRoot .btnrow .btn{flex:0 1 auto}
+  #testEngineRoot .dcard .btnrow .btn{flex:1}
+}
 </style>
 
 </head>
@@ -2721,13 +2874,11 @@
                     <div class="section-header">
                         <div>
                             <h2>Test Composer</h2>
-                            <p>Create a test using verified questions from the SIR Question Bank.</p>
+                            <p>Make a test from verified question-bank questions, then print it or send it online.</p>
                         </div>
                     </div>
-                    <div class="test-engine-notice" id="testEngineNotice" role="status">
-                        Loading verified Question Bank questions…
-                    </div>
-                    <div id="testEngineRoot"><div id="topbar"><div class="brand">SIR <span>· Test Composer</span></div><div class="steps"><span class="step" id="s1">1 · Assign</span><span class="step" id="s2">2 · Admin review</span><span class="step" id="s3">3 · Final paper</span></div></div><div id="app"></div></div>
+                    <div class="test-engine-notice" id="testEngineNotice" role="status" hidden></div>
+                    <div id="testEngineRoot"><div id="topbar"><div class="steps"><span class="step active" id="s1">1 · Set up</span><span class="step" id="s2">2 · Pick questions</span><span class="step" id="s3">3 · Print or send</span></div></div><div id="app"><div class="empty">Loading questions…</div></div></div>
                 </section>
 
 
@@ -4288,16 +4439,22 @@
 
         function renderTests() {
 
-            document.getElementById(
-                "statTests"
-            ).textContent =
-                teacherTests.length;
+            // The Tests section now hosts the Test Composer; the old
+            // tests grid / stat card may not be on the page.
+            const stat =
+                document.getElementById(
+                    "statTests"
+                );
+
+            if (stat) stat.textContent = teacherTests.length;
 
 
             const container =
                 document.getElementById(
                     "testsGrid"
                 );
+
+            if (!container) return;
 
 
             if (!teacherTests.length) {
@@ -6170,8 +6327,8 @@
 
 "use strict";
 
-// SIR integration: load only verified/live questions from the existing Question Bank.
-// This is read-only. The composer does not write tests or alter Question Bank records.
+// Loads verified (live) Question Bank questions for the Test Composer.
+// Papers are sent to the admin through asm_teacher_submit_paper.
 let SIR_QB_READY = false;
 let SIR_QB_ERROR = "";
 let SIR_QB_SUBJECTS = [];
@@ -6187,7 +6344,7 @@ async function loadSirQuestionBank(){
       supabaseClient.from("qb_subjects").select("id,code,name,branches").order("sort_order"),
       supabaseClient.from("qb_chapters").select("id,subject_id,code,slug,name,branches").order("sort_order"),
       supabaseClient.from("qb_topics").select("id,chapter_id,slug,label").order("sort_order"),
-      supabaseClient.from("qb_questions").select("id,code,subject_id,chapter_id,topic_id,branch,type,difficulty,exam_tags,tags,source,status,default_marks,default_negative,question_md,options").eq("status","live").order("code").limit(5000)
+      supabaseClient.from("qb_questions").select("id,code,subject_id,chapter_id,topic_id,branch,type,difficulty,exam_tags,tags,source,status,default_marks,default_negative,question_md,options,unit").eq("status","live").order("code").limit(5000)
     ]);
     for (const x of [sr,cr,tr,qr]) if (x.error) throw x.error;
     SIR_QB_SUBJECTS = sr.data || [];
@@ -6208,7 +6365,10 @@ async function loadSirQuestionBank(){
       return {
         id: row.code || row.id,
         dbId: row.id,
+        subjectId: row.subject_id,
         subject,
+        topicLabel: tp.label || "",
+        unit: row.unit || null,
         chapter: ch.slug || "",
         topic: tp.slug || "",
         type: row.type,
@@ -6223,11 +6383,9 @@ async function loadSirQuestionBank(){
         source: row.source || ""
       };
     }).filter(q=>q.question && ["physics","chemistry","mathematics","biology"].includes(q.subject));
+    QUESTION_INDEX = new Map(QUESTIONS.map(q=>[q.id,q]));
     SIR_QB_READY = true;
-    if (notice) {
-      notice.textContent = `Connected to SIR Question Bank · ${QUESTIONS.length} verified/live questions loaded. This composer is currently a read-only draft workspace; saving, assigning and publishing require the approved test workflow/API.`;
-      notice.style.background = "#ecfdf3"; notice.style.borderColor = "#86efac"; notice.style.color = "#166534";
-    }
+    if (notice) notice.hidden = true;
     // Replace hardcoded prototype syllabus metadata with DB-backed taxonomy.
     if (SIR_QB_SUBJECTS.length && SIR_QB_CHAPTERS.length) {
       const mapSubject = {};
@@ -6263,7 +6421,8 @@ async function loadSirQuestionBank(){
     console.error("SIR Question Bank load failed:", err);
     SIR_QB_ERROR = err?.message || String(err);
     if (notice) {
-      notice.textContent = `Question Bank connection failed: ${SIR_QB_ERROR}. No sample questions will be shown. Check the coordinator Question Bank RLS/read access before using this composer.`;
+      notice.hidden = false;
+      notice.textContent = `Questions could not be loaded: ${SIR_QB_ERROR}. Refresh the page; if it keeps happening, tell the admin.`;
       notice.style.background = "#fff0f0"; notice.style.borderColor = "#fca5a5"; notice.style.color = "#991b1b";
     }
     QUESTIONS = [];
@@ -9003,86 +9162,114 @@ function chapterLabelWithCount(c){
 }
 
 const SUBJECTS = ["physics","chemistry","mathematics","biology"];
+const esc = (s) => SIRPaper.esc(s);
+const TYPE_NAMES = { single:"Single correct", multi:"Multiple correct", numerical:"Numerical", integer:"Integer", subjective:"Short answer" };
+const BANDS = { easy:[1,2], medium:[3], hard:[4,5] };
+const BAND_NAMES = { easy:"Easy", medium:"Medium", hard:"Hard" };
+const bandOf = (d) => Object.keys(BANDS).find(b => BANDS[b].includes(Number(d))) || "medium";
+const PAGE_SIZE = 15;
 
-const TEACHERS = [
-  {name:"R. Sharma", subjects:["physics"]},
-  {name:"A. Kulkarni", subjects:["physics"]},
-  {name:"S. Verma", subjects:["chemistry"]},
-  {name:"P. Iyer", subjects:["mathematics"]},
-  {name:"N. Joshi", subjects:["biology"], branch:"botany"},
-  {name:"K. Deshpande", subjects:["biology"], branch:"zoology"}
-];
-function teachersFor(subject, branch){
-  return TEACHERS.filter(t => t.subjects.includes(subject) && (subject!=="biology" || t.branch===branch));
-}
-
+// mc / mw = marks for a correct answer / marks deducted for a wrong one.
 const PATTERNS = {
   "jee-main": {
-    label: "JEE Main",
-    note: "75 questions · 300 marks. Each subject: 20 single-correct + 5 numerical, all compulsory. +4/−1 throughout.",
+    label: "JEE Main", duration: 180,
+    note: "75 questions · 300 marks · 3 hours. Each subject: 20 single-correct + 5 numerical. +4 / −1.",
     subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
-      {types:["single"], count:20, label:"Section A — Single Correct"},
-      {types:["numerical"], count:5, label:"Section B — Numerical Value"}
+      {types:["single"], count:20, label:"Section A — Single correct", mc:4, mw:1},
+      {types:["numerical","integer"], count:5, label:"Section B — Numerical value", mc:4, mw:1}
     ]}))
   },
   "neet": {
-    label: "NEET",
-    note: "180 questions · 720 marks. Pure single-correct MCQ only. Botany and Zoology are separated so each can go to a different teacher.",
+    label: "NEET", duration: 180,
+    note: "180 questions · 720 marks · 3 hours. Single-correct only. +4 / −1.",
     subjects: [
-      {subject:"physics", requirements:[{types:["single"],count:45,label:"Physics"}]},
-      {subject:"chemistry", requirements:[{types:["single"],count:45,label:"Chemistry"}]},
-      {subject:"biology", branch:"botany", requirements:[{types:["single"],count:45,label:"Botany"}]},
-      {subject:"biology", branch:"zoology", requirements:[{types:["single"],count:45,label:"Zoology"}]}
+      {subject:"physics", requirements:[{types:["single"],count:45,label:"Physics",mc:4,mw:1}]},
+      {subject:"chemistry", requirements:[{types:["single"],count:45,label:"Chemistry",mc:4,mw:1}]},
+      {subject:"biology", branch:"botany", requirements:[{types:["single"],count:45,label:"Botany",mc:4,mw:1}]},
+      {subject:"biology", branch:"zoology", requirements:[{types:["single"],count:45,label:"Zoology",mc:4,mw:1}]}
     ]
   },
   "mht-cet": {
-    label: "MHT-CET (PCM)",
-    note: "150 questions · 200 marks. All single-correct, no negative marking. Maths = 2 marks/question, Physics & Chemistry = 1 mark/question.",
+    label: "MHT-CET (PCM)", duration: 180,
+    note: "150 questions · 200 marks. Single-correct, no negative marking. Maths 2 marks, Physics & Chemistry 1 mark.",
     subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
-      {types:["single"], count:50, label:s==="mathematics"?"Mathematics (2 marks each)":(s[0].toUpperCase()+s.slice(1)+" (1 mark each)")}
+      {types:["single"], count:50, label:s==="mathematics"?"Mathematics (2 marks each)":(s[0].toUpperCase()+s.slice(1)+" (1 mark each)"), mc:s==="mathematics"?2:1, mw:0}
     ]}))
   },
   "jee-adv-p1": {
-    label: "JEE Advanced — Paper 1",
-    indicative: true,
-    note: "Indicative only — IIT Roorkee reveals the exact structure on exam day and it changes most years. Matching-list questions aren't yet supported in Tachyon's schema.",
+    label: "JEE Advanced — Paper 1", duration: 180, indicative: true,
+    note: "Indicative pattern (changes most years). Per subject: 7 single (+3/−1), 6 multiple (+4/−2, partial), 4 numerical (+4/0).",
     subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
-      {types:["single"], count:7, label:"Single Correct (+3/−1)"},
-      {types:["multi"], count:6, label:"Multiple Correct MSQ (+4 partial/−2)"},
-      {types:["numerical"], count:4, label:"Numerical Value (+4/0)"}
+      {types:["single"], count:7, label:"Single correct", mc:3, mw:1},
+      {types:["multi"], count:6, label:"Multiple correct (partial marks)", mc:4, mw:2, partial:true},
+      {types:["numerical","integer"], count:4, label:"Numerical value", mc:4, mw:0}
     ]}))
   },
   "jee-adv-p2": {
-    label: "JEE Advanced — Paper 2",
-    indicative: true,
-    note: "Indicative only, same caveats as Paper 1. Trended more numerical-heavy in recent years. Comprehension-based questions aren't yet supported in Tachyon's schema.",
+    label: "JEE Advanced — Paper 2", duration: 180, indicative: true,
+    note: "Indicative pattern. Per subject: 6 single (+3/−1), 5 multiple (+4/−2, partial), 6 numerical (+4/0).",
     subjects: ["physics","chemistry","mathematics"].map(s=>({subject:s, requirements:[
-      {types:["single"], count:6, label:"Single Correct (+3/−1)"},
-      {types:["multi"], count:5, label:"Multiple Correct MSQ (+4 partial/−2)"},
-      {types:["numerical"], count:6, label:"Numerical Value (+4/0)"}
+      {types:["single"], count:6, label:"Single correct", mc:3, mw:1},
+      {types:["multi"], count:5, label:"Multiple correct (partial marks)", mc:4, mw:2, partial:true},
+      {types:["numerical","integer"], count:6, label:"Numerical value", mc:4, mw:0}
     ]}))
   }
 };
 
-let state = {
+const FRESH_STATE = () => ({
   stage: "mode",
+  patternKey: null,
   testName: "",
+  duration: 60,
   adminNote: "",
   subjectRows: [],
   selections: {},
-  subjectDone: {},
   uiOpenRow: null,
   uiOpenChapter: {},
-  uiFilters: {}
-};
+  uiFilters: {},
+  withKey: true,
+  withSolutions: false,
+  showAnswers: false
+});
+let state = FRESH_STATE();
+let MY_PAPERS = null;
+let KEYS = new Map();         // question dbId → { answer, solution_md }
+let SENDING = false;
+
+// Picking 75 questions on a phone shouldn't be lost to a refresh.
+const DRAFT_KEY = "sir_test_composer_draft_v2";
+function saveDraft(){
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({...state, uiOpenChapter:{}})); } catch(e) {}
+}
+function restoreDraft(){
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    if (!d || !Array.isArray(d.subjectRows)) return;
+    const known = new Set(QUESTIONS.map(q=>q.id));
+    for (const k of Object.keys(d.selections || {})) d.selections[k] = d.selections[k].filter(id=>known.has(id));
+    if (d.stage === "sent") d.stage = "mode";
+    state = {...FRESH_STATE(), ...d};
+  } catch(e) {}
+}
+function startOver(){
+  if (!confirm("Discard this test and start again?")) return;
+  state = FRESH_STATE();
+  renderApp();
+}
 
 function rowKey(row){ return row.subject + (row.branch ? ":" + row.branch : ""); }
 function rowLabel(row){ return row.subject[0].toUpperCase()+row.subject.slice(1) + (row.branch ? " — " + row.branch[0].toUpperCase()+row.branch.slice(1) : ""); }
+let QUESTION_INDEX = new Map();
+function qByCode(id){ return QUESTION_INDEX.get(id); }
+function subjectIdFor(key){
+  const s = SIR_QB_SUBJECTS.find(x => (/phys/i.test(x.code+" "+x.name) && key==="physics") || (/chem/i.test(x.code+" "+x.name) && key==="chemistry") ||
+    (/math/i.test(x.code+" "+x.name) && key==="mathematics") || (/bio/i.test(x.code+" "+x.name) && key==="biology"));
+  return s ? s.id : key;
+}
+function marksText(r){ return "+" + r.mc + (r.mw ? " / −" + r.mw : " / 0"); }
 
 function initScope(row){
   // OPT-IN model: nothing is in scope until explicitly ticked.
-  // scopeChapters[slug] === true means the chapter is included.
-  // scopeTopics[slug][topicSlug] === true means that topic is included.
   if(!row.scopeChapters) row.scopeChapters = {};
   if(!row.scopeTopics) row.scopeTopics = {};
 }
@@ -9095,10 +9282,15 @@ function chapterCodeForSlug(subject, slug){
   const c = (CHAPTERS[subject]||[]).find(x=>x.slug===slug);
   return c ? c.full_code : null;
 }
+function readNameFields(){
+  const n = document.getElementById("testName"); if (n) state.testName = n.value;
+  const d = document.getElementById("testDuration"); if (d) state.duration = Math.min(600, Math.max(1, parseInt(d.value)||60));
+  const a = document.getElementById("adminNote"); if (a) state.adminNote = a.value;
+}
 function toggleChapterScope(i,slug,val){
+  readNameFields();
   const row = state.subjectRows[i];
   row.scopeChapters[slug] = val;
-  // Ticking a chapter selects all its topics; unticking clears them.
   const code = chapterCodeForSlug(row.subject, slug);
   const topics = code ? topicsFor(code) : [];
   if(!row.scopeTopics[slug]) row.scopeTopics[slug] = {};
@@ -9106,426 +9298,566 @@ function toggleChapterScope(i,slug,val){
   renderApp();
 }
 function toggleTopicScope(i,chapterSlug,topicSlug,val){
+  readNameFields();
   const row = state.subjectRows[i];
   if(!row.scopeTopics[chapterSlug]) row.scopeTopics[chapterSlug] = {};
   row.scopeTopics[chapterSlug][topicSlug] = val;
-  // If any topic is on, the chapter counts as in-scope; if all off, chapter goes off.
   const code = chapterCodeForSlug(row.subject, chapterSlug);
   const topics = code ? topicsFor(code) : [];
-  const anyOn = topics.some(t=>row.scopeTopics[chapterSlug][t.slug] === true);
-  row.scopeChapters[chapterSlug] = anyOn;
+  row.scopeChapters[chapterSlug] = topics.some(t=>row.scopeTopics[chapterSlug][t.slug] === true);
   renderApp();
 }
 function selectAllChapters(i, val){
+  readNameFields();
   const row = state.subjectRows[i];
-  const chapters = chaptersFor(row.subject, row.branch);
-  chapters.forEach(c=>{
+  chaptersFor(row.subject, row.branch).forEach(c=>{
     row.scopeChapters[c.slug] = val;
-    const topics = topicsFor(c.full_code);
     if(!row.scopeTopics[c.slug]) row.scopeTopics[c.slug] = {};
-    topics.forEach(t=>{ row.scopeTopics[c.slug][t.slug] = val; });
+    topicsFor(c.full_code).forEach(t=>{ row.scopeTopics[c.slug][t.slug] = val; });
   });
   renderApp();
 }
 function toggleChapterExpand(rowIdx,slug){
+  readNameFields();
   const k = rowIdx+":"+slug;
   state.uiOpenChapter[k] = !state.uiOpenChapter[k];
   renderApp();
 }
+function questionsInChapter(row, slug){
+  return QUESTIONS.filter(q=>q.subject===row.subject && q.chapter===slug).length;
+}
 
-// Builds the human-readable summary FROM the structured selections —
-// this is the "dataset, not typed prose" the syllabus scope now is.
+// Human-readable summary built from the structured selections.
 function scopeSummary(){
   const parts = [];
   state.subjectRows.forEach(row=>{
     const chapters = chaptersFor(row.subject, row.branch);
     const included = chapters.filter(c=>chapterIncluded(row,c.slug));
-    if(included.length===0){ parts.push(rowLabel(row)+": none selected"); return; }
+    if(included.length===0){ parts.push(rowLabel(row)+": no chapters picked"); return; }
     if(included.length===chapters.length){ parts.push(rowLabel(row)+": full syllabus"); return; }
-    const bits = included.map(c=>{
-      const allTopics = topicsFor(c.full_code);
-      const includedTopics = allTopics.filter(t=>topicIncluded(row,c.slug,t.slug));
-      if(allTopics.length && includedTopics.length < allTopics.length){
-        return c.name+" ("+includedTopics.length+"/"+allTopics.length+" topics)";
-      }
-      return c.name;
-    });
-    parts.push(rowLabel(row)+": "+bits.join(", "));
+    parts.push(rowLabel(row)+": "+included.map(c=>c.name).join(", "));
   });
   return parts.join(" · ");
 }
 
 function renderTopbar(){
-  const s1active = ["mode","pattern-pick","pattern-confirm","custom-form"].includes(state.stage);
-  document.getElementById("s1").className = "step" + (s1active?" active":(state.stage==="admin-review"||state.stage==="final"?" done":""));
-  document.getElementById("s2").className = "step" + (state.stage==="admin-review"?" active":(state.stage==="final"?" done":""));
-  document.getElementById("s3").className = "step" + (state.stage==="final"?" active":"");
+  const s1 = ["mode","pattern-pick","pattern-confirm","custom-form"].includes(state.stage);
+  const s2 = state.stage==="pick";
+  const s3 = state.stage==="final" || state.stage==="sent";
+  document.getElementById("s1").className = "step" + (s1?" active":" done");
+  document.getElementById("s2").className = "step" + (s2?" active":(s3?" done":""));
+  document.getElementById("s3").className = "step" + (s3?" active":"");
+}
+function mount(html){
+  const el = document.getElementById("app");
+  if (el) el.innerHTML = html;
+}
+
+// ---------------------------------------------------------------------
+// 1 · Set up
+// ---------------------------------------------------------------------
+const STATUS_VIEW = {
+  submitted: ["wait", "Waiting for admin"],
+  with_teachers: ["wait", "Being prepared"],
+  draft: ["wait", "Draft"],
+  cancelled: ["bad", "Returned"],
+  scheduled: ["ok", "Scheduled"],
+  live: ["live", "Live now"],
+  closed: ["ok", "Finished"],
+  results_released: ["ok", "Results out"]
+};
+function fmtDate(v){
+  if (!v) return "";
+  return new Date(v).toLocaleString("en-IN", { day:"numeric", month:"short", hour:"numeric", minute:"2-digit" });
+}
+function myPapersHtml(){
+  if (MY_PAPERS === null) return '<div class="muted">Loading your tests…</div>';
+  if (MY_PAPERS.error) return '<div class="muted">Could not load your tests: '+esc(MY_PAPERS.error)+'</div>';
+  if (!MY_PAPERS.length) return '<div class="muted">Tests you send to the admin will show up here.</div>';
+  return MY_PAPERS.map(p=>{
+    const key = p.status==="approved" ? p.phase : p.status;
+    const [cls, label] = STATUS_VIEW[key] || ["wait", key];
+    let sub = p.question_count+" questions · "+Number(p.max_marks)+" marks · "+p.duration_minutes+" min";
+    if (p.status==="approved" && p.starts_at) sub += " · "+fmtDate(p.starts_at)+" – "+fmtDate(p.ends_at);
+    return '<div class="mytest"><div class="mytest-main"><div class="mytest-title">'+esc(p.title)+'</div><div class="mytest-sub">'+sub+'</div>'+
+      (p.status==="cancelled" && p.last_comment ? '<div class="mytest-comment">Admin: '+esc(p.last_comment)+'</div>' : '')+
+      '</div><span class="status '+cls+'">'+label+'</span></div>';
+  }).join("");
+}
+async function loadMyPapers(){
+  try {
+    const { data, error } = await supabaseClient.rpc("asm_teacher_my_papers");
+    if (error) throw error;
+    MY_PAPERS = data || [];
+  } catch (e) {
+    MY_PAPERS = []; MY_PAPERS.error = e.message || String(e);
+  }
+  if (state.stage==="mode" || state.stage==="sent") renderApp();
 }
 
 function renderMode(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">New test</h1><p class="sub">Start from a standard exam pattern, or build something custom.</p>';
+  let html = '';
+  const inProgress = state.subjectRows.length && Object.values(state.selections).some(a=>a.length);
+  if (inProgress) {
+    html += '<div class="card resume"><div><b>Continue "'+esc(state.testName||"Untitled test")+'"</b><div class="muted">'+
+      Object.values(state.selections).reduce((s,a)=>s+a.length,0)+' questions picked so far</div></div>'+
+      '<div class="btnrow"><button class="btn" onclick="startOver()">Discard</button><button class="btn primary" onclick="state.stage=\'pick\';renderApp()">Continue →</button></div></div>';
+  }
+  html += '<div class="card"><h1 class="pt">Create a new test</h1><p class="sub">Use an exam pattern, or set your own subjects and question counts.</p>';
   html += '<div class="bigchoice">';
-  html += '<div onclick="state.stage=\'pattern-pick\';renderApp()"><h3>Standard pattern</h3><p>JEE Main, NEET, MHT-CET, JEE Advanced. Question-count / type breakdown is set automatically — you pick syllabus scope from the real chapter &amp; topic list.</p></div>';
-  html += '<div onclick="startCustom()"><h3>Custom</h3><p>Any number of subjects, any question counts, any types — full control.</p></div>';
+  html += '<button class="choice" onclick="state.stage=\'pattern-pick\';renderApp()"><span class="choice-ic">📋</span><span><b>Exam pattern</b><small>JEE Main, NEET, MHT-CET, JEE Advanced — counts and marking set for you.</small></span></button>';
+  html += '<button class="choice" onclick="startCustom()"><span class="choice-ic">🛠️</span><span><b>Custom test</b><small>Chapter test, weekly test — any subjects, counts and marks.</small></span></button>';
   html += '</div></div>';
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
+  html += '<div class="card"><h2 class="h2">My tests</h2>'+myPapersHtml()+'</div>';
+  mount(html);
 }
 
 function renderPatternPick(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">Choose a pattern</h1><p class="sub">Picking one locks the question-count / type breakdown to match that exam.</p>';
-  html += '<div class="patgrid">';
+  let html = '<div class="card"><h1 class="pt">Choose a pattern</h1><p class="sub">Question counts, types and marking follow the exam.</p><div class="patgrid">';
   Object.keys(PATTERNS).forEach(key=>{
     const p = PATTERNS[key];
-    html += '<div class="patcard" onclick="choosePattern(\''+key+'\')"><h4>'+p.label+'</h4><p>'+p.note+'</p>' +
-      (p.indicative ? '<div class="warn">⚠ indicative, not official — adjust if needed</div>' : '') + '</div>';
+    html += '<button class="patcard" onclick="choosePattern(\''+key+'\')"><b>'+p.label+'</b><small>'+p.note+'</small>' +
+      (p.indicative ? '<span class="warn">Indicative — adjust if needed</span>' : '') + '</button>';
   });
-  html += '</div><div style="margin-top:16px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button></div></div>';
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
+  html += '</div><div class="btnrow"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button></div></div>';
+  mount(html);
 }
 
 function choosePattern(key){
   const p = PATTERNS[key];
-  state.testName = "";
-  state.adminNote = "";
-  state.subjectRows = JSON.parse(JSON.stringify(p.subjects)).map(r=>({...r, teacher:"", scopeChapters:{}, scopeTopics:{}}));
-  state.stage = "pattern-confirm";
+  state = {...FRESH_STATE(), stage:"pattern-confirm", patternKey:key, duration:p.duration,
+    subjectRows: JSON.parse(JSON.stringify(p.subjects)).map(r=>({...r, scopeChapters:{}, scopeTopics:{}}))};
   renderApp();
 }
 
 function renderScopeBuilder(row, i){
   const chapters = chaptersFor(row.subject, row.branch);
   const selectedCount = chapters.filter(c=>chapterIncluded(row,c.slug)).length;
-  const allSelected = chapters.length>0 && selectedCount===chapters.length;
-  let html = '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px">' +
-    '<label style="margin:0">Syllabus scope — pick chapters &amp; topics for this paper' +
-    (selectedCount ? ' <span style="color:var(--cherenkov)">('+selectedCount+' selected)</span>' : ' <span style="color:var(--slate)">(none selected)</span>') + '</label>';
+  let html = '<div class="scopehead"><span>Chapters <em>'+(selectedCount ? selectedCount+' picked' : 'none picked')+'</em></span>';
   if(chapters.length){
-    html += '<div style="display:flex;gap:12px">' +
-      '<button class="linkbtn" onclick="selectAllChapters('+i+',true)"'+(allSelected?' style="opacity:.4;pointer-events:none"':'')+'>Select all</button>' +
-      '<button class="linkbtn" onclick="selectAllChapters('+i+',false)"'+(selectedCount===0?' style="opacity:.4;pointer-events:none"':'')+'>Clear all</button>' +
-      '</div>';
+    html += '<span><button class="linkbtn" onclick="selectAllChapters('+i+',true)">All</button> · <button class="linkbtn" onclick="selectAllChapters('+i+',false)">None</button></span>';
   }
   html += '</div><div class="chapterlist">';
-  if(chapters.length===0){
-    html += '<span style="font-size:12.5px;color:var(--slate)">no chapters registered for this subject/branch</span>';
-  }
+  if(chapters.length===0) html += '<div class="muted">No chapters in the question bank for this subject yet.</div>';
   chapters.forEach(c=>{
     const included = chapterIncluded(row,c.slug);
-    const expandKey = i+":"+c.slug;
-    const isOpen = !!state.uiOpenChapter[expandKey];
+    const isOpen = !!state.uiOpenChapter[i+":"+c.slug];
     const allTopics = topicsFor(c.full_code);
     const topicsOn = allTopics.filter(t=>topicIncluded(row,c.slug,t.slug)).length;
-    const partial = included && topicsOn>0 && topicsOn<allTopics.length;
-    html += '<div class="chaprow"><div class="chaprow-head">' +
+    const n = questionsInChapter(row, c.slug);
+    html += '<div class="chaprow'+(included?' on':'')+'"><label class="chaprow-head">' +
       '<input type="checkbox" '+(included?'checked':'')+' onchange="toggleChapterScope('+i+',\''+c.slug+'\',this.checked)">' +
-      '<span>'+c.name+'</span>' +
-      (allTopics.length ? ' <button class="linkbtn" onclick="toggleChapterExpand('+i+',\''+c.slug+'\')">'+
-        (isOpen?'hide topics':(partial?topicsOn+'/'+allTopics.length+' topics ▸':allTopics.length+' topics ▸'))+'</button>' : '') +
-      '</div>';
+      '<span class="chapname">'+esc(c.name)+'</span><span class="qcount'+(n?'':' zero')+'">'+n+' Q</span></label>' +
+      (allTopics.length ? '<button class="linkbtn topicbtn" onclick="toggleChapterExpand('+i+',\''+c.slug+'\')">'+
+        (isOpen?'Hide topics':(included && topicsOn<allTopics.length ? topicsOn+'/'+allTopics.length+' topics' : 'Topics'))+' ▾</button>' : '');
     if(isOpen && allTopics.length){
       html += '<div class="topiclist">';
       allTopics.forEach(t=>{
-        const tIncl = topicIncluded(row,c.slug,t.slug);
-        html += '<label><input type="checkbox" '+(tIncl?'checked':'')+
-          ' onchange="toggleTopicScope('+i+',\''+c.slug+'\',\''+t.slug+'\',this.checked)"> '+t.label+'</label>';
+        html += '<label><input type="checkbox" '+(topicIncluded(row,c.slug,t.slug)?'checked':'')+
+          ' onchange="toggleTopicScope('+i+',\''+c.slug+'\',\''+t.slug+'\',this.checked)"> '+esc(t.label)+'</label>';
       });
       html += '</div>';
     }
     html += '</div>';
   });
-  html += '</div>';
-  return html;
+  return html + '</div>';
+}
+
+function nameCard(title, sub){
+  return '<div class="card"><h1 class="pt">'+title+'</h1><p class="sub">'+sub+'</p>' +
+    '<div class="row2"><div><label for="testName">Test name</label><input type="text" id="testName" value="'+esc(state.testName)+'" placeholder="e.g. JEE Main Mock 3 — Mechanics"></div>' +
+    '<div class="short"><label for="testDuration">Time (minutes)</label><input type="number" id="testDuration" min="1" max="600" inputmode="numeric" value="'+state.duration+'"></div></div></div>';
+}
+// back / next: JavaScript for the buttons' onclick (no double quotes).
+function notesCard(back, next){
+  return '<div class="card"><label for="adminNote">Note for admin <span class="muted">(optional)</span></label>' +
+    '<textarea id="adminNote" placeholder="e.g. For the Sunday batch only">'+esc(state.adminNote)+'</textarea>' +
+    '<div class="btnrow"><button class="btn" onclick="'+back+'">← Back</button><button class="btn primary" onclick="'+next+'">Pick questions →</button></div></div>';
 }
 
 function renderPatternConfirm(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">Name this test</h1><p class="sub">A NEET-pattern paper doesn\'t have to mean full syllabus — the scope below is picked from the real chapter/topic list, not typed, so it can\'t drift or get mistyped.</p>';
-  html += '<label>Test name</label><input type="text" id="testName" value="'+state.testName+'" placeholder="e.g. NEET Mock 3 — Mechanics + GOC">';
-  html += '</div>';
-
+  const p = PATTERNS[state.patternKey] || {label:"Pattern"};
+  let html = nameCard(esc(p.label)+' test', 'Pick the chapters this test covers. Only questions from those chapters are shown when you pick.');
   state.subjectRows.forEach((row,i)=>{
     initScope(row);
-    const eligible = teachersFor(row.subject, row.branch);
-    html += '<div class="card"><div class="subjrow" style="margin-bottom:0"><div class="hdr"><span class="tag">'+rowLabel(row)+'</span></div>';
-    row.requirements.forEach(r=>{
-      html += '<div class="reqline"><span>'+r.label+'</span><span style="font-family:var(--mono)">'+r.count+' questions</span></div>';
-    });
-
-    html += renderScopeBuilder(row, i);
-
-    html += '<label style="margin-top:12px">Admin assigned</label><select onchange="state.subjectRows['+i+'].teacher=this.value">';
-    html += '<option value="">— admin will review —</option>';
-    eligible.forEach(t=>{ html += '<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>'; });
-    if(eligible.length===0) html += '<option disabled>no teacher in directory for this subject/branch</option>';
-    html += '</select>';
-    html += '</div></div>';
+    html += '<div class="card"><div class="subjhead"><span class="tag big">'+rowLabel(row)+'</span><span class="muted">'+
+      row.requirements.map(r=>r.count+' '+r.label.replace(/^Section [AB] — /,'').toLowerCase()+' ('+marksText(r)+')').join(' · ')+'</span></div>';
+    html += renderScopeBuilder(row, i) + '</div>';
   });
-
-  html += '<div class="card" style="margin-top:16px">';
-  html += '<div class="scopebanner"><div class="lbl">Auto-generated scope summary</div>'+scopeSummary()+'</div>';
-  html += '<label>Additional notes <span style="font-weight:400">(optional — for anything the chapter/topic picker above can\'t capture)</span></label>' +
-    '<textarea id="adminNote" placeholder="e.g. Keep difficulty at JEE Main level only.">'+state.adminNote+'</textarea>';
-  html += '<div style="margin-top:16px;display:flex;gap:10px">' +
-    '<button class="btn" onclick="state.stage=\'pattern-pick\';renderApp()">← Choose different pattern</button>' +
-    '<button class="btn primary" onclick="submitPatternConfirm()">Create test &amp; send to admin →</button></div></div>';
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
-}
-
-function submitPatternConfirm(){
-  state.testName = document.getElementById("testName").value || "Untitled test";
-  state.adminNote = document.getElementById("adminNote").value;
-  finalizeAssignment();
+  html += notesCard("state.stage='pattern-pick';renderApp()", "goPick()");
+  mount(html);
 }
 
 function startCustom(){
-  state.testName = "";
-  state.adminNote = "";
-  state.subjectRows = [ {subject:"physics", branch:null, count:2, types:{single:true,multi:false,numerical:true,integer:false}, teacher:"", scopeChapters:{}, scopeTopics:{}} ];
-  state.stage = "custom-form";
+  state = {...FRESH_STATE(), stage:"custom-form", duration:60,
+    subjectRows:[{subject:"physics", branch:null, count:10, types:{single:true,multi:false,numerical:false,integer:false,subjective:false}, mc:4, mw:1, scopeChapters:{}, scopeTopics:{}}]};
   renderApp();
 }
 function addSubjectRow(){
-  state.subjectRows.push({subject:"chemistry", branch:null, count:1, types:{single:true,multi:false,numerical:false,integer:false}, teacher:"", scopeChapters:{}, scopeTopics:{}});
+  readNameFields();
+  const used = new Set(state.subjectRows.map(r=>r.subject));
+  const next = SUBJECTS.find(s=>!used.has(s)) || "chemistry";
+  state.subjectRows.push({subject:next, branch:next==="biology"?"botany":null, count:10, types:{single:true,multi:false,numerical:false,integer:false,subjective:false}, mc:4, mw:1, scopeChapters:{}, scopeTopics:{}});
   renderApp();
 }
-function removeSubjectRow(i){ state.subjectRows.splice(i,1); renderApp(); }
+function removeSubjectRow(i){ readNameFields(); state.subjectRows.splice(i,1); renderApp(); }
 function updateRow(i,key,val){
-  if(key==="count") val = Math.max(1, parseInt(val)||1);
-  state.subjectRows[i][key] = val;
-  if(key==="subject"){ state.subjectRows[i].scopeChapters={}; state.subjectRows[i].scopeTopics={}; state.subjectRows[i].teacher=""; state.subjectRows[i].branch = (val==="biology") ? "botany" : null; }
-  if(key==="branch"){ state.subjectRows[i].teacher=""; state.subjectRows[i].scopeChapters={}; state.subjectRows[i].scopeTopics={}; }
-  renderApp();
+  readNameFields();
+  const row = state.subjectRows[i];
+  if(key==="count") val = Math.min(500, Math.max(1, parseInt(val)||1));
+  if(key==="mc") val = Math.max(0.25, Number(val)||1);
+  if(key==="mw") val = Math.max(0, Number(val)||0);
+  row[key] = val;
+  if(key==="subject"){ row.scopeChapters={}; row.scopeTopics={}; row.branch = (val==="biology") ? "botany" : null; }
+  if(key==="branch"){ row.scopeChapters={}; row.scopeTopics={}; }
+  if(["subject","branch"].includes(key)) renderApp(); else saveDraft();
 }
-function toggleType(i,t,val){ state.subjectRows[i].types[t]=val; }
+function toggleType(i,t,val){ state.subjectRows[i].types[t]=val; saveDraft(); }
 
 function renderCustomForm(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">Custom test</h1><p class="sub">Full control — any subjects, counts, types.</p>';
-  html += '<label>Test name</label><input type="text" id="testName" value="'+state.testName+'" placeholder="e.g. Weekly Physics Practice Set">';
-  html += '</div>';
-
+  let html = nameCard('Custom test', 'Choose subjects, how many questions, question types and marking.');
   state.subjectRows.forEach((row,i)=>{
     initScope(row);
-    const eligible = teachersFor(row.subject, row.branch);
-    html += '<div class="card"><div class="subjrow" style="margin-bottom:0"><div class="hdr"><span class="tag">Subject '+(i+1)+'</span>' +
+    html += '<div class="card"><div class="subjhead"><span class="tag big">Subject '+(i+1)+'</span>' +
       (state.subjectRows.length>1 ? '<button class="linkbtn" onclick="removeSubjectRow('+i+')">Remove</button>' : '') + '</div>';
-    html += '<div class="row row3">';
-    html += '<div><label>Subject</label><select onchange="updateRow('+i+',\'subject\',this.value)">' +
+    html += '<div class="grid4">';
+    html += '<div class="wide"><label>Subject</label><select onchange="updateRow('+i+',\'subject\',this.value)">' +
       SUBJECTS.map(s=>'<option value="'+s+'"'+(s===row.subject?' selected':'')+'>'+s[0].toUpperCase()+s.slice(1)+'</option>').join('') + '</select></div>';
-    html += '<div><label># Questions</label><input type="number" min="1" value="'+row.count+'" onchange="updateRow('+i+',\'count\',this.value)"></div>';
-    html += '<div><label>Admin assigned</label><select onchange="updateRow('+i+',\'teacher\',this.value)"><option value="">— admin will review —</option>' +
-      eligible.map(t=>'<option value="'+t.name+'"'+(row.teacher===t.name?' selected':'')+'>'+t.name+'</option>').join('') + '</select></div>';
+    html += '<div><label>Questions</label><input type="number" min="1" max="500" inputmode="numeric" value="'+row.count+'" onchange="updateRow('+i+',\'count\',this.value)"></div>';
+    html += '<div><label>Marks (+)</label><input type="number" min="0.25" step="0.25" inputmode="decimal" value="'+row.mc+'" onchange="updateRow('+i+',\'mc\',this.value)"></div>';
+    html += '<div><label>Negative (−)</label><input type="number" min="0" step="0.25" inputmode="decimal" value="'+row.mw+'" onchange="updateRow('+i+',\'mw\',this.value)"></div>';
     html += '</div>';
-
     if(row.subject==="biology"){
-      html += '<label style="margin-top:12px">Branch</label><div class="difflist">' +
-        ["botany","zoology"].map(b=>'<label class="chip-check"><input type="radio" name="branch'+i+'" '+(row.branch===b?'checked':'')+' onchange="updateRow('+i+',\'branch\',\''+b+'\')"> '+b+'</label>').join('') + '</div>';
+      html += '<label>Branch</label><div class="chips">' +
+        ["botany","zoology"].map(b=>'<label class="chip-check"><input type="radio" name="branch'+i+'" '+(row.branch===b?'checked':'')+' onchange="updateRow('+i+',\'branch\',\''+b+'\')"> '+b[0].toUpperCase()+b.slice(1)+'</label>').join('') + '</div>';
     }
-
-    html += '<label style="margin-top:12px">Allowed question types</label><div class="difflist">';
-    ["single","multi","numerical","integer"].forEach(t=>{
-      html += '<label class="chip-check"><input type="checkbox" '+(row.types[t]?'checked':'')+' onchange="toggleType('+i+',\''+t+'\',this.checked)"> '+t+'</label>';
+    html += '<label>Question types</label><div class="chips">';
+    ["single","multi","numerical","integer","subjective"].forEach(t=>{
+      html += '<label class="chip-check"><input type="checkbox" '+(row.types[t]?'checked':'')+' onchange="toggleType('+i+',\''+t+'\',this.checked)"> '+TYPE_NAMES[t]+(t==="subjective"?' <em>(print only)</em>':'')+'</label>';
     });
-    html += '</div>';
-
-    html += renderScopeBuilder(row, i);
-    html += '</div></div>';
+    html += '</div>' + renderScopeBuilder(row, i) + '</div>';
   });
-
-  html += '<button class="btn" onclick="addSubjectRow()">+ Add another subject</button>';
-  html += '<div class="card" style="margin-top:16px">';
-  html += '<div class="scopebanner"><div class="lbl">Auto-generated scope summary</div>'+scopeSummary()+'</div>';
-  html += '<label>Additional notes <span style="font-weight:400">(optional)</span></label><textarea id="adminNote">'+state.adminNote+'</textarea>';
-  html += '<div style="margin-top:16px;display:flex;gap:10px"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button><button class="btn primary" onclick="createCustomAssignment()">Create test &amp; send to admin →</button></div>';
-  html += '</div>';
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
+  html += '<button class="btn wide-btn" onclick="addSubjectRow()">+ Add another subject</button>';
+  html += notesCard("state.stage='mode';renderApp()", "createCustomAssignment()");
+  mount(html);
 }
 
 function createCustomAssignment(){
-  state.testName = document.getElementById("testName").value || "Untitled test";
-  state.adminNote = document.getElementById("adminNote").value;
+  readNameFields();
+  for (const row of state.subjectRows) {
+    if (!Object.values(row.types).some(Boolean)) { alert(rowLabel(row)+": tick at least one question type."); return; }
+  }
   state.subjectRows = state.subjectRows.map(row=>({
-    subject: row.subject,
-    branch: row.branch || null,
-    teacher: row.teacher,
-    scopeChapters: row.scopeChapters,
-    scopeTopics: row.scopeTopics,
-    requirements: [{ types: Object.keys(row.types).filter(t=>row.types[t]), count: row.count, label: "Questions" }]
+    ...row,
+    requirements: [{ types: Object.keys(row.types).filter(t=>row.types[t]), count: row.count, label: "Questions", mc: Number(row.mc), mw: Number(row.mw), partial: !!row.types.multi }]
   }));
-  finalizeAssignment();
+  goPick();
 }
 
-function finalizeAssignment(){
-  state.selections = {};
-  state.subjectDone = {};
-  state.subjectRows.forEach(r=>{ const k=rowKey(r); state.selections[k]=[]; state.subjectDone[k]=false; });
-  state.uiOpenRow = null;
-  state.uiFilters = {};
-  state.summaryFrozen = scopeSummary();
-  state.stage = "admin-review";
+function goPick(){
+  readNameFields();
+  if (!state.testName.trim()) { alert("Give the test a name."); document.getElementById("testName")?.focus(); return; }
+  const empty = state.subjectRows.filter(r=>!chaptersFor(r.subject,r.branch).some(c=>chapterIncluded(r,c.slug)));
+  if (empty.length) { alert("Pick at least one chapter for: "+empty.map(rowLabel).join(", ")); return; }
+  state.subjectRows.forEach(r=>{ const k=rowKey(r); if(!state.selections[k]) state.selections[k]=[]; });
+  state.uiOpenRow = state.subjectRows.length===1 ? rowKey(state.subjectRows[0]) : null;
+  state.stage = "pick";
   renderApp();
 }
 
-function reqCountsFor(row){
-  const k = rowKey(row);
-  return row.requirements.map(r=>{
-    const picked = state.selections[k].filter(id=>{
-      const q = QUESTIONS.find(q=>q.id===id);
-      return q && r.types.includes(q.type);
-    }).length;
-    return {req:r, picked};
+// ---------------------------------------------------------------------
+// 2 · Pick questions
+// ---------------------------------------------------------------------
+// Each picked question goes to the first part that takes its type and
+// still has room — the same split the online paper and the print use.
+function partsFor(row){
+  const parts = row.requirements.map(req=>({req, qs:[]}));
+  (state.selections[rowKey(row)]||[]).forEach(id=>{
+    const q = qByCode(id); if(!q) return;
+    const p = parts.find(p=>p.req.types.includes(q.type) && p.qs.length<p.req.count) || parts.find(p=>p.req.types.includes(q.type));
+    if (p) p.qs.push(q);
   });
+  return parts;
 }
 function subjectTotalNeeded(row){ return row.requirements.reduce((s,r)=>s+r.count,0); }
-function subjectAllMet(row){ return reqCountsFor(row).every(rc=>rc.picked===rc.req.count); }
+function subjectAllMet(row){ return partsFor(row).every(p=>p.qs.length===p.req.count); }
+function canAdd(row, q){ return partsFor(row).some(p=>p.req.types.includes(q.type) && p.qs.length<p.req.count); }
 
 function renderTeacherPick(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">The admin reviews the requested question scope and finalizes the paper before it is published.</p></div>';
-  html += '<div class="scopebanner"><div class="lbl">Syllabus scope for this test</div>'+state.summaryFrozen+(state.adminNote?'<br><i>'+state.adminNote+'</i>':'')+'</div>';
+  let html = '<div class="card slim"><div class="titlebar"><div><h1 class="pt">'+esc(state.testName)+'</h1><p class="sub">'+state.duration+' min · '+esc(scopeSummary())+'</p></div>' +
+    '<button class="linkbtn" onclick="state.stage=\''+(state.patternKey?'pattern-confirm':'custom-form')+'\';renderApp()">Edit</button></div></div>';
 
+  let picked = 0, needed = 0;
   state.subjectRows.forEach(row=>{
     const k = rowKey(row);
-    const picked = state.selections[k].length;
-    const needed = subjectTotalNeeded(row);
-    const done = state.subjectDone[k];
-    html += '<div class="subjcard"><div class="top"><div>' +
-      '<div style="font-family:var(--display);font-weight:600;font-size:16px">'+rowLabel(row)+'</div>' +
-      '<div class="meta">Admin review · needs '+needed+' questions across '+row.requirements.length+' section(s)</div>' +
-      '</div><div style="display:flex;align-items:center;gap:10px">' +
-      '<span class="progress-pill '+(done?'ok':'wait')+'">'+picked+' / '+needed+' selected</span>' +
-      '<button class="btn" onclick="toggleOpen(\''+k+'\')">'+(state.uiOpenRow===k?'Close':'Open')+'</button>' +
-      '</div></div>';
-    if(state.uiOpenRow===k) html += renderPicker(row);
+    const n = (state.selections[k]||[]).length, need = subjectTotalNeeded(row);
+    picked += Math.min(n, need); needed += need;
+    const done = subjectAllMet(row);
+    const open = state.uiOpenRow===k;
+    html += '<div class="subjcard'+(open?' open':'')+'"><button class="subjtop" onclick="toggleOpen(\''+k+'\')">' +
+      '<span class="ring '+(done?'ok':'')+'" style="--p:'+Math.round(100*Math.min(n,need)/need)+'"><span>'+(done?'✓':n)+'</span></span>' +
+      '<span class="subjinfo"><b>'+rowLabel(row)+'</b><small>'+n+' of '+need+' picked'+(done?' · complete':'')+'</small></span>' +
+      '<span class="chev">'+(open?'▴':'▾')+'</span></button>';
+    if(open) html += renderPicker(row);
     html += '</div>';
   });
 
-  const allDone = state.subjectRows.every(r=>state.subjectDone[rowKey(r)]);
-  html += '<div style="margin-top:6px"><button class="btn primary" '+(allDone?'':'disabled')+' onclick="state.stage=\'final\';renderApp()">Compile final paper →</button>' +
-    (allDone?'':' <span style="font-size:12.5px;color:var(--slate);margin-left:8px">waiting on all sections</span>') + '</div>';
-
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
+  const allDone = state.subjectRows.every(subjectAllMet);
+  html += '<div class="stickybar"><div><b>'+picked+' / '+needed+'</b> questions</div>' +
+    '<button class="btn primary" '+(allDone?'':'disabled')+' onclick="goFinal()">'+(allDone?'Review paper →':'Pick all to continue')+'</button></div>';
+  mount(html);
 }
 
 function toggleOpen(k){
   state.uiOpenRow = (state.uiOpenRow===k) ? null : k;
-  if(!state.uiFilters[k]) state.uiFilters[k] = {chapter:null, showAll:false, diff:[1,2,3,4,5]};
   renderApp();
+  if (state.uiOpenRow) document.querySelector('.subjcard.open')?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function filtersFor(k){
+  if(!state.uiFilters[k] || !Array.isArray(state.uiFilters[k].bands)) state.uiFilters[k] = {chapter:null, topic:"", bands:["easy","medium","hard"], showAll:false, shown:PAGE_SIZE, pickedOnly:false};
+  return state.uiFilters[k];
+}
+
+const MD_CACHE = new Map();
+function questionBody(q){
+  if (!MD_CACHE.has(q.id)) MD_CACHE.set(q.id, SIRPaper.questionHtml({question_md:q.question, options:q.options, type:q.type, unit:q.unit}));
+  return MD_CACHE.get(q.id);
 }
 
 function renderPicker(row){
   const k = rowKey(row);
-  const f = state.uiFilters[k];
+  const f = filtersFor(k);
   const chapters = chaptersFor(row.subject, row.branch);
-  const inScope = chapters.filter(c => chapterIncluded(row,c.slug));
-  const visibleChapters = f.showAll ? chapters : inScope;
-  if(!f.chapter && visibleChapters.length) f.chapter = visibleChapters[0].slug;
+  const visibleChapters = f.showAll ? chapters : chapters.filter(c => chapterIncluded(row,c.slug));
+  if(!visibleChapters.some(c=>c.slug===f.chapter)) {
+    // Start on the first chapter that actually has questions.
+    f.chapter = (visibleChapters.find(c=>questionsInChapter(row,c.slug)) || visibleChapters[0])?.slug || null;
+    f.topic = "";
+  }
+  const meta = chapterMeta(row.subject, f.chapter);
+  const topics = topicsFor(meta ? meta.full_code : "");
+  const topicLabel = (slug) => (topics.find(t=>t.slug===slug)||{}).label || "";
 
-  let html = '<div class="picker">';
-
-  const rcounts = reqCountsFor(row);
-  html += '<div class="reqbar">';
-  rcounts.forEach(rc=>{
-    const met = rc.picked === rc.req.count;
-    html += '<span class="reqchip '+(met?'met':'open')+'">'+rc.req.label+': '+rc.picked+' / '+rc.req.count+'</span>';
+  let html = '<div class="picker"><div class="reqbar">';
+  partsFor(row).forEach(p=>{
+    html += '<span class="reqchip '+(p.qs.length===p.req.count?'met':'')+'">'+esc(p.req.label)+' <b>'+p.qs.length+'/'+p.req.count+'</b> <em>'+marksText(p.req)+'</em></span>';
   });
   html += '</div>';
 
   html += '<div class="filters">';
-  if(visibleChapters.length){
-    html += '<div><label>Chapter ('+visibleChapters.length+' in scope)</label><select onchange="setFilter(\''+k+'\',\'chapter\',this.value)">' +
-      visibleChapters.map(c=>'<option value="'+c.slug+'"'+(c.slug===f.chapter?' selected':'')+'>'+c.name+'</option>').join('') + '</select></div>';
-  } else {
-    html += '<div><label>Chapter</label><div style="font-size:13px;color:var(--slate);padding-top:8px">none in scope</div></div>';
+  html += '<div><label>Chapter</label><select onchange="setFilter(\''+k+'\',\'chapter\',this.value)">' +
+    visibleChapters.map(c=>'<option value="'+c.slug+'"'+(c.slug===f.chapter?' selected':'')+'>'+esc(c.name)+' ('+questionsInChapter(row,c.slug)+')</option>').join('') + '</select></div>';
+  if (topics.length) {
+    html += '<div><label>Topic</label><select onchange="setFilter(\''+k+'\',\'topic\',this.value)"><option value="">All topics</option>' +
+      topics.filter(t=>f.showAll || !row.scopeTopics[f.chapter] || topicIncluded(row,f.chapter,t.slug)).map(t=>'<option value="'+t.slug+'"'+(t.slug===f.topic?' selected':'')+'>'+esc(t.label)+'</option>').join('') + '</select></div>';
   }
-  html += '<div><label>Difficulty</label><div class="difflist">' +
-    [1,2,3,4,5].map(d=>'<label class="chip-check"><input type="checkbox" '+(f.diff.includes(d)?'checked':'')+' onchange="toggleDiff(\''+k+'\','+d+',this.checked)">'+d+'</label>').join('') +
-    '</div></div>';
-  html += '</div>';
-
-  html += '<label class="chip-check" style="width:fit-content;margin-bottom:12px"><input type="checkbox" '+(f.showAll?'checked':'')+' onchange="setFilter(\''+k+'\',\'showAll\',this.checked)"> Show chapters outside this paper\'s syllabus too (safety override)</label>';
+  html += '</div><div class="chips">' +
+    Object.keys(BANDS).map(b=>'<label class="chip-check band-'+b+'"><input type="checkbox" '+(f.bands.includes(b)?'checked':'')+' onchange="toggleBand(\''+k+'\',\''+b+'\',this.checked)"> '+BAND_NAMES[b]+'</label>').join('') +
+    '<label class="chip-check"><input type="checkbox" '+(f.pickedOnly?'checked':'')+' onchange="setFilter(\''+k+'\',\'pickedOnly\',this.checked)"> Picked only</label>' +
+    '<label class="chip-check"><input type="checkbox" '+(f.showAll?'checked':'')+' onchange="setFilter(\''+k+'\',\'showAll\',this.checked)"> Other chapters</label></div>';
 
   const allowedTypes = [...new Set(row.requirements.flatMap(r=>r.types))];
-  const matches = QUESTIONS.filter(q=>
-    q.subject===row.subject &&
-    q.chapter===f.chapter &&
-    allowedTypes.includes(q.type) &&
-    f.diff.includes(q.difficulty)
-  );
+  const sel = state.selections[k] || [];
+  const matches = f.pickedOnly
+    ? sel.map(qByCode).filter(Boolean)
+    : QUESTIONS.filter(q=>
+        q.subject===row.subject && q.chapter===f.chapter &&
+        (!f.topic || q.topic===f.topic) &&
+        allowedTypes.includes(q.type) &&
+        f.bands.includes(bandOf(q.difficulty)) &&
+        (!row.branch || !q.branch || q.branch===row.branch));
 
   if(matches.length===0){
-    html += '<div class="empty">No questions match this chapter + difficulty + type combination yet.</div>';
+    html += '<div class="empty">'+(f.pickedOnly ? 'Nothing picked yet.' : 'No questions of the needed type in this chapter / difficulty yet.')+'</div>';
   } else {
-    matches.forEach(q=>{
-      const meta = chapterMeta(q.subject,q.chapter);
-      const topicLabel = (topicsFor(meta?meta.full_code:"").find(t=>t.slug===q.topic)||{}).label || q.topic;
-      const added = state.selections[k].includes(q.id);
-      html += '<div class="qitem"><div><div class="qtxt">'+q.question+'</div>' +
-        '<div class="qmeta"><span class="badge">'+q.id+'</span><span class="badge">'+topicLabel+'</span><span class="badge">'+q.type+'</span><span class="badge">difficulty '+q.difficulty+'</span><span class="badge">'+q.marks+' marks</span></div></div>' +
-        '<button class="add'+(added?' added':'')+'" onclick="toggleQuestion(\''+k+'\',\''+q.id+'\')">'+(added?'Added ✓':'Add')+'</button></div>';
+    html += '<div class="muted count">'+matches.length+' question'+(matches.length===1?'':'s')+'</div>';
+    matches.slice(0, f.shown).forEach(q=>{
+      const added = sel.includes(q.id);
+      const full = !added && !canAdd(row, q);
+      const band = bandOf(q.difficulty);
+      const topic = q.topicLabel || topicLabel(q.topic);
+      html += '<div class="qcard'+(added?' picked':'')+'"><div class="qtags">' +
+        (topic ? '<span class="qtag">'+esc(topic)+'</span>' : '') +
+        '<span class="qtag">'+TYPE_NAMES[q.type]+'</span><span class="qtag band-'+band+'">'+BAND_NAMES[band]+'</span></div>' +
+        questionBody(q) +
+        '<div class="qfoot"><span class="code">'+esc(q.id)+'</span>' +
+        '<button class="add'+(added?' added':'')+'" '+(full?'disabled':'')+' onclick="toggleQuestion(\''+k+'\',\''+q.id+'\')">'+(added?'✓ Added':(full?'Section full':'+ Add'))+'</button></div></div>';
     });
+    if (matches.length > f.shown) html += '<button class="btn wide-btn" onclick="showMore(\''+k+'\')">Show more ('+(matches.length-f.shown)+' left)</button>';
   }
-
-  html += '<div style="margin-top:14px;display:flex;justify-content:flex-end">';
-  const canComplete = subjectAllMet(row);
-  html += '<button class="btn primary" '+(canComplete?'':'disabled')+' onclick="completeSubject(\''+k+'\')">Mark complete</button>';
-  html += '</div></div>';
-  return html;
+  return html + '</div>';
 }
 
-function setFilter(k,key,val){ state.uiFilters[k][key]=val; renderApp(); }
-function toggleDiff(k,d,checked){
-  const arr = state.uiFilters[k].diff;
-  const idx = arr.indexOf(d);
-  if(checked && idx===-1) arr.push(d);
-  if(!checked && idx!==-1) arr.splice(idx,1);
+function setFilter(k,key,val){
+  const f = filtersFor(k);
+  f[key]=val; f.shown = PAGE_SIZE;
+  if (key==="chapter") f.topic = "";
+  renderApp();
+}
+function showMore(k){ filtersFor(k).shown += PAGE_SIZE; renderApp(); }
+function toggleBand(k,b,checked){
+  const f = filtersFor(k);
+  f.bands = checked ? [...new Set([...f.bands, b])] : f.bands.filter(x=>x!==b);
+  f.shown = PAGE_SIZE;
   renderApp();
 }
 function toggleQuestion(k,qid){
   const arr = state.selections[k];
   const idx = arr.indexOf(qid);
   if(idx===-1) arr.push(qid); else arr.splice(idx,1);
-  state.subjectDone[k] = false;
+  const y = window.scrollY;
   renderApp();
+  window.scrollTo(0, y);
 }
-function completeSubject(k){ state.subjectDone[k]=true; state.uiOpenRow=null; renderApp(); }
+
+// ---------------------------------------------------------------------
+// 3 · Paper ready → Offline (print / Word) or Online (send to admin)
+// ---------------------------------------------------------------------
+async function loadKeys(){
+  const need = state.subjectRows.flatMap(r=>(state.selections[rowKey(r)]||[]).map(qByCode)).filter(q=>q && !KEYS.has(q.dbId)).map(q=>q.dbId);
+  for (let i=0; i<need.length; i+=80) {
+    const { data, error } = await supabaseClient.from("qb_question_keys").select("question_id,answer,solution_md").in("question_id", need.slice(i, i+80));
+    if (error) throw error;
+    (data||[]).forEach(k=>KEYS.set(k.question_id, k));
+  }
+}
+function paperTotals(){
+  let q = 0, m = 0;
+  state.subjectRows.forEach(row=>partsFor(row).forEach(p=>{ q += p.qs.length; m += p.qs.length*p.req.mc; }));
+  return { q, m };
+}
+function hasSubjective(){ return state.subjectRows.some(r=>partsFor(r).some(p=>p.qs.some(q=>q.type==="subjective"))); }
+
+function goFinal(){
+  state.stage = "final";
+  renderApp();
+  window.scrollTo({top: document.getElementById("section-tests")?.offsetTop || 0, behavior:"smooth"});
+  loadKeys().then(()=>{ if (state.stage==="final" && state.showAnswers) renderApp(); }).catch(e=>console.warn("keys", e));
+}
 
 function renderFinal(){
-  renderTopbar();
-  let html = '<div class="card"><h1 class="pt">'+state.testName+'</h1><p class="sub">Auto-compiled the moment every section was marked complete.</p></div>';
-  html += '<div class="scopebanner"><div class="lbl">Syllabus scope</div>'+state.summaryFrozen+'</div>';
+  const t = paperTotals();
+  let html = '<div class="card hero"><div class="lbl">Paper ready</div><h1 class="pt">'+esc(state.testName)+'</h1>' +
+    '<div class="stats"><span><b>'+t.q+'</b> questions</span><span><b>'+t.m+'</b> marks</span><span><b>'+state.duration+'</b> min</span></div></div>';
 
-  let totalQ = 0, totalM = 0;
+  html += '<div class="card"><h2 class="h2">How will students take this test?</h2><div class="delivery">';
+  html += '<div class="dcard"><div class="dhead"><span class="dic">🖨️</span><div><b>Offline</b><small>Print it and give it in class</small></div></div>' +
+    '<label class="tick"><input type="checkbox" '+(state.withKey?'checked':'')+' onchange="state.withKey=this.checked;saveDraft()"> Answer key on the last page</label>' +
+    '<label class="tick"><input type="checkbox" '+(state.withSolutions?'checked':'')+' onchange="state.withSolutions=this.checked;saveDraft()"> Add solutions</label>' +
+    '<div class="btnrow"><button class="btn primary" onclick="exportPaper(\'pdf\')">PDF / Print</button><button class="btn" onclick="exportPaper(\'doc\')">Word (.doc)</button></div></div>';
+  const subj = hasSubjective();
+  html += '<div class="dcard online"><div class="dhead"><span class="dic">📱</span><div><b>Online</b><small>Admin checks it, then it opens on JEE / NEET students\' dashboards</small></div></div>' +
+    (subj ? '<div class="warnbox">Short-answer questions can\'t be marked online. Remove them to send online, or use Offline.</div>' : '') +
+    '<button class="btn primary big" id="sendOnlineBtn" '+(subj||SENDING?'disabled':'')+' onclick="sendOnline()">'+(SENDING?'Sending…':'Send to admin')+'</button></div>';
+  html += '</div></div>';
+
+  html += '<div class="card"><div class="titlebar"><h2 class="h2">Preview</h2><label class="tick"><input type="checkbox" '+(state.showAnswers?'checked':'')+' onchange="toggleAnswers(this.checked)"> Show answers</label></div>';
+  let n = 0;
   state.subjectRows.forEach(row=>{
-    const k = rowKey(row);
-    const qs = state.selections[k].map(id => QUESTIONS.find(q=>q.id===id));
-    totalQ += qs.length;
-    const sectionMarks = qs.reduce((s,q)=>s+q.marks,0);
-    totalM += sectionMarks;
-    html += '<div class="card psection"><h3>'+rowLabel(row)+' <span style="font-family:var(--mono);font-size:12px;color:var(--slate);font-weight:400">— '+qs.length+' questions, '+sectionMarks+' marks, prepared for admin review</span></h3>';
-    qs.forEach((q,i)=>{
-      html += '<div class="pq"><span class="pn">Q'+(i+1)+' · '+q.id+' · '+q.type+' · '+q.marks+' marks</span><br>'+q.question+'</div>';
+    partsFor(row).forEach(p=>{
+      if (!p.qs.length) return;
+      html += '<div class="psection"><h3>'+rowLabel(row)+(row.requirements.length>1?' · '+esc(p.req.label):'')+'</h3><div class="muted">'+p.qs.length+' questions · '+marksText(p.req)+' each</div>';
+      p.qs.forEach(q=>{
+        const key = KEYS.get(q.dbId);
+        html += '<div class="pq">'+SIRPaper.questionHtml({question_md:q.question, options:q.options, type:q.type, unit:q.unit},
+          {number:++n, showAnswer:state.showAnswers, answer:key?.answer, solution:key?.solution_md})+'</div>';
+      });
+      html += '</div>';
     });
-    html += '</div>';
   });
+  html += '</div>';
+  html += '<div class="btnrow"><button class="btn" onclick="state.stage=\'pick\';renderApp()">← Change questions</button><button class="btn" onclick="startOver()">Start a new test</button></div>';
+  mount(html);
+}
+async function toggleAnswers(on){
+  state.showAnswers = on;
+  if (on) { try { await loadKeys(); } catch(e) { alert("Could not load answers: "+(e.message||e)); } }
+  renderApp();
+}
 
-  html += '<div class="ptotal"><span>'+totalQ+' questions total</span><span>'+totalM+' marks total</span></div>';
-  html += '<div style="margin-top:16px"><button class="btn" onclick="state.stage=\'admin-review\';renderApp()">← Back to edit selections</button></div>';
-  const composerApp = document.getElementById("app"); if (composerApp) composerApp.innerHTML = html;
+function buildPaper(){
+  const t = paperTotals();
+  const sections = [];
+  state.subjectRows.forEach(row=>partsFor(row).forEach(p=>{
+    if (!p.qs.length) return;
+    sections.push({
+      label: rowLabel(row)+(row.requirements.length>1?' — '+p.req.label:''),
+      note: p.req.mw ? '+'+p.req.mc+' for correct, −'+p.req.mw+' for wrong' : '+'+p.req.mc+' for correct, no negative marking',
+      questions: p.qs.map(q=>({ q:{question_md:q.question, options:q.options, type:q.type, unit:q.unit}, marks:'+'+p.req.mc+(p.req.mw?' / −'+p.req.mw:''),
+        answer: KEYS.get(q.dbId)?.answer, solution: KEYS.get(q.dbId)?.solution_md }))
+    });
+  }));
+  return {
+    title: state.testName || "Test",
+    subtitle: "SIR Kolhapur" + (currentTeacher?.full_name ? " · " + currentTeacher.full_name : ""),
+    duration: state.duration, maxMarks: t.m,
+    instructions: ["This paper has "+t.q+" questions for "+t.m+" marks.", "Marking for each section is shown under its heading.", "Write your name and roll number before you start."],
+    sections, withKey: state.withKey, withSolutions: state.withKey && state.withSolutions
+  };
+}
+
+async function exportPaper(kind){
+  // Open the window inside the click so phones don't block it.
+  const win = kind==="pdf" ? window.open("", "_blank") : null;
+  if (kind==="pdf" && !win) { alert("Allow pop-ups for this site to print the paper."); return; }
+  if (win) win.document.write('<p style="font-family:sans-serif;padding:24px">Preparing paper…</p>');
+  try {
+    if (state.withKey) await loadKeys();
+    const paper = buildPaper();
+    if (kind==="pdf") SIRPaper.printPaper(win, paper); else SIRPaper.downloadDoc(paper);
+  } catch (e) {
+    if (win) win.close();
+    alert("Could not prepare the paper: "+(e.message||e));
+  }
+}
+
+async function sendOnline(){
+  if (SENDING) return;
+  const t = paperTotals();
+  if (!confirm('Send "'+state.testName+'" ('+t.q+' questions, '+t.m+' marks) to the admin?\n\nThe admin picks the batches and the date; then it opens on students\' dashboards.')) return;
+  SENDING = true; renderApp();
+  try {
+    const paper = {
+      title: state.testName.trim(), duration_minutes: state.duration, pattern_key: state.patternKey, note: state.adminNote,
+      sections: state.subjectRows.map(row=>({
+        subject_id: subjectIdFor(row.subject), branch: row.branch || null, label: rowLabel(row),
+        parts: partsFor(row).filter(p=>p.qs.length).map(p=>({ label:p.req.label, allowed_types:p.req.types, marks_correct:p.req.mc, marks_wrong:p.req.mw, partial_marking:!!p.req.partial, question_ids:p.qs.map(q=>q.dbId) }))
+      }))
+    };
+    const { error } = await supabaseClient.rpc("asm_teacher_submit_paper", { p_paper: paper });
+    if (error) throw error;
+    const title = state.testName;
+    state = {...FRESH_STATE(), stage:"sent", testName:title};
+    MY_PAPERS = null; loadMyPapers();
+  } catch (e) {
+    alert("Could not send: "+(e.message||e));
+  } finally {
+    SENDING = false; renderApp();
+  }
+}
+
+function renderSent(){
+  mount('<div class="card success"><div class="bigtick">✓</div><h1 class="pt">Sent to admin</h1><p class="sub">"'+esc(state.testName)+'" is waiting for the admin. Once approved it opens on the chosen batches\' dashboards, and you\'ll get a notification.</p>' +
+    '<div class="btnrow center"><button class="btn primary" onclick="state=FRESH_STATE();renderApp()">Create another test</button></div></div>' +
+    '<div class="card"><h2 class="h2">My tests</h2>'+myPapersHtml()+'</div>');
 }
 
 function renderApp(){
+  if(!document.getElementById("app")) return;
+  if(!SIR_QB_READY){ if(SIR_QB_ERROR) mount('<div class="empty">Questions could not be loaded. '+esc(SIR_QB_ERROR)+'</div>'); return; }
+  renderTopbar();
   if(state.stage==="mode") renderMode();
   else if(state.stage==="pattern-pick") renderPatternPick();
   else if(state.stage==="pattern-confirm") renderPatternConfirm();
   else if(state.stage==="custom-form") renderCustomForm();
-  else if(state.stage==="admin-review") renderTeacherPick();
+  else if(state.stage==="pick") renderTeacherPick();
   else if(state.stage==="final") renderFinal();
+  else if(state.stage==="sent") renderSent();
+  if (state.stage!=="sent") saveDraft();
 }
 
-loadSirQuestionBank();
+if (window.SIRPaper) SIRPaper.init(SUPABASE_URL);
+loadSirQuestionBank().then(()=>{ restoreDraft(); renderApp(); loadMyPapers(); });
 
 
 </script>

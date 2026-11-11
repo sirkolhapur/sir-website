@@ -25,6 +25,14 @@
 
   <!-- SUPABASE: ONLY ONCE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Online tests: maths + figures in questions -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/mhchem.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="js/sir-paper.js?v=20261116"></script>
+  <script src="js/sir-student-tests.js?v=20261116"></script>
 
   <style>
     :root {
@@ -1613,6 +1621,101 @@ header, main, footer {
     @media(max-width:900px){.portal-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:600px){.student-menu-toggle{top:84px;left:10px;padding:10px 12px}.portal-feature-grid{grid-template-columns:1fr}.lecture-path{grid-template-columns:1fr}.student-nav-drawer{padding:20px 14px}}
 
+
+    /* ---- Online tests (list + exam screen) ---- */
+    .ot-badge{display:inline-block;background:#d9aa45;color:#071426;font-weight:800;font-size:12px;border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:middle}
+    .ot-hero{display:flex;align-items:center;gap:12px;width:100%;max-width:460px;margin-top:16px;padding:14px 16px;border-radius:16px;border:1px solid rgba(217,170,69,.45);background:rgba(217,170,69,.12);color:#fff;text-align:left;font:inherit;cursor:pointer}
+    .ot-hero[hidden]{display:none}
+    .ot-hero b{display:block;font-size:15px}
+    .ot-hero small{display:block;color:#dbe3ee;font-size:13px;margin-top:2px}
+    .ot-hero .ot-hero-ic{flex:none;width:42px;height:42px;border-radius:12px;background:#d9aa45;color:#071426;display:grid;place-items:center;font-size:20px;font-weight:900}
+    .ot-hero .ot-hero-go{margin-left:auto;font-size:20px;color:#d9aa45}
+    .ot-list{display:grid;gap:12px}
+    .ot-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:16px}
+    .ot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .ot-card h3{margin:0;font-size:17px;color:#fff;line-height:1.3}
+    .ot-meta{color:#9eacbd;font-size:13.5px;margin:6px 0 12px}
+    .ot-chip{flex:none;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:rgba(255,255,255,.1);color:#dbe3ee;white-space:nowrap}
+    .ot-chip.live{background:#d9aa45;color:#071426}
+    .ot-chip.ok{background:rgba(52,199,123,.18);color:#7ee2a8}
+    .ot-chip.muted{color:#9eacbd}
+    .ot-btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 20px;border-radius:14px;border:1.5px solid rgba(255,255,255,.2);background:transparent;color:#fff;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit}
+    .ot-btn.gold{background:#d9aa45;border-color:#d9aa45;color:#071426}
+    .ot-card .ot-btn{width:100%}
+    .ot-note{font-size:13.5px;color:#dbe3ee;background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px}
+    .ot-empty{color:#9eacbd;text-align:center;padding:22px;border:1px dashed rgba(255,255,255,.15);border-radius:16px}
+    @media(min-width:760px){.ot-list{grid-template-columns:1fr 1fr}.ot-card .ot-btn{width:auto}}
+
+    #sirExam{position:fixed;inset:0;z-index:10000;background:#f5f7fa;color:#101b2d;display:flex;flex-direction:column;font-family:inherit}
+    #sirExam[hidden]{display:none}
+    #sirExam .ex-head{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));background:#071426;color:#fff}
+    #sirExam .ex-title{flex:1;min-width:0;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sirExam .ex-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:17px;background:rgba(255,255,255,.1);border-radius:10px;padding:6px 10px}
+    #sirExam .ex-timer.low{background:#df4f4f;animation:exPulse 1s infinite}
+    @keyframes exPulse{50%{opacity:.75}}
+    #sirExam .ex-sub{min-height:38px;border:0;border-radius:10px;background:#d9aa45;color:#071426;font-weight:800;padding:0 14px;font-family:inherit;font-size:14px}
+    #sirExam .ex-body{flex:1;overflow-y:auto;padding:16px 16px 24px;-webkit-overflow-scrolling:touch}
+    #sirExam .ex-body > *{max-width:760px;margin-left:auto;margin-right:auto}
+    #sirExam .ex-qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:#5a6b85;margin-bottom:10px}
+    #sirExam .ex-qn{font-weight:800;color:#071426}
+    #sirExam .ex-q{font-size:16.5px;line-height:1.7;overflow-wrap:anywhere}
+    #sirExam .ex-q p{margin:0 0 8px}
+    #sirExam .ex-q img,#sirExam .ex-passage img{display:block;max-width:100%;max-height:300px;margin:8px 0;border-radius:8px;background:#fff}
+    #sirExam .ex-passage{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:12px;margin-bottom:12px;font-size:15px;line-height:1.6}
+    #sirExam .ex-hint{font-size:12.5px;color:#5a6b85;margin:10px 0 8px}
+    #sirExam .ex-opts{display:grid;gap:10px}
+    #sirExam .ex-opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;min-height:56px;padding:12px 14px;border:2px solid #e3e8ef;border-radius:14px;background:#fff;color:#101b2d;font:inherit;font-size:16px;cursor:pointer;transition:border-color .12s,background .12s}
+    #sirExam .ex-opt b{flex:none;width:32px;height:32px;border-radius:50%;background:#eef2f7;display:grid;place-items:center;font-size:14px}
+    #sirExam .ex-opt.multi b{border-radius:8px}
+    #sirExam .ex-opt span{min-width:0;overflow-wrap:anywhere}
+    #sirExam .ex-opt span p{margin:0}
+    #sirExam .ex-opt.on{border-color:#1e56f0;background:#eef3ff}
+    #sirExam .ex-opt.on b{background:#1e56f0;color:#fff}
+    #sirExam .ex-clear{margin-top:10px;background:none;border:0;color:#1e56f0;font-weight:700;font-size:14px;padding:6px 0;font-family:inherit}
+    #sirExam .ex-num{display:flex;align-items:center;gap:10px}
+    #sirExam .ex-num input{flex:1;min-height:56px;font-size:20px;border:2px solid #e3e8ef;border-radius:14px;padding:10px 14px;font-family:inherit}
+    #sirExam .ex-num input:focus{outline:none;border-color:#1e56f0}
+    #sirExam .ex-foot{display:grid;grid-template-columns:auto auto 1fr 1.4fr;gap:8px;padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e3e8ef}
+    #sirExam .ex-foot[hidden]{display:none}
+    #sirExam .ex-b{min-height:48px;border-radius:12px;border:1.5px solid #e3e8ef;background:#fff;color:#071426;font-weight:700;font-size:14px;padding:0 10px;font-family:inherit;white-space:nowrap}
+    #sirExam .ex-b.mark.on{border-color:#7c3aed;color:#7c3aed;background:#f4effe}
+    #sirExam .ex-b.next{background:#071426;border-color:#071426;color:#fff}
+    #sirExam .ex-pal{position:absolute;inset:0;background:rgba(7,20,38,.5);display:flex;align-items:flex-end;z-index:2}
+    #sirExam .ex-pal[hidden]{display:none}
+    #sirExam .pal-sheet{background:#fff;width:100%;max-height:80%;overflow-y:auto;border-radius:20px 20px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom))}
+    #sirExam .pal-head{display:flex;justify-content:space-between;align-items:center;font-size:16px}
+    #sirExam .pal-head button{border:0;background:#eef2f7;border-radius:50%;width:36px;height:36px;font-size:16px}
+    #sirExam .pal-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px;font-size:12.5px;color:#5a6b85;margin:10px 0}
+    #sirExam .pal-legend .pc{width:14px;height:14px;min-height:0;border-radius:4px;margin-left:6px;padding:0}
+    #sirExam .pal-sec{font-weight:700;font-size:13px;margin:12px 0 6px;color:#071426}
+    #sirExam .pal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px}
+    #sirExam .pc{min-height:44px;border-radius:10px;border:1.5px solid #e3e8ef;background:#f5f7fa;font-weight:700;color:#071426;font-family:inherit}
+    #sirExam .pc.ans,#sirExam .pc.mra{background:#1c8a4e;border-color:#1c8a4e;color:#fff}
+    #sirExam .pc.na{background:#fdecec;border-color:#f3b4b4;color:#b42318}
+    #sirExam .pc.mr{background:#7c3aed;border-color:#7c3aed;color:#fff}
+    #sirExam .pc.mra{box-shadow:inset 0 0 0 3px #7c3aed}
+    #sirExam .pc.cur{outline:3px solid #d9aa45;outline-offset:1px}
+    #sirExam .ex-done{text-align:center;padding:40px 10px}
+    #sirExam .ex-done h2{margin:6px 0;color:#071426}
+    #sirExam .ex-done p{color:#5a6b85;line-height:1.6}
+    #sirExam .ex-tick{width:72px;height:72px;margin:0 auto 8px;border-radius:50%;background:#e4f5eb;color:#1c8a4e;display:grid;place-items:center;font-size:36px;font-weight:800}
+    #sirExam .rs-hero{background:linear-gradient(135deg,#071426,#16305c);color:#fff;border-radius:20px;padding:20px;text-align:center}
+    #sirExam .rs-score b{font-size:44px}
+    #sirExam .rs-score span{font-size:18px;color:#9eacbd;margin-left:4px}
+    #sirExam .rs-pct{color:#d9aa45;font-weight:800;font-size:18px}
+    #sirExam .rs-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:14px}
+    #sirExam .rs-stats .c{color:#7ee2a8}#sirExam .rs-stats .w{color:#f3a0a0}#sirExam .rs-stats .s{color:#c9d3e3}
+    #sirExam .rs-rank{margin-top:8px;font-size:13.5px;color:#dbe3ee}
+    #sirExam .rs-secs{display:grid;gap:8px;margin-top:12px}
+    #sirExam .rs-secs div{display:flex;justify-content:space-between;background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:10px 14px}
+    #sirExam .rs-h{margin:20px auto 8px;font-size:16px;color:#071426}
+    #sirExam .rs-q{background:#fff;border:1px solid #e3e8ef;border-left-width:4px;border-radius:14px;padding:12px 14px;margin-bottom:10px}
+    #sirExam .rs-q.c{border-left-color:#1c8a4e}#sirExam .rs-q.w{border-left-color:#df4f4f}#sirExam .rs-q.p{border-left-color:#d9aa45}#sirExam .rs-q.s{border-left-color:#c9d3e3}
+    #sirExam .rs-qh{display:flex;justify-content:space-between;font-weight:800;margin-bottom:6px}
+    #sirExam .rs-tag{font-size:12px;border-radius:999px;padding:3px 10px}
+    #sirExam .rs-tag.c{background:#e4f5eb;color:#1c8a4e}#sirExam .rs-tag.w{background:#fdecec;color:#b42318}#sirExam .rs-tag.p{background:#fff6dd;color:#8a5a00}#sirExam .rs-tag.s{background:#f0f2f5;color:#5a6b85}
+    #sirExam .rs-you{margin-top:8px;font-size:13.5px;color:#5a6b85}
+    #sirExam .ot-btn.gold{min-width:200px}
 </style>
 </head>
 
@@ -1678,6 +1781,7 @@ header, main, footer {
   <div class="student-nav-head"><div><small>SIR STUDENT PORTAL</small><strong>Your Journey</strong></div><button type="button" id="studentNavClose" aria-label="Close navigation">×</button></div>
   <nav class="student-nav-links">
     <a href="#studentOverview" data-student-nav><span>⌂</span> Overview</a>
+    <a href="#onlineTestsSection" data-student-nav><span>✎</span> Online Tests</a>
     <a href="#sirJourney" data-student-nav><span>↗</span> Academic Journey</a>
     <a href="#performanceStorySection" data-student-nav><span>✧</span> Performance Story</a>
     <a href="#consistencySection" data-student-nav><span>◷</span> Consistency</a>
@@ -1745,6 +1849,7 @@ header, main, footer {
             Your preparation is more than a score. Understand your performance,
             spot the pattern, and decide what deserves your attention next.
           </p>
+          <button type="button" class="ot-hero" id="onlineTestsHero" hidden onclick="document.querySelector('#studentNavDrawer a[href=&quot;#onlineTestsSection&quot;]').click()"></button>
         </div>
 
         <div class="science-hook" id="scienceHook">
@@ -1773,6 +1878,16 @@ header, main, footer {
 
 
     <!-- SIR JOURNEY PHASE 1: data-supported only -->
+    <!-- ONLINE TESTS: published by the admin from teachers' Test Composer -->
+    <section class="section" id="onlineTestsSection">
+      <div class="section-heading">
+        <div class="section-kicker">Online tests</div>
+        <h2>Your tests <span class="ot-badge" id="onlineTestsBadge" hidden></span></h2>
+        <p>Attempt tests from your teachers here. Results and solutions show after each test closes.</p>
+      </div>
+      <div class="ot-list" id="onlineTestsList"><div class="ot-empty">Loading tests…</div></div>
+    </section>
+
     <section class="section" id="sirJourney">
       <div class="journey-hero"><div class="journey-top"><div><div class="journey-kicker">SIR Journey · Phase 1</div><div class="journey-title">Your preparation has a story.</div><div class="journey-subtitle">Your tests are checkpoints. Understand performance, accuracy, consistency, subject performance and your supported peer position without invented metrics.</div></div><div class="journey-source-note"><strong>DATA-SUPPORTED VIEW</strong>Only result fields available to your account are used. Missing data is never replaced with an invented score.</div></div><div class="journey-stat-grid"><div class="journey-stat"><small>TESTS COMPLETED</small><strong id="journeyTestCount">—</strong><span>Recorded assessments</span></div><div class="journey-stat"><small>LATEST PERFORMANCE</small><strong id="journeyLatestPerformance">—</strong><span>Official percentage when available</span></div><div class="journey-stat"><small>ACCURACY</small><strong id="journeyLatestAccuracy">—</strong><span>Correct ÷ attempted when supported</span></div><div class="journey-stat"><small>PEER POSITION</small><strong id="journeyLatestPercentile">—</strong><span>Percentile or rank from result data</span></div></div></div>
     </section>
@@ -2240,6 +2355,7 @@ header, main, footer {
 
       currentStudent = student;
       renderProfile(student, user);
+      if (window.SIRTests) SIRTests.start(supabaseClient, SUPABASE_URL);
       initScienceHooks();
 
       /* DOUBT SOLVING PROGRAMME */
