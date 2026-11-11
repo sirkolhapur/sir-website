@@ -4370,12 +4370,9 @@ loginForm.addEventListener(
 
       showDashboard();
 
-      await loadCourses();
-      await loadBatches();
-      await loadStudents();
-      await loadAdminBatches();
-      await loadAdminTests();
-      await loadCounters();
+      // Same modules as a page refresh (teachers, notices, results … were
+      // missing here, so those screens stayed empty after a fresh login).
+      await loadAdminModules();
 
     } catch (error) {
 
@@ -7226,6 +7223,7 @@ function renderTeachers(teachers) {
           <button class="batch-manage-btn" onclick="manageTeacherBatches('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Manage Batches</button>
           <button class="reset-password-btn" onclick="resetTeacherPassword('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Reset Password</button>
           <button class="status-action-btn ${t.is_active ? "" : "reactivate"}" onclick="toggleTeacherStatus('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}',${t.is_active ? "true" : "false"})">${t.is_active ? "Deactivate" : "Reactivate"}</button>
+          ${t.is_active ? "" : `<button class="delete-teacher-btn" onclick="deleteTeacher('${escapeHtml(t.id)}','${escapeHtml(t.full_name || "Teacher")}')">Delete</button>`}
         </div>
       </td>
     </tr>
@@ -7638,6 +7636,22 @@ async function toggleTeacherStatus(teacherId, teacherName, currentlyActive) {
   } catch (error) {
     console.error("Teacher status update error:", error);
     alert(error.message || "Unable to update teacher status.");
+  }
+}
+// Archived teachers only. The server refuses teachers with history
+// (reviews, DSP bookings, papers) so nothing students see is lost.
+async function deleteTeacher(teacherId, teacherName) {
+  if (!confirm(`Permanently delete ${teacherName}?
+
+Their batch assignments, DSP slots and login are removed. This cannot be undone.`)) return;
+  try {
+    const { data, error } = await supabaseClient.rpc("sir_admin_delete_teacher", { p_teacher_id: teacherId });
+    if (error) throw error;
+    alert(`${data?.deleted || teacherName} deleted${data?.login_removed ? " (login removed)" : ""}.`);
+    await loadTeachers();
+  } catch (error) {
+    console.error("Teacher delete error:", error);
+    alert(error.message || "Unable to delete this teacher.");
   }
 }
 function renderTeacherSearch() {
@@ -9635,8 +9649,11 @@ document.querySelectorAll('[data-section="branches"],[data-section="staff"],[dat
   catch (error) { console.error("Admin session check failed:", error); return; }
   if (!session) return;
   showDashboard();
+  await loadAdminModules();
+})();
 
-  // Load modules independently: one failed request must not leave all later sections at Loading.
+// Load modules independently: one failed request must not leave all later sections at Loading.
+async function loadAdminModules() {
   const startupTasks = [
     ["student course options", loadCourses],
     ["student batch options", loadBatches],
@@ -9647,13 +9664,14 @@ document.querySelectorAll('[data-section="branches"],[data-section="staff"],[dat
     ["test batch options", loadAdminBatches],
     ["tests", loadAdminTests],
     ["dashboard counters", loadCounters],
-    ["notices", loadNotices]
+    ["notices", loadNotices],
+    ["results", () => typeof loadResults === "function" && loadResults()]
   ];
   for (const [moduleName, loader] of startupTasks) {
     try { await loader(); }
     catch (error) { console.error(`Admin startup failed for ${moduleName}:`, error); }
   }
-})();
+}
 
 
 
@@ -10297,7 +10315,9 @@ document.querySelector('.nav-btn[data-section="results"]')?.addEventListener("cl
      Return  → asm_return_paper (teacher is told why)
 ====================================================================== -->
 <style>
-  .dup-card{background:#fff8e6;border:1px solid #f0d891;border-radius:14px;padding:14px;margin:0 0 14px;color:#101b2d}
+  .delete-teacher-btn{border:1.5px solid #f1c4c4;color:#c23b3b;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
+    .delete-teacher-btn:hover{background:#fbeded}
+    .dup-card{background:#fff8e6;border:1px solid #f0d891;border-radius:14px;padding:14px;margin:0 0 14px;color:#101b2d}
     .dup-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .dup-head strong{display:block;color:#7a5700}
     .dup-head span{display:block;font-size:13px;color:#5a6b85;margin-top:2px}
