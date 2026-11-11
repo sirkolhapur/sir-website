@@ -2810,6 +2810,8 @@
         <div class="results-summary-card"><span>Highest Percentage</span><strong id="resultHighest">0%</strong></div>
       </div>
 
+      <div id="resultDupNotice"></div>
+
       <div class="table-card">
         <div class="table-tools">
           <div class="results-filters">
@@ -9869,10 +9871,32 @@ function renderResults(){
   document.getElementById("resultStudents").textContent=new Set(appeared.map(r=>r.student_id).filter(Boolean)).size;
   document.getElementById("resultAverage").textContent=pcts.length?(pcts.reduce((a,b)=>a+b,0)/pcts.length).toFixed(2)+"%":"—";
   document.getElementById("resultHighest").textContent=pcts.length?Math.max(...pcts).toFixed(2)+"%":"—";
+  renderResultDuplicates(studentMap,getSubjects);
   if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty">No SIR results found.</td></tr>'; return; }
   tbody.innerHTML=filtered.map(r=>{ const st=studentMap[r.student_id]; const subs=getSubjects(r.id); const badges=subs.map(x=>{const acws=[x.attempted!=null?`A:${x.attempted}`:"",x.correct!=null?` C:${x.correct}`:"",x.wrong!=null?` W:${x.wrong}`:"",x.skipped!=null?` S:${x.skipped}`:""].join(""); return `<div><strong>${escapeHtml(x.subject)}</strong>: ${escapeHtml(x.marks_obtained??"—")}${acws?` <small>${escapeHtml(acws)}</small>`:""}</div>`;}).join("")||"—"; return `<tr><td><strong>${escapeHtml(r.exam_name||"—")}</strong></td><td><div class="result-student-name">${escapeHtml(st?.full_name||"Unknown Student")}</div><div class="result-uid">${escapeHtml(st?.student_uid||"")}</div></td><td>${escapeHtml(r.test_date||"—")}<br><small>${escapeHtml(r.mode||"—")}</small></td><td class="result-score">${String(r.status).toUpperCase()==="AB"?"AB":`${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")}`}</td><td>${badges}</td><td>${resultScorePercentage(r)==null?"—":resultScorePercentage(r).toFixed(2)+"%"}</td><td>${r.percentile==null?"—":escapeHtml(r.percentile)}</td><td>${r.batch_rank??"—"}</td><td>${r.overall_rank??"—"}</td><td><strong>${escapeHtml(r.status||"Appeared")}</strong></td><td><button class="question-details-btn" onclick="openQuestionAnalysis('${String(r.id).replace(/'/g,"\\'")}')">View Details</button></td></tr>`; }).join("");
 }
 
+// Same student, same test date, more than one result: usually the same
+// test uploaded twice under slightly different names. Shown for the
+// admin to check; nothing is deleted without a confirmation.
+function renderResultDuplicates(studentMap,getSubjects){
+  const box=document.getElementById("resultDupNotice"); if(!box)return;
+  const groups=new Map();
+  adminResults.forEach(r=>{ if(String(r.status||"").toUpperCase()==="AB")return; const k=r.student_id+"|"+(r.test_date||""); if(!groups.has(k))groups.set(k,[]); groups.get(k).push(r); });
+  const dups=[...groups.values()].filter(g=>g.length>1);
+  if(!dups.length){ box.innerHTML=""; return; }
+  const open=box.dataset.open==="1";
+  box.innerHTML=`<div class="dup-card"><div class="dup-head"><div><strong>${dups.length} possible duplicate result${dups.length===1?"":"s"}</strong><span>Same student and date appear more than once. Keep the correct one and delete the other.</span></div><button type="button" class="dup-toggle" onclick="const b=document.getElementById('resultDupNotice');b.dataset.open=b.dataset.open==='1'?'0':'1';renderResults()">${open?"Hide":"Review"}</button></div>${open?dups.map(g=>{const st=studentMap[g[0].student_id];return `<div class="dup-group"><div class="dup-who">${escapeHtml(st?.full_name||"Student")} · ${escapeHtml(g[0].test_date||"—")}</div>${g.map(r=>`<div class="dup-row"><div><b>${escapeHtml(r.exam_name||"—")}</b><small>${escapeHtml(r.marks_obtained??"—")} / ${escapeHtml(r.max_marks??"—")} · rank ${escapeHtml(r.batch_rank??"—")} · percentile ${escapeHtml(r.percentile??"—")}${getSubjects(r.id).length?" · "+getSubjects(r.id).map(x=>escapeHtml(x.subject.slice(0,4)+" "+(x.marks_obtained??"—"))).join(", "):""}</small></div><button type="button" class="dup-del" onclick="deleteResultRow('${String(r.id).replace(/'/g,"")}')">Delete</button></div>`).join("")}</div>`;}).join(""):""}</div>`;
+}
+async function deleteResultRow(resultId){
+  const r=adminResults.find(x=>x.id===resultId); if(!r)return;
+  if(!confirm(`Delete "${r.exam_name}" (${r.marks_obtained??"AB"}/${r.max_marks??"—"}) for this student?
+
+Its subject marks are deleted too. This cannot be undone.`))return;
+  const {error}=await supabaseClient.from("student_test_results").delete().eq("id",resultId);
+  if(error){alert(error.message||"Could not delete.");return;}
+  await loadResults();
+}
 function questionResultClass(result){
   const v=String(result||"").trim().toLowerCase();
   if(v.includes("wrong")||v.includes("incorrect"))return "q-wrong";
@@ -10259,6 +10283,8 @@ document.getElementById("resultExcelFile")?.addEventListener("change",handleResu
 document.getElementById("importExcelRowsBtn")?.addEventListener("click",importValidExcelRows);
 document.getElementById("closeQuestionAnalysis")?.addEventListener("click",closeQuestionAnalysis);
 document.getElementById("questionAnalysisModal")?.addEventListener("click",e=>{if(e.target.id==="questionAnalysisModal")closeQuestionAnalysis();});
+// Page-load fetch runs before a fresh login; reload whenever Results opens.
+document.querySelector('.nav-btn[data-section="results"]')?.addEventListener("click",()=>loadResults());
   loadResults();
 
 
@@ -10271,6 +10297,16 @@ document.getElementById("questionAnalysisModal")?.addEventListener("click",e=>{i
      Return  → asm_return_paper (teacher is told why)
 ====================================================================== -->
 <style>
+  .dup-card{background:#fff8e6;border:1px solid #f0d891;border-radius:14px;padding:14px;margin:0 0 14px;color:#101b2d}
+    .dup-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .dup-head strong{display:block;color:#7a5700}
+    .dup-head span{display:block;font-size:13px;color:#5a6b85;margin-top:2px}
+    .dup-group{background:#fff;border-radius:12px;padding:10px 12px;margin-top:10px}
+    .dup-who{font-weight:700;font-size:13px;color:#0b1f44;margin-bottom:6px}
+    .dup-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #eef1f5}
+    .dup-row small{display:block;color:#5a6b85;font-size:12px;margin-top:2px}
+    .dup-toggle{border:0;background:#0b1f44;color:#fff;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer}
+    .dup-del{border:1.5px solid #f1c4c4;color:#c23b3b;background:#fff;border-radius:10px;padding:7px 12px;font-weight:700;cursor:pointer;flex:none}
   #testApprovals{--ta-navy:#0b1f44;--ta-gold:#d7a62a;--ta-line:#e3e8ef;--ta-slate:#5a6b85;--ta-green:#1c8a4e}
   #testApprovals .ta-tabs{display:flex;gap:6px;margin:0 0 14px;overflow-x:auto}
   #testApprovals .ta-tab{border:1.5px solid var(--ta-line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px;color:var(--ta-slate);cursor:pointer;white-space:nowrap}
