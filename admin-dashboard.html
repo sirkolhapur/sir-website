@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <script src="js/sir-paper.js?v=20261116"></script>
 
   <style>
     * {
@@ -2454,6 +2457,10 @@
       Tests
     </button>
 
+    <button class="nav-btn" data-section="testApprovals">
+      Test Approvals
+    </button>
+
     <button class="nav-btn" data-section="results">
       Results
     </button>
@@ -2760,6 +2767,24 @@
         </div>
       </div>
 
+    </section>
+
+
+    <!-- TEST APPROVALS -->
+
+    <section class="section" id="testApprovals">
+      <div class="section-head">
+        <div>
+          <h2>Test Approvals</h2>
+          <div class="build-marker">TESTS FROM TEACHERS</div>
+        </div>
+      </div>
+      <div class="ta-tabs">
+        <button type="button" class="ta-tab on" data-ta-tab="submitted">Waiting</button>
+        <button type="button" class="ta-tab" data-ta-tab="approved">Published</button>
+        <button type="button" class="ta-tab" data-ta-tab="cancelled">Returned</button>
+      </div>
+      <div class="ta-list" id="taList"></div>
     </section>
 
 
@@ -10237,6 +10262,223 @@ document.getElementById("questionAnalysisModal")?.addEventListener("click",e=>{i
   loadResults();
 
 
+</script>
+
+
+<!-- =====================================================================
+     TEST APPROVALS — papers teachers sent from the Test Composer.
+     Approve → asm_approve (batches + window, students are notified)
+     Return  → asm_return_paper (teacher is told why)
+====================================================================== -->
+<style>
+  #testApprovals{--ta-navy:#0b1f44;--ta-gold:#d7a62a;--ta-line:#e3e8ef;--ta-slate:#5a6b85;--ta-green:#1c8a4e}
+  #testApprovals .ta-tabs{display:flex;gap:6px;margin:0 0 14px;overflow-x:auto}
+  #testApprovals .ta-tab{border:1.5px solid var(--ta-line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px;color:var(--ta-slate);cursor:pointer;white-space:nowrap}
+  #testApprovals .ta-tab.on{background:var(--ta-navy);border-color:var(--ta-navy);color:#fff}
+  #testApprovals .ta-list{display:grid;gap:12px}
+  #testApprovals .ta-card{color:#101b2d;background:#fff;border:1px solid var(--ta-line);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(16,27,45,.04)}
+  #testApprovals .ta-card h3{margin:0;font-size:17px;color:var(--ta-navy)}
+  #testApprovals .ta-meta{font-size:13px;color:var(--ta-slate);margin-top:4px;line-height:1.5}
+  #testApprovals .ta-note{font-size:13px;background:#fff6dd;color:#7a5700;border-radius:10px;padding:8px 10px;margin-top:8px}
+  #testApprovals .ta-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  #testApprovals .ta-pill{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:#fff6dd;color:#7a5700;white-space:nowrap}
+  #testApprovals .ta-pill.ok{background:#e4f5eb;color:var(--ta-green)}
+  #testApprovals .ta-pill.bad{background:#fbeded;color:#c23b3b}
+  #testApprovals .ta-btn{min-height:44px;border-radius:12px;border:1.5px solid var(--ta-line);background:#fff;color:var(--ta-navy);font-weight:700;font-size:14px;padding:9px 16px;cursor:pointer}
+  #testApprovals .ta-btn.primary{background:var(--ta-navy);border-color:var(--ta-navy);color:#fff}
+  #testApprovals .ta-btn.danger{color:#c23b3b;border-color:#f1c4c4}
+  #testApprovals .ta-btn:disabled{opacity:.5;cursor:not-allowed}
+  #testApprovals .ta-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  #testApprovals .ta-panel{border-top:1px solid var(--ta-line);margin-top:14px;padding-top:14px}
+  #testApprovals .ta-panel h4{margin:16px 0 8px;font-size:15px;color:var(--ta-navy)}
+  #testApprovals .ta-batches{display:flex;flex-wrap:wrap;gap:8px}
+  #testApprovals .ta-batches label{color:#101b2d;background:#fff;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--ta-line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer}
+  #testApprovals .ta-batches label:has(input:checked){border-color:var(--ta-navy);background:#eef2fb}
+  #testApprovals .ta-grid{display:grid;grid-template-columns:1fr;gap:10px}
+  #testApprovals .ta-grid label{display:block;font-size:12.5px;font-weight:600;color:#344054;margin-bottom:5px}
+  #testApprovals input[type=datetime-local],#testApprovals textarea{width:100%;min-height:44px;border:1.5px solid var(--ta-line);border-radius:12px;padding:9px 12px;font:inherit;font-size:15px;box-sizing:border-box}
+  #testApprovals .ta-hint{font-size:12.5px;color:var(--ta-slate);margin-top:6px}
+  #testApprovals .ta-sec{margin-top:14px}
+  #testApprovals .ta-sec h5{margin:0;font-size:14px;color:var(--ta-navy);border-bottom:2px solid var(--ta-gold);padding-bottom:4px}
+  #testApprovals .ta-sec .ta-meta{margin:4px 0}
+  #testApprovals .ta-q{padding:12px 0;border-bottom:1px dashed var(--ta-line)}
+  #testApprovals .ta-q .ta-code{font-size:11px;color:#98a2b3;font-family:ui-monospace,monospace;margin-top:4px}
+  #testApprovals .ta-paper{max-height:none}
+  #testApprovals .ta-empty{background:#fff;border:1px dashed var(--ta-line);border-radius:16px;padding:28px;text-align:center;color:var(--ta-slate)}
+  .nav-btn .ta-count{display:inline-block;min-width:20px;border-radius:999px;background:#d7a62a;color:#0b1f44;font-size:11px;font-weight:800;padding:1px 6px;margin-left:6px}
+  @media(min-width:760px){#testApprovals .ta-grid{grid-template-columns:1fr 1fr}}
+</style>
+<script>
+(function(){
+  const TA = { tab: "submitted", papers: [], open: null, detail: {}, batches: null, busy: false };
+  const esc = (s) => window.SIRPaper ? SIRPaper.esc(s) : String(s ?? "");
+  const root = () => document.getElementById("taList");
+  const fmt = (v) => v ? new Date(v).toLocaleString("en-IN", { day:"numeric", month:"short", year:"numeric", hour:"numeric", minute:"2-digit" }) : "";
+  const PHASE = { scheduled:["ok","Scheduled"], live:["ok","Live now"], closed:["ok","Finished"], results_released:["ok","Results out"] };
+  const toLocalInput = (d) => { const z = new Date(d.getTime() - d.getTimezoneOffset()*60000); return z.toISOString().slice(0,16); };
+
+  async function loadBatches(){
+    if (TA.batches) return TA.batches;
+    let r = await supabaseClient.from("batches").select("id,name,academic_year,courses(name)").eq("is_active", true).order("name");
+    if (r.error) r = await supabaseClient.from("batches").select("id,name,academic_year").eq("is_active", true).order("name");
+    if (r.error) throw r.error;
+    TA.batches = r.data || [];
+    return TA.batches;
+  }
+
+  async function load(){
+    if (!root()) return;
+    root().innerHTML = '<div class="ta-empty">Loading…</div>';
+    const { data, error } = await supabaseClient.rpc("asm_admin_papers", { p_status: TA.tab });
+    if (error) { root().innerHTML = '<div class="ta-empty">Could not load tests: '+esc(error.message)+'</div>'; return; }
+    TA.papers = data || [];
+    if (TA.tab === "submitted") updateCount(TA.papers.length);
+    render();
+  }
+
+  function updateCount(n){
+    const btn = document.querySelector('.nav-btn[data-section="testApprovals"]');
+    if (!btn) return;
+    let b = btn.querySelector(".ta-count");
+    if (!b) { b = document.createElement("span"); b.className = "ta-count"; btn.appendChild(b); }
+    b.textContent = n; b.hidden = !n;
+  }
+
+  function statusPill(p){
+    if (p.status === "submitted") return '<span class="ta-pill">Waiting</span>';
+    if (p.status === "cancelled") return '<span class="ta-pill bad">Returned</span>';
+    const [c, l] = PHASE[p.phase] || ["ok", p.phase];
+    return '<span class="ta-pill '+c+'">'+l+'</span>';
+  }
+
+  function render(){
+    if (!TA.papers.length) {
+      root().innerHTML = '<div class="ta-empty">'+(TA.tab==="submitted" ? "No tests waiting. Tests teachers send from their Test Composer show up here." : "Nothing here yet.")+'</div>';
+      return;
+    }
+    root().innerHTML = TA.papers.map(p => {
+      let meta = esc(p.teachers || "Teacher")+' · '+esc(p.subjects || "")+'<br>'+p.question_count+' questions · '+Number(p.max_marks)+' marks · '+p.duration_minutes+' min · sent '+fmt(p.created_at);
+      if (p.status === "approved") meta += '<br>'+(p.batches||[]).map(esc).join(", ")+' · '+fmt(p.starts_at)+' – '+fmt(p.ends_at);
+      const open = TA.open === p.id;
+      return '<div class="ta-card" id="ta-'+p.id+'"><div class="ta-row"><h3>'+esc(p.title)+'</h3>'+statusPill(p)+'</div>' +
+        '<div class="ta-meta">'+meta+'</div>' +
+        (p.admin_note ? '<div class="ta-note">Teacher\'s note: '+esc(p.admin_note)+'</div>' : '') +
+        '<div class="ta-actions"><button class="ta-btn'+(open?'':' primary')+'" data-ta-open="'+p.id+'">'+(open?'Close':(p.status==="submitted"?'Review & approve':'View paper'))+'</button>' +
+        '<button class="ta-btn" data-ta-print="'+p.id+'">Print</button></div>' +
+        (open ? '<div class="ta-panel" id="ta-panel-'+p.id+'">'+panelHtml(p)+'</div>' : '') + '</div>';
+    }).join("");
+  }
+
+  function paperHtml(d){
+    if (!d) return '<div class="ta-meta">Loading paper…</div>';
+    let n = 0, html = '';
+    for (const s of d.sections || []) for (const part of s.parts || []) {
+      html += '<div class="ta-sec"><h5>'+esc(s.label)+((s.parts||[]).length>1 ? ' · '+esc(part.label) : '')+'</h5><div class="ta-meta">'+part.questions.length+' questions · +'+Number(part.marks_correct)+(Number(part.marks_wrong)?' / −'+Number(part.marks_wrong):' / 0')+' each</div>';
+      for (const q of part.questions) {
+        html += '<div class="ta-q">'+SIRPaper.questionHtml(q, { number: ++n, showAnswer: true, answer: q.answer, solution: q.solution_md }) +
+          '<div class="ta-code">'+esc(q.code)+(q.status!=="live" ? ' · <b style="color:#c23b3b">'+esc(q.status)+'</b>' : '')+'</div></div>';
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+
+  function panelHtml(p){
+    const d = TA.detail[p.id];
+    let html = '';
+    if (p.status === "submitted") {
+      const start = new Date(Date.now() + 60*60000); start.setMinutes(0,0,0);
+      const end = new Date(start.getTime() + p.duration_minutes*60000);
+      html += '<h4>1 · Which students?</h4><div class="ta-batches" id="ta-batches-'+p.id+'">' +
+        (TA.batches ? (TA.batches.length ? TA.batches.map(b => '<label><input type="checkbox" value="'+b.id+'"> '+esc(b.name)+(b.courses?.name ? ' <span class="ta-meta" style="margin:0">'+esc(b.courses.name)+'</span>' : '')+'</label>').join("") : '<span class="ta-meta">No active batches.</span>') : '<span class="ta-meta">Loading batches…</span>') + '</div>';
+      html += '<h4>2 · When?</h4><div class="ta-grid"><div><label>Opens</label><input type="datetime-local" id="ta-start-'+p.id+'" value="'+toLocalInput(start)+'"></div>' +
+        '<div><label>Closes</label><input type="datetime-local" id="ta-end-'+p.id+'" value="'+toLocalInput(end)+'"></div></div>' +
+        '<div class="ta-hint">Each student gets '+p.duration_minutes+' minutes from when they start, but never past the closing time. Results show after it closes.</div>';
+      html += '<div class="ta-actions"><button class="ta-btn primary" data-ta-approve="'+p.id+'">Approve & publish</button></div>';
+      html += '<h4>Or send it back</h4><textarea id="ta-comment-'+p.id+'" rows="2" placeholder="What should the teacher change?"></textarea>' +
+        '<div class="ta-actions"><button class="ta-btn danger" data-ta-return="'+p.id+'">Return to teacher</button></div>';
+      html += '<h4>Paper</h4>';
+    }
+    return html + '<div class="ta-paper">'+paperHtml(d)+'</div>';
+  }
+
+  async function openPaper(id){
+    TA.open = TA.open === id ? null : id;
+    render();
+    if (!TA.open) return;
+    document.getElementById("ta-"+id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      const [detail] = await Promise.all([fetchDetail(id), loadBatches()]);
+      if (TA.open === id) { const panel = document.getElementById("ta-panel-"+id); if (panel) panel.innerHTML = panelHtml(TA.papers.find(p => p.id === id)); }
+    } catch (e) { alert("Could not load the paper: " + (e.message || e)); }
+  }
+  async function fetchDetail(id){
+    if (TA.detail[id]) return TA.detail[id];
+    const { data, error } = await supabaseClient.rpc("asm_admin_paper", { p_assessment_id: id });
+    if (error) throw error;
+    TA.detail[id] = data;
+    return data;
+  }
+
+  async function approve(id){
+    const p = TA.papers.find(x => x.id === id);
+    const batchIds = [...document.querySelectorAll('#ta-batches-'+id+' input:checked')].map(i => i.value);
+    const s = document.getElementById("ta-start-"+id).value, e = document.getElementById("ta-end-"+id).value;
+    if (!batchIds.length) { alert("Choose at least one batch."); return; }
+    if (!s || !e) { alert("Set when the test opens and closes."); return; }
+    const starts = new Date(s), ends = new Date(e);
+    if (ends <= starts) { alert("Closing time must be after opening time."); return; }
+    if (!confirm('Publish "'+p.title+'" to '+batchIds.length+' batch(es)?\nOpens '+fmt(starts)+', closes '+fmt(ends)+'. Students will be notified.')) return;
+    await act(() => supabaseClient.rpc("asm_approve", { p_assessment_id: id, p_batch_ids: batchIds, p_starts_at: starts.toISOString(), p_ends_at: ends.toISOString() }), "Published. Students in those batches can see it on their dashboard.");
+  }
+  async function giveBack(id){
+    const c = document.getElementById("ta-comment-"+id).value.trim();
+    if (!c) { alert("Write what the teacher should change."); document.getElementById("ta-comment-"+id).focus(); return; }
+    await act(() => supabaseClient.rpc("asm_return_paper", { p_assessment_id: id, p_comment: c }), "Returned to the teacher.");
+  }
+  async function act(fn, ok){
+    if (TA.busy) return;
+    TA.busy = true;
+    try { const { error } = await fn(); if (error) throw error; TA.open = null; alert(ok); await load(); }
+    catch (e) { alert(e.message || String(e)); }
+    finally { TA.busy = false; }
+  }
+
+  async function printPaper(id){
+    const win = window.open("", "_blank");
+    if (!win) { alert("Allow pop-ups to print."); return; }
+    win.document.write('<p style="font-family:sans-serif;padding:24px">Preparing paper…</p>');
+    try {
+      const d = await fetchDetail(id);
+      const sections = [];
+      for (const s of d.sections || []) for (const part of s.parts || []) sections.push({
+        label: s.label + ((s.parts||[]).length>1 ? " — " + part.label : ""),
+        note: Number(part.marks_wrong) ? "+"+Number(part.marks_correct)+" for correct, −"+Number(part.marks_wrong)+" for wrong" : "+"+Number(part.marks_correct)+" for correct, no negative marking",
+        questions: part.questions.map(q => ({ q, answer: q.answer, solution: q.solution_md, marks: "+"+Number(part.marks_correct)+(Number(part.marks_wrong)?" / −"+Number(part.marks_wrong):"") }))
+      });
+      SIRPaper.printPaper(win, { title: d.title, subtitle: "SIR Kolhapur", duration: d.duration_minutes, maxMarks: Number(d.max_marks), sections, withKey: true,
+        instructions: ["Marking for each section is shown under its heading."] });
+    } catch (e) { win.close(); alert(e.message || String(e)); }
+  }
+
+  document.addEventListener("click", (ev) => {
+    const t = ev.target.closest("[data-ta-tab],[data-ta-open],[data-ta-approve],[data-ta-return],[data-ta-print]");
+    if (!t || !t.closest("#testApprovals")) return;
+    if (t.dataset.taTab) { TA.tab = t.dataset.taTab; TA.open = null; document.querySelectorAll("#testApprovals .ta-tab").forEach(b => b.classList.toggle("on", b === t)); load(); }
+    else if (t.dataset.taOpen) openPaper(t.dataset.taOpen);
+    else if (t.dataset.taApprove) approve(t.dataset.taApprove);
+    else if (t.dataset.taReturn) giveBack(t.dataset.taReturn);
+    else if (t.dataset.taPrint) printPaper(t.dataset.taPrint);
+  });
+  document.querySelector('.nav-btn[data-section="testApprovals"]')?.addEventListener("click", load);
+
+  if (window.SIRPaper) SIRPaper.init(SUPABASE_URL);
+  // Badge count once signed in; the section loads when opened.
+  const refreshCount = () => supabaseClient.rpc("asm_admin_papers", { p_status: "submitted" }).then(({ data }) => { if (Array.isArray(data)) updateCount(data.length); });
+  supabaseClient.auth.getSession().then(({ data }) => { if (data?.session) refreshCount(); });
+  supabaseClient.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN") setTimeout(refreshCount, 0); });
+  if (location.hash === "#test-approvals") setTimeout(() => document.querySelector('.nav-btn[data-section="testApprovals"]')?.click(), 1500);
+})();
 </script>
 
 </body>
