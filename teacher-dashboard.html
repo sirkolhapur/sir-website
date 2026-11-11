@@ -34,6 +34,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
     <script src="js/sir-paper.js?v=20261116"></script>
+    <script src="js/sir-results.js?v=20261117"></script>
 
 
     <style>
@@ -2268,6 +2269,43 @@
 #testEngineRoot .ptotal{background:var(--ink);color:#fff;border-radius:12px;padding:18px 22px;display:flex;justify-content:space-between;font-family:var(--display);font-weight:700}
 
 
+
+/* ---- Results (by student / by test) ---- */
+#section-results .res-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 12px;background:#eef1f5;border-radius:14px;padding:4px}
+#section-results .res-tabs button{border:0;background:transparent;border-radius:11px;min-height:42px;font-weight:700;font-size:14px;color:#5a6b85;cursor:pointer;font-family:inherit}
+#section-results .res-tabs button.active{background:#fff;color:#0b1f44;box-shadow:0 1px 3px rgba(11,31,68,.12)}
+#section-results .res-list{display:grid;gap:8px}
+#section-results .res-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid #e3e8ef;border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:#101b2d}
+#section-results .res-row.static{cursor:default}
+#section-results button.res-row:hover{border-color:#d7a62a}
+#section-results .res-row-main{flex:1;min-width:0}
+#section-results .res-row-main b{display:block;font-size:15px;color:#0b1f44;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#section-results .res-row-main small{display:block;font-size:12.5px;color:#5a6b85;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#section-results .res-row-stats{display:flex;gap:14px;flex:none;text-align:right}
+#section-results .res-row-stats > span{display:flex;flex-direction:column;align-items:flex-end;font-size:13px;min-width:54px}
+#section-results .res-row-stats b,#section-results .res-row-stats strong{font-size:15px;color:#0b1f44}
+#section-results .res-row-stats small{font-size:11.5px;color:#5a6b85}
+#section-results .res-go{color:#98a2b3;font-size:20px}
+#section-results .res-pos{flex:none;width:30px;height:30px;border-radius:50%;background:#fff6dd;color:#7a5700;display:grid;place-items:center;font-weight:800;font-size:13px}
+#section-results .res-chip.ab{background:#fbeded;color:#c23b3b;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700}
+#section-results .res-empty{background:#fff;border:1px dashed #d8e0ec;border-radius:14px;padding:22px;text-align:center;color:#5a6b85}
+#section-results .res-head{margin:6px 0 12px}
+#section-results .res-head h3{margin:0;font-size:19px;color:#0b1f44}
+#section-results .res-head p{margin:4px 0 0;color:#5a6b85;font-size:13px}
+#section-results .res-boxes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+#section-results .res-box{background:#fff;border:1px solid #e3e8ef;border-radius:14px;padding:12px}
+#section-results .res-box small{display:block;font-size:11px;letter-spacing:.06em;color:#5a6b85;font-weight:700}
+#section-results .res-box strong{display:block;font-size:19px;color:#0b1f44;margin-top:4px}
+#section-results .res-box em{font-style:normal;font-size:12px;color:#c23b3b;font-weight:600}
+#section-results .res-subjects{display:grid;gap:8px}
+#section-results .res-subject{background:#fff;border:1px solid #e3e8ef;border-radius:14px;padding:12px 14px}
+#section-results .res-subject-top{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+#section-results .res-subject small{display:block;color:#5a6b85;font-size:12.5px;margin-top:6px}
+#section-results .res-bar{height:8px;background:#eef1f5;border-radius:99px;margin-top:8px;overflow:hidden}
+#section-results .res-bar i{display:block;height:100%;background:linear-gradient(90deg,#d7a62a,#1c8a4e);border-radius:99px}
+#section-results .res-note{font-size:12px;color:#5a6b85;margin-top:10px}
+@media(min-width:700px){#section-results .res-boxes{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:420px){#section-results .res-row-stats{gap:8px}#section-results .res-row-stats > span{min-width:46px}}
 /* ---- Test Composer v2 (mobile first) ---- */
 #testEngineRoot{--navy:#0b1f44;--gold:#d7a62a;--gold-tint:#fff6dd;--ink:#101b2d;--slate:#5a6b85;--line:#e3e8ef;--paper:#f5f7fa;--green:#1c8a4e;--green-tint:#e4f5eb;--red:#c23b3b;--red-tint:#fbeded;--blue:#1e56f0;background:transparent;font-size:15px;font-family:inherit}
 #testEngineRoot #topbar{background:transparent;border:0;padding:0;margin:0 0 12px}
@@ -2898,16 +2936,12 @@
 
                             <div>
                                 <h2>Student Results</h2>
-                                <p>View and analyse academic performance of your students.</p>
+                                <p>Marks, percentage, accuracy and rank of your students — by student or by test.</p>
                             </div>
 
                         </div>
 
                         <div class="results-toolbar">
-
-                            <div class="results-toolbar-copy">
-                                Select a student to open the complete result history.
-                            </div>
 
                             <div class="results-filters">
                                 <input
@@ -2927,33 +2961,16 @@
 
                         </div>
 
-                        <div class="card table-card">
+                        <div class="res-tabs" role="tablist">
+                            <button type="button" class="active" data-results-mode="students" onclick="setResultsMode('students')">By student</button>
+                            <button type="button" data-results-mode="tests" onclick="setResultsMode('tests')">By test</button>
+                        </div>
 
-                            <div class="table-wrapper">
-
-                                <table class="results-directory-table">
-
-                                    <thead>
-                                        <tr>
-                                            <th>STUDENT</th>
-                                            <th>UID</th>
-                                            <th>BATCH</th>
-                                            <th>TESTS</th>
-                                            <th>AVERAGE</th>
-                                            <th>ACTION</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody id="resultsDirectoryBody"></tbody>
-
-                                </table>
-
-                            </div>
-
+                        <div class="res-list" id="resultsDirectoryList">
+                            <div class="res-empty">Loading results…</div>
                         </div>
 
                     </div>
-
 
                     <div id="resultsStudentView" style="display:none;"></div>
 
@@ -4584,7 +4601,7 @@
                 if (resultIds.length) {
                     const subjectResponse = await supabaseClient
                         .from("student_test_subject_results")
-                        .select("id,result_id,subject,marks_obtained,attempted,correct,wrong,skipped")
+                        .select("id,result_id,subject,marks_obtained,max_marks,percentage,attempted,correct,wrong,skipped")
                         .in("result_id", resultIds);
 
                     if (subjectResponse.error) {
@@ -4650,631 +4667,306 @@
         }
 
 
-        function getStudentResultSummary(studentId) {
+        /* =====================================================
+           RESULTS — by student and by test
+           Formulas come from js/sir-results.js (same as the
+           student dashboard and the database):
+             percentage = marks ÷ max × 100, absent tests excluded
+             accuracy   = correct ÷ attempted
+        ===================================================== */
 
-            const masterResults =
-                teacherMasterResults.filter(
-                    result => result.student_id === studentId
-                );
+        let resultsMode = "students";
 
-            if (masterResults.length) {
+        const R = window.SIRResults;
 
-                const tests = masterResults.map(result => {
-
-                    const subjectRows =
-                        teacherMasterSubjects.filter(
-                            row => row.result_id === result.id
-                        );
-
-                    const fallbackRow = {
-                        subject:
-                            result.stream ||
-                            result.test_type ||
-                            result.mode ||
-                            "Overall",
-                        marks_obtained:
-                            result.marks_obtained,
-                        max_marks:
-                            result.max_marks
-                    };
-
-                    const rows =
-                        subjectRows.length
-                            ? subjectRows.map(row => ({
-                                ...row,
-                                max_marks: null,
-                                rank: result.batch_rank ?? result.overall_rank
-                            }))
-                            : [fallbackRow];
-
-                    return {
-                        testId: result.id,
-                        rows,
-                        marks: Number(result.marks_obtained) || 0,
-                        max: Number(result.max_marks) || 0,
-                        // Keep the displayed percentage consistent with the displayed score.
-                        // Use the stored percentage only when maximum marks are unavailable.
-                        percentage: Number(result.max_marks) > 0
-                            ? (Number(result.marks_obtained || 0) / Number(result.max_marks)) * 100
-                            : (Number.isFinite(Number(result.percentage))
-                                ? Number(result.percentage)
-                                : 0),
-                        rank:
-                            Number.isFinite(Number(result.batch_rank))
-                                ? Number(result.batch_rank)
-                                : (
-                                    Number.isFinite(Number(result.overall_rank))
-                                        ? Number(result.overall_rank)
-                                        : null
-                                ),
-                        test: {
-                            title: result.exam_name || "Test",
-                            test_date: result.test_date,
-                            subject:
-                                result.stream ||
-                                result.test_type ||
-                                result.mode ||
-                                ""
-                        },
-                        status: result.status || "Appeared",
-                        percentile: result.percentile
-                    };
-
-                });
-
-                const validPercentages =
-                    tests
-                        .map(test => Number(test.percentage))
-                        .filter(value => Number.isFinite(value));
-
-                const average = validPercentages.length
-                    ? validPercentages.reduce((a, b) => a + b, 0) /
-                        validPercentages.length
-                    : 0;
-
-                const highest = validPercentages.length
-                    ? Math.max(...validPercentages)
-                    : 0;
-
-                const ranks = tests
-                    .map(test => test.rank)
-                    .filter(value => Number.isFinite(value) && value > 0);
-
-                return {
-                    scores: masterResults,
-                    tests,
-                    average,
-                    highest,
-                    bestRank: ranks.length ? Math.min(...ranks) : null
-                };
-            }
-
-            /* Legacy fallback */
-            const scores = getStudentScores(studentId);
-            const grouped = new Map();
-
-            scores.forEach(score => {
-                if (!grouped.has(score.test_id)) {
-                    grouped.set(score.test_id, []);
-                }
-                grouped.get(score.test_id).push(score);
-            });
-
-            const tests = [...grouped.entries()].map(
-                ([testId, rows]) => {
-                    const marks = rows.reduce(
-                        (sum, row) =>
-                            sum + (Number(row.marks_obtained) || 0),
-                        0
-                    );
-                    const max = rows.reduce(
-                        (sum, row) =>
-                            sum + (Number(row.max_marks) || 0),
-                        0
-                    );
-                    const percentage = max > 0
-                        ? (marks / max) * 100
-                        : 0;
-                    const ranks = rows
-                        .map(row => Number(row.rank))
-                        .filter(value => Number.isFinite(value) && value > 0);
-                    return {
-                        testId,
-                        rows,
-                        marks,
-                        max,
-                        percentage,
-                        rank: ranks.length ? Math.min(...ranks) : null,
-                        test: getTestForScore(rows[0])
-                    };
-                }
-            );
-
-            const totalMarks = tests.reduce(
-                (sum, test) => sum + test.marks,
-                0
-            );
-            const totalMax = tests.reduce(
-                (sum, test) => sum + test.max,
-                0
-            );
-            const average = totalMax > 0
-                ? (totalMarks / totalMax) * 100
-                : 0;
-            const highest = tests.length
-                ? Math.max(...tests.map(test => test.percentage))
-                : 0;
-            const ranks = tests
-                .map(test => test.rank)
-                .filter(value => Number.isFinite(value));
-
-            return {
-                scores,
-                tests,
-                average,
-                highest,
-                bestRank: ranks.length ? Math.min(...ranks) : null
-            };
-
+        function resultSubjects(resultId) {
+            return teacherMasterSubjects.filter(row => row.result_id === resultId);
         }
 
+        function getStudentResultSummary(studentId) {
+            const results = teacherMasterResults.filter(result => result.student_id === studentId);
+            return { results, ...R.summary(results) };
+        }
 
+        function resultStatusCell(result) {
+            if (R.isAbsent(result)) return '<span class="res-chip ab">Absent</span>';
+            return `<strong>${escapeHtml(R.num(result.marks_obtained))}</strong> / ${escapeHtml(R.num(result.max_marks) ?? "—")}`;
+        }
 
         function populateResultBatchFilter() {
-
             const select = document.getElementById("resultBatchFilter");
-
-            if (!select) {
-                return;
-            }
-
+            if (!select) return;
             const current = select.value;
-
-            const options = assignedBatches.map(batch => `
-                <option value="${escapeHtml(batch.id)}">
-                    ${escapeHtml(batch.name || "Unnamed Batch")}
-                </option>
-            `).join("");
-
-            select.innerHTML = `
-                <option value="">All Batches</option>
-                ${options}
-            `;
-
-            if ([...select.options].some(option => option.value === current)) {
-                select.value = current;
-            }
-
+            select.innerHTML = `<option value="">All Batches</option>` +
+                assignedBatches.map(batch => `<option value="${escapeHtml(batch.id)}">${escapeHtml(batch.name || "Unnamed Batch")}</option>`).join("");
+            if ([...select.options].some(option => option.value === current)) select.value = current;
         }
 
+        function filteredResultStudents() {
+            const search = String(document.getElementById("resultStudentSearch")?.value || "").trim().toLowerCase();
+            const batchId = document.getElementById("resultBatchFilter")?.value || "";
+            return assignedStudents.filter(student =>
+                (!search ||
+                    String(student.full_name || "").toLowerCase().includes(search) ||
+                    String(student.student_uid || "").toLowerCase().includes(search)) &&
+                (!batchId || student.batch_id === batchId));
+        }
+
+        function setResultsMode(mode) {
+            resultsMode = mode;
+            document.querySelectorAll("[data-results-mode]").forEach(button =>
+                button.classList.toggle("active", button.dataset.resultsMode === mode));
+            const search = document.getElementById("resultStudentSearch");
+            if (search) search.placeholder = mode === "tests" ? "Search test name" : "Search student or UID";
+            renderResultDirectory();
+        }
 
         function renderResultDirectory() {
-
-            const tbody = document.getElementById("resultsDirectoryBody");
-
-            if (!tbody) {
-                return;
-            }
-
+            const list = document.getElementById("resultsDirectoryList");
+            if (!list) return;
             populateResultBatchFilter();
+            if (resultsMode === "tests") { renderTestDirectory(list); return; }
 
-            const search = String(
-                document.getElementById("resultStudentSearch")?.value || ""
-            ).trim().toLowerCase();
-
-            const batchId =
-                document.getElementById("resultBatchFilter")?.value || "";
-
-            const students = assignedStudents.filter(student => {
-
-                const matchesSearch = !search ||
-                    String(student.full_name || "").toLowerCase().includes(search) ||
-                    String(student.student_uid || "").toLowerCase().includes(search);
-
-                const matchesBatch = !batchId || student.batch_id === batchId;
-
-                return matchesSearch && matchesBatch;
-
-            });
-
+            const students = filteredResultStudents();
             if (!students.length) {
-
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            No students found.
-                        </td>
-                    </tr>
-                `;
-
+                list.innerHTML = `<div class="res-empty">No students found.</div>`;
                 return;
-
             }
-
-            tbody.innerHTML = students.map(student => {
-
-                const summary = getStudentResultSummary(student.id);
-
-                const batch = assignedBatches.find(
-                    item => item.id === student.batch_id
-                );
-
+            list.innerHTML = students.map(student => {
+                const s = getStudentResultSummary(student.id);
+                const batch = assignedBatches.find(item => item.id === student.batch_id);
                 return `
-                    <tr>
-                        <td>
-                            <div class="student-name">
-                                ${escapeHtml(student.full_name || "Unknown")}
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="uid">
-                                ${escapeHtml(student.student_uid || "—")}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(batch?.name || "—")}
-                        </td>
-
-                        <td>
-                            ${summary.tests.length}
-                        </td>
-
-                        <td>
-                            ${summary.tests.length
-                                ? `${summary.average.toFixed(1)}%`
-                                : "—"}
-                        </td>
-
-                        <td>
-                            <button
-                                type="button"
-                                class="results-action-btn"
-                                data-result-student-id="${escapeHtml(student.id)}"
-                            >
-                                VIEW RESULTS
-                            </button>
-                        </td>
-                    </tr>
-                `;
-
+                    <button type="button" class="res-row" data-result-student-id="${escapeHtml(student.id)}">
+                        <span class="res-row-main">
+                            <b>${escapeHtml(student.full_name || "Student")}</b>
+                            <small>${escapeHtml(student.student_uid || "—")} · ${escapeHtml(batch?.name || "—")}</small>
+                        </span>
+                        <span class="res-row-stats">
+                            <span><b>${s.appeared}</b><small>tests</small></span>
+                            <span><b>${R.fmtPct(s.average)}</b><small>average</small></span>
+                        </span>
+                        <span class="res-go">›</span>
+                    </button>`;
             }).join("");
-
         }
 
+        // One card per test (exam name + date) across the teacher's students.
+        function testGroups() {
+            const search = String(document.getElementById("resultStudentSearch")?.value || "").trim().toLowerCase();
+            const groups = new Map();
+            teacherMasterResults.forEach(result => {
+                if (search && !String(result.exam_name || "").toLowerCase().includes(search)) return;
+                const batchId = document.getElementById("resultBatchFilter")?.value || "";
+                const student = assignedStudents.find(item => item.id === result.student_id);
+                if (batchId && student?.batch_id !== batchId) return;
+                const key = R.testKey(result);
+                if (!groups.has(key)) groups.set(key, { key, name: result.exam_name || "Test", date: result.test_date, max: R.num(result.max_marks), rows: [] });
+                const group = groups.get(key);
+                group.rows.push(result);
+                if (group.max === null) group.max = R.num(result.max_marks);
+            });
+            return [...groups.values()].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+        }
 
-        document.getElementById("resultsDirectoryBody")?.addEventListener(
-            "click",
-            event => {
-                const button = event.target.closest("[data-result-student-id]");
-
-                if (!button) {
-                    return;
-                }
-
-                openStudentResults(button.dataset.resultStudentId);
+        function renderTestDirectory(list) {
+            const groups = testGroups();
+            if (!groups.length) {
+                list.innerHTML = `<div class="res-empty">No test results for these students yet.</div>`;
+                return;
             }
-        );
+            list.innerHTML = groups.map(group => {
+                const s = R.summary(group.rows);
+                return `
+                    <button type="button" class="res-row" data-result-test-key="${escapeHtml(group.key)}">
+                        <span class="res-row-main">
+                            <b>${escapeHtml(group.name)}</b>
+                            <small>${formatResultDate(group.date)} · max ${escapeHtml(group.max ?? "—")}</small>
+                        </span>
+                        <span class="res-row-stats">
+                            <span><b>${s.appeared}</b><small>appeared</small></span>
+                            <span><b>${R.fmtPct(s.average)}</b><small>average</small></span>
+                        </span>
+                        <span class="res-go">›</span>
+                    </button>`;
+            }).join("");
+        }
 
+        document.getElementById("resultsDirectoryList")?.addEventListener("click", event => {
+            const studentButton = event.target.closest("[data-result-student-id]");
+            if (studentButton) { openStudentResults(studentButton.dataset.resultStudentId); return; }
+            const testButton = event.target.closest("[data-result-test-key]");
+            if (testButton) openExamResults(testButton.dataset.resultTestKey);
+        });
+
+        function showResultView(id) {
+            ["resultsDirectoryView", "resultsStudentView", "resultsTestView"].forEach(view => {
+                const element = document.getElementById(view);
+                if (element) element.style.display = view === id ? "block" : "none";
+            });
+            document.getElementById("section-results")?.scrollIntoView({ block: "start" });
+        }
 
         function showResultsDirectory() {
-
             selectedStudentForResults = null;
             selectedTestForResults = null;
-
-            document.getElementById("resultsDirectoryView").style.display = "block";
-            document.getElementById("resultsStudentView").style.display = "none";
-            document.getElementById("resultsTestView").style.display = "none";
-
+            showResultView("resultsDirectoryView");
             renderResultDirectory();
-
         }
-
 
         function openStudentResults(studentId) {
-
-            const student = assignedStudents.find(
-                item => item.id === studentId
-            );
-
-            if (!student) {
-                showError("Unable to find this student.");
-                return;
-            }
-
+            const student = assignedStudents.find(item => item.id === studentId);
+            if (!student) { showError("Unable to find this student."); return; }
             selectedStudentForResults = student;
             selectedTestForResults = null;
-
-            document.getElementById("resultsDirectoryView").style.display = "none";
-            document.getElementById("resultsStudentView").style.display = "block";
-            document.getElementById("resultsTestView").style.display = "none";
-
+            showResultView("resultsStudentView");
             renderStudentResults(student.id);
-
         }
 
+        function summaryBoxes(items) {
+            return `<div class="res-boxes">${items.map(([label, value]) =>
+                `<div class="res-box"><small>${label}</small><strong>${value}</strong></div>`).join("")}</div>`;
+        }
 
         function renderStudentResults(studentId) {
-
-            const student = assignedStudents.find(
-                item => item.id === studentId
-            );
-
+            const student = assignedStudents.find(item => item.id === studentId);
             const container = document.getElementById("resultsStudentView");
-
-            if (!student || !container) {
-                return;
-            }
-
-            const batch = assignedBatches.find(
-                item => item.id === student.batch_id
-            );
-
-            const summary = getStudentResultSummary(student.id);
+            if (!student || !container) return;
+            const batch = assignedBatches.find(item => item.id === student.batch_id);
+            const s = getStudentResultSummary(student.id);
+            const rows = [...s.results].sort((a, b) => String(b.test_date || "").localeCompare(String(a.test_date || "")));
 
             container.innerHTML = `
-
-                <button
-                    type="button"
-                    class="results-back-btn"
-                    onclick="showResultsDirectory()"
-                >
-                    ← ALL STUDENTS
-                </button>
-
-                <div class="results-student-head">
-                    <div>
-                        <h3>${escapeHtml(student.full_name || "Student")}</h3>
-                        <div class="results-student-meta">
-                            UID: ${escapeHtml(student.student_uid || "—")}
-                            &nbsp;•&nbsp;
-                            ${escapeHtml(batch?.name || "—")}
-                        </div>
-                    </div>
+                <button type="button" class="results-back-btn" onclick="showResultsDirectory()">← ALL ${resultsMode === "tests" ? "TESTS" : "STUDENTS"}</button>
+                <div class="res-head">
+                    <h3>${escapeHtml(student.full_name || "Student")}</h3>
+                    <p>UID ${escapeHtml(student.student_uid || "—")} · ${escapeHtml(batch?.name || "—")}</p>
                 </div>
-
-                <div class="result-summary">
-
-                    <div class="result-box">
-                        <small>TESTS ATTEMPTED</small>
-                        <strong>${summary.tests.length}</strong>
-                    </div>
-
-                    <div class="result-box">
-                        <small>AVERAGE</small>
-                        <strong>${summary.tests.length ? `${summary.average.toFixed(1)}%` : "0"}</strong>
-                    </div>
-
-                    <div class="result-box">
-                        <small>BEST SCORE</small>
-                        <strong>${summary.tests.length ? `${summary.highest.toFixed(1)}%` : "0"}</strong>
-                    </div>
-
-                    <div class="result-box">
-                        <small>BEST RANK</small>
-                        <strong>${summary.bestRank ?? "—"}</strong>
-                    </div>
-
-                </div>
-
-                <div class="section-header">
-                    <div>
-                        <h2>Test History</h2>
-                        <p>Complete test-wise performance of this student.</p>
-                    </div>
-                </div>
-
-                <div class="results-test-card">
-
-                    <div class="table-wrapper">
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>TEST</th>
-                                    <th>DATE</th>
-                                    <th>SCORE</th>
-                                    <th>%</th>
-                                    <th>RANK</th>
-                                    <th>ACTION</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                ${summary.tests.length
-                                    ? summary.tests.map(test => `
-                                        <tr>
-                                            <td>
-                                                <div class="student-name">
-                                                    ${escapeHtml(test.test?.title || "Test")}
-                                                </div>
-                                                <span class="uid">
-                                                    ${escapeHtml(test.test?.subject || "")}
-                                                </span>
-                                            </td>
-                                            <td>${formatResultDate(test.test?.test_date)}</td>
-                                            <td>${String(test.status || "").toUpperCase() === "AB" ? "AB" : `${test.marks} / ${test.max}`}</td>
-                                            <td>${String(test.status || "").toUpperCase() === "AB" ? "—" : `${test.percentage.toFixed(1)}%`}</td>
-                                            <td>${test.rank ?? "—"}</td>
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    class="results-action-btn"
-                                                    onclick="openTestResults('${escapeHtml(test.testId)}')"
-                                                >
-                                                    VIEW
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `).join("")
-                                    : `
-                                        <tr>
-                                            <td colspan="6" class="empty-state">
-                                                No test results available for this student yet.
-                                            </td>
-                                        </tr>
-                                    `}
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                </div>
-
-            `;
-
+                ${summaryBoxes([
+                    ["TESTS TAKEN", s.appeared + (s.absent ? ` <em>+${s.absent} absent</em>` : "")],
+                    ["AVERAGE", R.fmtPct(s.average)],
+                    ["BEST SCORE", R.fmtPct(s.best)],
+                    ["BEST RANK", s.bestRank ? "#" + s.bestRank : "—"]
+                ])}
+                <div class="res-list">
+                    ${rows.length ? rows.map(result => {
+                        const c = R.counts(resultSubjects(result.id));
+                        const rank = R.rankOf(result);
+                        return `
+                            <button type="button" class="res-row" onclick="openTestResults('${escapeHtml(result.id)}')">
+                                <span class="res-row-main">
+                                    <b>${escapeHtml(result.exam_name || "Test")}</b>
+                                    <small>${formatResultDate(result.test_date)}${result.mode ? " · " + escapeHtml(result.mode) : ""}</small>
+                                </span>
+                                <span class="res-row-stats">
+                                    <span>${resultStatusCell(result)}<small>${R.fmtPct(R.percentage(result))}</small></span>
+                                    <span><b>${rank ? "#" + rank : "—"}</b><small>${c?.accuracy != null ? "acc " + R.fmtPct(c.accuracy) : "rank"}</small></span>
+                                </span>
+                                <span class="res-go">›</span>
+                            </button>`;
+                    }).join("") : `<div class="res-empty">No test results for this student yet.</div>`}
+                </div>`;
         }
 
-
-        function openTestResults(testId) {
-
-            if (!selectedStudentForResults) {
-                return;
-            }
-
-            selectedTestForResults = testId;
-
-            document.getElementById("resultsStudentView").style.display = "none";
-            document.getElementById("resultsTestView").style.display = "block";
-
-            renderTestResults(testId);
-
+        function openTestResults(resultId) {
+            if (!selectedStudentForResults) return;
+            selectedTestForResults = resultId;
+            showResultView("resultsTestView");
+            renderTestResults(resultId);
         }
 
-
-        function renderTestResults(testId) {
-
+        function renderTestResults(resultId) {
             const student = selectedStudentForResults;
             const container = document.getElementById("resultsTestView");
+            const result = teacherMasterResults.find(item => String(item.id) === String(resultId));
+            if (!student || !container || !result) return;
+            const subjects = resultSubjects(result.id).map(row => R.subjectRow(row, result.test_type));
+            const c = R.counts(resultSubjects(result.id));
+            const rank = R.rankOf(result);
 
-            if (!student || !container) {
-                return;
-            }
+            container.innerHTML = `
+                <button type="button" class="results-back-btn" onclick="openStudentResults('${escapeHtml(student.id)}')">← BACK TO ${escapeHtml((student.full_name || "STUDENT").toUpperCase())}</button>
+                <div class="res-head">
+                    <h3>${escapeHtml(result.exam_name || "Test")}</h3>
+                    <p>${escapeHtml(student.full_name || "Student")} · ${formatResultDate(result.test_date)}${result.mode ? " · " + escapeHtml(result.mode) : ""}</p>
+                </div>
+                ${R.isAbsent(result) ? `<div class="res-empty">Absent for this test.</div>` : `
+                ${summaryBoxes([
+                    ["SCORE", `${escapeHtml(R.num(result.marks_obtained))} / ${escapeHtml(R.num(result.max_marks) ?? "—")}`],
+                    ["PERCENTAGE", R.fmtPct(R.percentage(result))],
+                    ["ACCURACY", c ? R.fmtPct(c.accuracy) : "—"],
+                    ["RANK", rank ? "#" + rank : "—"],
+                    ["PERCENTILE", R.num(result.percentile) !== null ? R.num(result.percentile).toFixed(2) : "—"],
+                    ["QUESTIONS", c ? `${c.correct}✓ ${c.wrong}✗ ${c.skipped}–` : "—"]
+                ])}
+                <div class="res-subjects">
+                    ${subjects.length ? subjects.map(sub => `
+                        <div class="res-subject">
+                            <div class="res-subject-top"><b>${escapeHtml(sub.subject)}</b><span>${escapeHtml(sub.marks ?? "—")} / ${escapeHtml(sub.max !== null ? +sub.max.toFixed(2) : "—")} · ${R.fmtPct(sub.percentage)}</span></div>
+                            <div class="res-bar"><i style="width:${Math.max(0, Math.min(100, sub.percentage ?? 0))}%"></i></div>
+                            <small>${sub.correct ?? "—"} correct · ${sub.wrong ?? "—"} wrong · ${sub.skipped ?? "—"} skipped${sub.accuracy !== null ? " · accuracy " + R.fmtPct(sub.accuracy) : ""}</small>
+                        </div>`).join("") : `<div class="res-empty">No subject-wise marks recorded for this test.</div>`}
+                </div>`}`;
+        }
 
-            const summary = getStudentResultSummary(student.id);
-            const test = summary.tests.find(
-                item => String(item.testId) === String(testId)
-            );
-
-            if (!test) {
-                return;
-            }
-
-            const testInfo = test.test;
-
-            const subjectMap = new Map();
-
-            test.rows.forEach(row => {
-
-                const subject = row.subject || "Other";
-
-                if (!subjectMap.has(subject)) {
-                    subjectMap.set(subject, {
-                        marks: 0,
-                        max: 0
-                    });
-                }
-
-                const item = subjectMap.get(subject);
-
-                item.marks += Number(row.marks_obtained) || 0;
-                item.max += Number(row.max_marks) || 0;
-
+        // All of the teacher's students in one test, ranked by marks.
+        function openExamResults(key) {
+            const group = testGroups().find(item => item.key === key);
+            const container = document.getElementById("resultsTestView");
+            if (!group || !container) return;
+            selectedStudentForResults = null;
+            showResultView("resultsTestView");
+            const s = R.summary(group.rows);
+            const rows = [...group.rows].sort((a, b) =>
+                (R.isAbsent(a) - R.isAbsent(b)) || ((R.num(b.marks_obtained) ?? -1e9) - (R.num(a.marks_obtained) ?? -1e9)));
+            const subjectNames = [...new Set(group.rows.flatMap(result => resultSubjects(result.id).map(row => row.subject)))];
+            const subjectAverages = subjectNames.map(name => {
+                const values = group.rows.filter(result => !R.isAbsent(result))
+                    .map(result => resultSubjects(result.id).find(row => row.subject === name))
+                    .filter(Boolean)
+                    .map(row => R.subjectRow(row, group.rows[0].test_type).percentage)
+                    .filter(value => value !== null);
+                return [name, values.length ? values.reduce((a, b) => a + b, 0) / values.length : null];
             });
 
             container.innerHTML = `
-
-                <button
-                    type="button"
-                    class="results-back-btn"
-                    onclick="openStudentResults('${escapeHtml(student.id)}')"
-                >
-                    ← BACK TO ${escapeHtml((student.full_name || "STUDENT").toUpperCase())}
-                </button>
-
-                <div class="results-student-head">
-                    <div>
-                        <h3>${escapeHtml(testInfo?.title || "Test Analysis")}</h3>
-                        <div class="results-student-meta">
-                            ${escapeHtml(student.full_name || "Student")}
-                            &nbsp;•&nbsp;
-                            ${formatResultDate(testInfo?.test_date)}
-                            ${testInfo?.subject ? `&nbsp;•&nbsp; ${escapeHtml(testInfo.subject)}` : ""}
-                        </div>
-                    </div>
+                <button type="button" class="results-back-btn" onclick="showResultsDirectory()">← ALL TESTS</button>
+                <div class="res-head">
+                    <h3>${escapeHtml(group.name)}</h3>
+                    <p>${formatResultDate(group.date)} · max ${escapeHtml(group.max ?? "—")} marks</p>
                 </div>
-
-                <div class="results-detail-grid">
-
-                    <div class="results-detail-box">
-                        <small>SCORE</small>
-                        <strong>${test.marks} / ${test.max}</strong>
-                    </div>
-
-                    <div class="results-detail-box">
-                        <small>PERCENTAGE</small>
-                        <strong>${test.percentage.toFixed(1)}%</strong>
-                    </div>
-
-                    <div class="results-detail-box">
-                        <small>RANK</small>
-                        <strong>${test.rank ?? "—"}</strong>
-                    </div>
-
-                    <div class="results-detail-box">
-                        <small>PERCENTILE</small>
-                        <strong>${test.percentile ?? "—"}</strong>
-                    </div>
-
+                ${summaryBoxes([
+                    ["APPEARED", s.appeared + (s.absent ? ` <em>+${s.absent} absent</em>` : "")],
+                    ["AVERAGE", R.fmtPct(s.average)],
+                    ["HIGHEST", R.fmtPct(s.best)],
+                    ...subjectAverages.map(([name, value]) => [escapeHtml(name.toUpperCase()) + " AVG", R.fmtPct(value)])
+                ])}
+                <div class="res-list">
+                    ${rows.map((result, index) => {
+                        const student = assignedStudents.find(item => item.id === result.student_id);
+                        const rank = R.rankOf(result);
+                        const subs = resultSubjects(result.id).map(row => R.subjectRow(row, result.test_type));
+                        return `
+                            <div class="res-row static">
+                                <span class="res-pos">${R.isAbsent(result) ? "–" : index + 1}</span>
+                                <span class="res-row-main">
+                                    <b>${escapeHtml(student?.full_name || "Student")}</b>
+                                    <small>${subs.map(sub => `${escapeHtml(sub.subject.slice(0, 4))} ${escapeHtml(sub.marks ?? "—")}`).join(" · ") || escapeHtml(student?.student_uid || "")}</small>
+                                </span>
+                                <span class="res-row-stats">
+                                    <span>${resultStatusCell(result)}<small>${R.fmtPct(R.percentage(result))}</small></span>
+                                    <span><b>${rank ? "#" + rank : "—"}</b><small>rank</small></span>
+                                </span>
+                            </div>`;
+                    }).join("")}
                 </div>
-
-                <div class="results-test-card results-test-detail">
-
-                    <div class="results-test-card-head">
-                        <div>
-                            <h3>Subject Performance</h3>
-                            <p>Subject-wise marks recorded for this test.</p>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>SUBJECT</th>
-                                    <th>MARKS</th>
-                                    <th>MAX</th>
-                                    <th>PERCENTAGE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${[...subjectMap.entries()].map(([subject, value]) => `
-                                    <tr>
-                                        <td class="student-name">${escapeHtml(subject)}</td>
-                                        <td>${value.marks}</td>
-                                        <td>${value.max > 0 ? value.max : "—"}</td>
-                                        <td>${value.max > 0 ? ((value.marks / value.max) * 100).toFixed(1) : "—"}${value.max > 0 ? "%" : ""}</td>
-                                    </tr>
-                                `).join("")}
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-
-            `;
-
+                <p class="res-note">Rank is the batch rank from the result sheet.</p>`;
         }
-
 
         function renderResults() {
-
-            showResultsDirectory();
-
+            if (selectedStudentForResults && selectedTestForResults) renderTestResults(selectedTestForResults);
+            else if (selectedStudentForResults) renderStudentResults(selectedStudentForResults.id);
+            else showResultsDirectory();
         }
-
-
 
         /* =====================================================
            DOUBT SOLVING PROGRAMME
@@ -6052,7 +5744,9 @@
 
                 await loadBatches();
                 await loadStudents();
-                await loadTests();
+
+                // A failure in Tests must not stop Results from loading.
+                await loadTests().catch(error => console.error("Teacher tests load error:", error));
 
                 // Do not let a slow/blocked Results query keep the entire
                 // dashboard stuck on the full-screen Loading overlay.
