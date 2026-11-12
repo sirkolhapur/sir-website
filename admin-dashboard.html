@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Security: no plugins, no <base> hijack, forms post only to this site,
+     no full referrer to other sites, and the page refuses to run inside a
+     frame on another site (clickjacking). GitHub Pages cannot send headers. -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style id="sirAntiClickjack">body{display:none!important}</style>
+<script>if(window.self===window.top){var sirAC=document.getElementById("sirAntiClickjack");if(sirAC)sirAC.parentNode.removeChild(sirAC);}else{window.top.location=window.self.location;}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>SIR Admin Dashboard</title>
 
   <link rel="icon" href="sir-logo.png" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/mhchem.min.js" integrity="sha384-F2ptQFZqNJuqfGGl28mIXyQ5kXH48spn7rcoS0Y9psqIKAcZPLd1NzwFlm/bl1mH" crossorigin="anonymous"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" integrity="sha384-+VfUPEb0PdtChMwmBcBmykRMDd+v6D/oFmB3rZM/puCMDYcIvF968OimRh4KQY9a" crossorigin="anonymous"></script>
   <script src="js/sir-paper.js?v=20261116"></script>
 
   <style>
@@ -4113,8 +4120,8 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
 
 <script>
 
@@ -4738,7 +4745,9 @@ function sageRegSendLink(id) {
 function sageRegExport() {
   const rows = sageRegFiltered();
   const cols = [["Login ID", "login_id"], ["Student name", "student_name"], ["Class", "student_class"], ["School", "school_name"], ["State", "state"], ["District", "district"], ["Taluka", "taluka"], ["Board", "board"], ["Medium", "medium"], ["WhatsApp", "whatsapp_number"], ["Source", "registration_source"], ["Password", "passwordStatus"], ["Registered at", "created_at"]];
-  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  // Cells that start with = + - @ (or tab/CR) are read as formulas by Excel:
+  // prefix an apostrophe so student-entered text can never run as a formula.
+  const q = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
   const csv = [cols.map((c) => q(c[0])).join(","), ...rows.map((r) => cols.map((c) => q(r[c[1]])).join(","))].join("\r\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
@@ -7606,8 +7615,8 @@ document.getElementById("saveTeacherBatches").addEventListener("click", async ()
 async function resetTeacherPassword(teacherId, teacherName) {
   const password = prompt(`Set new password for ${teacherName}`);
   if (password === null) return;
-  if (password.trim().length < 8) {
-    alert("Password must contain at least 8 characters.");
+  if (password.trim().length < 10) {
+    alert("Password must contain at least 10 characters.");
     return;
   }
   const { data, error } = await supabaseClient.functions.invoke("admin-set-teacher-password", {

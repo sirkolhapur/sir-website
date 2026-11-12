@@ -599,7 +599,7 @@ function exportAudit(){const rows=[['Time','Action','Details','Source'],...state
 (function(){
  let sdkSettled=false;
  const sdk=document.createElement("script");
- sdk.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+ sdk.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js";
  sdk.async=true;
  const sdkTimer=setTimeout(function(){if(sdkSettled)return;sdkSettled=true;const a=document.getElementById("labAuthStatus"),e=document.getElementById("labEngineStatus"),g=document.getElementById("labAuthGate"),er=document.getElementById("labAuthError");a.textContent="Admin: sign-in library timeout";a.className="conn bad";e.textContent="Engine: not checked";e.className="conn";g.style.display="grid";er.textContent="Secure sign-in library did not load within 12 seconds. Check the network/CDN connection and refresh. No admin verification was attempted.";},12000);
  sdk.onload=function(){if(sdkSettled)return;sdkSettled=true;clearTimeout(sdkTimer);initAuth();};

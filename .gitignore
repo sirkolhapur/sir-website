@@ -1,0 +1,14 @@
+# Never publish secrets or private working files (this repo is served as the
+# public website by GitHub Pages: every committed file is downloadable).
+.env
+.env.*
+*.env
+*.pem
+*.key
+supabase/
+backups/
+*.sql
+*.bak
+*-BACKUP.*
+node_modules/
+question-bank/
