@@ -3705,7 +3705,7 @@
 
         <div class="field">
           <label>Initial Password</label>
-          <input type="text" id="teacherPassword" required minlength="8" value="SIR@123456">
+          <input type="password" id="teacherPassword" required minlength="10" autocomplete="new-password" placeholder="Enter a temporary password (at least 10 characters)">
         </div>
 
         <div class="field full">
@@ -7313,7 +7313,7 @@ document.getElementById("cancelTeacher").addEventListener("click", closeTeacherM
 function closeTeacherModal() {
   teacherModal.classList.remove("show");
   document.getElementById("teacherForm").reset();
-  document.getElementById("teacherPassword").value = "SIR@123456";
+  document.getElementById("teacherPassword").value = "";
   document.getElementById("teacherFormMessage").className = "message";
   document.getElementById("teacherFormMessage").textContent = "";
 }
@@ -7339,8 +7339,8 @@ document.getElementById("teacherForm").addEventListener("submit", async (e) => {
   ).map(input => input.value);
   const submit = document.getElementById("createTeacherSubmit");
 
-  if (!full_name || !email || !subject || password.length < 8) {
-    showTeacherMessage("Please complete all required fields. Password must be at least 8 characters.", "error");
+  if (!full_name || !email || !subject || password.length < 10) {
+    showTeacherMessage("Please complete all required fields. Password must be at least 10 characters.", "error");
     return;
   }
 
