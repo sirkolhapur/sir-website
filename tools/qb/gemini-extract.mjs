@@ -119,6 +119,7 @@ function placeFigures(q, page, labelOffset) {
 
 // pages: [{ pageNo, model, result: { section_heading, questions, answer_key, truncated } }] in reading order.
 // ctx:   { subject, chapter (slug | null = whole subject: Gemini returns "chapter/topic"), exam: [], sourceLabel, questionSet (id | null = detect), setLabels: {id: label} }
+const INSTITUTE = /narayana|chaitanya|aakash|akash|allen|fiitjee|resonance|vidyamandir|motion\s+(iit|kota|education)|pace\s+iit|bansal|vibrant|career\s*point|physics\s*wallah|unacademy|\bsir\s+(kolhapur|test\s+series)/i;
 export function pagesToItems(pages, ctx) {
   const items = [], keys = [];
   let detectedSet = null;
@@ -157,7 +158,11 @@ export function pagesToItems(pages, ctx) {
       const setLabel = set ? (ctx.setLabels?.[set] || set) : null;
       const exam = [...new Set([...(ctx.exam || []), ...(set && SET_EXAM[set] ? [SET_EXAM[set]] : [])])];
       const year = String(q.exam_year || "").match(/(19|20)\d{2}/)?.[0];
-      const tags = [...(set ? [`set:${set}`] : []), ...(year ? [`year:${year}`] : [])];
+      // Test-series ("ts-…") questions are tough questions whose institute stays
+      // secret: the bank gets only "pool:advanced"; the institute is kept on the
+      // import job (managers only). The database trigger enforces the same.
+      const advanced = /^ts-/.test(set || "");
+      const tags = [...(advanced ? ["pool:advanced"] : set ? [`set:${set}`] : []), ...(year ? [`year:${year}`] : [])];
       items.push({
         _open: !!q.continues_on_next_page, _answerRaw: q.answer_printed !== false ? q.answer || "" : "", _uncertain: q.uncertain ? [q.uncertain_reason || "unsure about part of this question"] : [],
         _set: set,
@@ -174,7 +179,7 @@ export function pagesToItems(pages, ctx) {
         draft: {
           code: null, subject: ctx.subject ?? null, chapter: qChapter || null, topic: qTopic || null, subtopic: q.subtopic && q.subtopic !== "none" ? q.subtopic : null, branch: null,
           type, difficulty: null, exam, tags,
-          source: ["book", ctx.sourceLabel, setLabel, `p.${pg.pageNo}`, label ? `Q${label}` : null].filter(Boolean).join(":"),
+          source: (advanced ? ["test-series"] : ["book", ctx.sourceLabel, setLabel]).concat([`p.${pg.pageNo}`, label ? `Q${label}` : null]).filter(Boolean).join(":"),
           status: "live", marks: 4, negative: type === "single" || type === "multi" ? 1 : 0,
           question: placed.question, options: type === "single" || type === "multi" ? placed.options : null,
           hint: null, solution: q.solution ? String(q.solution) : null, unit: null, answer: null, tolerance: 0, figures: placed.figures,
@@ -213,6 +218,8 @@ export function pagesToItems(pages, ctx) {
     if (it.extracted.kind === "matrix_match" && d.type === "subjective") it.issues.push("Read as match-the-columns but no columns were found — stored as a subjective question; check the type");
     if (d.figures.length) it.issues.push(`${d.figures.length} diagram(s) cropped automatically — check each crop holds the whole diagram`);
     if (it._open) it.issues.push("This question continues on a page that was not uploaded — complete it");
+    if (/^ts-/.test(it._set || "") && INSTITUTE.test([d.question, ...(d.options || []).map((o) => o.text), d.solution || ""].join(" ")))
+      it.issues.push("The question mentions a coaching institute's name — remove it (test-series sources stay confidential)");
     if (!d.chapter) it.issues.push("No chapter chosen — choose the chapter and topic");
     else if (!d.topic) it.issues.push("No topic chosen — choose the topic");
     it.confidence = it._uncertain.length || it._open ? "low" : (!d.answer && d.answer !== 0) || it.issues.some((x) => /option\(s\) read/.test(x)) ? "medium" : "high";

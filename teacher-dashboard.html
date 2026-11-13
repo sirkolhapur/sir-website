@@ -6044,24 +6044,19 @@ let SIR_QB_ERROR = "";
 let SIR_QB_SUBJECTS = [];
 let SIR_QB_CHAPTERS = [];
 let SIR_QB_TOPICS = [];
-let SIR_QB_SETS = [];
 let QUESTIONS = [];
 
 function sirText(v){ return String(v ?? ""); }
 async function loadSirQuestionBank(){
   const notice = document.getElementById("testEngineNotice");
   try {
-    const [sr, cr, tr, qr, qsr] = await Promise.all([
+    const [sr, cr, tr, qr] = await Promise.all([
       supabaseClient.from("qb_subjects").select("id,code,name,branches").order("sort_order"),
       supabaseClient.from("qb_chapters").select("id,subject_id,code,slug,name,branches").order("sort_order"),
       supabaseClient.from("qb_topics").select("id,chapter_id,slug,label").order("sort_order"),
-      supabaseClient.from("qb_questions").select("id,code,subject_id,chapter_id,topic_id,branch,type,difficulty,exam_tags,tags,source,status,default_marks,default_negative,question_md,options,unit").eq("status","live").order("code").limit(5000),
-      supabaseClient.from("qb_question_sets").select("*").order("sort_order")
+      supabaseClient.from("qb_questions").select("id,code,subject_id,chapter_id,topic_id,branch,type,difficulty,exam_tags,tags,source,status,default_marks,default_negative,question_md,options,unit").eq("status","live").order("code").limit(5000)
     ]);
     for (const x of [sr,cr,tr,qr]) if (x.error) throw x.error;
-    // Question sets: "advanced" pool = institute test series (tough questions).
-    SIR_QB_SETS = (qsr && !qsr.error ? qsr.data : []) || [];
-    const setById = new Map(SIR_QB_SETS.map(x=>[x.id,x]));
     SIR_QB_SUBJECTS = sr.data || [];
     SIR_QB_CHAPTERS = cr.data || [];
     SIR_QB_TOPICS = tr.data || [];
@@ -6094,8 +6089,7 @@ async function loadSirQuestionBank(){
         options: row.options || [],
         branch: row.branch || null,
         exam: row.exam_tags || [],
-        sets: (row.tags || []).filter(t=>/^set:/.test(t)).map(t=>t.slice(4)),
-        pool: (row.tags || []).some(t=>/^set:/.test(t) && (setById.get(t.slice(4))||{}).pool==="advanced") ? "advanced" : "standard",
+        pool: (row.tags || []).includes("pool:advanced") ? "advanced" : "standard",
         status: row.status,
         source: row.source || ""
       };
@@ -9042,13 +9036,13 @@ function toggleChapterExpand(rowIdx,slug){
   renderApp();
 }
 // Standard tests use the standard bank only; an "Advanced test" uses only the
-// advanced bank (institute test series). Marks always come from the pattern.
+// advanced bank (tough questions — their source is confidential and never
+// shown). Marks always come from the pattern.
 function inBank(q){ return state.bank==="advanced" ? q.pool==="advanced" : q.pool!=="advanced"; }
-function advancedSets(){ return SIR_QB_SETS.filter(x=>x.pool==="advanced"); }
-function advancedCount(setId){ return QUESTIONS.filter(q=>q.pool==="advanced" && (!setId || q.sets.includes(setId))).length; }
+function advancedCount(){ return QUESTIONS.filter(q=>q.pool==="advanced").length; }
 function advBar(){
   if (state.bank!=="advanced") return "";
-  return '<div class="advbar"><span>🔥</span><span><b>Advanced test</b><br><small>Tough questions from test series · marks follow the pattern you pick</small></span>' +
+  return '<div class="advbar"><span>🔥</span><span><b>Advanced test</b><br><small>Tough questions only · marks follow the pattern you pick</small></span>' +
     (state.stage==="pattern-pick"||state.stage==="custom-form"||state.stage==="pattern-confirm" ? '<button onclick="state.bank=\'standard\';state.stage=\'mode\';renderApp()">Switch to standard</button>' : '') + '</div>';
 }
 function questionsInChapter(row, slug){
@@ -9136,9 +9130,9 @@ function renderMode(){
   html += '<button class="choice" onclick="state.bank=\'standard\';state.stage=\'pattern-pick\';renderApp()"><span class="choice-ic">📋</span><span><b>Exam pattern</b><small>JEE Main, NEET, MHT-CET, JEE Advanced — counts and marking set for you.</small></span></button>';
   html += '<button class="choice" onclick="startCustom(\'standard\')"><span class="choice-ic">🛠️</span><span><b>Custom test</b><small>Chapter test, weekly test — any subjects, counts and marks.</small></span></button>';
   const advN = advancedCount();
-  html += '<button class="choice adv" onclick="state.bank=\'advanced\';state.stage=\'pattern-pick\';renderApp()"><span class="choice-ic">🔥</span><span><b>Advanced test <em>test series · tough questions</em></b>' +
-    '<small>Only questions from institute test series (Narayana, Sri Chaitanya, Aakash, Allen, SIR…). Pick JEE Main / Advanced / NEET pattern or your own counts — marking is set by that pattern.</small>' +
-    '<span class="instlist">' + (advancedSets().map(x=>{ const n = advancedCount(x.id); return n ? '<span>'+esc(x.label)+' · '+n+'</span>' : ''; }).join('') || '<span>'+(advN ? advN+' questions' : 'No advanced questions verified yet')+'</span>') + '</span></span></button>';
+  html += '<button class="choice adv" onclick="state.bank=\'advanced\';state.stage=\'pattern-pick\';renderApp()"><span class="choice-ic">🔥</span><span><b>Advanced test <em>tough questions</em></b>' +
+    '<small>Only the advanced (tough) question bank. Pick JEE Main / Advanced / NEET pattern or your own counts — marking is set by that pattern.</small>' +
+    '<span class="instlist"><span>'+(advN ? advN+' tough questions' : 'No tough questions verified yet')+'</span></span></span></button>';
   html += '</div></div>';
   html += '<div class="card"><h2 class="h2">My tests</h2>'+myPapersHtml()+'</div>';
   mount(html);
@@ -9151,7 +9145,7 @@ function renderPatternPick(){
     html += '<button class="patcard" onclick="choosePattern(\''+key+'\')"><b>'+p.label+'</b><small>'+p.note+'</small>' +
       (p.indicative ? '<span class="warn">Indicative — adjust if needed</span>' : '') + '</button>';
   });
-  if (state.bank==="advanced") html += '<button class="patcard" onclick="startCustom(\'advanced\')"><b>Custom</b><small>Your own subjects, counts and marks — from the advanced bank.</small></button>';
+  if (state.bank==="advanced") html += '<button class="patcard" onclick="startCustom(\'advanced\')"><b>Custom</b><small>Your own subjects, counts and marks — from the tough-question bank.</small></button>';
   html += '</div><div class="btnrow"><button class="btn" onclick="state.stage=\'mode\';renderApp()">← Back</button></div></div>';
   mount(html);
 }
@@ -9347,7 +9341,7 @@ function toggleOpen(k){
   if (state.uiOpenRow) document.querySelector('.subjcard.open')?.scrollIntoView({behavior:"smooth", block:"start"});
 }
 function filtersFor(k){
-  if(!state.uiFilters[k] || !Array.isArray(state.uiFilters[k].bands)) state.uiFilters[k] = {chapter:null, topic:"", institute:"", bands:["easy","medium","hard"], showAll:false, shown:PAGE_SIZE, pickedOnly:false};
+  if(!state.uiFilters[k] || !Array.isArray(state.uiFilters[k].bands)) state.uiFilters[k] = {chapter:null, topic:"", bands:["easy","medium","hard"], showAll:false, shown:PAGE_SIZE, pickedOnly:false};
   return state.uiFilters[k];
 }
 
@@ -9384,10 +9378,6 @@ function renderPicker(row){
     html += '<div><label>Topic</label><select onchange="setFilter(\''+k+'\',\'topic\',this.value)"><option value="">All topics</option>' +
       topics.filter(t=>f.showAll || !row.scopeTopics[f.chapter] || topicIncluded(row,f.chapter,t.slug)).map(t=>'<option value="'+t.slug+'"'+(t.slug===f.topic?' selected':'')+'>'+esc(t.label)+'</option>').join('') + '</select></div>';
   }
-  if (state.bank==="advanced" && advancedSets().length) {
-    html += '<div><label>Test series</label><select onchange="setFilter(\''+k+'\',\'institute\',this.value)"><option value="">All institutes</option>' +
-      advancedSets().map(x=>'<option value="'+esc(x.id)+'"'+(x.id===f.institute?' selected':'')+'>'+esc(x.label)+'</option>').join('') + '</select></div>';
-  }
   html += '</div><div class="chips">' +
     Object.keys(BANDS).map(b=>'<label class="chip-check band-'+b+'"><input type="checkbox" '+(f.bands.includes(b)?'checked':'')+' onchange="toggleBand(\''+k+'\',\''+b+'\',this.checked)"> '+BAND_NAMES[b]+'</label>').join('') +
     '<label class="chip-check"><input type="checkbox" '+(f.pickedOnly?'checked':'')+' onchange="setFilter(\''+k+'\',\'pickedOnly\',this.checked)"> Picked only</label>' +
@@ -9399,7 +9389,6 @@ function renderPicker(row){
     ? sel.map(qByCode).filter(Boolean)
     : QUESTIONS.filter(q=>
         q.subject===row.subject && q.chapter===f.chapter && inBank(q) &&
-        (!f.institute || q.sets.includes(f.institute)) &&
         (!f.topic || q.topic===f.topic) &&
         allowedTypes.includes(q.type) &&
         f.bands.includes(bandOf(q.difficulty)) &&
@@ -9557,7 +9546,7 @@ async function sendOnline(){
   try {
     const paper = {
       title: state.testName.trim(), duration_minutes: state.duration, pattern_key: state.patternKey,
-      note: (state.bank==="advanced" ? "[Advanced test — test-series questions] " : "") + (state.adminNote || ""),
+      note: (state.bank==="advanced" ? "[Advanced test] " : "") + (state.adminNote || ""),
       sections: state.subjectRows.map(row=>({
         subject_id: subjectIdFor(row.subject), branch: row.branch || null, label: rowLabel(row),
         parts: partsFor(row).filter(p=>p.qs.length).map(p=>({ label:p.req.label, allowed_types:p.req.types, marks_correct:p.req.mc, marks_wrong:p.req.mw, partial_marking:!!p.req.partial, question_ids:p.qs.map(q=>q.dbId) }))

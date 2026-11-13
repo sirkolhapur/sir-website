@@ -130,8 +130,18 @@ test("test-series paper read for the whole subject: chapter/topic per question, 
   ] } }], { ...ctx, chapter: null, questionSet: "ts-narayana", setLabels: { "ts-narayana": "Narayana Test Series" } });
   assert.equal(items[0].draft.chapter, "gravitation");
   assert.equal(items[0].draft.topic, "orbital-velocity");
-  assert.deepEqual(items[0].draft.tags, ["set:ts-narayana"]);
+  assert.deepEqual(items[0].draft.tags, ["pool:advanced"]);                 // institute never reaches the bank
+  assert.ok(!/narayana/i.test(items[0].draft.source));
+  assert.equal(items[0].draft.source, "test-series:p.1:Q1");
   assert.match(items[0].extracted.suggestion.basis, /whole subject/);
   assert.equal(items[1].draft.chapter, null);
   assert.ok(items[1].issues.some((x) => /No chapter chosen/.test(x)));
+});
+
+test("a test-series question that names an institute is flagged", () => {
+  const items = pagesToItems([{ pageNo: 2, model: "m", result: { questions: [
+    { number: 7, type: "single", question: "ALLEN Career Institute — A block slides …", options: opts("a", "b", "c", "d"), answer: "A", answer_printed: true, topic: "laws-of-motion/friction", subtopic: "none" } ] } }],
+    { ...ctx, chapter: null, questionSet: "ts-allen", setLabels: { "ts-allen": "Allen Test Series" } });
+  assert.ok(items[0].issues.some((x) => /institute's name/.test(x)));
+  assert.deepEqual(items[0].draft.tags, ["pool:advanced"]);
 });
