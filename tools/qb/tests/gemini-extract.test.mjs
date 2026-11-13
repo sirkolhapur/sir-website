@@ -122,3 +122,16 @@ test("an MCQ read without any options becomes a subjective question with a warni
   assert.ok(items[0].issues.some((w) => /No answer choices were read — stored as a subjective/.test(w)));
   assert.ok(!items[0].issues.some((w) => /option\(s\) read/.test(w)));
 });
+
+test("test-series paper read for the whole subject: chapter/topic per question, institute set tag", () => {
+  const items = pagesToItems([{ pageNo: 1, model: "m", result: { section_heading: "Narayana Grand Test 05", questions: [
+    { number: 1, type: "single", question: "Orbital speed of a satellite …", options: opts("a", "b", "c", "d"), answer: "B", answer_printed: true, topic: "gravitation/orbital-velocity", subtopic: "none" },
+    { number: 2, type: "integer", question: "Number of unpaired electrons in $\text{Fe}^{3+}$", answer: "5", answer_printed: true, topic: "", subtopic: "none" },
+  ] } }], { ...ctx, chapter: null, questionSet: "ts-narayana", setLabels: { "ts-narayana": "Narayana Test Series" } });
+  assert.equal(items[0].draft.chapter, "gravitation");
+  assert.equal(items[0].draft.topic, "orbital-velocity");
+  assert.deepEqual(items[0].draft.tags, ["set:ts-narayana"]);
+  assert.match(items[0].extracted.suggestion.basis, /whole subject/);
+  assert.equal(items[1].draft.chapter, null);
+  assert.ok(items[1].issues.some((x) => /No chapter chosen/.test(x)));
+});

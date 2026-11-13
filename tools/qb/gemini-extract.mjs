@@ -118,7 +118,7 @@ function placeFigures(q, page, labelOffset) {
 }
 
 // pages: [{ pageNo, model, result: { section_heading, questions, answer_key, truncated } }] in reading order.
-// ctx:   { subject, chapter (slug), exam: [], sourceLabel, questionSet (id | null = detect), setLabels: {id: label} }
+// ctx:   { subject, chapter (slug | null = whole subject: Gemini returns "chapter/topic"), exam: [], sourceLabel, questionSet (id | null = detect), setLabels: {id: label} }
 export function pagesToItems(pages, ctx) {
   const items = [], keys = [];
   let detectedSet = null;
@@ -146,6 +146,8 @@ export function pagesToItems(pages, ctx) {
         continue;
       }
       const placed = placeFigures(q, pg.pageNo, 0);
+      // Whole-subject reading (test series): topic comes as "chapter-slug/topic-slug".
+      const [qChapter, qTopic] = !ctx.chapter && String(q.topic || "").includes("/") ? String(q.topic).split("/") : [ctx.chapter ?? null, q.topic || null];
       const rawType = q.type || "single";
       // Match-the-columns without any columns is really a short-answer question.
       const type = rawType === "assertion_reason" || (rawType === "matrix_match" && placed.options.length >= 2) ? "single" : rawType === "matrix_match" ? "subjective" : rawType;
@@ -167,10 +169,10 @@ export function pagesToItems(pages, ctx) {
         extracted: {
           source_method: "gemini", model: pg.model || null, extractor_version: GEMINI_EXTRACT_VERSION, number: n, part: part || null, section: setLabel, section_no: 1,
           page_from: pg.pageNo, page_to: pg.pageNo, kind: rawType, exam_year: q.exam_year || null, regions: [], source_text: q.question || "", option_markers: null, assumed: false,
-          suggestion: { chapter: ctx.chapter, topic: q.topic, subtopic: q.subtopic, basis: "chosen by Gemini from this chapter's topic list" },
+          suggestion: { chapter: qChapter, topic: qTopic, subtopic: q.subtopic, basis: ctx.chapter ? "chosen by Gemini from this chapter's topic list" : "chosen by Gemini from the whole subject (test-series paper)" },
         },
         draft: {
-          code: null, subject: ctx.subject ?? null, chapter: ctx.chapter ?? null, topic: q.topic || null, subtopic: q.subtopic && q.subtopic !== "none" ? q.subtopic : null, branch: null,
+          code: null, subject: ctx.subject ?? null, chapter: qChapter || null, topic: qTopic || null, subtopic: q.subtopic && q.subtopic !== "none" ? q.subtopic : null, branch: null,
           type, difficulty: null, exam, tags,
           source: ["book", ctx.sourceLabel, setLabel, `p.${pg.pageNo}`, label ? `Q${label}` : null].filter(Boolean).join(":"),
           status: "live", marks: 4, negative: type === "single" || type === "multi" ? 1 : 0,
@@ -211,7 +213,8 @@ export function pagesToItems(pages, ctx) {
     if (it.extracted.kind === "matrix_match" && d.type === "subjective") it.issues.push("Read as match-the-columns but no columns were found — stored as a subjective question; check the type");
     if (d.figures.length) it.issues.push(`${d.figures.length} diagram(s) cropped automatically — check each crop holds the whole diagram`);
     if (it._open) it.issues.push("This question continues on a page that was not uploaded — complete it");
-    if (!d.topic) it.issues.push("No topic chosen — choose the topic");
+    if (!d.chapter) it.issues.push("No chapter chosen — choose the chapter and topic");
+    else if (!d.topic) it.issues.push("No topic chosen — choose the topic");
     it.confidence = it._uncertain.length || it._open ? "low" : (!d.answer && d.answer !== 0) || it.issues.some((x) => /option\(s\) read/.test(x)) ? "medium" : "high";
     delete it._open; delete it._answerRaw; delete it._uncertain; delete it._set;
   }
