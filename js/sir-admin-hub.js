@@ -342,19 +342,24 @@
   const STAGES = [["new", "New enquiry"], ["contacted", "Contacted"], ["processing", "Demo / counselling"], ["approved", "Admitted"], ["rejected", "Not interested"], ["closed", "Closed"]];
   async function renderAdmissions() {
     const sec = document.getElementById("hubAdmissions");
-    const r = await q(db().from("admissions").select("id,student_name,parent_name,phone,email,school_name,course_interest,batch_interest,message,status,created_at,updated_at").order("created_at", { ascending: false }).limit(500));
+    const [r, cs] = await Promise.all([
+      q(db().from("admissions").select("*").order("created_at", { ascending: false }).limit(500)),
+      q(db().rpc("crm_counsellors")),
+    ]);
+    const who = new Map((cs.data || []).map((c) => [c.id, c.full_name]));
     if (r.error) throw r.error;
     const list = r.data || [];
     const conv = list.length ? Math.round((100 * list.filter((a) => a.status === "approved").length) / list.length) : 0;
-    sec.innerHTML = head("ADMISSIONS", "Admissions Pipeline", "Every enquiry from the website form, from first call to admission. Change the stage as you follow up.",
-      `<button class="primary-btn" data-hub-refresh="hubAdmissions">Refresh</button>`) +
+    sec.innerHTML = head("ADMISSIONS", "Admissions Pipeline", "Every enquiry, from first call to admission. Admission Counsellors work in the <b>Admission CRM</b> (calls, follow-ups, WhatsApp, timeline); you see everything here.",
+      `<div class="hub-actions" style="margin:0"><a class="hub-btn2" href="crm.html" target="_blank" rel="noopener">Open Admission CRM ↗</a><button class="primary-btn" data-hub-refresh="hubAdmissions">Refresh</button></div>`) +
+      ((cs.data || []).some((c) => c.designation === "Admission Counsellor") ? "" : `<div class="hub-next"><span class="hub-pill watch">set up</span> No Admission Counsellor yet. In <b>Staff Directory</b>, give a staff member the designation <b>Admission Counsellor</b> — new enquiries are then assigned to them automatically and they log in at <b>sir.net.in/crm.html</b>.</div>`) +
       `<div class="hub-kpis small">${kpi("Enquiries", list.length, "all time")}${kpi("This week", list.filter((a) => Date.now() - new Date(a.created_at) < 7 * DAY).length, "new")}${kpi("Waiting > 2 days", list.filter((a) => a.status === "new" && Date.now() - new Date(a.created_at) > 2 * DAY).length, "call them first", "warn")}${kpi("Conversion", conv + "%", "enquiry → admitted")}</div>` +
       `<div class="hub-board">${STAGES.map(([st, label]) => {
         const items = list.filter((a) => a.status === st);
         return `<div class="hub-col"><div class="hub-colhead">${esc(label)} <i>${items.length}</i></div>${items.map((a) => {
           const wa = String(a.phone || "").replace(/\D/g, "");
           const wa91 = wa.length === 10 ? "91" + wa : wa;
-          return `<div class="hub-lead"><b>${esc(a.student_name)}</b><small>${esc([a.course_interest, a.school_name].filter(Boolean).join(" · ") || "—")}</small>
+          return `<div class="hub-lead"><b>${esc(a.student_name)}</b><small>${esc([a.course_interest, a.school_name].filter(Boolean).join(" · ") || "—")}</small><small>👤 ${esc(who.get(a.assigned_to) || "Unassigned")}${a.next_follow_up_at ? " · follow-up " + esc(fmtDate(a.next_follow_up_at)) : ""}</small>
             ${a.message ? `<p>${esc(a.message).slice(0, 160)}</p>` : ""}
             <div class="hub-leadmeta"><span>${ago(a.created_at)}</span>${a.phone ? `<a class="hub-link" href="tel:${esc(a.phone)}">Call</a><a class="hub-link" target="_blank" rel="noopener" href="https://wa.me/${esc(wa91)}?text=${encodeURIComponent(`Hello${a.parent_name ? " " + a.parent_name : ""}, this is SIR Kolhapur regarding the admission enquiry for ${a.student_name}.`)}">WhatsApp</a>` : ""}</div>
             <select class="hub-stage" data-hub-stage="${esc(a.id)}">${STAGES.map(([v, l]) => `<option value="${v}"${v === a.status ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></div>`;

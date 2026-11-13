@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Security: no plugins, no <base> hijack, forms post only to this site,
+     no full referrer to other sites, and the page refuses to run inside a
+     frame on another site (clickjacking). GitHub Pages cannot send headers. -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style id="sirAntiClickjack">body{display:none!important}</style>
+<script>if(window.self===window.top){var sirAC=document.getElementById("sirAntiClickjack");if(sirAC)sirAC.parentNode.removeChild(sirAC);}else{window.top.location=window.self.location;}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admission CRM | SIR Kolhapur</title>
+<link rel="icon" href="https://sir.net.in/sir-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js" integrity="sha384-rwykjmWNwVxboyFmvK9OXN0wj9hnMHA2aAHtits54DuACyCq0M2PrSNxhRb+hvXT" crossorigin="anonymous"></script>
+<style>
+:root{--navy:#071426;--navy2:#0d2038;--card:#0d2038;--line:rgba(255,255,255,.09);--gold:#d9b75b;--gold2:#f0cf7a;--cyan:#4fd1ff;--green:#34c77b;--red:#ef6b6b;--amber:#f0b44c;--muted:#8a99ae;--text:#e6edf6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:radial-gradient(1000px 500px at 85% -10%,rgba(79,209,255,.08),transparent 60%),#06101f;color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}
+a{color:inherit}
+.hide{display:none!important}
+/* login */
+#loginView{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px}
+.brand{font-weight:900;letter-spacing:.06em;color:var(--gold2)}.brand span{color:var(--cyan);margin-left:4px;font-weight:700}
+.login h1{font-size:22px;margin:14px 0 6px}.login p{color:var(--muted);font-size:14px;margin-bottom:18px}
+label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted)}
+input,select,textarea{padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#08172a;color:#fff;font-size:14.5px;color-scheme:dark;width:100%}
+textarea{min-height:70px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:9px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:#fff;font-weight:700;cursor:pointer;text-decoration:none;font-size:14px}
+.btn.gold{background:linear-gradient(120deg,var(--gold),var(--gold2));color:var(--navy);border-color:transparent}
+.btn.green{border-color:rgba(52,199,123,.6);color:#7ee2a8}
+.btn.sm{min-height:34px;padding:5px 11px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{color:#f3a0a0;font-size:13.5px;margin-top:10px}
+.stack{display:grid;gap:12px}
+/* app */
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(7,20,38,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+header .who{margin-left:auto;text-align:right;font-size:13px}header .who b{display:block;color:#fff}header .who small{color:var(--muted)}
+main{max-width:1200px;margin:0 auto;padding:18px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:linear-gradient(160deg,#10284a,#0b1c32);border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer}
+.kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.kpi b{display:block;font-size:24px;margin-top:4px}
+.kpi.bad b{color:var(--red)}.kpi.warn b{color:var(--amber)}.kpi.ok b{color:var(--green)}
+.tabs{display:flex;gap:6px;padding:5px;background:#0b1c32;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow-x:auto}
+.tab{flex:1;white-space:nowrap;border:0;background:transparent;color:#b8c4d4;padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer}
+.tab.on{background:linear-gradient(120deg,var(--gold),var(--gold2));color:var(--navy)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h3{font-size:15px;margin-bottom:10px}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.lead{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#0b1c32;margin-bottom:8px;cursor:pointer}
+.lead:hover{border-color:rgba(217,183,91,.45)}
+.lead b{color:#fff}.lead small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.lead .acts{display:flex;gap:6px}
+.pill{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.08);color:#c9d3e3}
+.pill.new{background:rgba(79,209,255,.14);color:#9fe3ff}.pill.contacted{background:rgba(240,180,76,.16);color:#f6c77a}.pill.processing{background:rgba(139,92,246,.18);color:#c4b5fd}
+.pill.approved{background:rgba(52,199,123,.18);color:#7ee2a8}.pill.rejected{background:rgba(239,107,107,.16);color:#f3a0a0}.pill.closed{color:var(--muted)}
+.pill.hot{background:rgba(239,107,107,.2);color:#f3a0a0}.pill.warm{background:rgba(240,180,76,.16);color:#f6c77a}.pill.cold{color:var(--muted)}
+.due{color:var(--amber);font-weight:700}.over{color:var(--red);font-weight:800}
+.empty{border:1px dashed rgba(255,255,255,.15);border-radius:12px;padding:24px;text-align:center;color:var(--muted)}
+.board{display:grid;grid-template-columns:repeat(6,minmax(190px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.col{background:#0b1c32;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:160px}
+.col h4{font-size:12.5px;display:flex;justify-content:space-between;margin:2px 4px 10px}.col h4 i{font-style:normal;color:var(--gold)}
+.mini{background:#10284a;border:1px solid var(--line);border-radius:10px;padding:9px;margin-bottom:7px;cursor:pointer}.mini b{display:block;font-size:13.5px}.mini small{color:var(--muted);font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bar{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;margin:7px 0;font-size:13.5px}.bar div{height:10px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold))}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding:9px 10px;border-bottom:1px solid var(--line)}td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+/* drawer */
+#drawer{position:fixed;inset:0;z-index:50;background:rgba(3,10,22,.65);display:flex;justify-content:flex-end}
+#drawer .panel{width:100%;max-width:640px;height:100%;overflow-y:auto;background:#0b1a30;border-left:1px solid var(--line);padding:20px}
+.dhead{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}.dhead h2{font-size:20px}.dhead small{color:var(--muted)}.dhead .x{margin-left:auto}
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;color:#c9d3e3;font-size:13.5px;margin-bottom:12px}
+.outcomes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.outcomes button{border:1px solid rgba(255,255,255,.16);background:#08172a;color:#dbe3ee;border-radius:999px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.outcomes button.on{background:#fff;color:var(--navy)}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.quick button{border:1px solid var(--line);background:transparent;color:var(--gold2);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12.5px}
+.timeline{border-left:2px solid var(--line);margin-left:6px;padding-left:14px}
+.ev{position:relative;margin-bottom:12px;font-size:13.5px}.ev::before{content:"";position:absolute;left:-20px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--cyan)}
+.ev.call::before{background:var(--gold)}.ev.whatsapp::before{background:var(--green)}.ev.stage::before{background:#a78bfa}
+.ev small{display:block;color:var(--muted);font-size:12px}
+.wa{display:grid;gap:6px}.wa a{display:block;padding:9px 12px;border:1px solid rgba(52,199,123,.35);border-radius:10px;color:#7ee2a8;text-decoration:none;font-size:13.5px}
+.script p,.script li{color:#c9d3e3;line-height:1.7;font-size:14px}.script ol{padding-left:20px}.script h3{margin-top:10px}
+.warnbox{background:rgba(240,180,76,.1);border:1px solid rgba(240,180,76,.35);color:#f6c77a;border-radius:10px;padding:9px 12px;font-size:13px;margin:8px 0}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;background:#101b2d;border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-weight:600}
+@media(max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr}.lead{grid-template-columns:1fr auto}.lead .mid{display:none}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginView">
+  <form class="login" id="loginForm">
+    <div class="brand">SIR<span>CRM</span></div>
+    <h1>Admission CRM</h1>
+    <p>For Admission Counsellors and the counselling team. Use the login your admin created for you.</p>
+    <div class="stack">
+      <label>Login e-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="btn gold" type="submit" id="loginBtn">Sign in</button>
+    </div>
+    <div class="err hide" id="loginErr"></div>
+  </form>
+</div>
+
+<div id="appView" class="hide">
+  <header><div class="brand">SIR<span>CRM</span></div><div class="who"><b id="meName"></b><small id="meRole"></small></div><button class="btn sm" id="logoutBtn">Sign out</button></header>
+  <main>
+    <div class="kpis" id="kpis"></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="drawer" class="hide"></div>
+<div id="toast" class="hide"></div>
+
+<script>
+"use strict";
+const SUPABASE_URL = "https://asbyosqpupqspzvqqhfj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_5kLRY64Pv5Ct-ZXuNtgEAw_51YUDqyw";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storageKey: "sir_crm_auth", persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const DAY = 864e5;
+const STAGES = [["new", "New"], ["contacted", "Contacted"], ["processing", "Demo / counselling"], ["approved", "Admitted"], ["rejected", "Lost"], ["closed", "Closed"]];
+const STAGE = Object.fromEntries(STAGES);
+const OPEN = ["new", "contacted", "processing"];
+const SOURCES = [["website", "Website form"], ["walk_in", "Walk-in"], ["phone", "Phone call"], ["whatsapp", "WhatsApp"], ["talent_hunt", "SAGE Talent Hunt"], ["school_event", "School event"], ["referral", "Referral"], ["social_ads", "Instagram / Facebook ad"], ["other", "Other"]];
+const SOURCE = Object.fromEntries(SOURCES);
+const OUTCOMES = [["connected", "Connected"], ["call_back", "Call back later"], ["not_answered", "Not answered"], ["switched_off", "Switched off / busy"], ["wrong_number", "Wrong number"], ["not_interested", "Not interested"]];
+const LOST = ["Fees too high", "Distance / location", "Joined another institute", "Batch timing", "Not serious / just enquiry", "Will join next year", "Other"];
+const S = { me: null, leads: [], counsellors: [], tab: "today", f: { stage: "open", source: "", who: "", q: "" } };
+
+function toast(m) { const t = $("toast"); t.textContent = m; t.classList.remove("hide"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add("hide"), 3000); }
+const fmt = (v) => v ? new Date(v).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "—";
+const ago = (v) => { if (!v) return "never"; const m = Math.round((Date.now() - new Date(v)) / 6e4); return m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " d ago"; };
+const phone91 = (p) => { const d = String(p || "").replace(/\D/g, ""); return d.length === 10 ? "91" + d : d; };
+const isToday = (v) => v && new Date(v).toDateString() === new Date().toDateString();
+const overdue = (l) => l.next_follow_up_at && new Date(l.next_follow_up_at) < new Date() && OPEN.includes(l.status);
+const nameOf = (id) => S.counsellors.find((c) => c.id === id)?.full_name || (id ? "—" : "Unassigned");
+const isLead = () => S.me && (S.me.role === "lead" || S.me.role === "admin");
+
+// ------------------------------------------------------------- auth
+function showLogin(msg) { $("appView").classList.add("hide"); $("loginView").classList.remove("hide"); if (msg) { $("loginErr").textContent = msg; $("loginErr").classList.remove("hide"); } }
+async function enter() {
+  const { data, error } = await sb.rpc("crm_whoami");
+  if (error) { await sb.auth.signOut(); return showLogin("CRM is not set up yet (database update pending). Ask the admin."); }
+  if (!data) { await sb.auth.signOut(); return showLogin("This login is not an Admission Counsellor / counselling team account. Ask the admin to set your designation."); }
+  S.me = data;
+  $("meName").textContent = data.full_name; $("meRole").textContent = data.designation || (data.role === "admin" ? "Admin" : data.role);
+  $("loginView").classList.add("hide"); $("appView").classList.remove("hide");
+  await load(); paint();
+}
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("loginErr").classList.add("hide"); $("loginBtn").disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $("loginEmail").value.trim(), password: $("loginPassword").value });
+  $("loginBtn").disabled = false;
+  if (error) return showLogin("Wrong e-mail or password.");
+  $("loginPassword").value = ""; enter();
+});
+$("logoutBtn").onclick = async () => { await sb.auth.signOut(); S.me = null; showLogin(); };
+sb.auth.getSession().then(({ data }) => { if (data?.session) enter(); });
+
+// ------------------------------------------------------------- data
+async function load() {
+  const [l, c] = await Promise.all([
+    sb.from("admissions").select("*").order("created_at", { ascending: false }).limit(2000),
+    sb.rpc("crm_counsellors"),
+  ]);
+  if (l.error) { toast("Could not load enquiries: " + l.error.message); S.leads = []; } else S.leads = l.data || [];
+  S.counsellors = c.data || [];
+}
+
+// ------------------------------------------------------------ views
+function paint() {
+  const mine = S.leads.filter((l) => isLead() || l.assigned_to === S.me.staff_id);
+  const open = mine.filter((l) => OPEN.includes(l.status));
+  const dueToday = open.filter((l) => isToday(l.next_follow_up_at));
+  const over = open.filter(overdue);
+  const fresh = S.leads.filter((l) => l.status === "new" && !l.last_contacted_at);
+  const month = new Date().toISOString().slice(0, 7);
+  const admitted = mine.filter((l) => l.status === "approved" && String(l.updated_at || "").startsWith(month));
+  $("kpis").innerHTML = [
+    ["Open enquiries", open.length, "", "all"], ["Follow-ups today", dueToday.length, dueToday.length ? "warn" : "", "today"],
+    ["Overdue follow-ups", over.length, over.length ? "bad" : "", "today"], ["New, not called", fresh.length, fresh.length ? "warn" : "", "today"],
+    ["Admitted this month", admitted.length, "ok", "reports"],
+  ].map(([l, v, t, go]) => `<div class="kpi ${t}" data-go="${go}"><span>${l}</span><b>${v}</b></div>`).join("");
+  const tabs = [["today", "Today"], ["all", "All enquiries"], ["board", "Board"], ["add", "+ Add enquiry"], ["reports", "Reports"], ["script", "Call script"]];
+  $("tabs").innerHTML = tabs.map(([id, l]) => `<button class="tab${S.tab === id ? " on" : ""}" data-tab="${id}">${l}</button>`).join("");
+  $("view").innerHTML = ({ today: vToday, all: vAll, board: vBoard, add: vAdd, reports: vReports, script: vScript })[S.tab]();
+}
+function row(l) {
+  const fu = l.next_follow_up_at ? `<span class="${overdue(l) ? "over" : isToday(l.next_follow_up_at) ? "due" : ""}">${overdue(l) ? "Overdue · " : ""}${fmt(l.next_follow_up_at)}</span>` : "no follow-up set";
+  return `<div class="lead" data-open="${esc(l.id)}"><div><b>${esc(l.student_name)}</b> ${l.priority !== "normal" ? `<span class="pill ${esc(l.priority)}">${esc(l.priority)}</span>` : ""}
+    <small>${esc([l.student_class, l.course_interest, SOURCE[l.source]].filter(Boolean).join(" · "))}</small></div>
+    <div class="mid"><span class="pill ${esc(l.status)}">${esc(STAGE[l.status] || l.status)}</span><small>Last contact ${ago(l.last_contacted_at)}</small></div>
+    <div class="mid"><small>Follow-up</small>${fu}${isLead() ? `<small>${esc(nameOf(l.assigned_to))}</small>` : ""}</div>
+    <div class="acts">${l.phone ? `<a class="btn sm" href="tel:${esc(l.phone)}" data-stop="1">Call</a><a class="btn sm green" target="_blank" rel="noopener" href="https://wa.me/${esc(phone91(l.phone))}" data-stop="1">WA</a>` : ""}</div></div>`;
+}
+function vToday() {
+  const mine = S.leads.filter((l) => (isLead() || l.assigned_to === S.me.staff_id || !l.assigned_to) && OPEN.includes(l.status));
+  const over = mine.filter(overdue).sort((a, b) => new Date(a.next_follow_up_at) - new Date(b.next_follow_up_at));
+  const today = mine.filter((l) => isToday(l.next_follow_up_at) && !overdue(l));
+  const fresh = mine.filter((l) => l.assigned_to && l.status === "new" && !l.last_contacted_at).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const unassigned = S.leads.filter((l) => !l.assigned_to && OPEN.includes(l.status));
+  const h = new Date().getHours();
+  return (h < 9 || h >= 21 ? `<div class="warnbox">It is outside 9 am – 9 pm. Please don't call parents now (TRAI rules) — send a WhatsApp or plan the call for tomorrow.</div>` : "") +
+    sec("Overdue follow-ups", over, "Nothing overdue. 👏") + sec("Follow-ups due today", today, "No follow-ups planned for today.") +
+    sec("New enquiries — call within 2 hours", fresh, "Every new enquiry has been called.") +
+    (unassigned.length ? sec(isLead() ? "Unassigned — assign to a counsellor" : "Unassigned — you can pick these", unassigned, "") : "");
+}
+const sec = (t, list, emptyMsg) => `<div class="card"><h3>${t} <span class="pill">${list.length}</span></h3>${list.length ? list.map(row).join("") : `<div class="empty">${emptyMsg}</div>`}</div>`;
+function vAll() {
+  const f = S.f;
+  let list = S.leads.filter((l) => (f.stage === "open" ? OPEN.includes(l.status) : !f.stage || l.status === f.stage) && (!f.source || l.source === f.source) && (!f.who || (f.who === "none" ? !l.assigned_to : l.assigned_to === f.who)) &&
+    (!f.q || `${l.student_name} ${l.parent_name || ""} ${l.phone || ""} ${l.school_name || ""}`.toLowerCase().includes(f.q.toLowerCase())));
+  return `<div class="filters"><label>Stage<select data-f="stage"><option value="open"${f.stage === "open" ? " selected" : ""}>Open (New, Contacted, Demo)</option><option value=""${!f.stage ? " selected" : ""}>All</option>${STAGES.map(([v, l]) => `<option value="${v}"${f.stage === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label>Source<select data-f="source"><option value="">All sources</option>${SOURCES.map(([v, l]) => `<option value="${v}"${f.source === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    ${isLead() ? `<label>Counsellor<select data-f="who"><option value="">Everyone</option><option value="none"${f.who === "none" ? " selected" : ""}>Unassigned</option>${S.counsellors.map((c) => `<option value="${esc(c.id)}"${f.who === c.id ? " selected" : ""}>${esc(c.full_name)}</option>`).join("")}</select></label>` : "<span></span>"}
+    <label>Search<input data-f="q" value="${esc(f.q)}" placeholder="Name, phone, school"></label></div>` +
+    (list.length ? list.map(row).join("") : `<div class="empty">No enquiries match.</div>`);
+}
+function vBoard() {
+  return `<div class="board">${STAGES.map(([st, label]) => { const items = S.leads.filter((l) => l.status === st); return `<div class="col"><h4>${label} <i>${items.length}</i></h4>${items.slice(0, 60).map((l) => `<div class="mini" data-open="${esc(l.id)}"><b>${esc(l.student_name)}</b><small>${esc(l.course_interest || SOURCE[l.source] || "")}${isLead() ? " · " + esc(nameOf(l.assigned_to)) : ""}</small></div>`).join("") || '<div class="empty">—</div>'}</div>`; }).join("")}</div>`;
+}
+function vAdd() {
+  return `<form class="card" id="addForm"><h3>Add an enquiry (walk-in, phone call, WhatsApp, event…)</h3><div class="grid2">
+    <label>Student name *<input name="student_name" required maxlength="120"></label><label>Parent name<input name="parent_name" maxlength="120"></label>
+    <label>Phone *<input name="phone" required inputmode="tel" pattern="\\+?[0-9 ]{10,15}" title="10-digit mobile number"></label><label>E-mail<input name="email" type="email" maxlength="254"></label>
+    <label>Class<select name="student_class"><option value="">—</option>${["8th", "9th", "10th", "11th", "12th", "12th pass / dropper"].map((c) => `<option>${c}</option>`).join("")}</select></label>
+    <label>Interested in<input name="course_interest" maxlength="120" placeholder="JEE / NEET / Foundation / MHT-CET"></label>
+    <label>School / college<input name="school_name" maxlength="200"></label>
+    <label>Source<select name="source">${SOURCES.filter(([v]) => v !== "website").map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select></label>
+    <label>Priority<select name="priority"><option value="normal">Normal</option><option value="hot">Hot — ready to join</option><option value="warm">Warm</option><option value="cold">Cold</option></select></label>
+    <label>Next follow-up<input name="next_follow_up_at" type="datetime-local"></label>
+    ${isLead() ? `<label>Assign to<select name="assigned_to"><option value="">Auto (least busy counsellor)</option>${S.counsellors.map((c) => `<option value="${esc(c.id)}">${esc(c.full_name)} (${c.open_leads} open)</option>`).join("")}</select></label>` : ""}
+    <label style="grid-column:1/-1">Notes<textarea name="message" maxlength="2000" placeholder="What they asked, budget, timing, competitor…"></textarea></label></div>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn gold" type="submit">Save enquiry</button><span class="err" id="addErr"></span></div></form>`;
+}
+function vReports() {
+  const L = S.leads;
+  const count = (f) => L.filter(f).length;
+  const total = L.length || 1;
+  const funnel = STAGES.map(([v, l]) => [l, count((x) => x.status === v)]);
+  const bySrc = SOURCES.map(([v, l]) => { const all = L.filter((x) => x.source === v); return [l, all.length, all.filter((x) => x.status === "approved").length]; }).filter((x) => x[1]);
+  const byWho = (isLead() ? S.counsellors : S.counsellors.filter((c) => c.id === S.me.staff_id)).map((c) => { const all = L.filter((x) => x.assigned_to === c.id); return [c.full_name, all.length, all.filter((x) => OPEN.includes(x.status)).length, all.filter((x) => x.status === "approved").length, all.filter((x) => x.status === "rejected").length]; });
+  const lost = {}; L.filter((x) => x.status === "rejected").forEach((x) => (lost[x.lost_reason || "Not given"] = (lost[x.lost_reason || "Not given"] || 0) + 1));
+  const bar = (l, n, max) => `<div class="bar"><span>${esc(l)}</span><div><i style="width:${max ? (100 * n) / max : 0}%"></i></div><b>${n}</b></div>`;
+  const maxF = Math.max(1, ...funnel.map((x) => x[1]));
+  return `<div class="grid2"><div class="card"><h3>Funnel</h3>${funnel.map(([l, n]) => bar(l, n, maxF)).join("")}<p style="color:var(--muted);font-size:13px;margin-top:8px">Conversion: ${Math.round((100 * count((x) => x.status === "approved")) / total)}% of all enquiries.</p></div>
+    <div class="card"><h3>By source</h3>${bySrc.length ? `<table><tr><th>Source</th><th>Enquiries</th><th>Admitted</th></tr>${bySrc.map(([l, n, a]) => `<tr><td>${esc(l)}</td><td>${n}</td><td>${a}</td></tr>`).join("")}</table>` : '<div class="empty">No data yet.</div>'}</div></div>
+    <div class="grid2"><div class="card"><h3>By counsellor</h3>${byWho.length ? `<table><tr><th>Counsellor</th><th>Total</th><th>Open</th><th>Admitted</th><th>Lost</th></tr>${byWho.map((r) => `<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join("")}</table>` : '<div class="empty">No counsellors yet.</div>'}</div>
+    <div class="card"><h3>Why we lost them</h3>${Object.keys(lost).length ? Object.entries(lost).sort((a, b) => b[1] - a[1]).map(([r, n]) => bar(r, n, Math.max(...Object.values(lost)))).join("") : '<div class="empty">No lost enquiries.</div>'}</div></div>`;
+}
+function vScript() {
+  return `<div class="card script"><h3>First call (within 2 hours)</h3><ol>
+    <li>"Namaste, I am ${esc(S.me.full_name)} from SIR Kolhapur. You enquired about admission for <i>student</i> — is this a good time to talk for 2 minutes?"</li>
+    <li>Ask: current class & school, target exam (JEE / NEET / MHT-CET / Foundation), board marks or last test score, preferred batch timing.</li>
+    <li>Tell: SIR's batches for that class, faculty, weekly tests with rank analysis, Doubt Solving Programme, parent reports.</li>
+    <li>Offer a <b>free demo class</b> or a counselling visit — fix a date and time on the call.</li>
+    <li>Send the brochure + demo details on WhatsApp (template in the enquiry). Log the call and set the next follow-up.</li></ol>
+    <h3>Follow-up rhythm</h3><ol><li>Not answered → try again after 2 h, then next day, then day 3. After 3 tries send a WhatsApp and mark priority "cold".</li><li>After the demo → call the same evening for feedback.</li><li>Never call before 9 am or after 9 pm. If a parent says "don't call", mark Lost → "Not serious / just enquiry".</li></ol>
+    <h3>Common questions</h3><ol><li><b>Fees?</b> Share the current fee plan (from the office) and scholarship options (SAGE Talent Hunt).</li><li><b>Batch size / timing?</b> Give the exact batch, never promise what the office has not confirmed.</li><li><b>Results?</b> Share real past results only.</li></ol></div>`;
+}
+
+// ------------------------------------------------------------ drawer
+async function openLead(id) {
+  const l = S.leads.find((x) => x.id === id); if (!l) return;
+  const d = $("drawer"); d.classList.remove("hide");
+  const { data: acts } = await sb.from("admission_activities").select("*").eq("admission_id", id).order("created_at", { ascending: false }).limit(200);
+  const p = phone91(l.phone);
+  const hi = (t) => encodeURIComponent(t);
+  const who = l.parent_name ? `Namaste ${l.parent_name}` : "Namaste";
+  const T = [
+    ["Welcome + brochure", `${who}, this is ${S.me.full_name} from SIR Kolhapur. Thank you for your enquiry for ${l.student_name}${l.course_interest ? " (" + l.course_interest + ")" : ""}. I will share our batch details and brochure here. When is a good time to talk?`],
+    ["Demo class invite", `${who}, we would like to invite ${l.student_name} for a free demo class at SIR Kolhapur. Please let us know a convenient day and time this week.`],
+    ["Follow-up", `${who}, just following up on ${l.student_name}'s admission enquiry at SIR Kolhapur. Do you have any questions I can help with?`],
+    ["Scholarship test", `${who}, ${l.student_name} can appear for the SAGE Talent Hunt scholarship test at SIR Kolhapur. Shall I share the registration details?`],
+  ];
+  d.innerHTML = `<div class="panel"><div class="dhead"><div><h2>${esc(l.student_name)}</h2><small>${esc([l.parent_name && "Parent: " + l.parent_name, l.student_class, l.school_name].filter(Boolean).join(" · "))}</small></div><button class="btn sm x" data-close="1">✕</button></div>
+    <div class="facts"><span class="pill ${esc(l.status)}">${esc(STAGE[l.status])}</span><span>📞 ${esc(l.phone || "—")}</span>${l.email ? `<span>✉ ${esc(l.email)}</span>` : ""}<span>Source: ${esc(SOURCE[l.source] || l.source)}</span><span>Received ${fmt(l.created_at)}</span>${isLead() ? `<span>Counsellor: ${esc(nameOf(l.assigned_to))}</span>` : ""}</div>
+    ${l.message ? `<div class="card" style="padding:12px"><small style="color:var(--muted)">Enquiry message</small><p>${esc(l.message)}</p></div>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${l.phone ? `<a class="btn gold" href="tel:${esc(l.phone)}">📞 Call now</a>` : ""}${!l.assigned_to && S.me.role === "counsellor" ? `<button class="btn" data-pick="${esc(l.id)}">Take this enquiry</button>` : ""}</div>
+    <form class="card" id="callForm"><h3>Log a call</h3><div class="outcomes">${OUTCOMES.map(([v, t]) => `<button type="button" data-outcome="${v}">${t}</button>`).join("")}</div>
+      <label>Note<textarea name="note" maxlength="2000" placeholder="What was discussed"></textarea></label>
+      <label style="margin-top:8px">Next follow-up<input name="next" type="datetime-local" value="${l.next_follow_up_at ? toLocal(l.next_follow_up_at) : ""}"></label>
+      <div class="quick"><button type="button" data-in="2h">+2 hours</button><button type="button" data-in="tom">Tomorrow 10 am</button><button type="button" data-in="3d">In 3 days</button><button type="button" data-in="7d">In a week</button><button type="button" data-in="none">No follow-up</button></div>
+      <button class="btn gold" type="submit" style="margin-top:8px">Save call</button></form>
+    <div class="card"><h3>WhatsApp</h3>${p ? `<div class="wa">${T.map(([t, m]) => `<a target="_blank" rel="noopener" href="https://wa.me/${esc(p)}?text=${hi(m)}" data-wa="${esc(t)}">${esc(t)} ↗</a>`).join("")}</div>` : '<div class="empty">No phone number.</div>'}</div>
+    <form class="card" id="editForm"><h3>Stage & details</h3><div class="grid2">
+      <label>Stage<select name="status">${STAGES.map(([v, t]) => `<option value="${v}"${v === l.status ? " selected" : ""}>${t}</option>`).join("")}</select></label>
+      <label>Priority<select name="priority">${[["hot", "Hot"], ["warm", "Warm"], ["normal", "Normal"], ["cold", "Cold"]].map(([v, t]) => `<option value="${v}"${v === l.priority ? " selected" : ""}>${t}</option>`).join("")}</select></label>
+      <label>Lost reason (if Lost)<select name="lost_reason"><option value="">—</option>${LOST.map((r) => `<option${r === l.lost_reason ? " selected" : ""}>${esc(r)}</option>`).join("")}</select></label>
+      <label>Class<input name="student_class" value="${esc(l.student_class || "")}" maxlength="40"></label>
+      <label>Interested in<input name="course_interest" value="${esc(l.course_interest || "")}" maxlength="120"></label>
+      <label>Parent name<input name="parent_name" value="${esc(l.parent_name || "")}" maxlength="120"></label>
+      ${isLead() ? `<label>Counsellor<select name="assigned_to"><option value="">Unassigned</option>${S.counsellors.map((c) => `<option value="${esc(c.id)}"${c.id === l.assigned_to ? " selected" : ""}>${esc(c.full_name)} (${c.open_leads} open)</option>`).join("")}</select></label>` : ""}
+      <label style="grid-column:1/-1">Add a note<input name="note" maxlength="2000" placeholder="Optional note for the timeline"></label></div>
+      <button class="btn gold" type="submit" style="margin-top:10px">Save</button></form>
+    <div class="card"><h3>Timeline</h3><div class="timeline">${(acts || []).map((a) => `<div class="ev ${esc(a.kind)}"><b>${esc(evTitle(a))}</b>${a.note ? `<div>${esc(a.note)}</div>` : ""}<small>${fmt(a.created_at)} · ${esc(a.actor_name || "")}</small></div>`).join("") || '<div class="empty">No activity yet.</div>'}</div></div></div>`;
+  d.dataset.id = id;
+}
+function evTitle(a) {
+  if (a.kind === "call") return "Call — " + ((OUTCOMES.find((o) => o[0] === a.outcome) || [0, a.outcome || "logged"])[1]);
+  if (a.kind === "stage") return "Stage → " + (STAGE[a.outcome] || a.outcome);
+  return { whatsapp: "WhatsApp sent" + (a.outcome ? " — " + a.outcome : ""), note: "Note", assign: "Assignment", created: "Enquiry received", visit: "Visit", demo: "Demo" }[a.kind] || a.kind;
+}
+const toLocal = (v) => { const d = new Date(v); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+function quickTime(k) {
+  const d = new Date();
+  if (k === "2h") d.setHours(d.getHours() + 2);
+  if (k === "tom") { d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); }
+  if (k === "3d") { d.setDate(d.getDate() + 3); d.setHours(11, 0, 0, 0); }
+  if (k === "7d") { d.setDate(d.getDate() + 7); d.setHours(11, 0, 0, 0); }
+  if (d.getHours() >= 21) { d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); }
+  return k === "none" ? "" : toLocal(d);
+}
+async function refreshAfter(id) { await load(); paint(); if (id) openLead(id); }
+
+// ------------------------------------------------------------ events
+document.addEventListener("click", async (e) => {
+  if (e.target.closest("[data-stop]")) { const a = e.target.closest("[data-stop]"); if (a.textContent === "WA") logActivity(a.closest("[data-open]").dataset.open, "whatsapp", "opened chat", null, false); return; }
+  const t = e.target.closest("[data-tab],[data-go],[data-open],[data-close],[data-outcome],[data-in],[data-pick],[data-wa]");
+  if (!t) { if (e.target.id === "drawer") $("drawer").classList.add("hide"); return; }
+  if (t.dataset.tab) { S.tab = t.dataset.tab; return paint(); }
+  if (t.dataset.go) { S.tab = t.dataset.go; if (t.dataset.go === "all") S.f.stage = "open"; return paint(); }
+  if (t.dataset.open) return openLead(t.dataset.open);
+  if (t.dataset.close) return $("drawer").classList.add("hide");
+  if (t.dataset.outcome) { document.querySelectorAll("[data-outcome]").forEach((b) => b.classList.toggle("on", b === t)); const f = $("callForm"); f.dataset.outcome = t.dataset.outcome;
+    const def = { not_answered: "2h", switched_off: "2h", call_back: "tom", connected: "3d", wrong_number: "none", not_interested: "none" }[t.dataset.outcome]; f.next.value = quickTime(def); return; }
+  if (t.dataset.in) { $("callForm").next.value = quickTime(t.dataset.in); return; }
+  if (t.dataset.pick) { const r = await sb.from("admissions").update({ assigned_to: S.me.staff_id }).eq("id", t.dataset.pick); if (r.error) return toast(r.error.message); toast("Enquiry is yours now"); return refreshAfter(t.dataset.pick); }
+  if (t.dataset.wa) { logActivity($("drawer").dataset.id, "whatsapp", t.dataset.wa, null, true); }
+});
+async function logActivity(id, kind, outcome, note, reopen) {
+  const r = await sb.from("admission_activities").insert({ admission_id: id, kind, outcome, note, actor_user_id: (await sb.auth.getUser()).data.user.id });
+  if (r.error) return toast(r.error.message);
+  if (reopen) setTimeout(() => refreshAfter(id), 400);
+}
+document.addEventListener("submit", async (e) => {
+  const f = e.target; const id = $("drawer").dataset.id;
+  if (f.id === "callForm") {
+    e.preventDefault();
+    if (!f.dataset.outcome) return toast("Choose how the call went.");
+    const uid = (await sb.auth.getUser()).data.user.id;
+    const a = await sb.from("admission_activities").insert({ admission_id: id, kind: "call", outcome: f.dataset.outcome, note: f.note.value.trim() || null, actor_user_id: uid });
+    if (a.error) return toast(a.error.message);
+    const patch = { next_follow_up_at: f.next.value ? new Date(f.next.value).toISOString() : null };
+    if (S.me.role === "counsellor" && !S.leads.find((x) => x.id === id)?.assigned_to) patch.assigned_to = S.me.staff_id;   // working on it = taking it
+    if (f.dataset.outcome === "not_interested") Object.assign(patch, { status: "rejected", lost_reason: "Not serious / just enquiry" });
+    if (f.dataset.outcome === "wrong_number") Object.assign(patch, { status: "closed" });
+    const r = await sb.from("admissions").update(patch).eq("id", id);
+    if (r.error) return toast(r.error.message);
+    toast("Call saved"); return refreshAfter(id);
+  }
+  if (f.id === "editForm") {
+    e.preventDefault();
+    const fd = new FormData(f);
+    const patch = { status: fd.get("status"), priority: fd.get("priority"), lost_reason: fd.get("lost_reason") || null, student_class: fd.get("student_class") || null, course_interest: fd.get("course_interest") || null, parent_name: fd.get("parent_name") || null };
+    if (patch.status === "rejected" && !patch.lost_reason) return toast("Choose why the enquiry was lost.");
+    if (isLead()) patch.assigned_to = fd.get("assigned_to") || null;
+    else if (!S.leads.find((x) => x.id === id)?.assigned_to) patch.assigned_to = S.me.staff_id;
+    if (OPEN.includes(patch.status) === false) patch.next_follow_up_at = null;
+    const r = await sb.from("admissions").update(patch).eq("id", id);
+    if (r.error) return toast(r.error.message);
+    const note = String(fd.get("note") || "").trim();
+    if (note) await sb.from("admission_activities").insert({ admission_id: id, kind: "note", note, actor_user_id: (await sb.auth.getUser()).data.user.id });
+    toast("Saved"); return refreshAfter(id);
+  }
+  if (f.id === "addForm") {
+    e.preventDefault();
+    const fd = new FormData(f);
+    const row = { student_name: fd.get("student_name").trim(), parent_name: fd.get("parent_name") || null, phone: String(fd.get("phone")).replace(/[^0-9+]/g, ""), email: fd.get("email") || null,
+      student_class: fd.get("student_class") || null, course_interest: fd.get("course_interest") || null, school_name: fd.get("school_name") || null, source: fd.get("source"),
+      priority: fd.get("priority"), message: fd.get("message") || null, next_follow_up_at: fd.get("next_follow_up_at") ? new Date(fd.get("next_follow_up_at")).toISOString() : null };
+    if (isLead() && fd.get("assigned_to")) row.assigned_to = fd.get("assigned_to");
+    const dup = S.leads.find((l) => String(l.phone || "").replace(/\D/g, "").slice(-10) === row.phone.replace(/\D/g, "").slice(-10));
+    if (dup && !confirm(`An enquiry with this phone already exists (${dup.student_name}, ${STAGE[dup.status]}). Add another anyway?`)) return;
+    const r = await sb.from("admissions").insert(row);
+    if (r.error) { $("addErr").textContent = r.error.message; return; }
+    toast("Enquiry added"); S.tab = "today"; return refreshAfter();
+  }
+});
+document.addEventListener("input", (e) => { const k = e.target.dataset?.f; if (k === "q") { S.f.q = e.target.value; const pos = e.target.selectionStart; paint(); const n = document.querySelector('[data-f="q"]'); n.focus(); n.setSelectionRange(pos, pos); } });
+document.addEventListener("change", (e) => { const k = e.target.dataset?.f; if (k && k !== "q") { S.f[k] = e.target.value; paint(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").classList.add("hide"); });
+</script>
+</body>
+</html>
