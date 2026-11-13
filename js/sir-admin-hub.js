@@ -73,7 +73,7 @@
     ["hubRoadmap", "Build Roadmap", "platform", renderRoadmap, "live"],
   ];
   // Existing sections that are placeholders today get a proper plan page.
-  const REPLACE = { fees: "fees", attendance: "attendance", lectures: "lectures" };
+  const REPLACE = { attendance: "attendance", lectures: "lectures" };
   const GROUPS = [
     ["home", "Home", ["overview", "hubSummary"]],
     ["academics", "Academics", ["students", "batches", "courses", "teachers", "hubTeacherPerf", "hubRisk"]],
@@ -120,6 +120,9 @@
       RENDER[id] = () => { if (!LOADED.has(id)) { LOADED.add(id); nextPhase(REPLACE[id], id); } };
       const b = btnFor(id); if (b && !b.querySelector(".hub-soon")) { b.innerHTML = b.textContent.trim() + ' <span class="hub-soon">next</span>'; b.addEventListener("click", () => RENDER[id]()); }
     }
+    // Fees: the real module (js/sir-admin-fees.js), reloaded every time it opens.
+    RENDER.fees = () => { const el = document.getElementById("fees"); if (el && window.SIRAdminFees) SIRAdminFees.render(el); };
+    btnFor("fees")?.addEventListener("click", () => RENDER.fees());
     RENDER.reviews = () => { if (!LOADED.has("reviews")) { LOADED.add("reviews"); renderReviews().catch((e) => fail("reviews", e)); } };
     btnFor("reviews")?.addEventListener("click", () => RENDER.reviews());
     btnFor("overview")?.addEventListener("click", () => refreshHome());
@@ -164,7 +167,7 @@
     box.innerHTML = `<div class="hub-loading">Loading live numbers…</div>`;
     Object.keys(C).forEach((k) => delete C[k]);
     const now = new Date();
-    const [st, adm, admOpen, waiting, live, res30, att, risk] = await Promise.all([
+    const [st, adm, admOpen, waiting, live, res30, att, risk, fees] = await Promise.all([
       students(),
       q(db().from("admissions").select("id").gte("created_at", iso(Date.now() - 7 * DAY))),
       q(db().from("admissions").select("id,created_at,student_name").eq("status", "new").order("created_at")),
@@ -173,6 +176,7 @@
       q(db().from("student_test_results").select("percentage").gte("test_date", iso(Date.now() - 30 * DAY).slice(0, 10))),
       attendance(0),
       riskList(),
+      window.SIRAdminFees ? SIRAdminFees.homeNumbers() : Promise.resolve(null),
     ]);
     const active = st.filter((s) => s.is_active !== false);
     const absentToday = att.filter((a) => a.attendance_date === today() && a.status === "absent").length;
@@ -188,6 +192,7 @@
     if (highRisk.length) alerts.push(["bad", `${highRisk.length} student${highRisk.length > 1 ? "s" : ""} at high risk — falling scores or low marks.`, "hubRisk"]);
     if (stale.length) alerts.push(["warn", `${stale.length} admission enquir${stale.length > 1 ? "ies have" : "y has"} waited more than 2 days without a call.`, "hubAdmissions"]);
     if ((waiting.count || 0) > 0) alerts.push(["warn", `${waiting.count} teacher paper${waiting.count > 1 ? "s are" : " is"} waiting for your approval.`, "testApprovals"]);
+    if (fees && fees.overdueStudents) alerts.push(["bad", `${fees.overdueStudents} student${fees.overdueStudents > 1 ? "s have" : " has"} overdue fees (${SIRAdminFees.money(fees.overdue)}).`, "fees"]);
     if (!markedToday) alerts.push(["info", "Attendance has not been marked today.", "absentStudents"]);
     if (absentToday) alerts.push(["warn", `${absentToday} student${absentToday > 1 ? "s" : ""} absent today.`, "absentStudents"]);
     if (!alerts.length) alerts.push(["ok", "All clear — nothing needs your attention right now.", ""]);
@@ -201,7 +206,7 @@
         ${kpi("Results (30 days)", r30.length, avg30 == null ? "no tests" : `average ${pct(avg30)}`, "", "results")}
         ${kpi("At-risk students", risk.length, `${highRisk.length} high risk`, highRisk.length ? "bad" : "", "hubRisk")}
         ${kpi("Absent today", markedToday ? absentToday : "—", markedToday ? `${markedToday} marked` : "attendance not marked", "", "absentStudents")}
-        ${kpi("Fees due", "—", "Fees module: next phase", "dim", "fees")}
+        ${fees ? kpi("Fees outstanding", SIRAdminFees.money(fees.outstanding), fees.overdue ? `${SIRAdminFees.money(fees.overdue)} overdue` : `today ${SIRAdminFees.money(fees.today)}`, fees.overdue ? "bad" : "", "fees") : kpi("Fees", "—", "open Fees to set up", "dim", "fees")}
       </div>
       <div class="hub-card hub-alerts"><h3>Needs attention</h3>${alerts.map(([t, m, go]) => `<div class="hub-alert ${t}" ${go ? `data-hub-go="${go}" role="button" tabindex="0"` : ""}><i></i><span>${esc(m)}</span>${go ? "<b>›</b>" : ""}</div>`).join("")}</div>
     </div>`;
@@ -515,8 +520,8 @@
   // ROADMAP
   // -------------------------------------------------------------------
   function renderRoadmap() {
-    const live = [["Command centre & alerts", "overview"], ["Weekly summary", "hubSummary"], ["At-risk radar", "hubRisk"], ["Teacher performance", "hubTeacherPerf"], ["Topic heatmap", "hubHeatmap"], ["Question bank stats", "hubQB"], ["Admissions pipeline", "hubAdmissions"], ["Parent weekly report (copy / WhatsApp)", "hubParent"], ["Teacher reviews", "reviews"], ["Trust & security", "hubTrust"]];
-    const next = [["1", "Fees & collection", "fees"], ["2", "Attendance (teacher + QR) with parent alerts", "attendance"], ["3", "Automatic weekly parent report on WhatsApp", "hubParent"], ["4", "Lectures & timetable", "lectures"], ["5", "Multi-institute + branding", "hubBranding"], ["6", "Onboarding wizard", "hubOnboarding"], ["7", "Plans & billing", "hubPlans"], ["8", "Demo mode", "hubDemo"], ["9", "App (PWA) + Marathi / Hindi", "hubApp"], ["10", "Ask-AI assistant for the admin", "hubSummary"]];
+    const live = [["Fees & collection (plans, instalments, receipts, dues)", "fees"], ["Command centre & alerts", "overview"], ["Weekly summary", "hubSummary"], ["At-risk radar", "hubRisk"], ["Teacher performance", "hubTeacherPerf"], ["Topic heatmap", "hubHeatmap"], ["Question bank stats", "hubQB"], ["Admissions pipeline", "hubAdmissions"], ["Parent weekly report (copy / WhatsApp)", "hubParent"], ["Teacher reviews", "reviews"], ["Trust & security", "hubTrust"]];
+    const next = [["1", "Attendance (teacher + QR) with parent alerts", "attendance"], ["2", "Automatic WhatsApp: weekly parent report + fee reminders", "hubParent"], ["3", "Online fee payment (UPI / Razorpay)", "fees"], ["4", "Lectures & timetable", "lectures"], ["5", "Multi-institute + branding", "hubBranding"], ["6", "Onboarding wizard", "hubOnboarding"], ["7", "Plans & billing", "hubPlans"], ["8", "Demo mode", "hubDemo"], ["9", "App (PWA) + Marathi / Hindi", "hubApp"], ["10", "Ask-AI assistant for the admin", "hubSummary"]];
     document.getElementById("hubRoadmap").innerHTML = head("PLATFORM", "Build Roadmap", "What is live in the admin dashboard and the order in which the rest is being built.") +
       `<div class="hub-grid2"><div class="hub-card"><h3>Live now</h3>${live.map(([t, go]) => `<div class="hub-item done" data-hub-go="${go}" role="button" tabindex="0"><i>✓</i><div><b>${esc(t)}</b></div><span class="hub-pill ok">live</span></div>`).join("")}</div>
        <div class="hub-card"><h3>Next, in order</h3>${next.map(([n, t, go]) => `<div class="hub-item" data-hub-go="${go}" role="button" tabindex="0"><i>${n}</i><div><b>${esc(t)}</b></div><span class="hub-pill watch">next</span></div>`).join("")}</div></div>`;
