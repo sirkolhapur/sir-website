@@ -2460,10 +2460,6 @@
       Absent Students
     </button>
 
-    <button class="nav-btn" data-section="tests">
-      Tests
-    </button>
-
     <button class="nav-btn" data-section="testApprovals">
       Test Approvals
     </button>
@@ -2748,34 +2744,6 @@
 
 
     <!-- TESTS -->
-
-    <section class="section" id="tests">
-
-      <div class="section-head">
-        <div>
-          <h2>Tests</h2>
-          <div class="build-marker">TEST MANAGEMENT</div>
-        </div>
-
-        <button
-          type="button"
-          class="primary-btn"
-          id="createTestBtn"
-        >
-          + Create Test
-        </button>
-      </div>
-
-      <div class="table-card">
-        <div id="testList" class="test-list">
-          <div class="test-empty">
-            Loading tests...
-          </div>
-        </div>
-      </div>
-
-    </section>
-
 
     <!-- TEST APPROVALS -->
 
@@ -5804,7 +5772,7 @@ function renderAdminTests(tests) {
 
 document
   .getElementById("testList")
-  .addEventListener("click", function(event) {
+  ?.addEventListener("click", function(event) {
 
     const manageButton =
       event.target.closest(".test-manage-btn");
@@ -6447,7 +6415,7 @@ function hideTestMessage() {
 
 document
   .getElementById("createTestBtn")
-  .addEventListener("click", openTestModal);
+  ?.addEventListener("click", openTestModal);
 
 
 document
@@ -9671,7 +9639,6 @@ async function loadAdminModules() {
     ["course management", loadManagedCourses],
     ["batch management", loadManagedBatches],
     ["test batch options", loadAdminBatches],
-    ["tests", loadAdminTests],
     ["dashboard counters", loadCounters],
     ["notices", loadNotices],
     ["results", () => typeof loadResults === "function" && loadResults()]
