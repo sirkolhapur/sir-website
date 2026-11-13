@@ -93,9 +93,9 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}th{text-align:left;co
   <form class="login" id="loginForm">
     <div class="brand">SIR<span>CRM</span></div>
     <h1>Admission CRM</h1>
-    <p>For Admission Counsellors and the counselling team. Use the login your admin created for you.</p>
+    <p>For Admission Counsellors and the counselling team. Use the Login ID and password the admin created for you in Staff Directory.</p>
     <div class="stack">
-      <label>Login e-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Login ID<input id="loginEmail" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="e.g. priya (as given by the admin)"></label>
       <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
       <button class="btn gold" type="submit" id="loginBtn">Sign in</button>
     </div>
@@ -153,9 +153,10 @@ async function enter() {
 }
 $("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault(); $("loginErr").classList.add("hide"); $("loginBtn").disabled = true;
-  const { error } = await sb.auth.signInWithPassword({ email: $("loginEmail").value.trim(), password: $("loginPassword").value });
+  const id = $("loginEmail").value.trim().toLowerCase();
+  const { error } = await sb.auth.signInWithPassword({ email: id.includes("@") ? id : id + "@sir.net.in", password: $("loginPassword").value });
   $("loginBtn").disabled = false;
-  if (error) return showLogin("Wrong e-mail or password.");
+  if (error) return showLogin("Wrong Login ID or password.");
   $("loginPassword").value = ""; enter();
 });
 $("logoutBtn").onclick = async () => { await sb.auth.signOut(); S.me = null; showLogin(); };
