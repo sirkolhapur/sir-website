@@ -135,7 +135,15 @@ const topicById = (id) => S.tax.topics.find((t) => t.id === id);
 const opt = (v, label, sel) => `<option value="${esc(v)}"${String(v) === String(sel ?? "") ? " selected" : ""}>${esc(label)}</option>`;
 const subjectOpts = (sel) => S.tax.subjects.map((s) => opt(s.id, s.name, sel)).join("");
 const chapterOpts = (sid, sel, blank = "All chapters") => opt("", blank, sel) + chaptersOf(sid).map((c) => opt(c.id, c.class_level ? `${c.name} (Class ${c.class_level})` : c.name, sel)).join("");
-const setOpts = (sel, blank) => opt("", blank, sel) + (S.tax.questionSets || []).map((q) => opt(q.id, q.label, sel)).join("");
+// Question sets belong to a pool: "standard" (book/module sets) or "advanced"
+// (institute test series = tough questions; teachers see them as their own template).
+const poolOf = (q) => (q.pool === "advanced" ? "advanced" : "standard");
+const setOpts = (sel, blank, pool = null) => (blank == null ? "" : opt("", blank, sel)) + (S.tax.questionSets || []).filter((q) => !pool || poolOf(q) === pool).map((q) => opt(q.id, q.label, sel)).join("");
+const hasAdvancedSets = () => (S.tax.questionSets || []).some((q) => poolOf(q) === "advanced");
+const WHOLE = "Whole subject — AI picks chapter & topic (test series)";
+const bankField = (id) => hasAdvancedSets() ? `<div class="full"><label class="darklabel">Question bank</label><div class="toolbar" style="margin:0">
+      <label class="checkline"><input type="radio" name="${id}" value="standard" checked> <b>Standard</b> — books &amp; modules (JEE Main / NEET level)</label>
+      <label class="checkline"><input type="radio" name="${id}" value="advanced"> <b>Advanced</b> <span style="color:var(--m)">(test series · tough questions)</span> — Narayana, Sri Chaitanya, Aakash, Allen, SIR…</label></div></div>` : "";
 const setLabels = () => Object.fromEntries((S.tax.questionSets || []).map((q) => [q.id, q.label]));
 const topicOpts = (cid, sel, blank = "All topics") => opt("", blank, sel) + topicsOf(cid).map((t) => opt(t.id, t.label, sel)).join("");
 function matchChapter(sid, name) {
@@ -188,7 +196,6 @@ function questionEditor(existing, { maps } = {}) {
     <div class="qb-row3">
      <div><label class="darklabel">Tags (comma separated)</label><input class="lightfield" data-f="tags" value="${esc(q.tags.join(", "))}"></div>
      <div><label class="darklabel">Source</label><input class="lightfield" data-f="source" value="${esc(q.source || "")}"></div>
-     <div><label class="darklabel">Marks / negative</label><div class="row"><input class="lightfield" type="number" step="0.25" min="0.25" data-f="marks" value="${esc(q.marks ?? 4)}"><input class="lightfield" type="number" step="0.25" min="0" data-f="negative" value="${esc(q.negative ?? 0)}"></div></div>
     </div>
     <div data-f="errors" class="notice hide" style="margin-top:12px;border-color:#efb5b5;background:#fdf0f0;color:#a32626"></div>
   </div>
@@ -295,7 +302,8 @@ function questionEditor(existing, { maps } = {}) {
     q.exam = $$("[data-exam]:checked", el).map((x) => x.dataset.exam);
     q.tags = f("tags").value.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
     q.source = f("source").value.trim() || null;
-    q.marks = Number(f("marks").value) || 4; q.negative = Math.max(0, Number(f("negative").value) || 0);
+    // Marks are decided by the test pattern when a teacher builds a paper — the bank keeps its defaults.
+    q.marks = Number(q.marks) || 4; q.negative = Math.max(0, Number(q.negative) || 0);
     q.difficulty = Number(f("difficulty").value) || null;
     if (q.type === "single" || q.type === "multi") q.options = q.options.map((o) => ({ key: o.key, text: o.text.trim() }));
     return structuredClone(q);
@@ -363,10 +371,11 @@ async function pageUpload(root) {
       <label class="checkline"><input type="radio" name="upEngine" value="gemini" checked> <b>Gemini AI</b> — accurate maths, fractions, diagrams and topics (needs internet; recommended)</label>
       <label class="checkline"><input type="radio" name="upEngine" value="local"> Free local reader (PDF.js / Tesseract, offline)</label>
      </div></div>
+    ${bankField("upBank")}
     <div class="full"><label class="darklabel">Files</label><input class="lightfield" type="file" id="upFiles" multiple accept=".pdf,.docx,.xlsx,image/png,image/jpeg,image/webp,image/gif,image/svg+xml"></div>
     <div><label class="darklabel">Subject</label><select class="lightfield" id="upSubject">${subjectOpts(subj)}</select></div>
     <div><label class="darklabel" id="upChapterLabel">Chapter</label><select class="lightfield" id="upChapter">${chapterOpts(subj, null, "Mixed / suggest per question")}</select></div>
-    ${hasSets ? `<div><label class="darklabel">Question set</label><select class="lightfield" id="upSet">${setOpts("", "Detect from the page heading")}</select></div>` : ""}
+    ${hasSets ? `<div><label class="darklabel" id="upSetLabel">Question set</label><select class="lightfield" id="upSet">${setOpts("", "Detect from the page heading", "standard")}</select></div>` : ""}
     <div><label class="darklabel">Source name</label><input class="lightfield" id="upSource" placeholder="e.g. RCC NEET Physics 11"></div>
     <div><label class="darklabel">PDF pages (optional)</label><input class="lightfield" id="upPages" placeholder="All, or e.g. 1-5, 9"></div>
     <div class="full" id="upMathOcrRow"><label class="checkline"><input type="checkbox" id="upMathOcr"> Read formulas with the SIR Math OCR helper on this PC (scanned PDFs only — start <code>start_helper.bat</code> first; see tools/mathocr/README.md)</label></div>
@@ -383,11 +392,22 @@ async function pageUpload(root) {
     $("#upNotice", root).innerHTML = g
       ? `<b>Nothing is verified by uploading.</b> Each page image is sent to <b>Google Gemini</b> (Google AI Studio key, kept on the server) to read the questions, formulas and diagrams; Gemini picks the topic only from the chosen chapter's list. The original file is stored unchanged with its SHA-256 fingerprint, and every question waits in <b>Review &amp; Edit</b>. <span class="muted">On Google's free tier, Google may use what is sent to improve its products — do not upload confidential papers.</span>`
       : `<b>Nothing is verified by uploading.</b> Files are read in this browser with free, open-source tools (PDF.js, Tesseract OCR, JSZip, SheetJS) — nothing is sent to an AI service. Each original file is stored unchanged with its SHA-256 fingerprint, and every extracted question waits in <b>Review &amp; Edit</b>.`;
-    $("#upChapterLabel", root).textContent = g ? "Chapter (required for Gemini)" : "Chapter (optional)";
+    $("#upChapterLabel", root).textContent = g ? "Chapter (or whole subject for a test series)" : "Chapter (optional)";
+    const keep = $("#upChapter", root).value;
+    $("#upChapter", root).innerHTML = chapterOpts($("#upSubject", root).value, keep, g ? WHOLE : "Mixed / suggest per question");
     $("#upMathOcrRow", root).style.display = g ? "none" : "";
     $("#upFiles", root).onchange();
   };
-  $("#upSubject", root).onchange = (e) => { $("#upChapter", root).innerHTML = chapterOpts(e.target.value, null, "Mixed / suggest per question"); };
+  $("#upSubject", root).onchange = (e) => { $("#upChapter", root).innerHTML = chapterOpts(e.target.value, null, engine() === "gemini" ? WHOLE : "Mixed / suggest per question"); };
+  const bank = () => $("[name=upBank]:checked", root)?.value || "standard";
+  const paintBank = () => {
+    const adv = bank() === "advanced", sel = $("#upSet", root);
+    if (sel) sel.innerHTML = adv ? setOpts("", null, "advanced") : setOpts("", "Detect from the page heading", "standard");
+    if ($("#upSetLabel", root)) $("#upSetLabel", root).textContent = adv ? "Test series (institute)" : "Question set";
+    $("#upSource", root).placeholder = adv ? "e.g. Narayana JEE Adv Grand Test 05" : "e.g. RCC NEET Physics 11";
+    if (adv) $("#upChapter", root).value = "";
+  };
+  $$("[name=upBank]", root).forEach((r) => (r.onchange = paintBank));
   $("#upTemplate", root).onclick = () => (typeof downloadTemplate === "function" ? downloadTemplate() : toast("Template not available"));
   const files = () => [...$("#upFiles", root).files];
   $("#upFiles", root).onchange = () => {
@@ -406,7 +426,7 @@ async function pageUpload(root) {
     const common = { subject: $("#upSubject", root).value, chapterId: $("#upChapter", root).value || null, sourceLabel: $("#upSource", root).value.trim(),
       exam: $$("[data-upexam]:checked", root).map((x) => x.value), pages: $("#upPages", root).value, mathOcr: !g && $("#upMathOcr", root).checked,
       extractor: g ? "gemini" : "local", questionSet: $("#upSet", root)?.value || null };
-    if (g && !common.chapterId) { toast("Choose the chapter first — Gemini picks topics only from that chapter's list."); return; }
+    if (bank() === "advanced" && !common.questionSet) { toast("Choose the test series (institute) for the advanced bank."); return; }
     startBtn.disabled = true;
     const logRow = (name) => {
       const row = document.createElement("div"); row.className = "card"; row.style.marginTop = "10px";
@@ -456,7 +476,8 @@ function bulkCard(box, onQueued) {
    <div class="formgrid">
     <div><label class="darklabel">Subject</label><select class="lightfield" id="bkSubject">${subjectOpts(subj)}</select></div>
     <div><label class="darklabel">Source name</label><input class="lightfield" id="bkSource" placeholder="e.g. RCC NEET Physics Vol 1"></div>
-    ${hasSets ? `<div><label class="darklabel">Question set</label><select class="lightfield" id="bkSet">${setOpts("", "Detect from the page heading")}</select></div>` : ""}
+    ${hasSets ? `<div><label class="darklabel" id="bkSetLabel">Question set</label><select class="lightfield" id="bkSet">${setOpts("", "Detect from the page heading", "standard")}</select></div>` : ""}
+    ${bankField("bkBank")}
     <div class="full"><label class="darklabel">Exam suitability</label><div class="toolbar" style="margin:0">${S.tax.examTags.map((t) => `<label class="checkline"><input type="checkbox" value="${esc(t.id)}" data-bkexam> ${esc(t.label)}</label>`).join("")}</div></div>
     <div class="full"><label class="darklabel">Folder of page photos (JPEG / PNG)</label><input class="lightfield" type="file" id="bkFolder" webkitdirectory multiple></div>
    </div>
@@ -467,13 +488,22 @@ function bulkCard(box, onQueued) {
     const subject = $("#bkSubject", box).value;
     $("#bkList", box).innerHTML = groups.length ? `<div class="tablewrap"><table><thead><tr><th>Folder</th><th>Photos</th><th>Chapter</th><th>Status</th></tr></thead><tbody>${groups.map((g, i) => `<tr>
       <td>${esc(g.folder)}</td><td>${g.files.length}</td>
-      <td><select class="lightfield" data-bkch="${i}">${chapterOpts(subject, g.chapterId, "Choose the chapter…")}</select></td>
+      <td><select class="lightfield" data-bkch="${i}">${opt("", "Choose the chapter…", g.chapterId)}${opt("*", WHOLE, g.chapterId)}${chaptersOf(subject).map((c) => opt(c.id, c.class_level ? `${c.name} (Class ${c.class_level})` : c.name, g.chapterId)).join("")}</select></td>
       <td data-bkst="${i}">${esc(g.status || "ready")}</td></tr>`).join("")}</tbody></table></div>` : "";
     $$("[data-bkch]", box).forEach((sel) => (sel.onchange = () => { groups[Number(sel.dataset.bkch)].chapterId = sel.value; check(); }));
     check();
   };
   const check = () => { $("#bkStart", box).disabled = !groups.length || groups.some((g) => !g.chapterId); };
-  $("#bkSubject", box).onchange = () => { const subject = $("#bkSubject", box).value; groups.forEach((g) => (g.chapterId = guessChapter(g.folder, subject))); paint(); };
+  const bkBank = () => $("[name=bkBank]:checked", box)?.value || "standard";
+  const defaultChapter = (folder, subject) => (bkBank() === "advanced" ? "*" : guessChapter(folder, subject));
+  $$("[name=bkBank]", box).forEach((r) => (r.onchange = () => {
+    const adv = bkBank() === "advanced", sel = $("#bkSet", box);
+    if (sel) sel.innerHTML = adv ? setOpts("", null, "advanced") : setOpts("", "Detect from the page heading", "standard");
+    if ($("#bkSetLabel", box)) $("#bkSetLabel", box).textContent = adv ? "Test series (institute)" : "Question set";
+    $("#bkSource", box).placeholder = adv ? "e.g. Allen JEE Main Test Series 2026" : "e.g. RCC NEET Physics Vol 1";
+    const subject = $("#bkSubject", box).value; groups.forEach((g) => (g.chapterId = defaultChapter(g.folder, subject))); paint();
+  }));
+  $("#bkSubject", box).onchange = () => { const subject = $("#bkSubject", box).value; groups.forEach((g) => (g.chapterId = defaultChapter(g.folder, subject))); paint(); };
   $("#bkFolder", box).onchange = () => {
     const by = new Map();
     for (const f of $("#bkFolder", box).files) {
@@ -483,11 +513,12 @@ function bulkCard(box, onQueued) {
       by.get(folder).push(f);
     }
     const subject = $("#bkSubject", box).value;
-    groups = [...by].sort((a, b) => naturalSort(a[0], b[0])).map(([folder, files]) => ({ folder, files: files.sort((a, b) => naturalSort(a.name, b.name)), chapterId: guessChapter(folder, subject) }));
+    groups = [...by].sort((a, b) => naturalSort(a[0], b[0])).map(([folder, files]) => ({ folder, files: files.sort((a, b) => naturalSort(a.name, b.name)), chapterId: defaultChapter(folder, subject) }));
     paint();
   };
   $("#bkStart", box).onclick = async () => {
     const btn = $("#bkStart", box); btn.disabled = true;
+    if (bkBank() === "advanced" && !$("#bkSet", box)?.value) { toast("Choose the test series (institute) for the advanced bank."); btn.disabled = false; return; }
     const opts = { subject: $("#bkSubject", box).value, sourceLabel: $("#bkSource", box).value.trim(), questionSet: $("#bkSet", box)?.value || null,
       exam: $$("[data-bkexam]:checked", box).map((x) => x.value) };
     const total = groups.reduce((n, g) => n + g.files.length, 0);
@@ -516,14 +547,17 @@ async function uploadFolder(g, opts, progress) {
     for (const r of data || []) known.set(r.sha256, r);
   }
   // An interrupted upload of this folder continues in the same job.
-  const { data: open } = await sb.from("qb_import_jobs").select("*").eq("pipeline", "server").eq("upload_done", false).eq("file_name", g.folder).eq("chapter_id", g.chapterId).limit(1);
+  const chapterId = g.chapterId === "*" ? null : g.chapterId;   // "*" = whole subject (test series)
+  let openQ = sb.from("qb_import_jobs").select("*").eq("pipeline", "server").eq("upload_done", false).eq("file_name", g.folder);
+  openQ = chapterId ? openQ.eq("chapter_id", chapterId) : openQ.is("chapter_id", null);
+  const { data: open } = await openQ.limit(1);
   let job = open?.[0];
   const todo = g.files.map((f, i) => ({ f, i, hash: hashes[i] })).filter((x) => !known.has(x.hash));
   if (!todo.length && !job) { progress(g.files.length, `already uploaded (${g.files.length} photos skipped)`); return; }
   if (!job) {
     const { data, error } = await sb.from("qb_import_jobs").insert({
       file_name: g.folder, file_type: "image", original_sha256: await sha256(new TextEncoder().encode(hashes.join(",")).buffer), original_size: g.files.reduce((n, f) => n + f.size, 0),
-      subject_id: opts.subject, chapter_id: g.chapterId, source_label: opts.sourceLabel || g.folder.split("/").pop(), exam_tags: opts.exam, status: "uploaded",
+      subject_id: opts.subject, chapter_id: chapterId, source_label: opts.sourceLabel || g.folder.split("/").pop(), exam_tags: opts.exam, status: "uploaded",
       created_by: T.userId(), page_count: g.files.length, extractor: "gemini", pipeline: "server", upload_done: false, ...(opts.questionSet ? { question_set: opts.questionSet } : {}),
     }).select().single();
     if (error) throw error;
