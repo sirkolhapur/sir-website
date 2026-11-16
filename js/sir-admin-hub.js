@@ -60,6 +60,7 @@
     ["hubSummary", "Weekly Summary", "home", renderSummary, "live"],
     ["hubRisk", "At-risk Radar", "academics", renderRisk, "live"],
     ["hubTeacherPerf", "Teacher Performance", "academics", renderTeacherPerf, "live"],
+    ["hubTestSetup", "Test Setup", "exams", () => {}, "live"],
     ["hubHeatmap", "Topic Heatmap", "exams", renderHeatmap, "live"],
     ["hubQB", "Question Bank Stats", "exams", renderQB, "live"],
     ["hubAdmissions", "Admissions Pipeline", "growth", renderAdmissions, "live"],
@@ -77,7 +78,7 @@
   const GROUPS = [
     ["home", "Home", ["overview", "hubSummary"]],
     ["academics", "Academics", ["students", "batches", "courses", "teachers", "hubTeacherPerf", "hubRisk"]],
-    ["exams", "Exams & Results", ["testApprovals", "results", "hubHeatmap", "hubQB"]],
+    ["exams", "Exams & Results", ["hubTestSetup", "testApprovals", "results", "hubHeatmap", "hubQB"]],
     ["growth", "Admissions & Parents", ["hubAdmissions", "hubParent"]],
     ["ops", "Operations", ["fees", "attendance", "absentStudents", "lectures"]],
     ["comm", "Communication", ["notices", "reviews", "dsp"]],
@@ -120,6 +121,10 @@
       RENDER[id] = () => { if (!LOADED.has(id)) { LOADED.add(id); nextPhase(REPLACE[id], id); } };
       const b = btnFor(id); if (b && !b.querySelector(".hub-soon")) { b.innerHTML = b.textContent.trim() + ' <span class="hub-soon">next</span>'; b.addEventListener("click", () => RENDER[id]()); }
     }
+    // Test Setup: the real module (js/sir-admin-tests.js), reloaded every time it opens.
+    RENDER.hubTestSetup = () => { const el = document.getElementById("hubTestSetup"); if (el && window.SIRAdminTests) SIRAdminTests.render(el); };
+    if (window.SIRAdminTests) setTimeout(() => SIRAdminTests.badge(), 2500);
+    if (location.hash === "#test-setup") setTimeout(() => btnFor("hubTestSetup")?.click(), 1800);
     // Fees: the real module (js/sir-admin-fees.js), reloaded every time it opens.
     RENDER.fees = () => { const el = document.getElementById("fees"); if (el && window.SIRAdminFees) SIRAdminFees.render(el); };
     btnFor("fees")?.addEventListener("click", () => RENDER.fees());

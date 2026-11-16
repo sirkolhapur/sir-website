@@ -1,0 +1,52 @@
+/* Admin → Test Setup */
+.hide{display:none!important}
+.ts-card{padding:18px}
+.ts-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:6px}
+.ts-head h3{font-size:18px;margin:0 0 4px;color:#fff}
+.ts-meta{color:#9fb0c6;font-size:13.5px;line-height:1.6}
+.ts-meta b{color:#fff}.ts-meta em{font-style:normal;color:var(--hub-gold2)}
+.ts-ann{color:#7ee2a8}
+.ts-steps{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.ts-steps span{font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px;background:rgba(255,255,255,.06);color:#6f819b}
+.ts-steps span.done{background:rgba(52,199,123,.14);color:#7ee2a8}
+.ts-steps span.now{background:linear-gradient(120deg,var(--hub-gold),var(--hub-gold2));color:#071426}
+.ts-secs{display:grid;gap:8px;margin:8px 0 12px}
+.ts-sec{display:grid;grid-template-columns:minmax(140px,.8fr) minmax(0,2.2fr) 110px auto;gap:10px;align-items:start;background:#0b1c32;border:1px solid var(--hub-line);border-radius:12px;padding:10px 12px}
+.ts-sec-main b{display:block;color:#fff}
+.ts-sec-main small{color:var(--hub-muted);font-size:12.5px}
+.ts-sec-main a{color:var(--hub-gold);font-weight:700}
+.ts-sec-syl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.ts-sec-prog{font-variant-numeric:tabular-nums;color:#dbe3ee;white-space:nowrap}
+.ts-sec-prog small{color:var(--hub-muted)}
+.ts-sec-act{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.ts-chip{display:inline-block;font-size:12px;background:rgba(79,209,255,.1);color:#9fe3ff;border-radius:8px;padding:3px 8px}
+.ts-chip i{font-style:normal;opacity:.75}
+.ts-note{flex-basis:100%;font-size:12.5px;color:#c9d3e3;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 9px}
+.ts-note.bad{background:rgba(239,107,107,.1);color:#f3a0a0}
+.ts-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ts-btn{min-height:34px;padding:6px 13px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.ts-btn:hover{border-color:var(--hub-gold)}
+.ts-btn.primary{background:linear-gradient(120deg,var(--hub-gold),var(--hub-gold2));color:#071426;border-color:transparent}
+.ts-btn.danger{border-color:rgba(239,107,107,.5);color:#f3a0a0}
+.ts-batches{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:12px;color:#dbe3ee;font-size:14px}
+.ts-batches label{display:flex;gap:6px;align-items:center}
+.ts-row{background:#0b1c32;border:1px solid var(--hub-line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.ts-row-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ts-row-h b{min-width:130px;color:#fff}
+.ts-row-h select{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:#08172a;color:#fff;font-size:14px;color-scheme:dark;min-width:200px}
+.ts-parts{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:13px;color:#9fb0c6}
+.ts-part input{width:70px;padding:5px 7px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:#08172a;color:#fff}
+.ts-part select{padding:5px 7px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:#08172a;color:#fff}
+.ts-chaps{display:grid;gap:8px;max-height:60vh;overflow-y:auto;margin-bottom:12px}
+.ts-chap{background:#0b1c32;border:1px solid var(--hub-line);border-radius:10px;padding:8px 12px}
+.ts-chap.on{border-color:rgba(217,183,91,.5)}
+.ts-chap-h,.ts-top{display:flex;gap:8px;align-items:center;color:#dbe3ee;font-size:14px;cursor:pointer}
+.ts-chap-h small{color:var(--hub-muted)}
+.ts-tops{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;margin:8px 0 2px 24px}
+.ts-top{font-size:13px;color:#c9d3e3}
+.ts-top.all{color:var(--hub-gold2);font-weight:700}
+#tsToast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10050;background:#101b2d;border:1px solid var(--hub-line);color:#fff;padding:11px 16px;border-radius:12px;font-weight:600}
+#tsToast[hidden]{display:none}
+@media(max-width:900px){.ts-sec{grid-template-columns:1fr}.ts-sec-act{justify-content:flex-start}.ts-row-h select{min-width:0;width:100%}}
+
+.nav-btn .ta-count[hidden]{display:none!important}
