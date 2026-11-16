@@ -1,0 +1,5 @@
+Contact: mailto:management@sir.net.in
+Expires: 2027-11-13T10:12:49.000Z
+Preferred-Languages: en, hi, mr
+Canonical: https://sir.net.in/.well-known/security.txt
+Policy: https://sir.net.in/privacy-policy.html
