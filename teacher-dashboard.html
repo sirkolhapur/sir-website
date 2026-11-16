@@ -9119,7 +9119,34 @@ async function loadMyPapers(){
   if (state.stage==="mode" || state.stage==="sent") renderApp();
 }
 
+// Teachers do not build whole papers here any more. The admin creates the test and
+// allows the teacher; the teacher then picks questions from "Tests assigned to me".
+let OWN_SUBJECT = null, OWN_CHECKED = false;
+function checkOwnSubject(){
+  if (OWN_CHECKED) return; OWN_CHECKED = true;
+  try {
+    supabaseClient.rpc("sir_current_teacher_subject").then(({data, error})=>{
+      if (error) { OWN_CHECKED = false; return; }
+      if (data) { OWN_SUBJECT = data; renderApp(); }
+    });
+  } catch(e) { OWN_CHECKED = false; }
+}
+function renderTeacherNotice(){
+  const own = state.subjectRows.length && state.subjectRows.every(r=>r.subject===OWN_SUBJECT);
+  let html = '';
+  if (own && Object.values(state.selections).some(a=>a.length)) {
+    html += '<div class="card resume"><div><b>Continue "'+esc(state.testName||"Untitled test")+'"</b><div class="muted">'+
+      Object.values(state.selections).reduce((s,a)=>s+a.length,0)+' questions picked so far</div></div>'+
+      '<div class="btnrow"><button class="btn" onclick="startOver()">Discard</button><button class="btn primary" onclick="state.stage=\x27pick\x27;renderApp()">Continue →</button></div></div>';
+  }
+  html += '<div class="card"><h1 class="pt">Tests are set up by the admin</h1>' +
+    '<p class="sub">When the admin allows you, your test appears under <b>Tests assigned to me</b> at the top of this page. ' +
+    'You will pick questions of <b>'+esc(OWN_SUBJECT)+'</b> only, from the syllabus the admin has verified.</p></div>';
+  return html;
+}
 function renderMode(){
+  checkOwnSubject();
+  if (OWN_SUBJECT) { mount(renderTeacherNotice()); return; }
   let html = '';
   const inProgress = state.subjectRows.length && Object.values(state.selections).some(a=>a.length);
   if (inProgress) {
