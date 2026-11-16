@@ -23,6 +23,8 @@
   <script src="js/sir-paper.js?v=20261116"></script>
   <!-- Admin hub: grouped menu, command centre, analytics, planned modules -->
   <link rel="stylesheet" href="css/sir-admin-hub.css?v=20261113">
+  <link rel="stylesheet" href="css/sir-admin-tests.css?v=20261126">
+  <script src="js/sir-admin-tests.js?v=20261126" defer></script>
   <script src="js/sir-admin-fees.js?v=20261113" defer></script>
   <script src="js/sir-admin-hub.js?v=20261113" defer></script>
 
@@ -10400,7 +10402,7 @@ document.querySelector('.nav-btn[data-section="results"]')?.addEventListener("cl
         '<div class="ta-meta">'+meta+'</div>' +
         (p.admin_note ? '<div class="ta-note">Teacher\'s note: '+esc(p.admin_note)+'</div>' : '') +
         '<div class="ta-actions"><button class="ta-btn'+(open?'':' primary')+'" data-ta-open="'+p.id+'">'+(open?'Close':(p.status==="submitted"?'Review & approve':'View paper'))+'</button>' +
-        '<button class="ta-btn" data-ta-print="'+p.id+'">Print</button></div>' +
+        '<button class="ta-btn" data-ta-print="'+p.id+'">Print / PDF</button><button class="ta-btn" data-ta-word="'+p.id+'">Word (.doc)</button></div>' +
         (open ? '<div class="ta-panel" id="ta-panel-'+p.id+'">'+panelHtml(p)+'</div>' : '') + '</div>';
     }).join("");
   }
@@ -10497,14 +10499,30 @@ document.querySelector('.nav-btn[data-section="results"]')?.addEventListener("cl
     } catch (e) { win.close(); alert(e.message || String(e)); }
   }
 
+  // Offline: the same paper as a Word file (answer key and solutions included).
+  async function wordPaper(id){
+    try {
+      const d = await fetchDetail(id);
+      const sections = [];
+      for (const s of d.sections || []) for (const part of s.parts || []) sections.push({
+        label: s.label + ((s.parts||[]).length>1 ? " — " + part.label : ""),
+        note: Number(part.marks_wrong) ? "+"+Number(part.marks_correct)+" for correct, −"+Number(part.marks_wrong)+" for wrong" : "+"+Number(part.marks_correct)+" for correct, no negative marking",
+        questions: part.questions.map(q => ({ q, answer: q.answer, solution: q.solution_md, marks: "+"+Number(part.marks_correct)+(Number(part.marks_wrong)?" / −"+Number(part.marks_wrong):"") }))
+      });
+      SIRPaper.downloadDoc({ title: d.title, subtitle: "SIR Kolhapur", duration: d.duration_minutes, maxMarks: Number(d.max_marks), sections, withKey: true, withSolutions: true,
+        instructions: ["Marking for each section is shown under its heading."] });
+    } catch (e) { alert(e.message || String(e)); }
+  }
+
   document.addEventListener("click", (ev) => {
-    const t = ev.target.closest("[data-ta-tab],[data-ta-open],[data-ta-approve],[data-ta-return],[data-ta-print]");
+    const t = ev.target.closest("[data-ta-tab],[data-ta-open],[data-ta-approve],[data-ta-return],[data-ta-print],[data-ta-word]");
     if (!t || !t.closest("#testApprovals")) return;
     if (t.dataset.taTab) { TA.tab = t.dataset.taTab; TA.open = null; document.querySelectorAll("#testApprovals .ta-tab").forEach(b => b.classList.toggle("on", b === t)); load(); }
     else if (t.dataset.taOpen) openPaper(t.dataset.taOpen);
     else if (t.dataset.taApprove) approve(t.dataset.taApprove);
     else if (t.dataset.taReturn) giveBack(t.dataset.taReturn);
     else if (t.dataset.taPrint) printPaper(t.dataset.taPrint);
+    else if (t.dataset.taWord) wordPaper(t.dataset.taWord);
   });
   document.querySelector('.nav-btn[data-section="testApprovals"]')?.addEventListener("click", load);
 

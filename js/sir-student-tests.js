@@ -48,11 +48,18 @@
   // =================================================================
   let LIST = [], TAB = "attempt", hubTick = null;
 
+  // Announced tests ("Next test"): name, date and syllabus only — never questions.
+  let UPCOMING = [];
+  const OPEN_SYL = new Set();
+  const dayWord = (d) => { if (!d) return ""; const n = Math.round((new Date(d + "T00:00:00") - new Date(new Date().toDateString())) / 864e5); return n === 0 ? "Today" : n === 1 ? "Tomorrow" : n > 1 ? "In " + n + " days" : ""; };
+  const nextDay = (d) => (d ? new Date(d + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" }) : "Date to be announced");
+
   async function loadList() {
     const box = $("onlineTestsList");
     if (!box) return;
-    const { data, error } = await sb.rpc("asm_student_list");
+    const [{ data, error }, up] = await Promise.all([sb.rpc("asm_student_list"), sb.rpc("asm_student_upcoming").then((r) => r, () => ({ data: [] }))]);
     if (error) { box.innerHTML = '<div class="tc-empty">Could not load tests: ' + esc(error.message) + "</div>"; return; }
+    UPCOMING = Array.isArray(up?.data) ? up.data : [];
     LIST = (data || []).filter((t) => t.phase !== "cancelled");
     renderHero();
     renderHub();
@@ -75,7 +82,9 @@
     if (!hero) return;
     const next = LIST.filter((t) => t.phase === "scheduled").sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))[0];
     const results = LIST.filter((t) => t.results_available && t.last_submitted_attempt_id).length;
+    const ann = UPCOMING[0];
     const [title, sub] = live ? [live + (live === 1 ? " test is live now" : " tests are live now"), "Tap to attempt"]
+      : ann && (!next || !next.starts_at || (ann.scheduled_on && ann.scheduled_on <= String(next.starts_at).slice(0, 10))) ? ["Next test: " + ann.title, nextDay(ann.scheduled_on) + " · tap for the syllabus"]
       : next ? ["Next test: " + next.title, "Opens " + fmt(next.starts_at)]
       : results ? ["Your test results are out", "Tap for analysis and solutions"] : [null, null];
     hero.hidden = !title;
@@ -90,7 +99,7 @@
     const best = scored.length ? Math.max(...scored.map((t) => Math.round((100 * t.my_score) / t.my_max_score))) : null;
     const liveN = g.attempt.filter((t) => t.phase === "live").length;
     const upN = g.attempt.filter((t) => t.phase === "scheduled").length;
-    let html = '<div class="tc-stats">' +
+    let html = nextTestHtml() + '<div class="tc-stats">' +
       stat("Live now", liveN, liveN ? "live" : "") + stat("Upcoming", upN) + stat("Completed", g.done.length) +
       stat("Average", avg == null ? "—" : avg + "%", "", best == null ? "" : "Best " + best + "%") + "</div>";
     html += '<div class="tc-tabs" role="tablist">' +
@@ -120,6 +129,23 @@
       el.textContent = until(ms);
     });
     if (reload) { clearInterval(hubTick); setTimeout(loadList, 1500); }
+  }
+
+  function nextTestHtml() {
+    if (!UPCOMING.length) return "";
+    return '<div class="tc-next">' + UPCOMING.map((u) => {
+      const open = OPEN_SYL.has(u.id);
+      const dw = dayWord(u.scheduled_on);
+      return '<article class="tc-nx"><div class="tc-nx-top"><span class="tc-nx-tag">📣 NEXT TEST</span>' + (dw ? '<span class="tc-nx-when">' + esc(dw) + "</span>" : "") + "</div>" +
+        "<h3>" + esc(u.title) + "</h3>" +
+        '<div class="tc-nx-date">📅 ' + esc(nextDay(u.scheduled_on)) + "</div>" +
+        '<div class="tc-meta"><span>⏱ ' + u.duration_minutes + " min</span>" + (u.questions ? "<span>⧉ " + u.questions + " questions</span>" : "") + (Number(u.max_marks) ? "<span>◎ " + Number(u.max_marks) + " marks</span>" : "") + "</div>" +
+        '<div class="tc-nx-subj">' + (u.sections || []).map((s) => '<span class="tc-subj">' + esc(s.label) + "</span>").join("") + "</div>" +
+        '<button class="tc-btn' + (open ? "" : " glow") + '" data-tc-syl="' + esc(u.id) + '">' + (open ? "Hide syllabus ▴" : "View syllabus ▾") + "</button>" +
+        (open ? '<div class="tc-nx-syl">' + (u.sections || []).map((s) => '<div class="tc-nx-sec"><b>' + esc(s.label) + "</b>" +
+          ((s.scope || []).length ? "<ul>" + s.scope.map((c) => "<li><span>" + esc(c.chapter) + "</span>" + (c.whole || !(c.topics || []).length ? "" : "<small>" + esc(c.topics.join(" · ")) + "</small>") + "</li>").join("") + "</ul>" : '<div class="tc-sub">Syllabus will be shared soon.</div>') +
+          (s.note ? '<div class="tc-nx-note">📝 ' + esc(s.note) + "</div>" : "") + "</div>").join("") + "</div>" : "") + "</article>";
+    }).join("") + "</div>";
   }
 
   function card(t) {
@@ -643,6 +669,8 @@
   // EVENTS
   // =================================================================
   document.addEventListener("click", async (ev) => {
+    const syl = ev.target.closest("[data-tc-syl]");
+    if (syl) { const id = syl.dataset.tcSyl; OPEN_SYL.has(id) ? OPEN_SYL.delete(id) : OPEN_SYL.add(id); return renderHub(); }
     const t = ev.target.closest("[data-tc-tab],[data-ot-brief],[data-ot-resume],[data-ot-result],[data-ex],[data-opt],[data-jump],[data-sec],[data-rtab],[data-rfilter],[data-goto]");
     if (!t) return;
     if (t.dataset.tcTab) { TAB = t.dataset.tcTab; return renderHub(); }
