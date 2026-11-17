@@ -110,6 +110,8 @@
     if (a.status === "with_teachers") h += '<span class="hub-sub">Teachers are picking questions. You will be notified when all subjects are submitted.</span>';
     if (a.status === "submitted") h += `<button class="ts-btn primary" data-ts-review="1">Review & publish in Test Approvals →</button>`;
     if (a.status === "approved") h += `<button class="ts-btn" data-ts-review="1">Open in Test Approvals</button>`;
+    if (["draft", "with_teachers", "submitted"].includes(a.status)) h += `<button class="ts-btn" data-ts-date="${esc(a.id)}" data-cur="${esc(a.scheduled_on || "")}">Change date</button>`;
+    if (a.status === "cancelled") h += `<button class="ts-btn primary" data-ts-restore="${esc(a.id)}">↩ Restore this test</button><span class="hub-sub">Picked questions and syllabus are still saved.</span>`;
     if (!["approved", "cancelled"].includes(a.status)) h += `<button class="ts-btn danger" data-ts-cancel="${esc(a.id)}">Cancel test</button>`;
     return h;
   }
@@ -228,6 +230,12 @@
   }
 
   // Change teacher ----------------------------------------------------
+  function dateModal(aid, cur) {
+    modal(`<h2>Change the test date</h2><form data-ts-dateform="${esc(aid)}"><label class="wide">New date<input type="date" name="d" value="${esc(cur || "")}" required></label>
+      <p class="hub-sub">Teachers are notified. The syllabus and the questions they have already picked stay as they are.</p>
+      <div class="hub-actions"><button class="primary-btn" type="submit">Save date</button><span class="hub-sub" data-ts-err></span></div></form>`);
+  }
+
   function teacherModal(sectionId, subject, cur) {
     modal(`<h2>Change teacher</h2><form data-ts-teacherform="${esc(sectionId)}"><label class="wide">Teacher<select name="t" required>${teacherOptions(subject, cur)}</select></label>
       <div class="hub-actions"><button class="primary-btn" type="submit">Save</button><span class="hub-sub" data-ts-err></span></div></form>`);
@@ -242,7 +250,7 @@
   function toast(msg) { let t = document.getElementById("tsToast"); if (!t) { t = document.createElement("div"); t.id = "tsToast"; document.body.appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 3200); }
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-ts-tab],[data-ts-new],[data-ts-close],[data-ts-verify],[data-ts-back],[data-ts-edit],[data-ts-teacher],[data-ts-pub],[data-ts-unpub],[data-ts-grant],[data-ts-cancel],[data-ts-reassign],[data-ts-review],[data-ts-addrow],[data-ts-delrow]");
+    const t = e.target.closest("[data-ts-tab],[data-ts-new],[data-ts-close],[data-ts-verify],[data-ts-back],[data-ts-edit],[data-ts-teacher],[data-ts-pub],[data-ts-unpub],[data-ts-grant],[data-ts-cancel],[data-ts-date],[data-ts-restore],[data-ts-reassign],[data-ts-review],[data-ts-addrow],[data-ts-delrow]");
     if (!t) { if (e.target.id === "tsModal") closeModal(); return; }
     const d = t.dataset;
     if (d.tsTab) { T.tab = d.tsTab; return render(); }
@@ -255,7 +263,9 @@
     if (d.tsPub) { const a = T.list.find((x) => x.id === d.tsPub); if (!a.batches.length) return alert("Choose the batches first. (Cancel this test and create it again with batches, or ask for batch editing.)"); if (!confirm(`Announce "${a.title}" (${fmtDate(a.scheduled_on)}) with its syllabus to ${a.batches.map((b) => b.name).join(", ")}?\nStudents will be notified.`)) return; return act(() => db().rpc("asm_admin_set_syllabus_publish", { p_assessment_id: d.tsPub, p_publish: true }), "Announced on the students' dashboard"); }
     if (d.tsUnpub) { if (!confirm("Hide this announcement from the students' dashboard?")) return; return act(() => db().rpc("asm_admin_set_syllabus_publish", { p_assessment_id: d.tsUnpub, p_publish: false }), "Announcement hidden"); }
     if (d.tsGrant) { const a = T.list.find((x) => x.id === d.tsGrant); if (!confirm(`Give the teachers access to pick questions for "${a.title}"?\nEach teacher sees only questions of their own subject and the verified syllabus. The syllabus can't be changed after this.`)) return; return act(() => db().rpc("asm_admin_grant_compose", { p_assessment_id: d.tsGrant }), "Teachers can now pick questions"); }
-    if (d.tsCancel) { const r = prompt("Why is this test being cancelled? (kept in the history)"); if (r === null) return; return act(() => db().rpc("asm_cancel", { p_assessment_id: d.tsCancel, p_reason: r.trim() || "Cancelled by admin" }), "Test cancelled"); }
+    if (d.tsDate) return dateModal(d.tsDate, d.cur);
+    if (d.tsRestore) { if (!confirm("Restore this test? It goes back to the stage it was at, with the syllabus and every picked question.")) return; return act(() => db().rpc("asm_admin_restore", { p_assessment_id: d.tsRestore }), "Test restored"); }
+    if (d.tsCancel) { const r = prompt("Why is this test being cancelled? (kept in the history)\nTo move the test to another day, use \"Change date\" instead of cancelling."); if (r === null) return; return act(() => db().rpc("asm_cancel", { p_assessment_id: d.tsCancel, p_reason: r.trim() || "Cancelled by admin" }), "Test cancelled"); }
     if (d.tsReassign) { const c = prompt("What should the teacher change in their questions?"); if (!c || !c.trim()) return; return act(() => db().rpc("asm_reassign", { p_assessment_id: d.aid, p_section_ids: [d.tsReassign], p_comment: c.trim() }), "Sent back to the teacher"); }
     if (d.tsReview) { document.querySelector('.nav-btn[data-section="testApprovals"]')?.click(); return; }
     if (d.tsAddrow) { const m = document.getElementById("tsModal"); CREATE.rows.push({ subject: "physics", parts: [{ label: "Questions", types: ["single"], count: 20, mc: 4, mw: 1 }] }); return paintRows(m); }
@@ -282,6 +292,10 @@
       if (!scope.length) { err.textContent = "Choose at least one chapter."; return; }
       const { error } = await db().rpc("asm_admin_set_scope", { p_section_id: f.dataset.tsScopeform, p_scope: scope });
       if (error) { err.textContent = error.message; return; } closeModal(); toast("Syllabus saved"); return render();
+    }
+    if (f.matches("[data-ts-dateform]")) {
+      e.preventDefault(); const { error } = await db().rpc("asm_admin_reschedule", { p_assessment_id: f.dataset.tsDateform, p_date: f.d.value });
+      if (error) { f.querySelector("[data-ts-err]").textContent = error.message; return; } closeModal(); toast("Date changed"); return render();
     }
     if (f.matches("[data-ts-teacherform]")) {
       e.preventDefault(); const { error } = await db().rpc("asm_admin_set_teacher", { p_section_id: f.dataset.tsTeacherform, p_teacher_id: f.t.value });

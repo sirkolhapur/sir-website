@@ -18,7 +18,12 @@
   const inDays = (v) => { if (!v) return ""; const d = Math.round((new Date(v + "T00:00:00") - new Date(new Date().toDateString())) / 864e5); return d === 0 ? "today" : d === 1 ? "tomorrow" : d > 1 ? `in ${d} days` : `${-d} days ago`; };
   const TYPE = { single: "Single correct", multi: "Multiple correct", integer: "Integer", numerical: "Numerical", matrix_match: "Matrix match" };
 
-  const A = { list: [], chapters: [], topics: [], root: null, busy: false, pick: null };
+  const A = { list: [], chapters: [], topics: [], root: null, busy: false, pick: null, tcache: {}, scache: {} };
+  // Difficulty filter: levels 1-2 easy, 3 medium, 4 hard, 5 very hard.
+  const diffOk = (f, d) => !f || (f === "easy" ? d <= 2 : f === "medium" ? d === 3 : f === "hard" ? d === 4 : d >= 5);
+  // Topics of a chapter and subtopics of a topic are fetched when chosen (small, cached).
+  async function ensureTopics(chapterId) { if (A.tcache[chapterId]) return; const r = await db().from("qb_topics").select("id,label,sort_order").eq("chapter_id", chapterId).eq("is_active", true).order("sort_order"); A.tcache[chapterId] = r.data || []; }
+  async function ensureSubs(topicId) { if (A.scache[topicId]) return; const r = await db().from("qb_subtopics").select("id,label,sort_order").eq("topic_id", topicId).eq("is_active", true).order("sort_order"); A.scache[topicId] = r.data || []; }
 
   // -------------------------------------------------------------- load
   async function load() {
@@ -143,7 +148,7 @@
     const chapterIds = P.other ? A.chapters.filter((c) => c.subject_id === s.subject).map((c) => c.id) : scopeChap;
     let rows = [];
     if (chapterIds.length && part) {
-      let q = db().from("qb_questions").select("id,code,type,difficulty,chapter_id,topic_id,question_md,options,unit,branch").eq("subject_id", s.subject).eq("status", "live").in("type", part.types).in("chapter_id", chapterIds).order("code").limit(1000);
+      let q = db().from("qb_questions").select("id,code,type,difficulty,chapter_id,topic_id,subtopic_id,question_md,options,unit,branch").eq("subject_id", s.subject).eq("status", "live").in("type", part.types).in("chapter_id", chapterIds).order("code").limit(1000);
       const r = await q; if (r.error) { P.error = r.error.message; } else rows = r.data || [];
     }
     if (s.branch) rows = rows.filter((x) => !x.branch || x.branch === s.branch);
@@ -160,7 +165,14 @@
   }
   const inScope = (s, q) => (s.scope || []).some((c) => c.chapter_id === q.chapter_id && (c.whole || !(c.topic_ids || []).length || c.topic_ids.includes(q.topic_id)));
 
+  // Re-draw the picker without throwing the teacher back to the top of the list.
   function paintPicker() {
+    const P0 = A.pick, old = document.getElementById("tsaPBody");
+    const top = P0 && P0.keep && old ? old.scrollTop : 0; if (P0) P0.keep = false;
+    paintPickerRaw();
+    if (top) { const nb = document.getElementById("tsaPBody"); if (nb) nb.scrollTop = top; }
+  }
+  function paintPickerRaw() {
     const P = A.pick; const el = document.getElementById("tsaPicker"); if (!P || !el) return;
     const s = P.s; const pg = s.progress || {}; const part = s.parts.find((p) => p.id === P.part) || s.parts[0];
     const editable = !P.viewOnly && s.assessment_status === "with_teachers" && ["pending", "reassigned"].includes(s.section_status);
@@ -169,10 +181,19 @@
     let body = "";
     if (P.tab === "bank") {
       const chapOpts = A.chapters.filter((c) => (P.other ? c.subject_id === s.subject : (s.scope || []).some((x) => x.chapter_id === c.id)));
-      let list = (P.bank || []).filter((q) => (!P.chap || q.chapter_id === P.chap) && (!P.q || (q.code + " " + q.question_md).toLowerCase().includes(P.q.toLowerCase())) && (P.other || inScope(s, q)));
+      let list = (P.bank || []).filter((q) => (!P.chap || q.chapter_id === P.chap) && (!P.q || (q.code + " " + q.question_md).toLowerCase().includes(P.q.toLowerCase())) && (P.other || inScope(s, q)) && (!P.topic || q.topic_id === P.topic) && (!P.sub || q.subtopic_id === P.sub) && diffOk(P.diff, q.difficulty));
       const full = part && part.picks.length >= part.question_count;
-      body = `<div class="tsa-filters"><select data-tsa-chap><option value="">All syllabus chapters</option>${chapOpts.map((c) => `<option value="${esc(c.id)}"${P.chap === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select>
-        <input data-tsa-q value="${esc(P.q)}" placeholder="Search text or code"><label class="tsa-chk"><input type="checkbox" data-tsa-other${P.other ? " checked" : ""}> Also other ${esc(s.label.split(" — ")[0])} chapters</label></div>
+      const chapRow = (s.scope || []).find((x) => x.chapter_id === P.chap);
+      const allowedTopics = !P.other && chapRow && !chapRow.whole && (chapRow.topic_ids || []).length ? new Set(chapRow.topic_ids) : null;
+      const topicRows = (A.tcache[P.chap] || []).filter((t) => !allowedTopics || allowedTopics.has(t.id));
+      const subRows = A.scache[P.topic] || [];
+      const cnt = (fn) => (P.bank || []).filter(fn).length;
+      body = `<div class="tsa-filters">
+          <select data-tsa-chap aria-label="Chapter"><option value="">All syllabus chapters</option>${chapOpts.map((c) => `<option value="${esc(c.id)}"${P.chap === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select>
+          <select data-tsa-topic aria-label="Topic" ${P.chap ? "" : "disabled"}><option value="">${P.chap ? "All topics" : "Topic (pick a chapter)"}</option>${topicRows.map((t) => { const n = cnt((q) => q.chapter_id === P.chap && q.topic_id === t.id); return `<option value="${esc(t.id)}"${P.topic === t.id ? " selected" : ""}>${esc(t.label)} (${n})</option>`; }).join("")}</select>
+          <select data-tsa-sub aria-label="Subtopic" ${P.topic ? "" : "disabled"}><option value="">${P.topic ? (subRows.length ? "All subtopics" : "No subtopics") : "Subtopic (pick a topic)"}</option>${subRows.map((x) => { const n = cnt((q) => q.topic_id === P.topic && q.subtopic_id === x.id); return `<option value="${esc(x.id)}"${P.sub === x.id ? " selected" : ""}>${esc(x.label)} (${n})</option>`; }).join("")}</select>
+          <select data-tsa-diff aria-label="Difficulty">${[["", "All levels"], ["easy", "Easy"], ["medium", "Medium"], ["hard", "Hard"], ["vhard", "Very hard"]].map(([v, l]) => `<option value="${v}"${(P.diff || "") === v ? " selected" : ""}>${l}</option>`).join("")}</select></div>
+        <div class="tsa-filters2"><input data-tsa-q value="${esc(P.q)}" placeholder="Search text or code"><label class="tsa-chk"><input type="checkbox" data-tsa-other${P.other ? " checked" : ""}> Also other ${esc(s.label.split(" — ")[0])} chapters</label></div>
         ${P.other ? '<div class="tsa-note">Questions outside the verified syllabus are marked <b>out of syllabus</b> for the admin.</div>' : ""}
         ${P.error ? `<div class="tsa-note bad">${esc(P.error)}</div>` : ""}
         ${P.loading ? '<div class="tsa-sub">Loading questions…</div>' : `<div class="tsa-sub">${list.length} question${list.length === 1 ? "" : "s"} · ${esc((part?.types || []).map((t) => TYPE[t] || t).join(" / "))}</div>` +
@@ -204,9 +225,9 @@
     const P = A.pick;
     if (d.tsaPart && P) { P.part = d.tsaPart; P.shown = 25; return loadBank(); }
     if (d.tsaTab && P) { P.tab = d.tsaTab; return paintPicker(); }
-    if (d.tsaMore && P) { P.shown += 25; return paintPicker(); }
+    if (d.tsaMore && P) { P.shown += 25; P.keep = true; return paintPicker(); }
     if (!P || A.busy) return;
-    const run = async (fn) => { A.busy = true; try { const r = await fn(); if (r?.error) throw r.error; await load(); P.s = A.list.find((x) => x.section_id === P.section_id) || P.s; await loadPicked(); paintPicker(); } catch (err) { alert(err.message || String(err)); } finally { A.busy = false; } };
+    const run = async (fn) => { A.busy = true; try { const r = await fn(); if (r?.error) throw r.error; await load(); P.s = A.list.find((x) => x.section_id === P.section_id) || P.s; await loadPicked(); P.keep = true; paintPicker(); } catch (err) { alert(err.message || String(err)); } finally { A.busy = false; } };
     if (d.tsaAdd) return run(() => db().rpc("asm_add_question", { p_part_id: P.part, p_question_id: d.tsaAdd }));
     if (d.tsaRm) return run(() => db().rpc("asm_remove_question", { p_assessment_question_id: d.tsaRm }));
     if (d.tsaUp) return run(() => db().rpc("asm_move_question", { p_assessment_question_id: d.tsaUp, p_new_position: Number(d.pos) - 1 }));
@@ -218,7 +239,7 @@
       catch (err) { alert(err.message || String(err)); } finally { A.busy = false; }
     }
   });
-  document.addEventListener("change", (e) => {
+  document.addEventListener("change", async (e) => {
     const m = document.getElementById("tsaModal");
     if (m && !m.hidden) {
       const ch = e.target.closest("[data-chap]"); if (ch) { const box = ch.closest(".tsa-chap"); box.classList.toggle("on", ch.checked); const tops = box.querySelector(".tsa-tops"); if (tops) { tops.hidden = !ch.checked; const all = tops.querySelector("[data-alltop]"); if (ch.checked && all && !tops.querySelector("[data-top]:checked")) all.checked = true; } }
@@ -226,8 +247,11 @@
       const tp = e.target.closest("[data-top]"); if (tp && tp.checked) { const a2 = tp.closest(".tsa-tops").querySelector("[data-alltop]"); if (a2) a2.checked = false; }
     }
     const P = A.pick; if (!P) return;
-    if (e.target.matches("[data-tsa-chap]")) { P.chap = e.target.value; P.shown = 25; paintPicker(); }
-    if (e.target.matches("[data-tsa-other]")) { P.other = e.target.checked; P.chap = ""; P.shown = 25; loadBank(); }
+    if (e.target.matches("[data-tsa-chap]")) { P.chap = e.target.value; P.topic = ""; P.sub = ""; P.shown = 25; if (P.chap) await ensureTopics(P.chap); paintPicker(); }
+    if (e.target.matches("[data-tsa-topic]")) { P.topic = e.target.value; P.sub = ""; P.shown = 25; if (P.topic) await ensureSubs(P.topic); paintPicker(); }
+    if (e.target.matches("[data-tsa-sub]")) { P.sub = e.target.value; P.shown = 25; paintPicker(); }
+    if (e.target.matches("[data-tsa-diff]")) { P.diff = e.target.value; P.shown = 25; paintPicker(); }
+    if (e.target.matches("[data-tsa-other]")) { P.other = e.target.checked; P.chap = ""; P.topic = ""; P.sub = ""; P.shown = 25; loadBank(); }
   });
   document.addEventListener("input", (e) => { const P = A.pick; if (P && e.target.matches("[data-tsa-q]")) { P.q = e.target.value; P.shown = 25; const pos = e.target.selectionStart; paintPicker(); const n = $("[data-tsa-q]"); if (n) { n.focus(); n.setSelectionRange(pos, pos); } } });
   document.addEventListener("submit", async (e) => {
