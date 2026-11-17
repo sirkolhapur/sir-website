@@ -18,6 +18,12 @@
 .ts-sec-syl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
 .ts-sec-prog{font-variant-numeric:tabular-nums;color:#dbe3ee;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
 .ts-sec-prog small{color:var(--hub-muted)}
+.ts-sec-prog .ts-count{white-space:nowrap}
+.ts-sec-prog .tsa-pill,.ts-sec-prog [class*="pill"]{align-self:flex-start}
+.ts-arch{padding:14px 18px}
+.ts-arch .ts-head{margin-bottom:2px}
+.ts-arch-sum{color:#dbe3ee;font-size:13.5px;margin:6px 0 12px}
+.ts-arch-sum b{color:#fff}
 .ts-sec-act{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;min-width:0}
 .ts-sec-act .ts-btn{white-space:normal;text-align:center}
 .ts-chip{display:inline-block;font-size:12px;background:rgba(79,209,255,.1);color:#9fe3ff;border-radius:8px;padding:3px 8px}

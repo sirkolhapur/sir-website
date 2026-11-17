@@ -41,20 +41,23 @@
     ["composing", "Teachers picking questions", "watch"], ["review", "Paper ready for review", "medium"], ["live", "Published to students", "ok"], ["cancelled", "Cancelled", ""]];
   const SYL = { none: ["—", ""], requested: ["Waiting", "watch"], submitted: ["To verify", "medium"], changes: ["Changes asked", "high"], verified: ["Verified", "ok"] };
 
-  const T = { tab: "open", list: [], teachers: [], batches: [], chapters: [], topics: [], busy: false, root: null };
+  const T = { tab: "open", list: [], open: [], done: [], teachers: [], batches: [], chapters: [], topics: [], busy: false, root: null };
   const $ = (s, r = document) => r.querySelector(s);
 
   // -------------------------------------------------------------- data
   async function load() {
-    const [setups, teachers, batches, ch, tp] = await Promise.all([
-      db().rpc("asm_admin_setups", { p_filter: T.tab }),
+    const [setups, doneRes, teachers, batches, ch, tp] = await Promise.all([
+      db().rpc("asm_admin_setups", { p_filter: "open" }),
+      db().rpc("asm_admin_setups", { p_filter: "done" }),
       db().from("teachers").select("id,full_name,subject,is_active").eq("is_active", true).order("full_name"),
       db().from("batches").select("id,name,is_active").eq("is_active", true).order("name"),
       db().from("qb_chapters").select("id,subject_id,name,sort_order,class_level,is_active").eq("is_active", true).order("sort_order"),
       db().from("qb_topics").select("id,chapter_id,label,sort_order,is_active").eq("is_active", true).order("sort_order"),
     ]);
     if (setups.error) throw Object.assign(new Error(setups.error.message), { setup: /asm_admin_setups|schema cache|does not exist/i.test(setups.error.message) });
-    T.list = setups.data || []; T.teachers = teachers.data || []; T.batches = batches.data || [];
+    T.open = setups.data || []; T.done = doneRes.data || [];
+    T.list = T.tab === "open" ? T.open : T.done.filter((a) => a.status === (T.tab === "cancelled" ? "cancelled" : "approved"));
+    T.teachers = teachers.data || []; T.batches = batches.data || [];
     T.chapters = ch.data || []; T.topics = tp.data || [];
   }
   async function render(el) {
@@ -92,7 +95,7 @@
     return `<div class="ts-sec"><div class="ts-sec-main"><b>${esc(s.label)}</b>
         <small>${teacher}${a.status === "draft" || a.status === "with_teachers" ? ` · <a href="#" data-ts-teacher="${esc(s.id)}" data-subject="${esc(s.subject)}" data-cur="${esc(s.teacher_id || "")}">change</a>` : ""}</small></div>
       <div class="ts-sec-syl">${pill(sl, sc)} ${scopeText(s.scope)}${s.syllabus_note ? `<div class="ts-note">📝 ${esc(s.syllabus_note)}</div>` : ""}${s.syllabus_comment ? `<div class="ts-note bad">↩ You asked: ${esc(s.syllabus_comment)}</div>` : ""}${s.admin_comment && s.section_status === "reassigned" ? `<div class="ts-note bad">↩ Sent back: ${esc(s.admin_comment)}</div>` : ""}</div>
-      <div class="ts-sec-prog">${a.status === "draft" ? "" : `<b>${prog.picked || 0}</b> / ${prog.needed || 0} <small>questions</small>${s.section_status === "submitted" ? " " + pill("submitted", "ok") : ""}`}</div>
+      <div class="ts-sec-prog">${a.status === "draft" ? "" : `<span class="ts-count"><b>${prog.picked || 0}</b> / ${prog.needed || 0} <small>questions</small></span>${s.section_status === "submitted" ? pill("submitted", "ok") : ""}`}</div>
       <div class="ts-sec-act">${actions}</div></div>`;
   }
 
@@ -126,10 +129,21 @@
       <div class="ts-actions">${actionsFor(a)}</div></div>`;
   }
 
+  // Cancelled tests: one compact card, with Restore and Delete.
+  function archiveCard(a) {
+    const pat = PATTERNS[a.pattern_key]?.label || (a.pattern_key ? a.pattern_key : "Custom");
+    const sum = (a.sections || []).map((s) => `<b>${esc(s.label)}</b> ${(s.progress || {}).picked || 0}/${(s.progress || {}).needed || 0}`).join(" · ");
+    return `<div class="hub-card ts-card ts-arch"><div class="ts-head"><div><h3>${esc(a.title)}</h3>
+      <div class="ts-meta">📅 ${fmtDate(a.scheduled_on)} · ⏱ ${a.duration_minutes} min · ${esc(pat)} · ${(a.batches || []).map((b) => esc(b.name)).join(", ") || "no batch"}</div></div>${pill("Cancelled", "")}</div>
+      <div class="ts-arch-sum">Picked questions kept: ${sum || "none"}</div>
+      <div class="ts-actions"><button class="ts-btn primary" data-ts-restore="${esc(a.id)}">↩ Restore</button><button class="ts-btn danger" data-ts-delete="${esc(a.id)}">Delete permanently</button></div></div>`;
+  }
+
   function paint() {
-    const tabs = [["open", "In progress"], ["done", "Published / cancelled"]];
+    const nPub = T.done.filter((a) => a.status === "approved").length, nCan = T.done.filter((a) => a.status === "cancelled").length;
+    const tabs = [["open", "In progress" + (T.open.length ? ` (${T.open.length})` : "")], ["published", "Published" + (nPub ? ` (${nPub})` : "")], ["cancelled", "Cancelled" + (nCan ? ` (${nCan})` : "")]];
     T.root.innerHTML = head() + `<div class="fee-tabs">${tabs.map(([id, l]) => `<button class="fee-tab${T.tab === id ? " on" : ""}" data-ts-tab="${id}">${l}</button>`).join("")}</div>` +
-      (T.list.length ? T.list.map(card).join("") : `<div class="hub-empty">${T.tab === "open" ? "No test is being set up. Press <b>+ New test</b> — pick the name, date, pattern and a teacher for each subject." : "Nothing here yet."}</div>`);
+      (T.list.length ? T.list.map(T.tab === "cancelled" ? archiveCard : card).join("") : `<div class="hub-empty">${T.tab === "open" ? "No test is being set up. Press <b>+ New test</b> — pick the name, date, pattern and a teacher for each subject." : T.tab === "cancelled" ? "No cancelled tests." : "No published tests yet."}</div>`);
   }
 
   // ----------------------------------------------------------- modals
@@ -250,7 +264,7 @@
   function toast(msg) { let t = document.getElementById("tsToast"); if (!t) { t = document.createElement("div"); t.id = "tsToast"; document.body.appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 3200); }
 
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-ts-tab],[data-ts-new],[data-ts-close],[data-ts-verify],[data-ts-back],[data-ts-edit],[data-ts-teacher],[data-ts-pub],[data-ts-unpub],[data-ts-grant],[data-ts-cancel],[data-ts-date],[data-ts-restore],[data-ts-reassign],[data-ts-review],[data-ts-addrow],[data-ts-delrow]");
+    const t = e.target.closest("[data-ts-tab],[data-ts-new],[data-ts-close],[data-ts-verify],[data-ts-back],[data-ts-edit],[data-ts-teacher],[data-ts-pub],[data-ts-unpub],[data-ts-grant],[data-ts-cancel],[data-ts-date],[data-ts-restore],[data-ts-delete],[data-ts-reassign],[data-ts-review],[data-ts-addrow],[data-ts-delrow]");
     if (!t) { if (e.target.id === "tsModal") closeModal(); return; }
     const d = t.dataset;
     if (d.tsTab) { T.tab = d.tsTab; return render(); }
@@ -264,6 +278,7 @@
     if (d.tsUnpub) { if (!confirm("Hide this announcement from the students' dashboard?")) return; return act(() => db().rpc("asm_admin_set_syllabus_publish", { p_assessment_id: d.tsUnpub, p_publish: false }), "Announcement hidden"); }
     if (d.tsGrant) { const a = T.list.find((x) => x.id === d.tsGrant); if (!confirm(`Give the teachers access to pick questions for "${a.title}"?\nEach teacher sees only questions of their own subject and the verified syllabus. The syllabus can't be changed after this.`)) return; return act(() => db().rpc("asm_admin_grant_compose", { p_assessment_id: d.tsGrant }), "Teachers can now pick questions"); }
     if (d.tsDate) return dateModal(d.tsDate, d.cur);
+    if (d.tsDelete) { const a = T.list.find((x) => x.id === d.tsDelete); if (!a) return; const typed = prompt(`This deletes "${a.title}" for good, with its syllabus and all picked questions. A cancelled test can be restored instead. Type the test name to confirm:`); if (typed === null) return; if (typed.trim() !== String(a.title).trim()) return alert("The name did not match. Nothing was deleted."); return act(() => db().rpc("asm_admin_delete_test", { p_assessment_id: d.tsDelete }), "Test deleted"); }
     if (d.tsRestore) { if (!confirm("Restore this test? It goes back to the stage it was at, with the syllabus and every picked question.")) return; return act(() => db().rpc("asm_admin_restore", { p_assessment_id: d.tsRestore }), "Test restored"); }
     if (d.tsCancel) { const r = prompt("Why is this test being cancelled? (kept in the history)\nTo move the test to another day, use \"Change date\" instead of cancelling."); if (r === null) return; return act(() => db().rpc("asm_cancel", { p_assessment_id: d.tsCancel, p_reason: r.trim() || "Cancelled by admin" }), "Test cancelled"); }
     if (d.tsReassign) { const c = prompt("What should the teacher change in their questions?"); if (!c || !c.trim()) return; return act(() => db().rpc("asm_reassign", { p_assessment_id: d.aid, p_section_ids: [d.tsReassign], p_comment: c.trim() }), "Sent back to the teacher"); }
