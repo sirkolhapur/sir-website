@@ -1088,7 +1088,7 @@ async function itemList(root, statuses, title, sub, opts = {}) {
     if (j.error) throw j.error;
     jobIds = (j.data || []).map((x) => x.id);
   }
-  let qq = sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)", { count: "exact" }).in("status", statuses);
+  let qq = sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)", { count: "planned" }).in("status", statuses);
   if (jobIds) qq = qq.in("job_id", jobIds.length ? jobIds : ["00000000-0000-0000-0000-000000000000"]);
   const { data, count, error } = await qq.order("job_id").order("seq").range(0, lim - 1);
   if (error) throw error;
@@ -1104,7 +1104,7 @@ async function itemList(root, statuses, title, sub, opts = {}) {
   root.appendChild(box);
   const bar = document.createElement("div"); bar.className = "toolbar"; bar.style.marginTop = "10px";
   bar.innerHTML = `<input class="lightfield" id="ilSrc" placeholder="Only this source / file name…" value="${esc(src)}" style="max-width:300px">` +
-    (total > lim ? ` <span class="csub" style="margin:0">Showing ${data.length} of ${total}</span> <button class="btn outline small" id="ilMore" type="button">Show ${Math.min(LIST_PAGE, total - lim)} more</button>` : ` <span class="csub" style="margin:0">${total} in total</span>`);
+    (total > lim ? ` <span class="csub" style="margin:0">Showing ${data.length} of about ${total}</span> <button class="btn outline small" id="ilMore" type="button">Show ${Math.min(LIST_PAGE, total - lim)} more</button>` : ` <span class="csub" style="margin:0">${total} in total</span>`);
   box.appendChild(bar);
   const again = () => { root.innerHTML = ""; itemList(root, statuses, title, sub, opts).catch(fail); };
   bar.querySelector("#ilMore")?.addEventListener("click", () => { listLimit[LIST_KEY] = lim + LIST_PAGE; again(); });
