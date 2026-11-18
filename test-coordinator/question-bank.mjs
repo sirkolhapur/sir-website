@@ -1075,19 +1075,40 @@ async function showReconciliation(box, jobId) {
 // ---------- Review & Edit / Verification Queue lists ----------
 // opts.onReject: show a Reject button per row (existing server function
 // qb_reject_import_item: open items only, records who/when/why).
+// Review and Verify lists used to stop at 500 with no way to see the rest of a 20,000-item backlog.
+// They now page (Show more) and can be narrowed to one source or file.
+const LIST_PAGE = 100;
+const listLimit = {}, listSource = {};
 async function itemList(root, statuses, title, sub, opts = {}) {
-  const { data, error } = await sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)")
-    .in("status", statuses).order("job_id").order("seq").limit(500);
+  const LIST_KEY = title, lim = listLimit[LIST_KEY] || LIST_PAGE, src = (listSource[LIST_KEY] || "").trim();
+  let jobIds = null;
+  if (src) {
+    const term = src.replace(/[%,()]/g, " ");
+    const j = await sb.from("qb_import_jobs").select("id").or(`source_label.ilike.%${term}%,file_name.ilike.%${term}%`).limit(500);
+    if (j.error) throw j.error;
+    jobIds = (j.data || []).map((x) => x.id);
+  }
+  let qq = sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)", { count: "exact" }).in("status", statuses);
+  if (jobIds) qq = qq.in("job_id", jobIds.length ? jobIds : ["00000000-0000-0000-0000-000000000000"]);
+  const { data, count, error } = await qq.order("job_id").order("seq").range(0, lim - 1);
   if (error) throw error;
+  const total = count || 0;
   const box = document.createElement("div"); box.className = "card";
   const noAi = data.filter((i) => !i.extracted?.ai && AI_TYPES.has(i.draft?.type));
   const aiBar = opts.ai && data.length ? `<div class="toolbar"><button class="btn gold small" data-aiall${noAi.length ? "" : " disabled"}>AI: answer, approach &amp; solution — ${noAi.length} question(s) without</button><span data-aistatus style="color:var(--m)"></span></div>` : "";
-  box.innerHTML = `<h3 class="ctitle">${esc(title)} (${data.length})</h3><p class="csub">${esc(sub)}</p>${aiBar}${data.length ? `<div class="tablewrap"><table><thead><tr><th>Source</th><th>Location</th><th>Question</th><th>Status</th><th>Warnings</th><th></th></tr></thead><tbody>${data.map((i) => `<tr>
+  box.innerHTML = `<h3 class="ctitle">${esc(title)} (${data.length} of ${total})</h3><p class="csub">${esc(sub)}</p>${aiBar}${data.length ? `<div class="tablewrap"><table><thead><tr><th>Source</th><th>Location</th><th>Question</th><th>Status</th><th>Warnings</th><th></th></tr></thead><tbody>${data.map((i) => `<tr>
     <td>${esc(i.qb_import_jobs?.source_label || i.qb_import_jobs?.file_name)}<br><span style="color:var(--m)">${esc(i.qb_import_jobs?.file_type)}</span></td>
     <td>${esc(i.source_location || "")} · Q${esc(i.source_number || "?")}</td><td>${esc(plainStem(i.draft?.question).slice(0, 110))}</td>
     <td><span class="tag ${i.status === "returned" ? "red" : "amber"}">${esc(ITEM_LABEL[i.status])}</span>${i.confidence === "low" ? ' <span class="tag red">uncertain</span>' : ""}${i.extracted?.ai ? ` <span class="tag">AI ${i.extracted.ai.answer_from_ai ? "answer + " : ""}solution</span>` : ""}${i.review_note ? `<br><span style="color:var(--m)">${esc(i.review_note)}</span>` : ""}</td>
     <td>${(i.issues || []).length}</td><td style="white-space:nowrap"><button class="btn primary small" data-item="${esc(i.id)}">Open</button>${opts.onReject ? ` <button class="btn danger small" data-rej="${esc(i.id)}" data-label="${esc(`Q${i.source_number || "?"} · ${i.source_location || ""}`)}">Reject</button>` : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Nothing here.</div>`}`;
   root.appendChild(box);
+  const bar = document.createElement("div"); bar.className = "toolbar"; bar.style.marginTop = "10px";
+  bar.innerHTML = `<input class="lightfield" id="ilSrc" placeholder="Only this source / file name…" value="${esc(src)}" style="max-width:300px">` +
+    (total > lim ? ` <span class="csub" style="margin:0">Showing ${data.length} of ${total}</span> <button class="btn outline small" id="ilMore" type="button">Show ${Math.min(LIST_PAGE, total - lim)} more</button>` : ` <span class="csub" style="margin:0">${total} in total</span>`);
+  box.appendChild(bar);
+  const again = () => { root.innerHTML = ""; itemList(root, statuses, title, sub, opts).catch(fail); };
+  bar.querySelector("#ilMore")?.addEventListener("click", () => { listLimit[LIST_KEY] = lim + LIST_PAGE; again(); });
+  let srcTimer; bar.querySelector("#ilSrc").oninput = (e) => { clearTimeout(srcTimer); srcTimer = setTimeout(() => { listSource[LIST_KEY] = e.target.value; listLimit[LIST_KEY] = LIST_PAGE; again(); }, 400); };
   $$("[data-item]", box).forEach((b) => b.onclick = () => openItem(b.dataset.item, data.map((x) => x.id)).catch(fail));
   const aiAll = $("[data-aiall]", box);
   if (aiAll) aiAll.onclick = async () => {
@@ -1706,6 +1727,8 @@ async function unusedImagesCard(card) {
 }
 
 // ---------- Draft Test Builder: add verified questions ----------
+// Newest first: a question verified today shows at the top, not at its place in code order.
+let pickNewest = true;
 async function pageBuilder(root, testId) {
   const { data: tests, error } = await sb.rpc("qb_list_tests");
   if (error) throw error;
@@ -1725,7 +1748,7 @@ async function pageBuilder(root, testId) {
      <select class="lightfield" id="tpY">${opt("", "All types", f.type)}${Object.entries(TYPE_LABEL).map(([k, v]) => opt(k, v, f.type)).join("")}</select>
      <select class="lightfield" id="tpD">${opt("", "All difficulty", f.band)}${opt("easy", "Easy (1–2)", f.band)}${opt("medium", "Medium (3)", f.band)}${opt("hard", "Hard (4–5)", f.band)}</select>
      <input class="lightfield" id="tpSrc" placeholder="Source contains…" value="${esc(f.source || "")}">
-     <input class="lightfield" id="tpQ" placeholder="Search text or ID" value="${esc(f.q || "")}"></div>
+     <input class="lightfield" id="tpQ" placeholder="Search text or ID" value="${esc(f.q || "")}"><label class="darklabel" style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="tpNew"${pickNewest ? " checked" : ""}> Newest first</label></div>
     <div class="row" style="margin-top:10px"><label class="darklabel" style="margin:0">Marks</label><input class="lightfield" type="number" step="0.25" min="0.25" id="tpM" value="4" style="max-width:90px"><label class="darklabel" style="margin:0">Negative</label><input class="lightfield" type="number" step="0.25" min="0" id="tpN" value="1" style="max-width:90px"><button class="btn gold" id="tpAdd" disabled>Add selected</button></div>
     <div id="tpList" style="margin-top:12px"></div></div>`}`;
   $("#tbTest", root).onchange = (e) => pageBuilder(root, e.target.value).catch(fail);
@@ -1734,7 +1757,7 @@ async function pageBuilder(root, testId) {
   // The list used to stop at 60 with no way to see more. It now pages (Show more) and says how many match.
   const PICK_PAGE = 60; let pickShown = PICK_PAGE;
   const load = async () => {
-    let q = sb.from("qb_questions").select("*", { count: "exact" }).eq("status", "live").eq("subject_id", f.subject).order("code").range(0, pickShown - 1);
+    let q = sb.from("qb_questions").select("*", { count: "exact" }).eq("status", "live").eq("subject_id", f.subject).order(pickNewest ? "updated_at" : "code", { ascending: !pickNewest }).range(0, pickShown - 1);
     if (f.chapter) q = q.eq("chapter_id", f.chapter); if (f.topic) q = q.eq("topic_id", f.topic); if (f.type) q = q.eq("type", f.type);
     if (f.band) q = q.in("difficulty", BANDS[f.band]);
     if (f.source) q = q.ilike("source", `%${f.source.replace(/[%,()]/g, " ")}%`);
@@ -1763,6 +1786,7 @@ async function pageBuilder(root, testId) {
     });
   };
   const set = (k, v) => { f[k] = v || undefined; pickShown = PICK_PAGE; };
+  $("#tpNew", root).onchange = (e) => { pickNewest = e.target.checked; pickShown = PICK_PAGE; load().catch(fail); };
   $("#tpS", root).onchange = (e) => { set("subject", e.target.value); f.chapter = f.topic = undefined; pageBuilder(root, test.id).catch(fail); };
   $("#tpC", root).onchange = (e) => { set("chapter", e.target.value); f.topic = undefined; pageBuilder(root, test.id).catch(fail); };
   $("#tpT", root).onchange = (e) => { set("topic", e.target.value); load().catch(fail); };
