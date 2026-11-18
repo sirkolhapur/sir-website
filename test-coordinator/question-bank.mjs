@@ -1090,7 +1090,7 @@ async function itemList(root, statuses, title, sub, opts = {}) {
   }
   let qq = sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)", { count: "planned" }).in("status", statuses);
   if (jobIds) qq = qq.in("job_id", jobIds.length ? jobIds : ["00000000-0000-0000-0000-000000000000"]);
-  const newest = listNewest[LIST_KEY] !== false;
+  const newest = listNewest[LIST_KEY] === true;
   const ordered = newest ? qq.order("created_at", { ascending: false }).order("seq") : qq.order("job_id").order("seq");
   const { data, count, error } = await ordered.range(0, lim - 1);
   if (error) throw error;
