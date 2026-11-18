@@ -50,6 +50,21 @@
     A.root.innerHTML = `<div class="tsa-card tsa-bad">Could not load your assigned tests: ${esc(e.message || e)}</div>`;
   }
 
+  // Teacher reports a problem with a question in the bank. Goes to the coordinator's Flagged list.
+  async function reportFromPicker(questionId) {
+    const P = A.pick; if (!P) return;
+    const pick = prompt("What is wrong?\n1 = The answer key is wrong\n2 = The question is wrong or unclear\n3 = Something else");
+    if (pick === null) return;
+    const reason = { "1": "wrong_answer", "2": "wrong_question", "3": "other" }[String(pick).trim()];
+    if (!reason) return alert("Please type 1, 2 or 3.");
+    const details = prompt("Tell us briefly what is wrong (required):");
+    if (details === null) return;
+    if (!details.trim()) return alert("Please describe the problem.");
+    const { error } = await db().rpc("qb_flag_question", { p_question_id: questionId, p_reason: reason, p_details: details.trim(), p_assessment_id: P.s.assessment_id || null });
+    if (error) return alert(error.message || "Could not send the report.");
+    alert("Thank you. The coordinator will check this question.");
+  }
+
   // --------------------------------------------------------- list view
   const pill = (t, c) => `<span class="tsa-pill ${c || ""}">${esc(t)}</span>`;
   function statusOf(s) {
@@ -199,7 +214,7 @@
         ${P.loading ? '<div class="tsa-sub">Loading questions…</div>' : `<div class="tsa-sub">${list.length} question${list.length === 1 ? "" : "s"} · ${esc((part?.types || []).map((t) => TYPE[t] || t).join(" / "))}</div>` +
           list.slice(0, P.shown).map((q) => { const picked = allPicked.has(q.id); const out = !inScope(s, q);
             return `<div class="tsa-q${picked ? " picked" : ""}"><div class="tsa-qh"><span class="tsa-code">${esc(q.code)}</span>${out ? '<span class="tsa-pill watch">out of syllabus</span>' : ""}<span class="tsa-diff">${["", "Easy", "Easy", "Medium", "Hard", "Very hard"][q.difficulty] || ""}</span>
-              <button class="tsa-btn${picked ? "" : " primary"}" ${picked || full || !editable ? "disabled" : ""} data-tsa-add="${esc(q.id)}">${picked ? "✓ Added" : full ? "Part full" : "+ Add"}</button></div>${SIRPaper.questionHtml(q)}</div>`; }).join("") +
+              <button class="tsa-btn sm" type="button" data-tsa-rep="${esc(q.id)}">⚑ Report</button><button class="tsa-btn${picked ? "" : " primary"}" ${picked || full || !editable ? "disabled" : ""} data-tsa-add="${esc(q.id)}">${picked ? "✓ Added" : full ? "Part full" : "+ Add"}</button></div>${SIRPaper.questionHtml(q)}</div>`; }).join("") +
           (list.length > P.shown ? `<button class="tsa-btn" data-tsa-more="1">Show more (${list.length - P.shown})</button>` : "") + (!list.length ? '<div class="tsa-sub">No question matches. Try "Also other chapters" or clear the filters.</div>' : "")}`;
     } else {
       body = s.parts.map((p) => `<div class="tsa-partbox"><h4>${esc(p.label)} <span>${p.picks.length}/${p.question_count}</span></h4>${p.picks.length ? p.picks.map((k, i) => { const q = P.cache.get(k.question_id);
@@ -214,7 +229,7 @@
 
   // ----------------------------------------------------------- events
   document.addEventListener("click", async (e) => {
-    const t = e.target.closest("[data-tsa-syl],[data-tsa-pick],[data-tsa-view],[data-tsa-close],[data-tsa-closepick],[data-tsa-part],[data-tsa-tab],[data-tsa-add],[data-tsa-rm],[data-tsa-up],[data-tsa-down],[data-tsa-more],[data-tsa-submit]");
+    const t = e.target.closest("[data-tsa-syl],[data-tsa-pick],[data-tsa-view],[data-tsa-close],[data-tsa-closepick],[data-tsa-part],[data-tsa-tab],[data-tsa-add],[data-tsa-rm],[data-tsa-up],[data-tsa-down],[data-tsa-more],[data-tsa-submit],[data-tsa-rep]");
     if (!t) { if (e.target.id === "tsaModal") closeModal(); return; }
     const d = t.dataset;
     if (d.tsaSyl) return sylModal(d.tsaSyl);
@@ -226,6 +241,7 @@
     if (d.tsaPart && P) { P.part = d.tsaPart; P.shown = 25; return loadBank(); }
     if (d.tsaTab && P) { P.tab = d.tsaTab; return paintPicker(); }
     if (d.tsaMore && P) { P.shown += 25; P.keep = true; return paintPicker(); }
+    if (d.tsaRep) return reportFromPicker(d.tsaRep);
     if (!P || A.busy) return;
     const run = async (fn) => { A.busy = true; try { const r = await fn(); if (r?.error) throw r.error; await load(); P.s = A.list.find((x) => x.section_id === P.section_id) || P.s; await loadPicked(); P.keep = true; paintPicker(); } catch (err) { alert(err.message || String(err)); } finally { A.busy = false; } };
     if (d.tsaAdd) return run(() => db().rpc("asm_add_question", { p_part_id: P.part, p_question_id: d.tsaAdd }));
