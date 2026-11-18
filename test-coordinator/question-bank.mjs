@@ -1078,7 +1078,7 @@ async function showReconciliation(box, jobId) {
 // Review and Verify lists used to stop at 500 with no way to see the rest of a 20,000-item backlog.
 // They now page (Show more) and can be narrowed to one source or file.
 const LIST_PAGE = 100;
-const listLimit = {}, listSource = {}, listNewest = {};
+const listLimit = {}, listSource = {};
 async function itemList(root, statuses, title, sub, opts = {}) {
   const LIST_KEY = title, lim = listLimit[LIST_KEY] || LIST_PAGE, src = (listSource[LIST_KEY] || "").trim();
   let jobIds = null;
@@ -1090,9 +1090,7 @@ async function itemList(root, statuses, title, sub, opts = {}) {
   }
   let qq = sb.from("qb_import_items").select("id,job_id,seq,page_no,source_number,source_location,status,confidence,issues,review_note,draft,extracted,qb_import_jobs(source_label,file_name,file_type)", { count: "planned" }).in("status", statuses);
   if (jobIds) qq = qq.in("job_id", jobIds.length ? jobIds : ["00000000-0000-0000-0000-000000000000"]);
-  const newest = listNewest[LIST_KEY] === true;
-  const ordered = newest ? qq.order("created_at", { ascending: false }).order("seq") : qq.order("job_id").order("seq");
-  const { data, count, error } = await ordered.range(0, lim - 1);
+  const { data, count, error } = await qq.order("job_id").order("seq").range(0, lim - 1);
   if (error) throw error;
   const total = count || 0;
   const box = document.createElement("div"); box.className = "card";
@@ -1106,12 +1104,10 @@ async function itemList(root, statuses, title, sub, opts = {}) {
   root.appendChild(box);
   const bar = document.createElement("div"); bar.className = "toolbar"; bar.style.marginTop = "10px";
   bar.innerHTML = `<input class="lightfield" id="ilSrc" placeholder="Only this source / file name…" value="${esc(src)}" style="max-width:300px">` +
-    `<label class="darklabel" style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="ilNew"${newest ? " checked" : ""}> Newest first</label>` +
     (total > lim ? ` <span class="csub" style="margin:0">Showing ${data.length} of about ${total}</span> <button class="btn outline small" id="ilMore" type="button">Show ${Math.min(LIST_PAGE, total - lim)} more</button>` : ` <span class="csub" style="margin:0">${total} in total</span>`);
   box.appendChild(bar);
   const again = () => { root.innerHTML = ""; itemList(root, statuses, title, sub, opts).catch(fail); };
   bar.querySelector("#ilMore")?.addEventListener("click", () => { listLimit[LIST_KEY] = lim + LIST_PAGE; again(); });
-  bar.querySelector("#ilNew").onchange = (e) => { listNewest[LIST_KEY] = e.target.checked; listLimit[LIST_KEY] = LIST_PAGE; again(); };
   let srcTimer; bar.querySelector("#ilSrc").oninput = (e) => { clearTimeout(srcTimer); srcTimer = setTimeout(() => { listSource[LIST_KEY] = e.target.value; listLimit[LIST_KEY] = LIST_PAGE; again(); }, 400); };
   $$("[data-item]", box).forEach((b) => b.onclick = () => openItem(b.dataset.item, data.map((x) => x.id)).catch(fail));
   const aiAll = $("[data-aiall]", box);
