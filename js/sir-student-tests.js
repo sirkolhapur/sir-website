@@ -321,7 +321,7 @@
       '<div class="ex-qhead"><div class="ex-qn">Q<b>' + (X.i + 1) + "</b><small>of " + X.paper.questions.length + "</small></div>" +
       '<div class="ex-tags"><span class="ex-tag">' + esc(s.label) + "</span><span class=\"ex-tag\">" + esc(TYPE[q.type] || q.type) + '</span><span class="ex-tag mk">' + esc(marks) + '</span><span class="ex-tag tm" id="exQTime">⏱ ' + mmss(liveSpent(q)) + "</span></div></div>";
     if (q.passage_md) html += '<div class="ex-passage">' + md(q.passage_md) + "</div>";
-    html += '<div class="ex-q">' + md(q.question_md) + "</div>";
+    html += '<div class="ex-q">' + md(q.question_md) + "</div>" + reportBtn(q.aq_id);
     html += '<div class="ex-hint">' + (TYPE_HINT[q.type] || "") + "</div>";
     if (q.type === "single" || q.type === "multi") {
       const picked = q.type === "multi" ? (Array.isArray(r) ? r : []) : [r];
@@ -646,7 +646,7 @@
       '<span class="rs-tag ' + c + '">' + LBL[c] + " · " + (Number(q.marks) > 0 ? "+" : "") + Number(q.marks || 0) + "</span></div>" +
       '<div class="rs-qmeta">' + [secLabel, q.topic || q.chapter, DIFF[q.difficulty], q.time_spent_sec ? "⏱ you " + mmss(q.time_spent_sec) + (q.class_avg_time_sec ? " · class " + mmss(q.class_avg_time_sec) : "") : "", q.class_correct_pct != null ? q.class_correct_pct + "% of class got it" : ""].filter(Boolean).map((x) => "<span>" + esc(x) + "</span>").join("") + "</div>";
     if (q.passage_md) h += '<div class="ex-passage">' + md(q.passage_md) + "</div>";
-    h += '<div class="rs-qbody">' + md(q.question_md) + "</div>";
+    h += '<div class="rs-qbody">' + md(q.question_md) + "</div>" + reportBtn(q.aq_id);
     const ans = q.answer, resp = q.response;
     if (Array.isArray(q.options) && q.options.length) {
       const inAns = (k) => (Array.isArray(ans) ? ans.includes(k) : String(ans) === k);
@@ -668,7 +668,25 @@
   // =================================================================
   // EVENTS
   // =================================================================
+
+  // "Report a problem" under a question. Goes to the coordinator's Flagged list.
+  const REPORT_WHY = { "1": ["wrong_answer", "The answer key is wrong"], "2": ["wrong_question", "The question is wrong or unclear"], "3": ["other", "Something else"] };
+  function reportBtn(aqId) { return aqId ? '<button class="rep-btn" type="button" data-rep="' + esc(aqId) + '">⚑ Report a problem</button>' : ""; }
+  async function reportQuestion(aqId) {
+    const pick = prompt("What is wrong?\n1 = The answer key is wrong\n2 = The question is wrong or unclear\n3 = Something else");
+    if (pick === null) return;
+    const why = REPORT_WHY[String(pick).trim()]; if (!why) return alert("Please type 1, 2 or 3.");
+    const details = prompt("Tell us briefly what is wrong (required):");
+    if (details === null) return;
+    if (!details.trim()) return alert("Please describe the problem.");
+    const { error } = await sb.rpc("asm_report_question", { p_aq_id: aqId, p_reason: why[0], p_details: details.trim() });
+    if (error) return alert(error.message || "Could not send the report.");
+    toast("Thank you. The coordinator will check this question.");
+  }
+
   document.addEventListener("click", async (ev) => {
+    const rep = ev.target.closest("[data-rep]");
+    if (rep) return reportQuestion(rep.dataset.rep);
     const syl = ev.target.closest("[data-tc-syl]");
     if (syl) { const id = syl.dataset.tcSyl; OPEN_SYL.has(id) ? OPEN_SYL.delete(id) : OPEN_SYL.add(id); return renderHub(); }
     const t = ev.target.closest("[data-tc-tab],[data-ot-brief],[data-ot-resume],[data-ot-result],[data-ex],[data-opt],[data-jump],[data-sec],[data-rtab],[data-rfilter],[data-goto]");

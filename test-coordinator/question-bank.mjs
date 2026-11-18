@@ -1731,13 +1731,15 @@ async function pageBuilder(root, testId) {
   $("#tbTest", root).onchange = (e) => pageBuilder(root, e.target.value).catch(fail);
   if (test.is_published) return;
   const selected = [], already = new Set(existing.map((q) => q.qb_code).filter(Boolean));
+  // The list used to stop at 60 with no way to see more. It now pages (Show more) and says how many match.
+  const PICK_PAGE = 60; let pickShown = PICK_PAGE;
   const load = async () => {
-    let q = sb.from("qb_questions").select("*").eq("status", "live").eq("subject_id", f.subject).order("code").limit(60);
+    let q = sb.from("qb_questions").select("*", { count: "exact" }).eq("status", "live").eq("subject_id", f.subject).order("code").range(0, pickShown - 1);
     if (f.chapter) q = q.eq("chapter_id", f.chapter); if (f.topic) q = q.eq("topic_id", f.topic); if (f.type) q = q.eq("type", f.type);
     if (f.band) q = q.in("difficulty", BANDS[f.band]);
     if (f.source) q = q.ilike("source", `%${f.source.replace(/[%,()]/g, " ")}%`);
     if (f.q) q = /^[A-Za-z]{2,4}-/.test(f.q) ? q.ilike("code", `${f.q}%`) : q.ilike("question_md", `%${f.q.replace(/[%,()]/g, " ")}%`);
-    const { data, error: le } = await q; if (le) throw le;
+    const { data, count, error: le } = await q; if (le) throw le;
     const list = $("#tpList", root); list.innerHTML = data.length ? "" : `<div class="empty">No verified questions match.</div>`;
     for (const row of data) {
       const imgs = (row.question_md.match(/!\[[^\]]*\]\(qb-images\//g) || []).length;
@@ -1748,12 +1750,19 @@ async function pageBuilder(root, testId) {
       card.innerHTML = `<label class="checkline"><input type="checkbox" data-id="${esc(row.id)}" ${reason ? "disabled" : ""}${selected.includes(row.id) ? " checked" : ""}> <span>${metaTags(rowToQ(row))}${reason ? ` <span class="tag red">${esc(reason)}</span>` : ""}${plainOnly ? ` <span class="tag amber" title="The existing tests table stores plain text; formulas render in the Admin Dashboard but tables show as | rows">table shows as plain rows in this test format</span>` : ""}</span></label>`;
       card.appendChild(questionView(rowToQ(row))); list.appendChild(card);
     }
+    const total = count || 0;
+    const bar = document.createElement("div"); bar.className = "row"; bar.style.marginTop = "10px";
+    bar.innerHTML = `<span class="darklabel" style="margin:0">Showing ${Math.min(data.length, total)} of ${total} verified questions</span>` +
+      (total > pickShown ? ` <button class="btn outline" id="tpMore" type="button">Show ${Math.min(PICK_PAGE, total - pickShown)} more</button>` : "");
+    list.appendChild(bar);
+    const more = bar.querySelector("#tpMore");
+    if (more) more.onclick = () => { pickShown += PICK_PAGE; load().catch(fail); };
     $$("input[data-id]", list).forEach((c) => c.onchange = () => {
       const i = selected.indexOf(c.dataset.id); if (c.checked && i < 0) selected.push(c.dataset.id); else if (!c.checked && i >= 0) selected.splice(i, 1);
       $("#tpAdd", root).disabled = !selected.length; $("#tpAdd", root).textContent = `Add ${selected.length || ""} selected`;
     });
   };
-  const set = (k, v) => { f[k] = v || undefined; };
+  const set = (k, v) => { f[k] = v || undefined; pickShown = PICK_PAGE; };
   $("#tpS", root).onchange = (e) => { set("subject", e.target.value); f.chapter = f.topic = undefined; pageBuilder(root, test.id).catch(fail); };
   $("#tpC", root).onchange = (e) => { set("chapter", e.target.value); f.topic = undefined; pageBuilder(root, test.id).catch(fail); };
   $("#tpT", root).onchange = (e) => { set("topic", e.target.value); load().catch(fail); };
