@@ -164,8 +164,7 @@ begin
    raise exception 'Invalid appointment payload' using errcode='22023';
  end if;
  if length(btrim(coalesce(p_record->>'visitor_name','')))<2
-    or regexp_replace(coalesce(p_record->>'contact_phone',''),'[^0-9]','','g') !~ '^[0-9]{10,15}
-    raise exception 'Appointment name, phone, purpose and time required' using errcode='22023';
+    or regexp_replace(coalesce(p_record->>'contact_phone',''),'[^0-9]','','g') !~ '^[0-9]{10,15}    raise exception 'Appointment name, phone, purpose and time required' using errcode='22023';
  end if;
  if v_id is null then
    insert into public.sir_reception_appointments
@@ -245,8 +244,6 @@ grant execute on function public.sir_reception_list_visitors() to authenticated;
 grant execute on function public.sir_reception_find_student(text) to authenticated;
 commit;
 
-    or length(btrim(coalesce(p_record->>'purpose','')))<2
-    or nullif(p_record->>'scheduled_at','') is null then
     raise exception 'Appointment name, phone, purpose and time required' using errcode='22023';
  end if;
  if v_id is null then
