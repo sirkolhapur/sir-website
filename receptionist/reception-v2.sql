@@ -90,11 +90,18 @@ $$;
 create or replace function public.sir_reception_add_followup(p_enquiry_id uuid,p_record jsonb)
 returns jsonb language plpgsql security definer set search_path = ''
 as $$
-declare v_row public.admission_activities; v_outcome text; v_actor_name text;
+declare v_row public.admission_activities; v_outcome text; v_actor_name text; v_current_status public.admission_status;
 begin
  perform public.sir_reception_require();
- if not exists(select 1 from public.admissions where id=p_enquiry_id and status in ('new','contacted','processing')) then
-   raise exception 'Enquiry not found' using errcode='22023';
+ if p_record is null or jsonb_typeof(p_record)<>'object' then
+   raise exception 'Invalid follow-up payload' using errcode='22023';
+ end if;
+ -- Lock the lead before inserting an activity: a concurrent approval/closure
+ -- cannot slip between the status check and the CRM activity trigger.
+ select a.status into v_current_status from public.admissions a
+ where a.id=p_enquiry_id for update;
+ if not found or v_current_status not in ('new','contacted','processing') then
+   raise exception 'Enquiry not found or already finalized' using errcode='22023';
  end if;
  v_outcome:=p_record->>'outcome';
  if v_outcome not in ('connected','call_back','not_answered','switched_off','wrong_number','not_interested') then
