@@ -10,7 +10,7 @@ as $$
  from public.staff_members m
  join public.staff_designations d on d.id=m.designation_id
  where m.user_id=(select auth.uid()) and m.is_active=true and d.is_active=true
- and lower(btrim(d.name))='receptionist'
+ and lower(btrim(d.name)) in ('receptionist','receptionist / front desk executive')
  limit 1;
 $$;
 
@@ -22,7 +22,7 @@ begin
  select m.id into v_id from public.staff_members m
  join public.staff_designations d on d.id=m.designation_id
  where m.user_id=(select auth.uid()) and m.is_active=true and d.is_active=true
- and lower(btrim(d.name))='receptionist' limit 1;
+ and lower(btrim(d.name)) in ('receptionist','receptionist / front desk executive') limit 1;
  if v_id is null then raise exception 'Receptionist access denied' using errcode='42501'; end if;
  return v_id;
 end;
