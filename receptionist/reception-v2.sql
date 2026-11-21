@@ -194,13 +194,36 @@ begin
 end;
 $$;
 
--- Explicitly disabled until Gate and Student access rules are audited.
+-- Gate visitors remain disabled until the actual Security Guard data model and access policy are verified.
 create or replace function public.sir_reception_list_visitors()
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$ begin perform public.sir_reception_require(); return '[]'::jsonb; end; $$;
+-- Exact registered phone or student UID only; no partial-name directory search.
+-- Return minimum identity fields; do not expose phone, DOB, email or user_id.
 create or replace function public.sir_reception_find_student(p_query text)
 returns jsonb language plpgsql stable security definer set search_path = ''
-as $$ begin perform public.sir_reception_require(); return '[]'::jsonb; end; $$;
+as $
+declare v_query text;
+begin
+ perform public.sir_reception_require();
+ v_query := btrim(coalesce(p_query,''));
+ if length(v_query)<4 or length(v_query)>40 then
+   raise exception 'Enter a valid student UID or registered phone' using errcode='22023';
+ end if;
+ return coalesce((
+   select jsonb_agg(jsonb_build_object('full_name',s.full_name,'roll_number',s.student_uid))
+   from (
+     select st.full_name,st.student_uid from public.students st
+     where st.is_active=true
+       and (lower(st.student_uid)=lower(v_query)
+         or (length(regexp_replace(v_query,'[^0-9]','','g'))>=10
+             and regexp_replace(coalesce(st.phone,''),'[^0-9]','','g')=
+                 regexp_replace(v_query,'[^0-9]','','g')))
+     order by st.student_uid limit 5
+   ) s
+ ),'[]'::jsonb);
+end;
+$;
 
 revoke all on function public.sir_reception_require() from public,anon,authenticated;
 revoke all on function public.sir_reception_verify() from public,anon;
