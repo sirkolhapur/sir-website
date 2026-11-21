@@ -3242,7 +3242,7 @@
     <section class="section" id="staff">
       <div class="page-header"><div><h1>Staff Directory</h1><p>Create staff login accounts, assign designation, department, branch and reporting manager.</p></div></div>
       <div class="panel" style="padding:20px;margin-bottom:18px">
-        <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">The login email is generated from the Employee ID using the @sir.net.in domain. Personal/work email is stored separately as contact information. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
+        <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">Enter a unique Login username. The account-creation service must confirm the actual Login ID; Employee ID is not a login credential. Personal/work email is contact information. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
         <form id="staffForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
           <label>Full name *<input id="staffFullName" required maxlength="150" autocomplete="name"></label>
           
@@ -9426,12 +9426,12 @@ async function populateStaffManagers(){
 async function loadStaffMembers(){
  await staffRequireAdmin();
  const {data,error}=await supabaseClient.from("staff_members").select("id,user_id,employee_id,full_name,email,phone,department,branch_id,designation_id,reporting_manager_id,is_active,created_at,organization_branches(name,branch_code),staff_designations(name)").order("created_at",{ascending:false});
- if(error)throw error;staffMembersCache=data||[];renderStaffMembers();await populateStaffManagers();
+ if(error)throw error;staffMembersCache=data||[];const {data:loginRows,error:loginError}=await supabaseClient.rpc("sir_admin_staff_login_ids");const loginMap=new Map((loginRows||[]).map(row=>[row.staff_id,row.login_email]));staffMembersCache=staffMembersCache.map(member=>({...member,verified_login_email:loginError?null:(loginMap.get(member.id)||null)}));renderStaffMembers();if(loginError)staffNotice("staffMessage","Staff directory loaded, but verified Login IDs are unavailable. Deploy receptionist/admin-staff-login-ids.sql before sharing credentials.",true);await populateStaffManagers();
 }
 function renderStaffMembers(){
  const wrap=document.getElementById("staffTableWrap");if(!wrap)return;
  if(!staffMembersCache.length){wrap.innerHTML="<p>No staff accounts yet. Use the form above to create the first account.</p>";return;}
- wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Employee</th><th>Designation</th><th>Department</th><th>Branch</th><th>Manager</th><th>Login ID / Status</th><th>Action</th></tr></thead><tbody>'+staffMembersCache.map(m=>{const loginId=m.employee_id?`staff.${String(m.employee_id).toLowerCase()}@sir.net.in`:"Login ID unavailable";return `<tr><td><strong>${staffEsc(m.full_name)}</strong><br><small>${staffEsc(m.employee_id||"No ID")} · Contact: ${staffEsc(m.email)}</small></td><td>${staffEsc(m.staff_designations?.name||"—")}</td><td>${staffEsc(m.department)}</td><td>${staffEsc(m.organization_branches?.name||"—")}</td><td>${staffEsc(staffMembersCache.find(x=>x.id===m.reporting_manager_id)?.full_name||"—")}</td><td><strong>${staffEsc(loginId)}</strong><br><span class="sir-status-pill ${m.is_active?"is-active":"is-inactive"}">${m.is_active?"Active":"Inactive"}</span></td><td><button class="secondary-btn" data-staff-toggle="${staffEsc(m.id)}" data-active="${m.is_active?"false":"true"}">${m.is_active?"Deactivate":"Activate"}</button></td></tr>`}).join("")+'</tbody></table>';
+ wrap.innerHTML='<table class="data-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Employee</th><th>Designation</th><th>Department</th><th>Branch</th><th>Manager</th><th>Login ID / Status</th><th>Action</th></tr></thead><tbody>'+staffMembersCache.map(m=>{const loginId=m.verified_login_email||"Login ID not verified";return `<tr><td><strong>${staffEsc(m.full_name)}</strong><br><small>${staffEsc(m.employee_id||"No ID")} · Contact: ${staffEsc(m.email)}</small></td><td>${staffEsc(m.staff_designations?.name||"—")}</td><td>${staffEsc(m.department)}</td><td>${staffEsc(m.organization_branches?.name||"—")}</td><td>${staffEsc(staffMembersCache.find(x=>x.id===m.reporting_manager_id)?.full_name||"—")}</td><td><strong>${staffEsc(loginId)}</strong><br><span class="sir-status-pill ${m.is_active?"is-active":"is-inactive"}">${m.is_active?"Active":"Inactive"}</span></td><td><button class="secondary-btn" data-staff-toggle="${staffEsc(m.id)}" data-active="${m.is_active?"false":"true"}">${m.is_active?"Deactivate":"Activate"}</button></td></tr>`}).join("")+'</tbody></table>';
  wrap.querySelectorAll("[data-staff-toggle]").forEach(btn=>btn.addEventListener("click",async()=>{const nextActive=btn.dataset.active==="true";if(!confirm(`${nextActive?"Activate":"Deactivate"} this staff login?`))return;try{const session=await staffRequireAdmin();const {data,error}=await supabaseClient.functions.invoke("admin-set-staff-status",{body:{staff_member_id:btn.dataset.staffToggle,is_active:nextActive},headers:{Authorization:`Bearer ${session.access_token}`}});if(error)throw error;if(!data?.success)throw new Error(data?.error||"Unable to update staff status.");staffNotice("staffMessage",`Staff account ${nextActive?"activated":"deactivated"}.`);await loadStaffMembers();}catch(e){staffNotice("staffMessage",e.message||"Unable to update staff status.",true);}}));
 }
 async function saveBranch(event){
@@ -9553,14 +9553,14 @@ async function createStaffAccount(event) {
     document.getElementById("staffForm").reset();
     document.getElementById("staffActive").checked = true;
 
-    const loginId =
-      data.login_email ||
-      data.staff?.login_email ||
-      `${payload.login_username}@sir.net.in`;
-
+    const loginId = data.login_email || data.staff?.login_email || data.login_id || data.staff?.login_id || null;
+    const confirmedLoginId = typeof loginId === "string" && loginId.trim() ? loginId.trim() : null;
     staffNotice(
       "staffMessage",
-      `Staff account created for ${payload.full_name}. Login ID: ${loginId}. Share the temporary password securely and ask the employee to change it after first login.`
+      confirmedLoginId
+        ? `Staff account created for ${payload.full_name}. Confirmed Login ID: ${confirmedLoginId}. Share the temporary password securely and ask the employee to change it after first login.`
+        : `Staff account created for ${payload.full_name}, but the account service did not return a confirmed Login ID. Do not guess a Login ID from Employee ID or username. Verify the login with the account service before sharing credentials.`,
+      !confirmedLoginId
     );
 
     await loadStaffMembers();
