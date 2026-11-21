@@ -160,8 +160,91 @@ begin
  if v_status not in ('scheduled','confirmed','completed','cancelled') then
    raise exception 'Invalid appointment status' using errcode='22023';
  end if;
+ if p_record is null or jsonb_typeof(p_record)<>'object' then
+   raise exception 'Invalid appointment payload' using errcode='22023';
+ end if;
  if length(btrim(coalesce(p_record->>'visitor_name','')))<2
-    or length(btrim(coalesce(p_record->>'contact_phone','')))<10
+    or regexp_replace(coalesce(p_record->>'contact_phone',''),'[^0-9]','','g') !~ '^[0-9]{10,15}
+    raise exception 'Appointment name, phone, purpose and time required' using errcode='22023';
+ end if;
+ if v_id is null then
+   insert into public.sir_reception_appointments
+   (visitor_name,contact_phone,purpose,staff_name,scheduled_at,status,notes,created_by)
+   values(left(btrim(p_record->>'visitor_name'),120),
+      left(btrim(p_record->>'contact_phone'),20),
+      left(btrim(p_record->>'purpose'),300),
+      nullif(left(btrim(coalesce(p_record->>'staff_name','')),120),''),
+      (p_record->>'scheduled_at')::timestamptz,v_status,
+      nullif(left(btrim(coalesce(p_record->>'notes','')),2000),''),
+      (select auth.uid()))
+   returning * into v_row;
+ else
+   update public.sir_reception_appointments set
+     visitor_name=left(btrim(p_record->>'visitor_name'),120),
+     contact_phone=left(btrim(p_record->>'contact_phone'),20),
+     purpose=left(btrim(p_record->>'purpose'),300),
+     staff_name=nullif(left(btrim(coalesce(p_record->>'staff_name','')),120),''),
+     scheduled_at=(p_record->>'scheduled_at')::timestamptz,
+     status=v_status,
+     notes=nullif(left(btrim(coalesce(p_record->>'notes','')),2000),''),
+     updated_at=now()
+   where id=v_id returning * into v_row;
+   if not found then raise exception 'Appointment not found' using errcode='22023'; end if;
+ end if;
+ return to_jsonb(v_row);
+end;
+$$;
+
+-- Gate visitors remain disabled until the actual Security Guard data model and access policy are verified.
+create or replace function public.sir_reception_list_visitors()
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $$ begin perform public.sir_reception_require(); return '[]'::jsonb; end; $$;
+-- Exact registered phone or student UID only; no partial-name directory search.
+-- Return minimum identity fields; do not expose phone, DOB, email or user_id.
+create or replace function public.sir_reception_find_student(p_query text)
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $
+declare v_query text;
+begin
+ perform public.sir_reception_require();
+ v_query := btrim(coalesce(p_query,''));
+ if length(v_query)<4 or length(v_query)>40 then
+   raise exception 'Enter a valid student UID or registered phone' using errcode='22023';
+ end if;
+ return coalesce((
+   select jsonb_agg(jsonb_build_object('full_name',s.full_name,'roll_number',s.student_uid))
+   from (
+     select st.full_name,st.student_uid from public.students st
+     where st.is_active=true
+       and (lower(st.student_uid)=lower(v_query)
+         or (length(regexp_replace(v_query,'[^0-9]','','g'))>=10
+             and regexp_replace(coalesce(st.phone,''),'[^0-9]','','g')=
+                 regexp_replace(v_query,'[^0-9]','','g')))
+     order by st.student_uid limit 5
+   ) s
+ ),'[]'::jsonb);
+end;
+$;
+
+revoke all on function public.sir_reception_require() from public,anon,authenticated;
+revoke all on function public.sir_reception_verify() from public,anon;
+revoke all on function public.sir_reception_list_enquiries() from public,anon;
+revoke all on function public.sir_reception_save_enquiry(jsonb) from public,anon;
+revoke all on function public.sir_reception_add_followup(uuid,jsonb) from public,anon;
+revoke all on function public.sir_reception_list_appointments() from public,anon;
+revoke all on function public.sir_reception_save_appointment(jsonb) from public,anon;
+revoke all on function public.sir_reception_list_visitors() from public,anon;
+revoke all on function public.sir_reception_find_student(text) from public,anon;
+grant execute on function public.sir_reception_verify() to authenticated;
+grant execute on function public.sir_reception_list_enquiries() to authenticated;
+grant execute on function public.sir_reception_save_enquiry(jsonb) to authenticated;
+grant execute on function public.sir_reception_add_followup(uuid,jsonb) to authenticated;
+grant execute on function public.sir_reception_list_appointments() to authenticated;
+grant execute on function public.sir_reception_save_appointment(jsonb) to authenticated;
+grant execute on function public.sir_reception_list_visitors() to authenticated;
+grant execute on function public.sir_reception_find_student(text) to authenticated;
+commit;
+
     or length(btrim(coalesce(p_record->>'purpose','')))<2
     or nullif(p_record->>'scheduled_at','') is null then
     raise exception 'Appointment name, phone, purpose and time required' using errcode='22023';
