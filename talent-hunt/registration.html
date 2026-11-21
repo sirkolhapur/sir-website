@@ -1026,6 +1026,28 @@
 
     }
 
+    /*Direct registration landing: preserve the existing form and verification screens. */
+    #scene4.active { animation: none; }
+    #scene4 .register-layout { align-items: start; margin: 0 auto; width: 100%; gap: 40px; }
+    #scene4 .register-copy { padding-top: 24px; }
+    #scene4 .register-copy h1 { font-size: clamp(30px, 4vw, 54px); line-height: 1.12; margin: 12px 0; }
+    #scene4 .register-copy h1 span { color: var(--gold); }
+    #scene4 .sage-motto { color: var(--gold); font-size: 10px; letter-spacing: 1.2px; margin-top: 16px; }
+    #scene4 .form-card { background: #122239; color: #fff; border: 1px solid #38465a; }
+    #scene4 .form-card .form-sub, #scene4 .wa-note, #scene4 .privacy { color: #b8c5d5; }
+    #scene4 .field input, #scene4 .field select { background: #fff; color: var(--dark); font-size: 16px; }
+    #scene4 .field :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    @media (max-width: 900px) {
+      #scene4 { padding-top: 8px; }
+      #scene4 .register-layout { gap: 18px; }
+      #scene4 .register-copy { padding: 0; }
+      #scene4 .register-copy h1 { font-size: clamp(25px, 6vw, 36px); margin: 6px 0; }
+      #scene4 .register-copy p { font-size: 14px; line-height: 1.45; }
+      #scene4 .sage-motto { display: none; }
+      #scene4 .form-card { padding: 20px; }
+      #scene4 .form-card h3 { font-size: 23px; }
+    }
+    @media (max-width: 560px) { .topbar { gap: 8px; } .progress { display: none; } }
   </style>
 </head>
 
@@ -1059,29 +1081,18 @@
           SIR
         </strong>
 
-        <span>
-          Talent Hunt
-        </span>
+        <span>SAGE Programme</span>
 
       </div>
 
     </div>
 
 
-    <div class="progress">
-
+    <div class="progress" aria-label="Registration progress">
       <div class="progress-dot active"></div>
-
       <div class="progress-dot"></div>
-
       <div class="progress-dot"></div>
-
-      <div class="progress-dot"></div>
-
-      <div class="progress-dot"></div>
-
     </div>
-
 
     <a class="login-link" href="student-login.html">
       <span>Already a member?</span> <b>Login →</b>
@@ -1091,299 +1102,11 @@
 
 
   <!-- =========================================
-       SCENE 1 — HOOK
-       ========================================= -->
-
-  <section
-    class="scene active"
-    id="scene1"
-  >
-
-    <div class="scene-inner hook">
-
-
-      <div>
-
-        <div class="eyebrow">
-          SIR Scholarship Program
-        </div>
-
-
-        <h1>
-
-          Ever wondered<br>
-
-          <span>
-            how far
-          </span>
-
-          you can go?
-
-        </h1>
-
-
-        <p class="hook-copy">
-
-          The biggest discoveries often begin
-          with one simple question:
-
-          <strong>
-            “What if I can?”
-          </strong>
-
-        </p>
-
-
-        <button
-          class="cta"
-          type="button"
-          onclick="goToScene(2)"
-        >
-
-          ✨ DISCOVER YOUR POTENTIAL
-
-        </button>
-
-
-        <div class="hint">
-
-          A short journey.
-          One interesting question.
-          Your potential.
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================
-           THOMAS EDISON
-           ===================================== -->
-
-      <div class="scientist-card">
-
-        <img
-          src="https://commons.wikimedia.org/wiki/Special:FilePath/Thomas%20Edison2.jpg"
-          alt="Thomas Edison portrait"
-        >
-
-
-        <div class="quote-mark">
-          “
-        </div>
-
-
-        <div class="scientist-overlay">
-
-          <div>
-
-            <div class="scientist-tag">
-              A curious mind
-            </div>
-
-
-            <div class="scientist-name">
-              Thomas Edison
-            </div>
-
-
-            <div class="scientist-fact">
-
-              His story is a reminder that curiosity
-              and persistence can turn an idea
-              into something real.
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================================
-       SCENE 2 — CHALLENGE
-       ========================================= -->
-
-  <section
-    class="scene"
-    id="scene2"
-  >
-
-    <div class="scene-inner challenge">
-
-      <div class="eyebrow">
-        Think beyond the classroom
-      </div>
-
-
-      <h2>
-
-        Potential is not a mark.<br>
-
-        <span style="color:var(--gold);">
-          It's a possibility.
-        </span>
-
-      </h2>
-
-
-      <p>
-
-        Your school marks tell part of your story.
-
-        A challenge can reveal another part —
-        how you think, how you respond and
-        how far you can push yourself.
-
-      </p>
-
-
-      <div class="challenge-grid">
-
-
-        <div class="challenge-card">
-
-          <div class="challenge-icon">
-            🧠
-          </div>
-
-          <h3>
-            THINK
-          </h3>
-
-          <p>
-            Can you solve something you haven't
-            seen before?
-          </p>
-
-        </div>
-
-
-        <div class="challenge-card">
-
-          <div class="challenge-icon">
-            ⚡
-          </div>
-
-          <h3>
-            CHALLENGE
-          </h3>
-
-          <p>
-            Can you stay sharp when the clock
-            is running?
-          </p>
-
-        </div>
-
-
-        <div class="challenge-card">
-
-          <div class="challenge-icon">
-            🎯
-          </div>
-
-          <h3>
-            DISCOVER
-          </h3>
-
-          <p>
-            What does your performance say
-            about your potential?
-          </p>
-
-        </div>
-
-
-      </div>
-
-
-      <button
-        class="cta"
-        type="button"
-        onclick="goToScene(3)"
-      >
-
-        I'M READY →
-
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================================
-       SCENE 3 — YOUR TURN
-       ========================================= -->
-
-  <section
-    class="scene"
-    id="scene3"
-  >
-
-    <div class="scene-inner your-turn">
-
-      <div>
-
-        <div class="eyebrow">
-          Your turn
-        </div>
-
-
-        <h2>
-
-          Great minds<br>
-
-          <span>
-            start curious.
-          </span>
-
-        </h2>
-
-
-        <p>
-
-          Scientists asked questions nobody had
-          answered.
-
-          You don't need to know everything.
-
-          You just need the courage to discover
-          what you can do.
-
-        </p>
-
-
-        <button
-          class="cta"
-          type="button"
-          onclick="goToScene(4)"
-        >
-
-          START MY TALENT HUNT →
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================================
        SCENE 4 — REGISTRATION
        ========================================= -->
 
   <section
-    class="scene"
+    class="scene active"
     id="scene4"
   >
 
@@ -1391,88 +1114,22 @@
 
 
       <div class="register-copy">
-
-        <div class="eyebrow">
-          Step 01 · Registration
-        </div>
-
-
-        <h2>
-
-          Let's get to<br>
-
-          <span>
-            know you.
-          </span>
-
-        </h2>
-
-
-        <p>
-
-          Your Talent Hunt journey starts
-          with four simple details.
-
-          Use one WhatsApp number that you
-          can access — yours or your parent's.
-
-        </p>
-
-
-        <div class="journey-mini">
-
-
-          <div>
-
-            <strong>
-              01
-            </strong>
-
-            Register
-
-          </div>
-
-
-          <div>
-
-            <strong>
-              02
-            </strong>
-
-            Verify WhatsApp
-
-          </div>
-
-
-          <div>
-
-            <strong>
-              03
-            </strong>
-
-            Enter the Talent Hunt
-
-          </div>
-
-
-        </div>
-
+        <div class="eyebrow">SIR SAGE PROGRAMME 2026</div>
+        <h1>Discover Your Potential.<br><span>Shape Your Future.</span></h1>
+        <p>Challenge yourself, discover your strengths and explore your scholarship opportunity.</p>
+        <p class="sage-motto">WHERE POTENTIAL FINDS DIRECTION</p>
       </div>
-
 
       <div class="form-card">
 
         <h3>
-          Start Your Journey
+          Register for SAGE
         </h3>
 
 
         <p class="form-sub">
 
-          Enter your details below.
-
-          Class 10 is currently eligible
-          for this Talent Hunt.
+          Enter your details below to begin your Talent Hunt journey.
 
         </p>
 
@@ -1832,15 +1489,9 @@
 
     FLOW:
 
-    HOOK
-      ↓
-    CHALLENGE
-      ↓
-    YOUR TURN
-      ↓
     REGISTRATION
       ↓
-    OTP DEMO
+    OTP VERIFICATION
       ↓
     SUCCESS
 
@@ -1849,12 +1500,12 @@
     2. talent-hunt-send-otp
     3. talent-hunt-verify-otp
     4. talent-hunt-create-account
-    The temporary password is returned only for a successful first-time account creation.
+    A one-time password setup token is returned for successful first-time account creation.
     ============================================================
   */
 
 
-  let currentScene = 1;
+  let currentScene = 4;
 
 
   function updateProgress(sceneNumber) {
@@ -1868,7 +1519,7 @@
       dot.classList.toggle(
         "active",
         index === Math.min(
-          sceneNumber - 1,
+          sceneNumber - 4,
           dots.length - 1
         )
       );
@@ -2271,7 +1922,7 @@
     INITIAL STATE
   */
 
-  updateProgress(1);
+  updateProgress(4);
 
 </script>
 
