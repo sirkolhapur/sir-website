@@ -1,26 +1,29 @@
 # SIR Reception Desk — PR #101 deployment status
 
-## Implemented on feature branch
-- Responsive SIR receptionist login, dashboard, logout and show/hide password.
-- Existing CRM-aligned enquiry statuses and field names.
-- Receptionist-only RPC migration in `reception-v2.sql`, using `staff_members`, `staff_designations`, `admissions` and `admission_activities`.
-- Appointment storage and RPCs in `reception-v2.sql`.
-- Visitor and student lookup functions intentionally return no records pending permission audit.
+## Code prepared on feature branch (not deployed)
+- Responsive Receptionist login/dashboard, enquiries, follow-ups, appointments and sign-out.
+- Enquiry fields/status/source aligned to existing admissions CRM; Receptionist cannot approve/reject/close enquiries.
+- Follow-up actor attribution and row-locking against concurrent finalized status changes.
+- `reception-v2.sql`: role-scoped RPCs, CRM reuse, appointments table, exact-match student identity lookup (active student UID or full registered phone; returns name and UID only).
+- `admin-staff-login-ids.sql`: admin-only lookup of actual Auth login emails for existing staff; does **not** create Auth users.
+- Sign-out clears cached receptionist data; independent RPC failures do not hide other loaded sections.
+- Gate visitor RPC is intentionally empty until Security Guard schema and permissions are audited.
 
 ## DO NOT RUN
-`reception-schema.sql` is a deliberately disabled, superseded draft. It is NOT the migration.
+`reception-schema.sql` is a disabled superseded draft. Never execute it.
 
-## Deployment blockers
-1. Review `reception-v2.sql` in a staging database, especially SECURITY DEFINER execution, insert/update triggers, and role permissions.
-2. Fix frontend field mappings and UX against actual RPC payloads; verify notes and status values.
-3. Verify `admin-create-staff` produces the same login ID displayed in Staff Directory and accepted by Receptionist login. Admin already has Staff Directory > Create Staff Login.
-4. Confirm an active `Receptionist / Front Desk Executive` designation exists and staff account is provisioned.
-5. Run authorized and unauthorized account tests; verify no cross-role access and that existing CRM behavior remains unchanged.
-6. Deploy SQL in a controlled manner, then merge PR and test live.
+## Deployment order and blockers
+1. Review both SQL migrations against the **current** Supabase schema and permissions, ideally in staging. Inspect `SECURITY DEFINER` ownership and existing admissions triggers before running.
+2. Deploy `reception-v2.sql` and `admin-staff-login-ids.sql` in a controlled database change.
+3. Verify deployed `admin-create-staff` Edge Function (its source is not present in the inspected repository): create an active staff member with designation `Receptionist / Front Desk Executive`; confirm its Auth email from the admin-only RPC. Do not infer login email from employee ID.
+4. Test receptionist sign-in, sign-out, enquiry insert/update, follow-up, appointment CRUD, and exact-match student lookup with a real permitted account.
+5. Test denied access for unauthenticated, teacher, counsellor, disabled receptionist and other non-receptionist accounts. Check CRM regression, trigger activity logs, rate limiting and appointment access.
+6. Inspect actual Security Guard visitor table/policy and implement the feed; the visitor panel is **not** functional yet.
+7. Only then merge PR and test live.
 
-## Not yet delivered
-- Actual gate visitor data feed (security guard module integration).
-- Restricted student identity lookup.
-- Live login/CRUD end-to-end test.
-
-No changes to Talent Hunt student dashboard or other existing role pages.
+## Limitations
+- No Supabase database migration has been executed by this PR.
+- No real Auth login, database integration, or role-security tests have passed yet.
+- Student lookup is deliberately minimal and must be privacy-reviewed before deployment.
+- This PR changes Admin Staff Directory display but does not replace staff creation.
+- Talent Hunt student dashboard is untouched.
