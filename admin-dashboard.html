@@ -3242,7 +3242,7 @@
     <section class="section" id="staff">
       <div class="page-header"><div><h1>Staff Directory</h1><p>Create staff login accounts, assign designation, department, branch and reporting manager.</p></div></div>
       <div class="panel" style="padding:20px;margin-bottom:18px">
-        <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">The login email is generated from the Employee ID using the @sir.net.in domain. Personal/work email is stored separately as contact information. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
+        <h3>Create Staff Account</h3><p style="color:var(--muted,#64748b)">Enter a unique Login username. The account-creation service must confirm the actual Login ID; Employee ID is not a login credential. Personal/work email is contact information. Passwords are never stored in the staff table.</p><div id="staffMessage" role="status" style="margin:10px 0"></div>
         <form id="staffForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
           <label>Full name *<input id="staffFullName" required maxlength="150" autocomplete="name"></label>
           
@@ -9553,14 +9553,14 @@ async function createStaffAccount(event) {
     document.getElementById("staffForm").reset();
     document.getElementById("staffActive").checked = true;
 
-    const loginId =
-      data.login_email ||
-      data.staff?.login_email ||
-      `${payload.login_username}@sir.net.in`;
-
+    const loginId = data.login_email || data.staff?.login_email || data.login_id || data.staff?.login_id || null;
+    const confirmedLoginId = typeof loginId === "string" && loginId.trim() ? loginId.trim() : null;
     staffNotice(
       "staffMessage",
-      `Staff account created for ${payload.full_name}. Login ID: ${loginId}. Share the temporary password securely and ask the employee to change it after first login.`
+      confirmedLoginId
+        ? `Staff account created for ${payload.full_name}. Confirmed Login ID: ${confirmedLoginId}. Share the temporary password securely and ask the employee to change it after first login.`
+        : `Staff account created for ${payload.full_name}, but the account service did not return a confirmed Login ID. Do not guess a Login ID from Employee ID or username. Verify the login with the account service before sharing credentials.`,
+      !confirmedLoginId
     );
 
     await loadStaffMembers();
