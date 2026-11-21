@@ -4,17 +4,17 @@
 - Responsive Receptionist login/dashboard, enquiries, follow-ups, appointments and sign-out.
 - Enquiry fields/status/source aligned to existing admissions CRM; Receptionist cannot approve/reject/close enquiries.
 - Follow-up actor attribution and row-locking against concurrent finalized status changes.
-- `reception-v2.sql`: role-scoped RPCs, CRM reuse, appointments table, exact-match student identity lookup (active student UID or full registered phone; returns name and UID only).
+- `reception-final.sql`: role-scoped RPCs, CRM reuse, appointments table, exact-match student identity lookup (active student UID or full registered phone; returns name and UID only).
 - `admin-staff-login-ids.sql`: admin-only lookup of actual Auth login emails for existing staff; does **not** create Auth users.
 - Sign-out clears cached receptionist data; independent RPC failures do not hide other loaded sections.
 - Gate visitor RPC is intentionally empty until Security Guard schema and permissions are audited.
 
 ## DO NOT RUN
-`reception-schema.sql` is a disabled superseded draft. Never execute it.
+`reception-schema.sql` is a disabled superseded draft. **Do not execute `reception-v2.sql`, `reception-v3.sql` or `reception-v4.sql`: these are malformed superseded attempts. Use only `reception-final.sql` after SQL review.**
 
 ## Deployment order and blockers
 1. Review both SQL migrations against the **current** Supabase schema and permissions, ideally in staging. Inspect `SECURITY DEFINER` ownership and existing admissions triggers before running.
-2. Deploy `reception-v2.sql` and `admin-staff-login-ids.sql` in a controlled database change.
+2. Deploy `reception-final.sql` and `admin-staff-login-ids.sql` in a controlled database change.
 3. Verify deployed `admin-create-staff` Edge Function (its source is not present in the inspected repository): create an active staff member with designation `Receptionist / Front Desk Executive`; confirm its Auth email from the admin-only RPC. Do not infer login email from employee ID.
 4. Test receptionist sign-in, sign-out, enquiry insert/update, follow-up, appointment CRUD, and exact-match student lookup with a real permitted account.
 5. Test denied access for unauthenticated, teacher, counsellor, disabled receptionist and other non-receptionist accounts. Check CRM regression, trigger activity logs, rate limiting and appointment access.
