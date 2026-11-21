@@ -80,8 +80,8 @@ begin
      status=v_status::public.admission_status,
      next_follow_up_at=case when v_status in ('new','contacted','processing')
        then nullif(p_record->>'next_follow_up_at','')::timestamptz else null end
-   where id=v_id returning * into v_row;
-   if not found then raise exception 'Enquiry not found' using errcode='22023'; end if;
+   where id=v_id and status in ('new','contacted','processing') returning * into v_row;
+   if not found then raise exception 'Enquiry not found or already finalized' using errcode='22023'; end if;
  end if;
  return to_jsonb(v_row);
 end;
@@ -93,7 +93,7 @@ as $$
 declare v_row public.admission_activities; v_outcome text; v_actor_name text;
 begin
  perform public.sir_reception_require();
- if not exists(select 1 from public.admissions where id=p_enquiry_id) then
+ if not exists(select 1 from public.admissions where id=p_enquiry_id and status in ('new','contacted','processing')) then
    raise exception 'Enquiry not found' using errcode='22023';
  end if;
  v_outcome:=p_record->>'outcome';
@@ -108,7 +108,7 @@ begin
  if p_record ? 'next_follow_up_at' then
    update public.admissions set next_follow_up_at=
       nullif(p_record->>'next_follow_up_at','')::timestamptz
-   where id=p_enquiry_id;
+   where id=p_enquiry_id and status in ('new','contacted','processing');
  end if;
  return to_jsonb(v_row);
 end;
