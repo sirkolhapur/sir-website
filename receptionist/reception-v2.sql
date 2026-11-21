@@ -45,10 +45,12 @@ begin
  perform public.sir_reception_require();
  v_id:=nullif(p_record->>'id','')::uuid;
  v_status:=coalesce(nullif(p_record->>'status',''),'new');
- if v_status not in ('new','contacted','processing','approved','rejected','closed') then
+ if nullif(p_record->>'id','') is null and v_status<>'new' then raise exception 'New enquiry must start as new' using errcode='22023'; end if;
+ if v_status not in ('new','contacted','processing') then
    raise exception 'Invalid CRM status' using errcode='22023';
  end if;
  v_phone:=regexp_replace(coalesce(p_record->>'phone',''),'[^0-9+]','','g');
+ if p_record is null or jsonb_typeof(p_record)<>'object' then raise exception 'Invalid enquiry payload' using errcode='22023'; end if;
  if length(btrim(coalesce(p_record->>'student_name','')))<2 or v_phone !~ '^\+?[0-9]{10,15}$' then
    raise exception 'Valid student name and phone required' using errcode='22023';
  end if;
@@ -88,7 +90,7 @@ $$;
 create or replace function public.sir_reception_add_followup(p_enquiry_id uuid,p_record jsonb)
 returns jsonb language plpgsql security definer set search_path = ''
 as $$
-declare v_row public.admission_activities; v_outcome text;
+declare v_row public.admission_activities; v_outcome text; v_actor_name text;
 begin
  perform public.sir_reception_require();
  if not exists(select 1 from public.admissions where id=p_enquiry_id) then
@@ -98,8 +100,9 @@ begin
  if v_outcome not in ('connected','call_back','not_answered','switched_off','wrong_number','not_interested') then
    raise exception 'Invalid call outcome' using errcode='22023';
  end if;
- insert into public.admission_activities(admission_id,actor_user_id,kind,outcome,note)
- values(p_enquiry_id,(select auth.uid()),'call',v_outcome,
+ select m.full_name into v_actor_name from public.staff_members m where m.id=public.sir_reception_require();
+ insert into public.admission_activities(admission_id,actor_user_id,actor_name,kind,outcome,note)
+ values(p_enquiry_id,(select auth.uid()),v_actor_name,'call',v_outcome,
    nullif(left(btrim(coalesce(p_record->>'note','')),2000),''))
  returning * into v_row;
  if p_record ? 'next_follow_up_at' then
