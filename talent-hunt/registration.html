@@ -719,6 +719,17 @@
       color: #657184;
     }
 
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 70px; }
+    .pw-toggle {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      border: 0; background: transparent; color: #173f73;
+      font-size: 12px; font-weight: 800; padding: 8px; cursor: pointer;
+    }
+    .pw-rules { color: #7a8593; font-size: 11px; line-height: 1.45; margin-top: 6px; }
+    .pw-rules.bad { color: #b93838; }
+    .pw-rules.ok { color: #16815d; }
+
     .wa-note {
       color: #7a8593;
 
@@ -1304,6 +1315,25 @@
           </div>
 
 
+          <div class="field">
+            <label for="studentPassword">CREATE PASSWORD</label>
+            <div class="pw-wrap">
+              <input id="studentPassword" name="studentPassword" type="password" minlength="10" maxlength="128"
+                autocomplete="new-password" placeholder="Choose a password" required>
+              <button class="pw-toggle" type="button" data-pw-toggle="studentPassword" aria-label="Show password">SHOW</button>
+            </div>
+            <div class="pw-rules" id="pwRules">At least 10 characters, with a capital letter, a small letter and a number. You will use it to sign in.</div>
+          </div>
+
+          <div class="field">
+            <label for="studentPasswordConfirm">CONFIRM PASSWORD</label>
+            <div class="pw-wrap">
+              <input id="studentPasswordConfirm" name="studentPasswordConfirm" type="password" minlength="10" maxlength="128"
+                autocomplete="new-password" placeholder="Type the password again" required>
+              <button class="pw-toggle" type="button" data-pw-toggle="studentPasswordConfirm" aria-label="Show password">SHOW</button>
+            </div>
+          </div>
+
           <button
             class="cta"
             type="submit"
@@ -1785,6 +1815,15 @@
       return;
     }
 
+    const password = document.getElementById("studentPassword").value;
+    const passwordConfirm = document.getElementById("studentPasswordConfirm").value;
+    const passwordProblem = checkPassword(password, passwordConfirm);
+    if (passwordProblem) {
+      alert(passwordProblem);
+      document.getElementById("studentPassword").focus();
+      return;
+    }
+
     registrationInProgress = true;
     const originalLabel = "VERIFY & ENTER THE HUNT →";
     setBusy(submitButton, true, "SAVING & SENDING OTP...", originalLabel);
@@ -1801,7 +1840,9 @@
         taluka,
         talukaCode: talukaSelect.value,
         board,
-        medium
+        medium,
+        password,
+        passwordConfirm
       });
 
       currentRegistrationId =
@@ -1814,6 +1855,10 @@
       if (!currentRegistrationId) {
         throw new Error("Registration was saved but the API did not return a registration ID. Contact support before retrying.");
       }
+
+      // The server has the password now. Do not keep it in the page.
+      document.getElementById("studentPassword").value = "";
+      document.getElementById("studentPasswordConfirm").value = "";
 
       await invokeEdgeFunction("talent-hunt-send-otp", {
         registrationId: currentRegistrationId
@@ -1861,7 +1906,18 @@
       const status = document.getElementById("credentialsDeliveryStatus");
       panel.hidden = true; error.hidden = true; status.textContent = "";
       document.getElementById("credentialLoginId").textContent = "";
-      if (loginId && passwordSetupToken && account.accountStatus !== "EXISTS") {
+      if (loginId && account.passwordChosen === true && account.accountStatus === "CREATED") {
+        document.getElementById("credentialLoginId").textContent = String(loginId);
+        message.textContent = "Your account is ready. Sign in with your Login ID and the password you chose.";
+        document.querySelector("#credentialsPanel .credentials-intro").textContent =
+          "Account created successfully! Save your Login ID. Your Login ID is also sent to your WhatsApp.";
+        status.textContent = "";
+        const go = document.getElementById("createPasswordButton");
+        go.textContent = "GO TO LOGIN →";
+        go.disabled = false;
+        go.onclick = function () { window.location.href = "student-login.html"; };
+        panel.hidden = false;
+      } else if (loginId && passwordSetupToken && account.accountStatus !== "EXISTS") {
         document.getElementById("credentialLoginId").textContent = String(loginId);
         message.textContent = "Your account has been created successfully. Save your Login ID, then create your own password.";
         status.textContent = "No temporary password is needed. Choose your own password in the next step.";
@@ -1884,6 +1940,42 @@
       if (otpButton) setBusy(otpButton, false, "", originalLabel);
     }
   }
+
+  /* PASSWORD ON THE REGISTRATION FORM */
+  function checkPassword(password, confirm) {
+    if (password.length < 10 || password.length > 128 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return "Use at least 10 characters, including a capital letter, a small letter and a number.";
+    }
+    if (password !== confirm) return "The two passwords do not match.";
+    return "";
+  }
+
+  (function initPasswordFields() {
+    const pw = document.getElementById("studentPassword");
+    const pw2 = document.getElementById("studentPasswordConfirm");
+    const rules = document.getElementById("pwRules");
+    if (!pw || !pw2 || !rules) return;
+    const base = rules.textContent;
+    function refresh() {
+      if (!pw.value && !pw2.value) { rules.textContent = base; rules.className = "pw-rules"; return; }
+      const problem = checkPassword(pw.value, pw2.value);
+      if (!problem) { rules.textContent = "Password looks good."; rules.className = "pw-rules ok"; return; }
+      // Do not nag about the match until the second box is being used.
+      if (problem.startsWith("The two") && !pw2.value) { rules.textContent = base; rules.className = "pw-rules"; return; }
+      rules.textContent = problem; rules.className = "pw-rules bad";
+    }
+    pw.addEventListener("input", refresh);
+    pw2.addEventListener("input", refresh);
+    document.querySelectorAll("[data-pw-toggle]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const input = document.getElementById(btn.getAttribute("data-pw-toggle"));
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.textContent = show ? "HIDE" : "SHOW";
+        btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      });
+    });
+  })();
 
   function continueToPasswordSetup() {
     if (!passwordSetupToken) {
