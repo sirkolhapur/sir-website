@@ -3342,6 +3342,9 @@
             <div class="field"><label for="sageRegBoard">Board *</label><select id="sageRegBoard" required><option value="">Select board</option><option>CBSE</option><option>ICSE</option><option>IB</option><option>State Board</option></select></div>
             <div class="field"><label for="sageRegMedium">Medium *</label><select id="sageRegMedium" required><option value="">Select medium</option><option>English</option><option>Marathi</option><option>Semi English</option></select></div>
             <div class="field"><label for="sageRegWhatsapp">WhatsApp number (student or parent) *</label><input id="sageRegWhatsapp" type="tel" inputmode="numeric" pattern="[6-9][0-9]{9}" placeholder="10-digit number" autocomplete="off" required></div>
+            <div class="field"><label for="sageRegPassword">Set password for the student (optional)</label><input id="sageRegPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Leave blank: student activates with OTP"></div>
+            <div class="field"><label for="sageRegPasswordConfirm">Confirm password</label><input id="sageRegPasswordConfirm" type="password" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Type it again"></div>
+            <div class="field full"><small style="color:#7f90a6">If you set a password (10+ characters, a capital letter, a small letter and a number), the account is active at once and the student signs in with the Login ID and this password. Tell the student the password yourself; it is not shown again or sent on WhatsApp.</small></div>
             <div class="field full"><label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#c5d0df"><input id="sageRegConfirm" type="checkbox" style="width:auto;margin-top:2px"> I have confirmed this WhatsApp number with the student or parent. (No OTP is sent — the congratulation message with the Login ID goes to this number immediately.)</label></div>
             <div class="field full"><div id="sageRegMessage" class="message" role="alert"></div></div>
             <div class="form-actions" style="grid-column:1/-1;margin-top:4px"><button type="reset" class="secondary-btn">Clear</button><button type="submit" class="primary-btn" id="sageRegSubmit">Register &amp; send WhatsApp</button></div>
@@ -4570,6 +4573,12 @@ async function sageRegSubmit(event) {
     taluka: sel("sageRegTaluka"), talukaCode: v("sageRegTaluka"), board: v("sageRegBoard"), medium: v("sageRegMedium"),
     whatsappNumber: v("sageRegWhatsapp"), confirmNumber: document.getElementById("sageRegConfirm").checked,
   };
+  const pw = document.getElementById("sageRegPassword").value, pw2 = document.getElementById("sageRegPasswordConfirm").value;
+  if (pw || pw2) {
+    if (pw !== pw2) return sageRegMessage("The two passwords do not match.", "error");
+    if (pw.length < 10 || pw.length > 128 || !/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/[0-9]/.test(pw)) return sageRegMessage("Use at least 10 characters, including a capital letter, a small letter and a number.", "error");
+    payload.password = pw; payload.passwordConfirm = pw2;
+  }
   if (!payload.studentName || !payload.studentClass || !payload.schoolName || !payload.district || !payload.taluka || !payload.board || !payload.medium) return sageRegMessage("Please complete all required fields.", "error");
   if (!/^[6-9][0-9]{9}$/.test(payload.whatsappNumber)) return sageRegMessage("Enter a valid 10-digit Indian WhatsApp number starting with 6, 7, 8 or 9.", "error");
   if (!payload.confirmNumber) return sageRegMessage("Tick the box to confirm the WhatsApp number with the student or parent.", "error");
@@ -4589,8 +4598,7 @@ async function sageRegSubmit(event) {
     }
     if (!data?.success) throw new Error(data?.error || "Registration failed.");
     sageRegShowResult(data);
-    document.getElementById("sageRegForm").reset();
-  } catch (err) {
+    document.getElementById("sageRegForm").reset();  } catch (err) {
     sageRegMessage(err instanceof Error ? err.message : "Registration failed.", "error");
   } finally {
     button.disabled = false; button.textContent = "Register & send WhatsApp";
@@ -4636,7 +4644,9 @@ function sageWireActivation(box) {
 }
 function sageRegShowResult(r) {
   const box = document.getElementById("sageRegResult");
-  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}${sageActivationBlock(r)}`;
+  box.innerHTML = `<strong>Registered: ${escapeHtml(r.studentName)}</strong><br>Login ID: <strong id="sageRegLoginId" style="font-size:16px;color:#e5c96e">${escapeHtml(r.loginId)}</strong> · WhatsApp ${escapeHtml(r.whatsappNumber)}<br>${escapeHtml(sageWa(r.welcomeMessageStatus, "Congratulation"))}${r.passwordSetByAdmin
+    ? `<div class="sage-link-box"><strong>Password set by you.</strong> ${escapeHtml(r.studentName)} can sign in now with Login ID <b>${escapeHtml(r.loginId)}</b> and the password you set. No OTP or activation is needed. Tell the student the password yourself.</div>`
+    : sageActivationBlock(r)}`;
   box.hidden = false;
   sageWireActivation(box);
   sageRegListLoaded = false; // the list refreshes next time it is opened
