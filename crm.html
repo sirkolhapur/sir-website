@@ -49,7 +49,7 @@ main{max-width:1200px;margin:0 auto;padding:18px}
 .tab.on{background:linear-gradient(120deg,var(--gold),var(--gold2));color:var(--navy)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
 .card h3{font-size:15px;margin-bottom:10px}
-.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
 .lead{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#0b1c32;margin-bottom:8px;cursor:pointer}
 .lead:hover{border-color:rgba(217,183,91,.45)}
 .lead b{color:#fff}.lead small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
@@ -57,6 +57,8 @@ main{max-width:1200px;margin:0 auto;padding:18px}
 .pill{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.08);color:#c9d3e3}
 .pill.new{background:rgba(79,209,255,.14);color:#9fe3ff}.pill.contacted{background:rgba(240,180,76,.16);color:#f6c77a}.pill.processing{background:rgba(139,92,246,.18);color:#c4b5fd}
 .pill.approved{background:rgba(52,199,123,.18);color:#7ee2a8}.pill.rejected{background:rgba(239,107,107,.16);color:#f3a0a0}.pill.closed{color:var(--muted)}
+.pill.interested{background:rgba(52,199,123,.18);color:#7ee2a8}.pill.maybe{background:rgba(240,180,76,.16);color:#f6c77a}.pill.not_interested{background:rgba(239,107,107,.16);color:#f3a0a0}
+.ask{font-size:12.5px;color:var(--muted);margin-top:6px}.btn.danger{border-color:rgba(239,107,107,.5);color:#f3a0a0}
 .pill.hot{background:rgba(239,107,107,.2);color:#f3a0a0}.pill.warm{background:rgba(240,180,76,.16);color:#f6c77a}.pill.cold{color:var(--muted)}
 .due{color:var(--amber);font-weight:700}.over{color:var(--red);font-weight:800}
 .empty{border:1px dashed rgba(255,255,255,.15);border-radius:12px;padding:24px;text-align:center;color:var(--muted)}
@@ -84,7 +86,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}th{text-align:left;co
 .script p,.script li{color:#c9d3e3;line-height:1.7;font-size:14px}.script ol{padding-left:20px}.script h3{margin-top:10px}
 .warnbox{background:rgba(240,180,76,.1);border:1px solid rgba(240,180,76,.35);color:#f6c77a;border-radius:10px;padding:9px 12px;font-size:13px;margin:8px 0}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;background:#101b2d;border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-weight:600}
-@media(max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr}.lead{grid-template-columns:1fr auto}.lead .mid{display:none}.grid2{grid-template-columns:1fr}}
+@media(max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:1fr 1fr}header{flex-wrap:wrap}.lead{grid-template-columns:1fr auto}.lead .mid{display:none}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -104,7 +106,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}th{text-align:left;co
 </div>
 
 <div id="appView" class="hide">
-  <header><div class="brand">SIR<span>CRM</span></div><div class="who"><b id="meName"></b><small id="meRole"></small></div><button class="btn sm" id="logoutBtn">Sign out</button></header>
+  <header><div class="brand">SIR<span>CRM</span></div><div class="who"><b id="meName"></b><small id="meRole"></small></div><button class="btn sm hide" id="remindBtn">🔔 Turn on reminders</button><button class="btn sm" id="logoutBtn">Sign out</button></header>
   <main>
     <div class="kpis" id="kpis"></div>
     <div class="tabs" id="tabs"></div>
@@ -128,8 +130,10 @@ const OPEN = ["new", "contacted", "processing"];
 const SOURCES = [["website", "Website form"], ["walk_in", "Walk-in"], ["phone", "Phone call"], ["whatsapp", "WhatsApp"], ["talent_hunt", "SAGE Talent Hunt"], ["school_event", "School event"], ["referral", "Referral"], ["social_ads", "Instagram / Facebook ad"], ["other", "Other"]];
 const SOURCE = Object.fromEntries(SOURCES);
 const OUTCOMES = [["connected", "Connected"], ["call_back", "Call back later"], ["not_answered", "Not answered"], ["switched_off", "Switched off / busy"], ["wrong_number", "Wrong number"], ["not_interested", "Not interested"]];
+const INTEREST = [["interested", "Interested"], ["maybe", "Thinking / maybe"], ["not_interested", "Not interested"]];
+const INT = Object.fromEntries(INTEREST);
 const LOST = ["Fees too high", "Distance / location", "Joined another institute", "Batch timing", "Not serious / just enquiry", "Will join next year", "Other"];
-const S = { me: null, leads: [], counsellors: [], tab: "today", f: { stage: "open", source: "", who: "", q: "" } };
+const S = { me: null, leads: [], counsellors: [], tab: "today", f: { stage: "open", source: "", interest: "", who: "", q: "" }, hasInterest: false };
 
 function toast(m) { const t = $("toast"); t.textContent = m; t.classList.remove("hide"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add("hide"), 3000); }
 const fmt = (v) => v ? new Date(v).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "—";
@@ -149,7 +153,7 @@ async function enter() {
   S.me = data;
   $("meName").textContent = data.full_name; $("meRole").textContent = data.designation || (data.role === "admin" ? "Admin" : data.role);
   $("loginView").classList.add("hide"); $("appView").classList.remove("hide");
-  await load(); paint();
+  await load(); paint(); startReminders();
 }
 $("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault(); $("loginErr").classList.add("hide"); $("loginBtn").disabled = true;
@@ -159,7 +163,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   if (error) return showLogin("Wrong Login ID or password.");
   $("loginPassword").value = ""; enter();
 });
-$("logoutBtn").onclick = async () => { await sb.auth.signOut(); S.me = null; showLogin(); };
+$("logoutBtn").onclick = async () => { stopReminders(); await sb.auth.signOut(); S.me = null; S.leads = []; $("view").innerHTML = ""; $("drawer").innerHTML = ""; $("drawer").classList.add("hide"); showLogin(); };
 sb.auth.getSession().then(({ data }) => { if (data?.session) enter(); });
 
 // ------------------------------------------------------------- data
@@ -168,8 +172,10 @@ async function load() {
     sb.from("admissions").select("*").order("created_at", { ascending: false }).limit(2000),
     sb.rpc("crm_counsellors"),
   ]);
-  if (l.error) { toast("Could not load enquiries: " + l.error.message); S.leads = []; } else S.leads = l.data || [];
+  if (l.error) toast("Could not load enquiries: " + l.error.message); else S.leads = l.data || [];   // keep the last list on a failed refresh
   S.counsellors = c.data || [];
+  // The interest columns arrive with the database update; hide the controls until then.
+  if (S.leads.length) S.hasInterest = "interest" in S.leads[0];
 }
 
 // ------------------------------------------------------------ views
@@ -192,7 +198,7 @@ function paint() {
 }
 function row(l) {
   const fu = l.next_follow_up_at ? `<span class="${overdue(l) ? "over" : isToday(l.next_follow_up_at) ? "due" : ""}">${overdue(l) ? "Overdue · " : ""}${fmt(l.next_follow_up_at)}</span>` : "no follow-up set";
-  return `<div class="lead" data-open="${esc(l.id)}"><div><b>${esc(l.student_name)}</b> ${l.priority !== "normal" ? `<span class="pill ${esc(l.priority)}">${esc(l.priority)}</span>` : ""}
+  return `<div class="lead" data-open="${esc(l.id)}"><div><b>${esc(l.student_name)}</b> ${l.priority !== "normal" ? `<span class="pill ${esc(l.priority)}">${esc(l.priority)}</span>` : ""} ${l.interest ? `<span class="pill ${esc(l.interest)}">${esc(INT[l.interest] || l.interest)}</span>` : ""}
     <small>${esc([l.student_class, l.course_interest, SOURCE[l.source]].filter(Boolean).join(" · "))}</small></div>
     <div class="mid"><span class="pill ${esc(l.status)}">${esc(STAGE[l.status] || l.status)}</span><small>Last contact ${ago(l.last_contacted_at)}</small></div>
     <div class="mid"><small>Follow-up</small>${fu}${isLead() ? `<small>${esc(nameOf(l.assigned_to))}</small>` : ""}</div>
@@ -213,10 +219,11 @@ function vToday() {
 const sec = (t, list, emptyMsg) => `<div class="card"><h3>${t} <span class="pill">${list.length}</span></h3>${list.length ? list.map(row).join("") : `<div class="empty">${emptyMsg}</div>`}</div>`;
 function vAll() {
   const f = S.f;
-  let list = S.leads.filter((l) => (f.stage === "open" ? OPEN.includes(l.status) : !f.stage || l.status === f.stage) && (!f.source || l.source === f.source) && (!f.who || (f.who === "none" ? !l.assigned_to : l.assigned_to === f.who)) &&
+  let list = S.leads.filter((l) => (f.stage === "open" ? OPEN.includes(l.status) : !f.stage || l.status === f.stage) && (!f.source || l.source === f.source) && (!f.interest || (f.interest === "none" ? !l.interest : l.interest === f.interest)) && (!f.who || (f.who === "none" ? !l.assigned_to : l.assigned_to === f.who)) &&
     (!f.q || `${l.student_name} ${l.parent_name || ""} ${l.phone || ""} ${l.school_name || ""}`.toLowerCase().includes(f.q.toLowerCase())));
   return `<div class="filters"><label>Stage<select data-f="stage"><option value="open"${f.stage === "open" ? " selected" : ""}>Open (New, Contacted, Demo)</option><option value=""${!f.stage ? " selected" : ""}>All</option>${STAGES.map(([v, l]) => `<option value="${v}"${f.stage === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
     <label>Source<select data-f="source"><option value="">All sources</option>${SOURCES.map(([v, l]) => `<option value="${v}"${f.source === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    ${S.hasInterest ? `<label>Interest<select data-f="interest"><option value="">Any</option><option value="none"${f.interest === "none" ? " selected" : ""}>Not asked yet</option>${INTEREST.map(([v, l]) => `<option value="${v}"${f.interest === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
     ${isLead() ? `<label>Counsellor<select data-f="who"><option value="">Everyone</option><option value="none"${f.who === "none" ? " selected" : ""}>Unassigned</option>${S.counsellors.map((c) => `<option value="${esc(c.id)}"${f.who === c.id ? " selected" : ""}>${esc(c.full_name)}</option>`).join("")}</select></label>` : "<span></span>"}
     <label>Search<input data-f="q" value="${esc(f.q)}" placeholder="Name, phone, school"></label></div>` +
     (list.length ? list.map(row).join("") : `<div class="empty">No enquiries match.</div>`);
@@ -282,11 +289,12 @@ async function openLead(id) {
     <div class="facts"><span class="pill ${esc(l.status)}">${esc(STAGE[l.status])}</span><span>📞 ${esc(l.phone || "—")}</span>${l.email ? `<span>✉ ${esc(l.email)}</span>` : ""}<span>Source: ${esc(SOURCE[l.source] || l.source)}</span><span>Received ${fmt(l.created_at)}</span>${isLead() ? `<span>Counsellor: ${esc(nameOf(l.assigned_to))}</span>` : ""}</div>
     ${l.message ? `<div class="card" style="padding:12px"><small style="color:var(--muted)">Enquiry message</small><p>${esc(l.message)}</p></div>` : ""}
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${l.phone ? `<a class="btn gold" href="tel:${esc(l.phone)}">📞 Call now</a>` : ""}${!l.assigned_to && S.me.role === "counsellor" ? `<button class="btn" data-pick="${esc(l.id)}">Take this enquiry</button>` : ""}</div>
-    <form class="card" id="callForm"><h3>Log a call</h3><div class="outcomes">${OUTCOMES.map(([v, t]) => `<button type="button" data-outcome="${v}">${t}</button>`).join("")}</div>
-      <label>Note<textarea name="note" maxlength="2000" placeholder="What was discussed"></textarea></label>
-      <label style="margin-top:8px">Next follow-up<input name="next" type="datetime-local" value="${l.next_follow_up_at ? toLocal(l.next_follow_up_at) : ""}"></label>
+    <form class="card" id="callForm"><h3>After the call — save what happened</h3><div class="ask">How did the call go?</div><div class="outcomes">${OUTCOMES.filter(([v]) => !(S.hasInterest && v === "not_interested")).map(([v, t]) => `<button type="button" data-outcome="${v}">${t}</button>`).join("")}</div>
+      ${S.hasInterest ? `<div class="ask">Is the student interested?</div><div class="outcomes">${INTEREST.map(([v, t]) => `<button type="button" data-interest="${v}">${t}</button>`).join("")}</div>` : ""}
+      <label>Note — what was discussed<textarea name="note" maxlength="2000" placeholder="What they said, doubts, fees, timing…"></textarea></label>
+      <label style="margin-top:8px">Next contact date and time<input name="next" type="datetime-local" value="${l.next_follow_up_at && new Date(l.next_follow_up_at) > new Date() ? toLocal(l.next_follow_up_at) : ""}"></label>
       <div class="quick"><button type="button" data-in="2h">+2 hours</button><button type="button" data-in="tom">Tomorrow 10 am</button><button type="button" data-in="3d">In 3 days</button><button type="button" data-in="7d">In a week</button><button type="button" data-in="none">No follow-up</button></div>
-      <button class="btn gold" type="submit" style="margin-top:8px">Save call</button></form>
+      <button class="btn gold" type="submit" style="margin-top:8px">Save</button></form>
     <div class="card"><h3>WhatsApp</h3>${p ? `<div class="wa">${T.map(([t, m]) => `<a target="_blank" rel="noopener" href="https://wa.me/${esc(p)}?text=${hi(m)}" data-wa="${esc(t)}">${esc(t)} ↗</a>`).join("")}</div>` : '<div class="empty">No phone number.</div>'}</div>
     <form class="card" id="editForm"><h3>Stage & details</h3><div class="grid2">
       <label>Stage<select name="status">${STAGES.map(([v, t]) => `<option value="${v}"${v === l.status ? " selected" : ""}>${t}</option>`).join("")}</select></label>
@@ -298,7 +306,8 @@ async function openLead(id) {
       ${isLead() ? `<label>Counsellor<select name="assigned_to"><option value="">Unassigned</option>${S.counsellors.map((c) => `<option value="${esc(c.id)}"${c.id === l.assigned_to ? " selected" : ""}>${esc(c.full_name)} (${c.open_leads} open)</option>`).join("")}</select></label>` : ""}
       <label style="grid-column:1/-1">Add a note<input name="note" maxlength="2000" placeholder="Optional note for the timeline"></label></div>
       <button class="btn gold" type="submit" style="margin-top:10px">Save</button></form>
-    <div class="card"><h3>Timeline</h3><div class="timeline">${(acts || []).map((a) => `<div class="ev ${esc(a.kind)}"><b>${esc(evTitle(a))}</b>${a.note ? `<div>${esc(a.note)}</div>` : ""}<small>${fmt(a.created_at)} · ${esc(a.actor_name || "")}</small></div>`).join("") || '<div class="empty">No activity yet.</div>'}</div></div></div>`;
+    <div class="card"><h3>Timeline</h3><div class="timeline">${(acts || []).map((a) => `<div class="ev ${esc(a.kind)}"><b>${esc(evTitle(a))}</b>${a.interest ? ` <span class="pill ${esc(a.interest)}">${esc(INT[a.interest] || a.interest)}</span>` : ""}${a.note ? `<div>${esc(a.note)}</div>` : ""}<small>${fmt(a.created_at)} · ${esc(a.actor_name || "")}</small></div>`).join("") || '<div class="empty">No activity yet.</div>'}</div></div>
+    ${S.me.role === "admin" ? `<button class="btn sm danger" data-delete="${esc(l.id)}">Delete this enquiry (test / duplicate)</button>` : ""}</div>`;
   d.dataset.id = id;
 }
 function evTitle(a) {
@@ -318,10 +327,86 @@ function quickTime(k) {
 }
 async function refreshAfter(id) { await load(); paint(); if (id) openLead(id); }
 
+// ------------------------------------------------------------ reminders
+// Browser notifications while the CRM is open (a tab in the background is enough).
+let remindTimer = null, loadedAt = 0, swReady = Promise.resolve(null);
+const baseTitle = document.title;
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private window */ } },
+};
+const seenNow = new Set();
+const canNotify = () => "Notification" in window;
+function paintRemindBtn() {
+  const b = $("remindBtn"); if (!canNotify()) return b.classList.add("hide");
+  b.classList.remove("hide");
+  const p = Notification.permission;
+  b.textContent = p === "granted" ? "🔔 Reminders on" : p === "denied" ? "🔕 Reminders blocked" : "🔔 Turn on reminders";
+}
+async function notify(title, body, leadId) {
+  if (!canNotify() || Notification.permission !== "granted") return;
+  const opts = { body, tag: "sir-crm-" + (leadId || "summary"), icon: "sir-logo.png", data: { leadId: leadId || null } };
+  try {
+    const reg = await swReady;
+    if (reg) return await reg.showNotification(title, opts);
+    const n = new Notification(title, opts);
+    n.onclick = () => { window.focus(); if (leadId) openLead(leadId); n.close(); };
+  } catch { /* some mobile browsers refuse; the on-screen list still shows it */ }
+}
+function checkReminders() {
+  if (!S.me) return;
+  const mine = S.leads.filter((l) => (isLead() || l.assigned_to === S.me.staff_id) && OPEN.includes(l.status) && l.next_follow_up_at);
+  const due = mine.filter((l) => new Date(l.next_follow_up_at) <= new Date());
+  const today = mine.filter((l) => isToday(l.next_follow_up_at) || overdue(l));
+  document.title = due.length ? `(${due.length}) ${baseTitle}` : baseTitle;
+  const key = "sirCrmReminded:" + (S.me.staff_id || "admin"), day = new Date().toDateString();
+  let done = store.get(key); if (!done || done.day !== day) done = { day, ids: [], summary: false };
+  const granted = canNotify() && Notification.permission === "granted";
+  if (!done.summary && today.length && !seenNow.has("summary")) {
+    seenNow.add("summary");
+    const text = `${today.length} follow-up${today.length > 1 ? "s" : ""} to do today`;
+    toast("🔔 " + text);
+    if (granted) { notify("SIR CRM", text + ". Open the Today tab."); done.summary = true; }
+  }
+  const fresh = due.filter((l) => { const k = l.id + "|" + l.next_follow_up_at; return isToday(l.next_follow_up_at) && !done.ids.includes(k) && !seenNow.has(k); });
+  fresh.forEach((l) => { const k = l.id + "|" + l.next_follow_up_at; seenNow.add(k); if (granted) done.ids.push(k); });
+  if (fresh.length > 3) { toast(`🔔 ${fresh.length} follow-ups are due now`); notify("SIR CRM", `${fresh.length} follow-ups are due now`); }
+  else fresh.forEach((l) => { toast("🔔 Follow up now: " + l.student_name); notify("Follow up now: " + l.student_name, [l.phone, l.student_class, l.interest && INT[l.interest]].filter(Boolean).join(" · "), l.id); });
+  store.set(key, done);
+}
+async function tick() {
+  if (!S.me) return;
+  if (Date.now() - loadedAt > 5 * 60000) {
+    loadedAt = Date.now();
+    const before = new Set(S.leads.map((l) => l.id));
+    await load(); if (!S.me) return;
+    const added = before.size ? S.leads.filter((l) => !before.has(l.id)).length : 0;
+    // Never redraw under someone who is typing.
+    if (S.tab !== "add" && !document.activeElement?.matches("input,textarea,select")) paint();
+    if (added) { toast(`${added} new enquir${added > 1 ? "ies" : "y"}`); notify("SIR CRM", `${added} new enquir${added > 1 ? "ies" : "y"}`); }
+  }
+  checkReminders();
+}
+function startReminders() {
+  stopReminders(); loadedAt = Date.now(); paintRemindBtn();
+  // showNotification needs an active worker (required on Android phones).
+  if ("serviceWorker" in navigator) swReady = navigator.serviceWorker.register("crm-sw.js", { scope: "./crm.html" })
+    .then((r) => r.active ? r : new Promise((ok) => { const w = r.installing || r.waiting; if (!w) return ok(null); w.addEventListener("statechange", () => { if (w.state === "activated") ok(r); else if (w.state === "redundant") ok(null); }); })).catch(() => null);
+  checkReminders(); remindTimer = setInterval(tick, 30000);
+}
+function stopReminders() { clearInterval(remindTimer); remindTimer = null; seenNow.clear(); document.title = baseTitle; }
+$("remindBtn").onclick = async () => {
+  if (Notification.permission === "denied") return toast("Allow notifications for this site in the browser settings.");
+  if (Notification.permission !== "granted") await Notification.requestPermission();
+  paintRemindBtn();
+  if (Notification.permission === "granted") { notify("SIR CRM", "Reminders are on. Keep the CRM open to receive them."); seenNow.clear(); checkReminders(); }
+};
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", (e) => { if (S.me && e.data?.leadId) openLead(e.data.leadId); });
+
 // ------------------------------------------------------------ events
 document.addEventListener("click", async (e) => {
   if (e.target.closest("[data-stop]")) { const a = e.target.closest("[data-stop]"); if (a.textContent === "WA") logActivity(a.closest("[data-open]").dataset.open, "whatsapp", "opened chat", null, false); return; }
-  const t = e.target.closest("[data-tab],[data-go],[data-open],[data-close],[data-outcome],[data-in],[data-pick],[data-wa]");
+  const t = e.target.closest("[data-tab],[data-go],[data-open],[data-close],[data-outcome],[data-in],[data-pick],[data-wa],[data-interest],[data-delete]");
   if (!t) { if (e.target.id === "drawer") $("drawer").classList.add("hide"); return; }
   if (t.dataset.tab) { S.tab = t.dataset.tab; return paint(); }
   if (t.dataset.go) { S.tab = t.dataset.go; if (t.dataset.go === "all") S.f.stage = "open"; return paint(); }
@@ -330,6 +415,11 @@ document.addEventListener("click", async (e) => {
   if (t.dataset.outcome) { document.querySelectorAll("[data-outcome]").forEach((b) => b.classList.toggle("on", b === t)); const f = $("callForm"); f.dataset.outcome = t.dataset.outcome;
     const def = { not_answered: "2h", switched_off: "2h", call_back: "tom", connected: "3d", wrong_number: "none", not_interested: "none" }[t.dataset.outcome]; f.next.value = quickTime(def); return; }
   if (t.dataset.in) { $("callForm").next.value = quickTime(t.dataset.in); return; }
+  if (t.dataset.interest) { const f = $("callForm"); const same = f.dataset.interest === t.dataset.interest; f.dataset.interest = same ? "" : t.dataset.interest;
+    f.querySelectorAll("[data-interest]").forEach((b) => b.classList.toggle("on", !same && b === t)); if (!same && t.dataset.interest === "not_interested") f.next.value = ""; return; }
+  if (t.dataset.delete) { const l = S.leads.find((x) => x.id === t.dataset.delete); if (!l || !confirm(`Delete the enquiry of ${l.student_name} (${l.phone})? Its notes and timeline are deleted too. This cannot be undone.`)) return;
+    const r = await sb.from("admissions").delete().eq("id", l.id).select("id"); if (r.error || !r.data?.length) return toast(r.error?.message || "Not deleted.");
+    $("drawer").classList.add("hide"); toast("Enquiry deleted"); return refreshAfter(); }
   if (t.dataset.pick) { const r = await sb.from("admissions").update({ assigned_to: S.me.staff_id }).eq("id", t.dataset.pick); if (r.error) return toast(r.error.message); toast("Enquiry is yours now"); return refreshAfter(t.dataset.pick); }
   if (t.dataset.wa) { logActivity($("drawer").dataset.id, "whatsapp", t.dataset.wa, null, true); }
 });
@@ -343,12 +433,19 @@ document.addEventListener("submit", async (e) => {
   if (f.id === "callForm") {
     e.preventDefault();
     if (!f.dataset.outcome) return toast("Choose how the call went.");
+    const talked = ["connected", "call_back"].includes(f.dataset.outcome), interest = f.dataset.interest || "";
+    if (S.hasInterest && f.dataset.outcome === "connected" && !interest) return toast("Choose whether the student is interested.");
+    let lost = f.dataset.outcome === "not_interested";
+    if (interest === "not_interested") lost = confirm("Not interested: move this enquiry to Lost?\n\nOK = Lost.  Cancel = keep it open.");
+    if (talked && !lost && !f.next.value && !confirm("No next contact date is set. Save anyway?")) return;
     const uid = (await sb.auth.getUser()).data.user.id;
-    const a = await sb.from("admission_activities").insert({ admission_id: id, kind: "call", outcome: f.dataset.outcome, note: f.note.value.trim() || null, actor_user_id: uid });
+    const entry = { admission_id: id, kind: "call", outcome: f.dataset.outcome, note: f.note.value.trim() || null, actor_user_id: uid };
+    if (interest) entry.interest = interest;
+    const a = await sb.from("admission_activities").insert(entry);
     if (a.error) return toast(a.error.message);
     const patch = { next_follow_up_at: f.next.value ? new Date(f.next.value).toISOString() : null };
     if (S.me.role === "counsellor" && !S.leads.find((x) => x.id === id)?.assigned_to) patch.assigned_to = S.me.staff_id;   // working on it = taking it
-    if (f.dataset.outcome === "not_interested") Object.assign(patch, { status: "rejected", lost_reason: "Not serious / just enquiry" });
+    if (lost) Object.assign(patch, { status: "rejected", lost_reason: "Not serious / just enquiry", next_follow_up_at: null });
     if (f.dataset.outcome === "wrong_number") Object.assign(patch, { status: "closed" });
     const r = await sb.from("admissions").update(patch).eq("id", id);
     if (r.error) return toast(r.error.message);
