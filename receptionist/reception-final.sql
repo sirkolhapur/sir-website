@@ -104,7 +104,7 @@ begin
    raise exception 'Enquiry not found or already finalized' using errcode='22023';
  end if;
  v_outcome:=p_record->>'outcome';
- if v_outcome not in ('connected','call_back','not_answered','switched_off','wrong_number','not_interested') then
+ if v_outcome is null or v_outcome not in ('connected','call_back','not_answered','switched_off','wrong_number','not_interested') then
    raise exception 'Invalid call outcome' using errcode='22023';
  end if;
  select m.full_name into v_actor_name from public.staff_members m where m.id=public.sir_reception_require();
@@ -219,7 +219,7 @@ begin
      select st.full_name,st.student_uid from public.students st
      where st.is_active=true
        and (lower(st.student_uid)=lower(v_query)
-         or (length(regexp_replace(v_query,'[^0-9]','','g'))>=10
+         or (v_query ~ '^\+?[0-9 ()-]+$' and length(regexp_replace(v_query,'[^0-9]','','g')) between 10 and 15
              and regexp_replace(coalesce(st.phone,''),'[^0-9]','','g')=
                  regexp_replace(v_query,'[^0-9]','','g')))
      order by st.student_uid limit 5
