@@ -1,6 +1,0 @@
--- SUPERSEDED: DO NOT EXECUTE.
--- Initial draft incorrectly assumed public.staff and duplicate CRM tables.
--- Existing SIR uses public.staff_members, public.staff_designations,
--- public.admissions and public.admission_activities.
--- See receptionist/INTEGRATION.md for verified architecture.
--- No SQL is intentionally executed by this file.
